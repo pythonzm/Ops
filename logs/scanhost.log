@@ -1,0 +1,343 @@
+INFO 2018-06-17 14:33:46 scan_hosts 开始扫描
+INFO 2018-06-17 14:33:52 scan_linux 10.1.19.10 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:33:52 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:33:57 scan_linux 10.1.19.113 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:34:02 scan_linux 10.1.19.144 扫描失败，原因：timed out
+INFO 2018-06-17 14:52:21 scan_hosts 开始扫描
+INFO 2018-06-17 14:52:28 scan_linux 10.1.19.10 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:52:28 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:52:33 scan_linux 10.1.19.113 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:52:38 scan_linux 10.1.19.144 扫描失败，原因：timed out
+INFO 2018-06-17 14:52:43 scan_linux 10.1.19.145 扫描失败，原因：timed out
+INFO 2018-06-17 14:52:43 scan_linux 10.1.19.146 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:52:48 scan_linux 10.1.19.148 扫描失败，原因：timed out
+INFO 2018-06-17 14:52:48 scan_linux 10.1.19.152 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:52:48 scan_linux 10.1.19.183 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:52:53 scan_linux 10.1.19.2 扫描失败，原因：timed out
+INFO 2018-06-17 14:52:58 scan_linux 10.1.19.214 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:03 scan_linux 10.1.19.215 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:08 scan_linux 10.1.19.253 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:53:08 scan_linux 10.1.19.254 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:53:13 scan_linux 10.1.19.46 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:13 scan_linux 10.1.19.47 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:53:18 scan_linux 10.1.19.48 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:23 scan_linux 10.1.19.49 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:28 scan_linux 10.1.19.50 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:33 scan_linux 10.1.19.51 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:33 scan_linux 10.1.19.52 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:53:38 scan_linux 10.1.19.53 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:43 scan_linux 10.1.19.54 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:53:48 scan_linux 10.1.19.55 扫描失败，原因：timed out
+INFO 2018-06-17 14:53:53 scan_linux 10.1.19.57 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:53:58 scan_linux 10.1.19.60 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:54:03 scan_linux 10.1.19.62 扫描失败，原因：timed out
+INFO 2018-06-17 14:54:08 scan_linux 10.1.19.63 扫描失败，原因：timed out
+INFO 2018-06-17 14:54:13 scan_linux 10.1.19.65 扫描失败，原因：timed out
+INFO 2018-06-17 14:54:18 scan_linux 10.1.19.68 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:54:23 scan_linux 10.1.19.69 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:54:28 scan_linux 10.1.19.86 扫描失败，原因：timed out
+INFO 2018-06-17 14:54:33 scan_linux 10.1.19.92 扫描失败，原因：timed out
+INFO 2018-06-17 14:54:33 scan_linux 10.1.19.93 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:54:33 scan_linux 10.1.19.99 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:54:33 scan_linux 获取Linux主机结束，开始尝试连接主机获取数据
+ERROR 2018-06-17 14:54:35 get_results 初始化连接10.1.19.10失败，原因：Authentication failed.
+INFO 2018-06-17 14:54:35 get_results 初始化连接10.1.19.10成功
+INFO 2018-06-17 14:54:36 get_results 获取10.1.19.10的 cpu_counts 数据完成！
+INFO 2018-06-17 14:54:36 get_results 获取10.1.19.10的 cpu_model 数据完成！
+INFO 2018-06-17 14:54:36 get_results 获取10.1.19.10的 host_type 数据完成！
+INFO 2018-06-17 14:54:36 get_results 获取10.1.19.10的 hostname 数据完成！
+INFO 2018-06-17 14:54:36 get_results 获取10.1.19.10的 mac 数据完成！
+INFO 2018-06-17 14:54:37 get_results 获取10.1.19.10的 manufacturer 数据完成！
+INFO 2018-06-17 14:54:37 get_results 获取10.1.19.10的 server_model 数据完成！
+INFO 2018-06-17 14:54:37 get_results 获取10.1.19.10的 sn 数据完成！
+INFO 2018-06-17 14:54:37 get_results 获取10.1.19.10的 system_ver 数据完成！
+INFO 2018-06-17 14:54:37 get_results 获取10.1.19.10的 total_disk 数据完成！
+INFO 2018-06-17 14:54:37 get_results 获取10.1.19.10的 total_mem 数据完成！
+ERROR 2018-06-17 14:54:40 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:42 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:43 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:43 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:45 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:48 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:49 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:51 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 14:54:53 get_results 初始化连接10.1.19.60失败，原因：Authentication failed.
+INFO 2018-06-17 14:54:53 get_results 初始化连接10.1.19.60成功
+INFO 2018-06-17 14:54:53 get_results 获取10.1.19.60的 cpu_counts 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 cpu_model 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 host_type 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 hostname 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 mac 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 manufacturer 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 server_model 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 sn 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 system_ver 数据完成！
+INFO 2018-06-17 14:54:54 get_results 获取10.1.19.60的 total_disk 数据完成！
+INFO 2018-06-17 14:54:55 get_results 获取10.1.19.60的 total_mem 数据完成！
+ERROR 2018-06-17 14:54:57 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 14:55:08 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 14:55:10 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+ERROR 2018-06-17 14:55:12 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+INFO 2018-06-17 14:55:12 result 获取数据完成！开始保存至扫描数据库！
+ERROR 2018-06-17 14:55:13 result 数据保存出错，原因：(1062, "Duplicate entry '10.1.19.10' for key 'internal_ip'")
+INFO 2018-06-17 14:58:52 scan_hosts 开始扫描
+INFO 2018-06-17 14:58:59 scan_linux 10.1.19.10 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:58:59 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:59:04 scan_linux 10.1.19.113 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:59:09 scan_linux 10.1.19.144 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:14 scan_linux 10.1.19.145 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:14 scan_linux 10.1.19.146 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:59:19 scan_linux 10.1.19.148 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:19 scan_linux 10.1.19.152 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:59:19 scan_linux 10.1.19.183 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:59:24 scan_linux 10.1.19.2 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:29 scan_linux 10.1.19.214 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:34 scan_linux 10.1.19.215 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:39 scan_linux 10.1.19.253 扫描成功,结果是Linux主机
+INFO 2018-06-17 14:59:39 scan_linux 10.1.19.254 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:59:44 scan_linux 10.1.19.46 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:44 scan_linux 10.1.19.47 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 14:59:49 scan_linux 10.1.19.48 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:54 scan_linux 10.1.19.49 扫描失败，原因：timed out
+INFO 2018-06-17 14:59:59 scan_linux 10.1.19.50 扫描失败，原因：timed out
+INFO 2018-06-17 15:00:04 scan_linux 10.1.19.51 扫描失败，原因：timed out
+INFO 2018-06-17 15:00:04 scan_linux 10.1.19.52 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:00:09 scan_linux 10.1.19.53 扫描失败，原因：timed out
+INFO 2018-06-17 15:00:14 scan_linux 10.1.19.54 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:00:19 scan_linux 10.1.19.55 扫描失败，原因：timed out
+INFO 2018-06-17 15:00:24 scan_linux 10.1.19.57 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:00:29 scan_linux 10.1.19.60 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:00:34 scan_linux 10.1.19.62 扫描失败，原因：timed out
+INFO 2018-06-17 15:00:39 scan_linux 10.1.19.63 扫描失败，原因：timed out
+INFO 2018-06-17 15:00:44 scan_linux 10.1.19.65 扫描失败，原因：timed out
+INFO 2018-06-17 15:00:49 scan_linux 10.1.19.68 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:00:54 scan_linux 10.1.19.69 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:00:59 scan_linux 10.1.19.86 扫描失败，原因：timed out
+INFO 2018-06-17 15:01:04 scan_linux 10.1.19.92 扫描失败，原因：timed out
+INFO 2018-06-17 15:01:04 scan_linux 10.1.19.93 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:01:04 scan_linux 10.1.19.99 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:01:04 scan_linux 获取Linux主机结束，开始尝试连接主机获取数据
+ERROR 2018-06-17 15:01:06 get_results 初始化连接10.1.19.10失败，原因：Authentication failed.
+INFO 2018-06-17 15:01:07 get_results 初始化连接10.1.19.10成功
+INFO 2018-06-17 15:01:07 get_results 获取10.1.19.10的 cpu_counts 数据完成！
+INFO 2018-06-17 15:01:07 get_results 获取10.1.19.10的 cpu_model 数据完成！
+INFO 2018-06-17 15:01:07 get_results 获取10.1.19.10的 host_type 数据完成！
+INFO 2018-06-17 15:01:07 get_results 获取10.1.19.10的 hostname 数据完成！
+INFO 2018-06-17 15:01:07 get_results 获取10.1.19.10的 mac 数据完成！
+INFO 2018-06-17 15:01:07 get_results 获取10.1.19.10的 manufacturer 数据完成！
+INFO 2018-06-17 15:01:08 get_results 获取10.1.19.10的 server_model 数据完成！
+INFO 2018-06-17 15:01:08 get_results 获取10.1.19.10的 sn 数据完成！
+INFO 2018-06-17 15:01:08 get_results 获取10.1.19.10的 system_ver 数据完成！
+INFO 2018-06-17 15:01:08 get_results 获取10.1.19.10的 total_disk 数据完成！
+INFO 2018-06-17 15:01:08 get_results 获取10.1.19.10的 total_mem 数据完成！
+ERROR 2018-06-17 15:01:10 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:12 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:13 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:13 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:15 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:17 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:19 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:21 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:23 get_results 初始化连接10.1.19.60失败，原因：Authentication failed.
+INFO 2018-06-17 15:01:23 get_results 初始化连接10.1.19.60成功
+INFO 2018-06-17 15:01:23 get_results 获取10.1.19.60的 cpu_counts 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 cpu_model 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 host_type 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 hostname 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 mac 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 manufacturer 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 server_model 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 sn 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 system_ver 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 total_disk 数据完成！
+INFO 2018-06-17 15:01:24 get_results 获取10.1.19.60的 total_mem 数据完成！
+ERROR 2018-06-17 15:01:36 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:49 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:51 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+ERROR 2018-06-17 15:01:53 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+INFO 2018-06-17 15:01:53 result 获取数据完成！开始保存至扫描数据库！
+INFO 2018-06-17 15:01:53 result 10.1.19.10的数据保存数据库完成！
+INFO 2018-06-17 15:01:53 result 10.1.19.60的数据保存数据库完成！
+INFO 2018-06-17 15:01:53 result 更新scanhosts.yaml文件完成，扫描任务结束
+INFO 2018-06-17 15:02:36 scan_hosts 开始扫描
+INFO 2018-06-17 15:02:37 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:02:42 scan_linux 10.1.19.113 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:02:47 scan_linux 10.1.19.144 扫描失败，原因：timed out
+INFO 2018-06-17 15:02:52 scan_linux 10.1.19.145 扫描失败，原因：timed out
+INFO 2018-06-17 15:02:52 scan_linux 10.1.19.146 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:02:57 scan_linux 10.1.19.148 扫描失败，原因：timed out
+INFO 2018-06-17 15:02:57 scan_linux 10.1.19.152 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:02:57 scan_linux 10.1.19.183 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:03:02 scan_linux 10.1.19.2 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:07 scan_linux 10.1.19.214 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:12 scan_linux 10.1.19.215 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:17 scan_linux 10.1.19.253 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:03:17 scan_linux 10.1.19.254 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:03:22 scan_linux 10.1.19.46 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:22 scan_linux 10.1.19.47 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:03:27 scan_linux 10.1.19.48 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:32 scan_linux 10.1.19.49 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:37 scan_linux 10.1.19.50 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:42 scan_linux 10.1.19.51 扫描失败，原因：timed out
+INFO 2018-06-17 15:03:42 scan_linux 10.1.19.52 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:03:47 scan_linux 10.1.19.53 扫描失败，原因：timed out
+INFO 2018-06-17 15:04:17 scan_hosts 开始扫描
+INFO 2018-06-17 15:04:18 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:05:05 scan_hosts 开始扫描
+INFO 2018-06-17 15:05:12 scan_linux 10.1.19.10 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:05:12 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:05:17 scan_linux 10.1.19.113 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:05:22 scan_linux 10.1.19.144 扫描失败，原因：timed out
+INFO 2018-06-17 15:05:27 scan_linux 10.1.19.145 扫描失败，原因：timed out
+INFO 2018-06-17 15:05:27 scan_linux 10.1.19.146 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:05:32 scan_linux 10.1.19.148 扫描失败，原因：timed out
+INFO 2018-06-17 15:05:32 scan_linux 10.1.19.152 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:05:32 scan_linux 10.1.19.183 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:05:37 scan_linux 10.1.19.2 扫描失败，原因：timed out
+INFO 2018-06-17 15:05:42 scan_linux 10.1.19.214 扫描失败，原因：timed out
+INFO 2018-06-17 15:05:47 scan_linux 10.1.19.215 扫描失败，原因：timed out
+INFO 2018-06-17 15:05:52 scan_linux 10.1.19.253 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:05:52 scan_linux 10.1.19.254 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:05:57 scan_linux 10.1.19.46 扫描失败，原因：timed out
+INFO 2018-06-17 15:05:57 scan_linux 10.1.19.47 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:06:02 scan_linux 10.1.19.48 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:07 scan_linux 10.1.19.49 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:12 scan_linux 10.1.19.50 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:17 scan_linux 10.1.19.51 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:17 scan_linux 10.1.19.52 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:06:22 scan_linux 10.1.19.53 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:27 scan_linux 10.1.19.54 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:06:32 scan_linux 10.1.19.55 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:37 scan_linux 10.1.19.57 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:06:42 scan_linux 10.1.19.60 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:06:47 scan_linux 10.1.19.62 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:52 scan_linux 10.1.19.63 扫描失败，原因：timed out
+INFO 2018-06-17 15:06:57 scan_linux 10.1.19.65 扫描失败，原因：timed out
+INFO 2018-06-17 15:07:02 scan_linux 10.1.19.68 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:07:07 scan_linux 10.1.19.69 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:07:12 scan_linux 10.1.19.86 扫描失败，原因：timed out
+INFO 2018-06-17 15:07:17 scan_linux 10.1.19.92 扫描失败，原因：timed out
+INFO 2018-06-17 15:07:17 scan_linux 10.1.19.93 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:07:17 scan_linux 10.1.19.99 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:07:17 scan_linux 获取Linux主机结束，开始尝试连接主机获取数据
+ERROR 2018-06-17 15:07:19 get_results 初始化连接10.1.19.10失败，原因：Authentication failed.
+INFO 2018-06-17 15:07:19 get_results 初始化连接10.1.19.10成功
+INFO 2018-06-17 15:07:20 get_results 获取10.1.19.10的 cpu_counts 数据完成！
+INFO 2018-06-17 15:07:22 get_results 获取10.1.19.10的 cpu_model 数据完成！
+INFO 2018-06-17 15:07:22 get_results 获取10.1.19.10的 host_type 数据完成！
+INFO 2018-06-17 15:07:22 get_results 获取10.1.19.10的 hostname 数据完成！
+INFO 2018-06-17 15:07:23 get_results 获取10.1.19.10的 mac 数据完成！
+INFO 2018-06-17 15:07:24 get_results 获取10.1.19.10的 manufacturer 数据完成！
+INFO 2018-06-17 15:07:24 get_results 获取10.1.19.10的 server_model 数据完成！
+INFO 2018-06-17 15:07:26 get_results 获取10.1.19.10的 sn 数据完成！
+INFO 2018-06-17 15:07:28 get_results 获取10.1.19.10的 system_ver 数据完成！
+INFO 2018-06-17 15:07:28 get_results 获取10.1.19.10的 total_disk 数据完成！
+INFO 2018-06-17 15:07:29 get_results 获取10.1.19.10的 total_mem 数据完成！
+ERROR 2018-06-17 15:07:32 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:34 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:34 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:35 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:37 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:39 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:41 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:43 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 15:07:45 get_results 初始化连接10.1.19.60失败，原因：Authentication failed.
+INFO 2018-06-17 15:07:45 get_results 初始化连接10.1.19.60成功
+INFO 2018-06-17 15:07:45 get_results 获取10.1.19.60的 cpu_counts 数据完成！
+INFO 2018-06-17 15:07:45 get_results 获取10.1.19.60的 cpu_model 数据完成！
+INFO 2018-06-17 15:07:45 get_results 获取10.1.19.60的 host_type 数据完成！
+INFO 2018-06-17 15:07:45 get_results 获取10.1.19.60的 hostname 数据完成！
+INFO 2018-06-17 15:07:46 get_results 获取10.1.19.60的 mac 数据完成！
+INFO 2018-06-17 15:07:46 get_results 获取10.1.19.60的 manufacturer 数据完成！
+INFO 2018-06-17 15:07:46 get_results 获取10.1.19.60的 server_model 数据完成！
+INFO 2018-06-17 15:07:46 get_results 获取10.1.19.60的 sn 数据完成！
+INFO 2018-06-17 15:07:46 get_results 获取10.1.19.60的 system_ver 数据完成！
+INFO 2018-06-17 15:07:46 get_results 获取10.1.19.60的 total_disk 数据完成！
+INFO 2018-06-17 15:07:46 get_results 获取10.1.19.60的 total_mem 数据完成！
+ERROR 2018-06-17 15:07:58 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 15:08:00 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 15:08:02 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+ERROR 2018-06-17 15:08:05 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+INFO 2018-06-17 15:08:05 result 获取数据完成！开始保存至扫描数据库！
+INFO 2018-06-17 15:08:05 result 10.1.19.10的数据保存数据库完成！
+INFO 2018-06-17 15:08:05 result 10.1.19.60的数据保存数据库完成！
+INFO 2018-06-17 15:08:05 result 更新scanhosts.yaml文件完成，扫描任务结束
+INFO 2018-06-17 15:19:54 scan_hosts 开始扫描
+INFO 2018-06-17 15:20:00 scan_linux 10.1.19.10 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:20:00 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:20:05 scan_linux 10.1.19.113 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:20:10 scan_linux 10.1.19.144 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:15 scan_linux 10.1.19.145 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:15 scan_linux 10.1.19.146 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:20:20 scan_linux 10.1.19.148 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:20 scan_linux 10.1.19.152 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:20:20 scan_linux 10.1.19.183 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:20:25 scan_linux 10.1.19.2 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:30 scan_linux 10.1.19.214 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:35 scan_linux 10.1.19.215 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:40 scan_linux 10.1.19.253 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:20:41 scan_linux 10.1.19.254 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:20:46 scan_linux 10.1.19.46 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:46 scan_linux 10.1.19.47 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:20:51 scan_linux 10.1.19.48 扫描失败，原因：timed out
+INFO 2018-06-17 15:20:56 scan_linux 10.1.19.49 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:01 scan_linux 10.1.19.50 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:06 scan_linux 10.1.19.51 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:06 scan_linux 10.1.19.52 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:21:11 scan_linux 10.1.19.53 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:16 scan_linux 10.1.19.54 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:21:21 scan_linux 10.1.19.55 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:26 scan_linux 10.1.19.57 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:21:31 scan_linux 10.1.19.60 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:21:36 scan_linux 10.1.19.62 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:41 scan_linux 10.1.19.63 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:46 scan_linux 10.1.19.65 扫描失败，原因：timed out
+INFO 2018-06-17 15:21:51 scan_linux 10.1.19.68 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:21:56 scan_linux 10.1.19.69 扫描成功,结果是Linux主机
+INFO 2018-06-17 15:22:01 scan_linux 10.1.19.86 扫描失败，原因：timed out
+INFO 2018-06-17 15:22:06 scan_linux 10.1.19.92 扫描失败，原因：timed out
+INFO 2018-06-17 15:22:06 scan_linux 10.1.19.93 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:22:06 scan_linux 10.1.19.99 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-06-17 15:22:06 scan_linux 获取Linux主机结束，开始尝试连接主机获取数据
+ERROR 2018-06-17 15:22:08 get_results 初始化连接10.1.19.10失败，原因：Authentication failed.
+INFO 2018-06-17 15:22:08 get_results 初始化连接10.1.19.10成功
+INFO 2018-06-17 15:22:08 get_results 获取10.1.19.10的 cpu_counts 数据完成！
+INFO 2018-06-17 15:22:08 get_results 获取10.1.19.10的 cpu_model 数据完成！
+INFO 2018-06-17 15:22:08 get_results 获取10.1.19.10的 host_type 数据完成！
+INFO 2018-06-17 15:22:08 get_results 获取10.1.19.10的 hostname 数据完成！
+INFO 2018-06-17 15:22:08 get_results 获取10.1.19.10的 mac 数据完成！
+INFO 2018-06-17 15:22:08 get_results 获取10.1.19.10的 manufacturer 数据完成！
+INFO 2018-06-17 15:22:08 get_results 获取10.1.19.10的 server_model 数据完成！
+INFO 2018-06-17 15:22:09 get_results 获取10.1.19.10的 sn 数据完成！
+INFO 2018-06-17 15:22:09 get_results 获取10.1.19.10的 system_ver 数据完成！
+INFO 2018-06-17 15:22:09 get_results 获取10.1.19.10的 total_disk 数据完成！
+INFO 2018-06-17 15:22:09 get_results 获取10.1.19.10的 total_mem 数据完成！
+ERROR 2018-06-17 15:22:11 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:13 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:14 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:14 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:17 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:18 get_results 初始化连接10.1.19.54失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:20 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:22 get_results 初始化连接10.1.19.57失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:25 get_results 初始化连接10.1.19.60失败，原因：Authentication failed.
+INFO 2018-06-17 15:22:25 get_results 初始化连接10.1.19.60成功
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 cpu_counts 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 cpu_model 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 host_type 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 hostname 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 mac 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 manufacturer 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 server_model 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 sn 数据完成！
+INFO 2018-06-17 15:22:25 get_results 获取10.1.19.60的 system_ver 数据完成！
+INFO 2018-06-17 15:22:26 get_results 获取10.1.19.60的 total_disk 数据完成！
+INFO 2018-06-17 15:22:26 get_results 获取10.1.19.60的 total_mem 数据完成！
+ERROR 2018-06-17 15:22:28 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:41 get_results 初始化连接10.1.19.68失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:43 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+ERROR 2018-06-17 15:22:45 get_results 初始化连接10.1.19.69失败，原因：Authentication failed.
+INFO 2018-06-17 15:22:45 result 获取数据完成！开始保存至扫描数据库！
+INFO 2018-06-17 15:22:45 result 10.1.19.10的数据保存数据库完成！
+INFO 2018-06-17 15:22:45 result 10.1.19.60的数据保存数据库完成！
+INFO 2018-06-17 15:22:45 result 更新scanhosts.yaml文件完成，扫描任务结束

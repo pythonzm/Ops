@@ -1,0 +1,13 @@
+ERROR 2018-07-07 17:53:33 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 17:55:35 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 17:55:55 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 17:57:52 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:09:26 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:09:50 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:11:41 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:13:40 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:15:02 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:22:58 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:23:37 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:24:26 get_user_detail 更新用户信息失败，原因：Manager isn't accessible via UserProfile instances
+ERROR 2018-07-07 18:33:44 get_user_detail 更新用户信息失败，原因：'UserProfile' object has no attribute 'update'

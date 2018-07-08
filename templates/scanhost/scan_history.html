@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>扫描记录</h1>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- /.box -->
+
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>{{ fields.id }}</th>
+                            <th>{{ fields.internal_ip }}</th>
+                            <th>{{ fields.public_ip }}</th>
+                            <th>{{ fields.hostname }}</th>
+                            <th>{{ fields.host_type }}</th>
+                            <th>{{ fields.sn }}</th>
+                            <th>{{ fields.scan_datetime }}</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for hostinfo in hostinfos %}
+
+                            <tr>
+                                <td>{{ hostinfo.id }}</td>
+                                <td>{{ hostinfo.internal_ip }}</td>
+                                <td>{{ hostinfo.public_ip }}</td>
+                                <td>{{ hostinfo.hostname }}</td>
+                                <td>{{ hostinfo.host_type }}</td>
+                                <td>{{ hostinfo.sn }}</td>
+                                <td>{{ hostinfo.scan_datetime|date:"Y-m-d H:i:s" }}</td>
+                                <td>
+                                    <a href="/scan_host/detail/{{ hostinfo.id }}" style="text-decoration:none;">
+                                        <button type="button" class="btn btn-default"><abbr title="查看详细信息"><i
+                                                class="glyphicon glyphicon-info-sign"></i></abbr></button>
+                                    </a>
+                                    <button type="button" class="btn btn-default" onclick="deleteServer({{ hostinfo.id }})"><i
+                                            class="glyphicon glyphicon-trash"></i></button>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- SlimScroll -->
+    <script src="{% static 'AdminLTE/bower_components/jquery-slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <!-- FastClick -->
+    <script src="{% static 'AdminLTE/bower_components/fastclick/lib/fastclick.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            $('#example1').DataTable();
+        });
+
+        function deleteServer(id) {
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这台服务器么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/api/hostinfo/' + id,
+                            method: 'DELETE',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                            },
+                            success: function () {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'green',
+                                    content: '删除成功！'
+                                })
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        $.alert('cancel');
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
+

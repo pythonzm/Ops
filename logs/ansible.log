@@ -1,0 +1,23 @@
+ERROR 2018-06-30 23:52:39 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_vars'
+ERROR 2018-06-30 23:53:25 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_vars'
+ERROR 2018-06-30 23:54:14 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_vars'
+ERROR 2018-06-30 23:57:28 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_vars'
+ERROR 2018-06-30 23:58:58 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_vars'
+ERROR 2018-07-01 00:00:38 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_vars'
+ERROR 2018-07-01 00:01:29 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_vars'
+ERROR 2018-07-01 02:38:32 run_module 执行shell失败，原因: 'MyInventory' object has no attribute 'get_groups_dict'
+ERROR 2018-07-01 02:39:27 run_module 执行shell失败，原因: 'MyInventory' object has no attribute 'get_groups_dict'
+ERROR 2018-07-01 02:40:43 run_module 执行shell失败，原因: 'MyInventory' object has no attribute 'get_groups_dict'
+ERROR 2018-07-01 02:42:34 run_module 执行shell失败，原因: 'MyInventory' object has no attribute 'get_groups_dict'
+ERROR 2018-07-01 19:19:18 run_module 执行shell失败，原因: expected string or bytes-like object
+ERROR 2018-07-01 19:37:23 run_module 执行shell失败，原因: expected string or bytes-like object
+ERROR 2018-07-01 19:38:17 run_module 执行shell失败，原因: expected string or bytes-like object
+ERROR 2018-07-01 21:01:38 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_basedir'
+ERROR 2018-07-01 23:43:21 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_basedir'
+ERROR 2018-07-01 23:45:38 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_basedir'
+ERROR 2018-07-01 23:49:33 run_module 执行shell失败，原因: expected string or bytes-like object
+ERROR 2018-07-02 01:19:29 run_module 执行shell失败，原因: 'MyInventory' object has no attribute 'get_basedir'
+ERROR 2018-07-02 02:40:49 run_module 执行shell失败，原因: 'NoneType' object has no attribute 'get_basedir'
+ERROR 2018-07-02 03:03:58 run_module 执行shell失败，原因: expected string or bytes-like object
+ERROR 2018-07-02 03:04:15 run_module 执行shell失败，原因: expected string or bytes-like object
+ERROR 2018-07-02 19:33:33 run_module 执行shell失败，原因: expected string or bytes-like object

@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>用户组列表</h1>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- /.box -->
+
+            <div class="box">
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th><label>
+                                <input type="checkbox" class="minimal-red" id="checkAll">
+                            </label></th>
+                            <th>组名称</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in user_list %}
+
+                            <tr id="moduleLog-{{ user.id }}">
+                                <td><label>
+                                    <input type="checkbox" class="minimal" value="{{ user.id }}">
+                                </label></td>
+                                <td>{{ user.username }}</td>
+                                <td>
+                                    {% if user.is_superuser %}
+                                        <span class="label label-success">是</span>
+                                    {% else %}
+                                        <span class="label label-danger">否</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.groups.name }}</td>
+                                <td>
+                                    {% if user.is_superuser %}
+                                        <span class="label label-success">已激活</span>
+                                    {% else %}
+                                        <span class="label label-danger">未激活</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.mobile }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
+                                            data-target="#updateUserModal">更新
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs"
+                                            onclick="deleteServer({{ hostinfo.id }})">删除
+                                    </button>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                    <div class="modal fade" id="updateUserModal" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                            aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="exampleModalLabel">用户信息</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="form-group ">
+                                            <label class="col-sm-2 control-label ">
+                                                用户名称
+                                            </label>
+                                            <div class="col-sm-10">
+                                                <input name="username" class="form-control" type="text" value="">
+                                                <span class="help-block">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label class="col-sm-2 control-label ">
+                                                手机号码
+                                            </label>
+                                            <div class="col-sm-10">
+                                                <input name="mobile" class="form-control" type="number" value="">
+                                            </div>
+                                        </div>
+                                        <div class="form-group horizontal-checkbox ">
+                                            <label class="col-sm-2 control-label ">
+                                                超级管理员
+                                            </label>
+                                            <div class="col-sm-10">
+                                                <input type="checkbox" name="is_superuser" value="true">
+                                                <span class="help-block">超级管理员拥有所有权限</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group horizontal-checkbox ">
+                                            <label class="col-sm-2 control-label ">
+                                                是否激活
+                                            </label>
+                                            <div class="col-sm-10">
+                                                <input type="checkbox" name="is_active" value="true">
+                                                <span class="help-block">是否激活用户</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label ">
+                                                所属组
+                                            </label>
+                                            <div class="col-sm-10">
+                                                <select multiple="" disabled="" class="form-control" name="groups">
+                                                    {% for group in group_list %}
+                                                        <option>group</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <span class="help-block">用户拥有该组的所有权限</span>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Send message</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+                <div class="col-sm-7 pull-left">
+                    <button class="btn btn-sm btn-default pull-left" data-toggle="modal" data-target="#myAddUserModal">
+                        <i class="fa fa-plus"></i>
+                        <span class="bigger-110">新增用户</span>
+                    </button>
+                </div>
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- SlimScroll -->
+    <script src="{% static 'AdminLTE/bower_components/jquery-slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <!-- iCheck 1.0.1 -->
+    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
+    <!-- FastClick -->
+    <script src="{% static 'AdminLTE/bower_components/fastclick/lib/fastclick.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                columnDefs: [{
+                    'targets': [0, -1],
+                    'orderable': false
+                }],
+                "order": [[1, "asc"]]
+            });
+        });
+
+        //iCheck for checkbox inputs
+        $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
+            checkboxClass: 'icheckbox_minimal-blue',
+        });
+
+        //实现全选
+        $(function () {
+            let checkAll = $('#checkAll');
+            let checkboxes = $('input[type="checkbox"]');
+            checkAll.on('ifChecked ifUnchecked', function (event) {
+                if (event.type === 'ifChecked') {
+                    checkboxes.iCheck('check');
+                } else {
+                    checkboxes.iCheck('uncheck');
+                }
+            });
+            checkboxes.on('ifChanged', function () {
+                if (checkboxes.filter(':checked').length === checkboxes.length) {
+                    checkAll.prop('checked', 'checked');
+                } else {
+                    checkAll.removeProp('checked');
+                }
+                checkAll.iCheck('update');
+            });
+        });
+
+        function deleteServer(id) {
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这台服务器么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/api/hostinfo/' + id,
+                            method: 'DELETE',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                            },
+                            success: function () {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'green',
+                                    content: '删除成功！'
+                                })
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        $.alert('cancel');
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
+

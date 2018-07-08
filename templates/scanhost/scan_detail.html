@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>详细信息</h1>
+{% endblock %}
+
+{% block content %}
+    <form class="form-horizontal">
+        {% csrf_token %}
+        <div class="box-body">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">ID</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="id" value="{{ hostinfo.id }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.internal_ip }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="internal_ip" value="{{ hostinfo.internal_ip }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.public_ip }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="public_ip" value="{{ hostinfo.public_ip }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.system_ver }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="system_ver" value="{{ hostinfo.system_ver }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.hostname }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="hostname" value="{{ hostinfo.hostname }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.host_type }}</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="host_type">
+                        {% if hostinfo.host_type == 0 %}
+                            <option value="{{ hostinfo.host_type }}" selected>物理机</option>
+                            <option>阿里云</option>
+                            <option>虚拟机</option>
+                        {% elif hostinfo.host_type == 1 %}
+                            <option>物理机</option>
+                            <option value="{{ hostinfo.host_type }}" selected>阿里云</option>
+                            <option>虚拟机</option>
+                        {% elif hostinfo.host_type == 2 %}
+                            <option>物理机</option>
+                            <option>阿里云</option>
+                            <option value="{{ hostinfo.host_type }}" selected>虚拟机</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.sn }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="sn" value="{{ hostinfo.sn }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.manufacturer }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="manufacturer" value="{{ hostinfo.manufacturer }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.server_model }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="server_model" value="{{ hostinfo.server_model }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.mac }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="mac" value="{{ hostinfo.mac }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.total_mem }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="total_mem" value="{{ hostinfo.total_mem }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.cpu_counts }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="cpu_counts" value="{{ hostinfo.cpu_counts }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.cpu_model }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="cpu_model" value="{{ hostinfo.cpu_model }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ fields.total_disk }}</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="total_disk" value="{{ hostinfo.total_disk }}">
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <button type="button" class="btn btn-default" onclick="history.go(-1)">返回</button>
+            <button type="button" class="btn btn-info pull-right" onclick="serverMod()">确认修改</button>
+        </div>
+        <!-- /.box-footer -->
+    </form>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        serializeObj[this.name] = this.value;
+                    }
+                });
+                return serializeObj;
+            };
+        })(jQuery);
+
+        function serverMod() {
+            let data = $('.form-horizontal').serializeJson();
+            $.ajax({
+                url: "/api/hostinfo/{{ hostinfo.id }}/",
+                type: "PUT",
+                dataType: "JSON",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function () {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'green',
+                        content: '修改成功！',
+                    })
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: '修改失败！' + response.responseText,
+                    })
+                }
+            })
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+
+    <style>
+        #log {
+            width: 440px;
+            height: 200px;
+            border: 1px solid #7F9DB9;
+            overflow: auto;
+        }
+
+        pre {
+            margin: 0 0 0;
+            padding: 0;
+            border: hidden;
+            background-color: #0c0c0c;
+            color: #00ff00;
+        }
+
+        #logbtns {
+            text-align: right;
+        }
+
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content-header %}
+    <h1>扫描结果</h1>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- /.box -->
+
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>{{ fields.id }}</th>
+                            <th>{{ fields.internal_ip }}</th>
+                            <th>{{ fields.public_ip }}</th>
+                            <th>{{ fields.hostname }}</th>
+                            <th>{{ fields.host_type }}</th>
+                            <th>{{ fields.sn }}</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+
+        <div class="col-lg-12">
+            <input type="button" class="btn btn-primary btn-sm" value="开始扫描" onclick="startScan()">
+            <input type="button" class="btn btn-primary btn-sm" value="查看扫描日志" onclick="showLog()">
+        </div>
+
+
+        <div class="col-lg-12" id="scanLog" hidden>
+            <div id="log"
+                 style="width: 100%;height:440px;background-color: #0c0c0c;overflow:scroll;overflow-x: auto;"></div>
+            <br>
+            <div id="logbtns">
+                <input type="button" class="btn btn-primary btn-sm" value="start" id="start_log"
+                       onclick="initLog()">
+                <input disabled="disabled" type="button" class="btn btn-primary btn-sm" value="stop" id="stop_log"
+                       onclick="stopLog()">
+            </div>
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- SlimScroll -->
+    <script src="{% static 'AdminLTE/bower_components/jquery-slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <!-- FastClick -->
+    <script src="{% static 'AdminLTE/bower_components/fastclick/lib/fastclick.js' %}"></script>
+
+    <script>
+        $(function () {
+            $('#example1').DataTable();
+        });
+
+
+        function startScan() {
+            $.ajax({
+                url: '{% url 'scan_result' %}',
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (data) {
+                    $('#example1 tbody .odd').remove();
+                    for (let i = 0; i < data.length; i++) {
+                        let result = data[i];
+                        $('#example1 tbody').append(
+                            '<tr>' +
+                            '<td>' + result.pk + '</td>' +
+                            '<td>' + result.fields.internal_ip + '</td>' +
+                            '<td>' + result.fields.public_ip + '</td>' +
+                            '<td>' + result.fields.hostname + '</td>' +
+                            '<td>' + result.fields.host_type + '</td>' +
+                            '<td>' + result.fields.sn + '</td>' +
+                            '<td>' + '<a href="/scan_host/detail/' + result.pk + '" target="_blank"><button type="button" class="btn btn-block btn-default">查看详细</button></a>' + '</td>' +
+                            '</tr>'
+                        );
+                    }
+                }
+            })
+        }
+
+        let socket;
+
+        let scan_info = {
+            user: "root",
+            port: 22,
+            host: "10.1.19.10",
+            log_file: "/testops/Ops/logs/scanhost.log"
+        };
+
+        function initLog() {
+            if ("WebSocket" in window) {
+                socket = new WebSocket("ws://" + window.location.host + "/ws/log/");
+
+                socket.onopen = function () {
+                    let info = JSON.stringify(scan_info);
+                    socket.send(info);
+                    $("#start_log").attr('disabled', true);
+                    $("#stop_log").attr('disabled', false);
+                };
+
+                socket.onmessage = function (e) {
+                    if (socket.readyState === WebSocket.OPEN) {
+                        let res = JSON.parse(e.data);
+                        log(res["loginfo"]);
+                        let obje = document.getElementById("log");   //日志过多时清屏
+                        let textlength = obje.scrollHeight;
+                        if (textlength > 10000) {
+                            obje.innerHTML = '';
+                        }
+                    }
+                    else {
+                        alert("failed");
+                    }
+                };
+            }
+            else {
+                alert("您的浏览器不支持 WebSocket!");
+            }
+        }
+
+        function log(msg) {
+            let obje = document.getElementById("log");
+            obje.innerHTML += '<pre><code>' + msg + '</code></pre>';
+            obje.scrollTop = obje.scrollHeight;   //滚动条显示最新数据
+        }
+
+        function stopLog() {
+            try {
+                log('Close connection!');
+                socket.close();
+                $("#start_log").attr('disabled', false);
+                $("#stop_log").attr('disabled', true);
+            }
+            catch (ex) {
+                log(ex);
+            }
+        }
+
+        function showLog() {
+            $("#scanLog").toggle();
+        }
+    </script>
+
+{% endblock %}
+

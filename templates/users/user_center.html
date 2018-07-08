@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content-header %}
+    <h1>用户中心</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="box box-primary">
+        <div class="box-body box-profile">
+            <img class="profile-user-img img-responsive img-circle" src="{{ MEDIA_URL }}{{ user.image }}"
+                 alt="User profile picture">
+        </div>
+        <!-- /.box-body -->
+    </div>
+{% endblock %}

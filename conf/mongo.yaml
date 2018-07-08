@@ -1,0 +1,6 @@
+mongod:
+  DB: log
+  HOST: 10.1.19.10
+  PORT: 27017
+  coll_scan_log: scan_log
+  coll_run_ansible_module_log: run_ansible_module_log

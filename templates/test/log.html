@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket</title>
+
+    <style>
+    #log {
+        width: 440px;
+        height: 200px;
+        border: 1px solid #7F9DB9;
+        overflow: auto;
+    }
+    pre {
+        margin: 0 0 0;
+        padding: 0;
+        border: hidden;
+        background-color: #0c0c0c;
+        color: #00ff00;
+    }
+    #btns {
+        text-align: right;
+    }
+    </style>
+
+    <script>
+        var socket;
+        function init() {
+            var host = "ws://10.1.19.10:5678/";
+
+            try {
+                socket = new WebSocket(host);
+                socket.onopen = function () {
+                    log('Connected');
+                };
+                socket.onmessage = function (msg) {
+                    log(msg.data);
+                    var obje = document.getElementById("log");   //日志过多时清屏
+                    var textlength = obje.scrollHeight;
+                    if (textlength > 10000) {
+                        obje.innerHTML = '';
+                    }
+                };
+                socket.onclose = function () {
+                    log("Lose Connection!");
+                    $("#start").attr('disabled', false);
+                    $("#stop").attr('disabled', true);
+                };
+                $("#start").attr('disabled', true);
+                $("#stop").attr('disabled', false);
+            }
+            catch (ex) {
+                log(ex);
+            }
+        }
+        window.onbeforeunload = function () {
+            try {
+                socket.send('quit');
+                socket.close();
+                socket = null;
+            }
+            catch (ex) {
+                log(ex);
+            }
+        };
+        function log(msg) {
+            var obje = document.getElementById("log");
+            obje.innerHTML += '<pre><code>' + msg + '</code></pre>';
+            obje.scrollTop = obje.scrollHeight;   //滚动条显示最新数据
+        }
+        function stop() {
+            try {
+                log('Close connection!');
+                socket.send('quit');
+                socket.close();
+                socket = null;
+                $("#start").attr('disabled', false);
+                $("#stop").attr('disabled', true);
+            }
+            catch (ex) {
+                log(ex);
+            }
+        }
+        function closelayer() {
+            try {
+                log('Close connection!');
+                socket.send('quit');
+                socket.close();
+                socket = null;
+            }
+            catch (ex) {
+                log(ex);
+            }
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关闭
+        }
+    </script>
+
+</head>
+
+
+<body onload="init()">
+    <div class="row">
+        <div class="col-lg-12">
+            <div id="log" style="width: 100%;height:440px;background-color: #0c0c0c;overflow:scroll;overflow-x: auto;"></div>
+            <br>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div id="btns">
+                <input disabled="disabled" type="button" class="btn btn-primary btn-sm" value="start" id="start" onclick="init()">
+                <input disabled="disabled" type="button" class="btn btn-primary btn-sm" value="stop" id="stop" onclick="stop()" >
+                <input type="button" class="btn btn-primary btn-sm" value="close" id="close" onclick="closelayer()" >
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

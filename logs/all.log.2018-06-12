@@ -1,0 +1,28 @@
+INFO 2018-06-12 09:49:28 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-06-12 09:49:28 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:31 _log Authentication (password) failed.
+INFO 2018-06-12 09:49:31 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-06-12 09:49:31 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:31 _log Authentication (password) successful!
+INFO 2018-06-12 09:49:32 _log Connected (version 1.99, client Cisco-1.25)
+INFO 2018-06-12 09:49:33 _log Disconnect (code 2): Protocol error: expected packet type 50, got 5
+INFO 2018-06-12 09:49:33 _log Connected (version 1.99, client Cisco-1.25)
+INFO 2018-06-12 09:49:34 _log Disconnect (code 2): Protocol error: expected packet type 50, got 5
+INFO 2018-06-12 09:49:34 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-06-12 09:49:34 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:36 _log Authentication (password) failed.
+INFO 2018-06-12 09:49:36 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-06-12 09:49:36 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:37 _log Authentication (password) failed.
+INFO 2018-06-12 09:49:37 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-06-12 09:49:37 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:40 _log Authentication (password) failed.
+INFO 2018-06-12 09:49:40 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-06-12 09:49:40 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:42 _log Authentication (password) failed.
+INFO 2018-06-12 09:49:42 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-06-12 09:49:43 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:45 _log Authentication (password) failed.
+INFO 2018-06-12 09:49:45 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-06-12 09:49:45 _log Authentication (publickey) failed.
+INFO 2018-06-12 09:49:45 _log Authentication (password) successful!

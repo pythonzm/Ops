@@ -1,0 +1,3 @@
+INFO 2018-07-01 19:22:57 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-07-01 19:22:57 _log Authentication (publickey) failed.
+INFO 2018-07-01 19:22:57 _log Authentication (password) failed.

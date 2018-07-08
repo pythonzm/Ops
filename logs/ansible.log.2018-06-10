@@ -1,0 +1,13 @@
+ERROR 2018-06-10 12:13:04 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:17:09 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:19:09 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:21:10 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:25:55 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:31:34 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:34:26 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:37:30 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:46:29 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:47:54 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 12:49:14 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 13:51:56 run_model 执行raw失败，原因: expected string or bytes-like object
+ERROR 2018-06-10 13:54:05 run_model 执行raw失败，原因: expected string or bytes-like object
