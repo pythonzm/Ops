@@ -8,8 +8,19 @@ from conf.logger import user_logger
 
 def user_center(request):
     if request.method == 'GET':
-        user = UserProfile.objects.get(id=4)
+        user = UserProfile.objects.get(username=request.user)
         return render(request, 'users/user_center.html', locals())
+    elif request.method == 'POST':
+        if request.POST.get('password') == request.POST.get('c_password'):
+            try:
+                user = UserProfile.objects.get(username=request.user)
+                user.set_password(request.POST.get('password'))
+                user.save()
+                return JsonResponse({"code": 200, "data": None, "msg": "密码更新完毕，请重新使用新密码登录！"})
+            except Exception as e:
+                return JsonResponse({"code": 500, "data": None, "msg": "密码修改失败：%s" % str(e)})
+        else:
+            return JsonResponse({"code": 500, "data": None, "msg": "密码不一致，密码修改失败。"})
 
 
 def get_user_list(request):
@@ -75,7 +86,7 @@ def get_user_detail(request, pk):
             else:
                 user.user_permissions.clear()
 
-            return JsonResponse({'msg': '更新成功'})
+            return JsonResponse({"code": 200, "data": None, "msg": "更新成功！"})
         except Exception as e:
             user_logger.error('更新用户信息失败，原因：{}'.format(e))
 
@@ -116,4 +127,94 @@ def create_user(request):
 
 def get_group_list(request):
     groups = Group.objects.all().select_related()
+    users = UserProfile.objects.all()
+    permissions = Permission.objects.all().select_related()
     return render(request, 'users/group_list.html', locals())
+
+
+def get_group_detail(request, pk):
+    group = Group.objects.get(id=pk)
+
+    if request.method == 'POST':
+        try:
+            Group.objects.filter(id=pk).update(
+                name=request.POST.get('groupname'),
+            )
+
+            # 修改用户
+            users = request.POST.getlist('users')
+            if users:
+                group_users_set = set()
+                for user in group.user_set.values():
+                    group_users_set.add(user.get('id'))
+
+                users_set = {int(i) for i in users}
+                add_users_set = users_set.difference(group_users_set)
+                del_users_set = group_users_set.difference(users_set)
+
+                # 添加新增的用户
+                for user_id in add_users_set:
+                    user_obj = UserProfile.objects.get(id=user_id)
+                    group.user_set.add(user_obj)
+                # 删除去掉的用户
+                for user_id in del_users_set:
+                    user_obj = UserProfile.objects.get(id=user_id)
+                    group.user_set.remove(user_obj)
+            else:
+                group.user_set.clear()
+
+            # 修改用户组权限
+            group_permissions = request.POST.getlist('group_permissions')
+            if group_permissions:
+                group_permission_set = set()
+                for permission in group.permissions.values():
+                    group_permission_set.add(permission.get('id'))
+
+                permission_set = {int(i) for i in group_permissions}
+                add_permission_set = permission_set.difference(group_permission_set)
+                del_permission_set = group_permission_set.difference(permission_set)
+
+                # 添加新增的用户权限
+                for permission_id in add_permission_set:
+                    permission_obj = Permission.objects.get(id=permission_id)
+                    group.permissions.add(permission_obj)
+                # 删除去掉的用户权限
+                for permission_id in del_permission_set:
+                    permission_obj = Permission.objects.get(id=permission_id)
+                    group.permissions.remove(permission_obj)
+            else:
+                group.permissions.clear()
+
+            return JsonResponse({"code": 200, "data": None, "msg": "更新成功！"})
+        except Exception as e:
+            user_logger.error('更新用户组信息失败，原因：{}'.format(e))
+
+    elif request.method == 'GET':
+        users = UserProfile.objects.all().select_related()
+        permissions = Permission.objects.all().select_related()
+        return render(request, 'users/group_detail.html', locals())
+
+
+def create_group(request):
+    if request.method == 'POST':
+        try:
+            Group.objects.create(
+                name=request.POST.get('groupname'),
+            )
+
+            group = Group.objects.get(name=request.POST.get('groupname'))
+            users = request.POST.getlist('users')
+            if users:
+                for i in users:
+                    user = UserProfile.objects.get(id=i)
+                    group.user_set.add(user)
+
+            group_permissions = request.POST.getlist('group_permissions')
+            if group_permissions:
+                for i in group_permissions:
+                    permission = Permission.objects.get(id=i)
+                    group.permissions.add(permission)
+
+            return JsonResponse({"code": 200, "data": None, "msg": "用户组添加成功"})
+        except Exception as e:
+            return JsonResponse({"code": 500, "data": None, "msg": "用户组添加失败，原因：{}".format(e)})

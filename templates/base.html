@@ -162,8 +162,8 @@ desired effect
                                 <img src="{{ MEDIA_URL }}{{ user.image }}" class="img-circle"
                                      alt="User Image">
                                 <p>
-                                    注册日期
-                                    <small>{{ user.date_joined|date:"Y-m-d" }}</small>
+                                    上次登录时间
+                                    <small>{{ user.last_login|date:"Y-m-d H:i:s" }}</small>
                                 </p>
                             </li>
 
@@ -192,18 +192,20 @@ desired effect
             <ul class="sidebar-menu" data-widget="tree">
                 <!-- Optionally, you can add icons to the links -->
                 <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i><span>仪表盘</span></a></li>
-                <li class="treeview">
-                    <a href="#"><i class="fa fa-fw fa-users"></i> <span>用户管理</span>
-                        <span class="pull-right-container">
+                {% if perms.users.view_userprofile %}
+                    <li class="treeview">
+                        <a href="#"><i class="fa fa-fw fa-users"></i> <span>用户管理</span>
+                            <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="{% url 'user_list' %}"><i class="fa  fa-user"></i>用户列表</a></li>
-                        <li><a href="{% url 'scan_history' %}"><i class="fa fa-users"></i>用户组</a></li>
-                        <li><a href="{% url 'scan_history' %}"><i class="fa fa-user-secret"></i>登录日志</a></li>
-                    </ul>
-                </li>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="{% url 'user_list' %}"><i class="fa  fa-user"></i>用户列表</a></li>
+                            <li><a href="{% url 'group_list' %}"><i class="fa fa-users"></i>用户组</a></li>
+                            <li><a href="{% url 'scan_history' %}"><i class="fa fa-user-secret"></i>登录日志</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
                 <li class="treeview">
                     <a href="#"><i class="fa fa-fw fa-search"></i> <span>扫描主机</span>
                         <span class="pull-right-container">

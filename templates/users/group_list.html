@@ -6,6 +6,8 @@
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
     <!-- iCheck for checkboxes and radio inputs -->
     <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
 
     <style>
         /* dataTables列内容居中 */
@@ -22,15 +24,102 @@
 {% endblock %}
 
 {% block content-header %}
-    <h1>用户组列表</h1>
+    <h1>组列表</h1>
 {% endblock %}
 
 {% block content %}
 
     <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#myAddGroupModal">
+                <i class="fa fa-user-plus"></i>
+                <span class="bigger-110">新增用户组</span>
+            </button>
+            <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
+                <i class="fa fa-user-times"></i>
+                <span class="bigger-110">批量删除</span>
+            </button>
+        </div>
+
+        <!-- addGroupModal  -->
+        <div class="modal fade" id="myAddGroupModal" tabindex="-1" role="dialog" aria-labelledby="myAddGroupModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myAddGroupModalLabel">
+                            新增用户组
+                        </h4>
+                    </div>
+                    {% if perms.auth.add_group %}
+                        <div class="modal-body">
+                            <form id="register" class="main form-horizontal">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">用户组名称</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="groupname" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">添加用户</label>
+                                        <div class="col-sm-6">
+
+                                            <select class="form-control select2" multiple="multiple" name="users"
+                                                    style="width: 100%;">
+                                                {% for user in users %}
+                                                    <option value="{{ user.id }}">{{ user.username }}</option>
+                                                {% endfor %}
+                                            </select>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">添加权限</label>
+                                        <div class="col-sm-6">
+
+                                            <select class="form-control select2" multiple="multiple"
+                                                    name="group_permissions"
+                                                    style="width: 100%;">
+                                                {% for permission in permissions %}
+                                                    <option value="{{ permission.id }}">{{ permission.name }}</option>
+                                                {% endfor %}
+                                            </select>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="space-24"></div>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="createGroup()">
+                                添加
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="modal-body">
+                            抱歉！您没有新增用户组的权限！如有疑问，请联系管理员！
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                        </div>
+                    {% endif %}
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        <!--dataTable-->
         <div class="col-xs-12">
             <!-- /.box -->
-
             <div class="box">
                 <div class="box-body">
                     <table id="example1" class="table table-bordered table-striped">
@@ -39,40 +128,30 @@
                             <th><label>
                                 <input type="checkbox" class="minimal-red" id="checkAll">
                             </label></th>
-                            <th>组名称</th>
+                            <th>用户组名称</th>
+                            <th>组内用户</th>
                             <th>操作</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for user in user_list %}
+                        {% for group in groups %}
 
-                            <tr id="moduleLog-{{ user.id }}">
+                            <tr id="group-{{ group.id }}">
                                 <td><label>
-                                    <input type="checkbox" class="minimal" value="{{ user.id }}">
+                                    <input type="checkbox" class="minimal" value="{{ group.id }}">
                                 </label></td>
-                                <td>{{ user.username }}</td>
+                                <td>{{ group.name }}</td>
                                 <td>
-                                    {% if user.is_superuser %}
-                                        <span class="label label-success">是</span>
-                                    {% else %}
-                                        <span class="label label-danger">否</span>
-                                    {% endif %}
+                                    {% for user in group.user_set.all %}
+                                        {{ user }}&nbsp;
+                                    {% endfor %}
                                 </td>
-                                <td>{{ user.groups.name }}</td>
                                 <td>
-                                    {% if user.is_superuser %}
-                                        <span class="label label-success">已激活</span>
-                                    {% else %}
-                                        <span class="label label-danger">未激活</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ user.mobile }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
-                                            data-target="#updateUserModal">更新
-                                    </button>
+                                    <a href="/users/group/{{ group.id }}">
+                                        <button type="button" class="btn btn-success btn-xs">详细/更新</button>
+                                    </a>
                                     <button type="button" class="btn btn-danger btn-xs"
-                                            onclick="deleteServer({{ hostinfo.id }})">删除
+                                            onclick="deleteGroup({{ group.id }})">删除
                                     </button>
                                 </td>
                             </tr>
@@ -81,83 +160,8 @@
 
                         </tbody>
                     </table>
-                    <div class="modal fade" id="updateUserModal" tabindex="-1" role="dialog"
-                         aria-labelledby="exampleModalLabel">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                            aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="exampleModalLabel">用户信息</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <form>
-                                        <div class="form-group ">
-                                            <label class="col-sm-2 control-label ">
-                                                用户名称
-                                            </label>
-                                            <div class="col-sm-10">
-                                                <input name="username" class="form-control" type="text" value="">
-                                                <span class="help-block">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</span>
-                                            </div>
-                                        </div>
-                                        <div class="form-group ">
-                                            <label class="col-sm-2 control-label ">
-                                                手机号码
-                                            </label>
-                                            <div class="col-sm-10">
-                                                <input name="mobile" class="form-control" type="number" value="">
-                                            </div>
-                                        </div>
-                                        <div class="form-group horizontal-checkbox ">
-                                            <label class="col-sm-2 control-label ">
-                                                超级管理员
-                                            </label>
-                                            <div class="col-sm-10">
-                                                <input type="checkbox" name="is_superuser" value="true">
-                                                <span class="help-block">超级管理员拥有所有权限</span>
-                                            </div>
-                                        </div>
-                                        <div class="form-group horizontal-checkbox ">
-                                            <label class="col-sm-2 control-label ">
-                                                是否激活
-                                            </label>
-                                            <div class="col-sm-10">
-                                                <input type="checkbox" name="is_active" value="true">
-                                                <span class="help-block">是否激活用户</span>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label ">
-                                                所属组
-                                            </label>
-                                            <div class="col-sm-10">
-                                                <select multiple="" disabled="" class="form-control" name="groups">
-                                                    {% for group in group_list %}
-                                                        <option>group</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <span class="help-block">用户拥有该组的所有权限</span>
-                                            </div>
-                                        </div>
-
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary">Send message</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <!-- /.box-body -->
-                <div class="col-sm-7 pull-left">
-                    <button class="btn btn-sm btn-default pull-left" data-toggle="modal" data-target="#myAddUserModal">
-                        <i class="fa fa-plus"></i>
-                        <span class="bigger-110">新增用户</span>
-                    </button>
-                </div>
             </div>
             <!-- /.box -->
         </div>
@@ -168,15 +172,14 @@
 
 
 {% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
     <!-- DataTables -->
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
-    <!-- SlimScroll -->
-    <script src="{% static 'AdminLTE/bower_components/jquery-slimscroll/jquery.slimscroll.min.js' %}"></script>
     <!-- iCheck 1.0.1 -->
     <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
-    <!-- FastClick -->
-    <script src="{% static 'AdminLTE/bower_components/fastclick/lib/fastclick.js' %}"></script>
+
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 
     <script>
@@ -190,12 +193,17 @@
             });
         });
 
-        //iCheck for checkbox inputs
+        // Initialize Select2 Elements
+        $(function () {
+            $('.select2').select2()
+        });
+
+        // iCheck for checkbox inputs
         $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
             checkboxClass: 'icheckbox_minimal-blue',
         });
 
-        //实现全选
+        // 实现全选
         $(function () {
             let checkAll = $('#checkAll');
             let checkboxes = $('input[type="checkbox"]');
@@ -216,41 +224,143 @@
             });
         });
 
-        function deleteServer(id) {
-            $.confirm({
-                title: 'Tips',
-                content: '确定要删除这台服务器么？',
-                type: 'red',
-                buttons: {
-                    Ok: function () {
-                        $.ajax({
-                            url: '/api/hostinfo/' + id,
-                            method: 'DELETE',
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                            },
-                            success: function () {
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'green',
-                                    content: '删除成功！'
-                                })
-                            },
-                            error: function (data) {
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'red',
-                                    content: '删除失败！' + data.responseText,
-                                })
-                            }
-                        })
-                    },
-                    Cancel: function () {
-                        $.alert('cancel');
+        // 删除用户组
+        function deleteGroup(id) {
+            {% if perms.auth.delete_group %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这个用户组么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/group/' + id,
+                                method: 'DELETE',
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                },
+                                success: function () {
+                                    let str = 'group-' + id;
+                                    document.getElementById(str).innerHTML = '';
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'green',
+                                        content: '删除成功！'
+                                    })
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            // close
+                        }
                     }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除用户组的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+
+        }
+
+        // 批量删除
+        $("#deleteChecked").click(function () {
+            {% if perms.auth.delete_group %}
+                let checkedID = [];
+                $('input[type="checkbox"].minimal:checked').each(function () {
+                    checkedID.push($(this).val());
+                });
+                if (checkedID.length === 0) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: '请选择要删除的用户组！',
+                    })
+                } else {
+                    $.confirm({
+                        title: 'Tips',
+                        content: '确定要删除这些用户组么？',
+                        type: 'red',
+                        buttons: {
+                            Ok: function () {
+                                for (let i = 0; i < checkedID.length; i++) {
+                                    $.ajax({
+                                        url: '/api/group/' + checkedID[i],
+                                        method: 'DELETE',
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                        },
+                                        success: function () {
+                                            let str = 'group-' + checkedID[i];
+                                            document.getElementById(str).innerHTML = '';
+                                        },
+                                        error: function (data) {
+                                            $.alert({
+                                                title: 'Tips',
+                                                type: 'red',
+                                                content: '删除失败！' + data.responseText,
+                                            })
+                                        }
+                                    })
+                                }
+                            },
+                            Cancel: function () {
+                                // close
+                            }
+                        }
+                    })
+                }
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除用户组的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+
+        });
+
+        // 新增用户组
+        function createGroup() {
+            let data = $('#register').serialize();
+            $.ajax({
+                url: '{% url 'create_group' %}',
+                method: 'POST',
+                data: data,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function (response) {
+                    $.confirm({
+                        title: 'Tips',
+                        type: 'green',
+                        content: response['msg'],
+                        buttons: {
+                            'OK': function () {
+                                location.reload();
+                            }
+                        }
+                    });
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response,
+                    });
                 }
             })
         }
+
     </script>
 
 {% endblock %}
