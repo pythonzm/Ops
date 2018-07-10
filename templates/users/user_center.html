@@ -93,7 +93,7 @@
         <div class="col-md-9">
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
-                    <li class="active"><a href="#notebook" data-toggle="tab">备忘录</a></li>
+                    <li class="active"><a href="#notebook" data-toggle="tab">计划任务</a></li>
                     <li><a href="#settings" data-toggle="tab">修改密码</a></li>
                 </ul>
                 <div class="tab-content">
@@ -116,7 +116,7 @@
 
                                 <div class="col-sm-10">
                                     <input type="password" class="form-control" id="inputPassword" name="password"
-                                           required>
+                                           minlength="6" required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -124,7 +124,8 @@
 
                                 <div class="col-sm-10">
                                     <input type="password" class="form-control" id="inputCPassword" name="c_password"
-                                           required>
+                                           minlength="6" data-parsley-equalto="#inputPassword"
+                                           data-parsley-equalto-message="两次密码输入不一致" required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -320,40 +321,43 @@
         // 修改密码
         function mod_password() {
             let obj = $('#mod_password');
-            obj.parsley().validate();
-            $.ajax({
-                url: '{% url 'user_center' %}',
-                type: 'POST',
-                data: obj.serialize(),
-                success: function (response) {
-                    if (response['code'] === 200) {
-                        $.confirm({
-                            title: 'Tips！',
-                            content: response['msg'],
-                            autoClose: 'OK|5000',
-                            buttons: {
-                                OK: function () {
-                                    window.location.href = '/login/';
+            let status = obj.parsley().validate();
+            if (status) {
+                $.ajax({
+                    url: '{% url 'user_center' %}',
+                    type: 'POST',
+                    data: obj.serialize(),
+                    success: function (response) {
+                        if (response['code'] === 200) {
+                            $.confirm({
+                                title: 'Tips！',
+                                content: response['msg'],
+                                autoClose: 'OK|5000',
+                                buttons: {
+                                    OK: function () {
+                                        window.location.href = '/login/';
+                                    }
                                 }
-                            }
-                        });
-                    } else {
+                            });
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response['msg'],
+                            });
+                        }
+
+                    },
+                    error: function (response) {
                         $.alert({
                             title: 'Tips',
                             type: 'red',
-                            content: response['msg'],
+                            content: response.responseText,
                         });
                     }
+                })
+            }
 
-                },
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response.responseText,
-                    });
-                }
-            })
         }
     </script>
 {% endblock %}

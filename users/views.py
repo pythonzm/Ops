@@ -11,16 +11,13 @@ def user_center(request):
         user = UserProfile.objects.get(username=request.user)
         return render(request, 'users/user_center.html', locals())
     elif request.method == 'POST':
-        if request.POST.get('password') == request.POST.get('c_password'):
-            try:
-                user = UserProfile.objects.get(username=request.user)
-                user.set_password(request.POST.get('password'))
-                user.save()
-                return JsonResponse({"code": 200, "data": None, "msg": "密码更新完毕，请重新使用新密码登录！"})
-            except Exception as e:
-                return JsonResponse({"code": 500, "data": None, "msg": "密码修改失败：%s" % str(e)})
-        else:
-            return JsonResponse({"code": 500, "data": None, "msg": "密码不一致，密码修改失败。"})
+        try:
+            user = UserProfile.objects.get(username=request.user)
+            user.set_password(request.POST.get('password'))
+            user.save()
+            return JsonResponse({"code": 200, "data": None, "msg": "密码更新完毕，请重新使用新密码登录！"})
+        except Exception as e:
+            return JsonResponse({"code": 500, "data": None, "msg": "密码修改失败：%s" % str(e)})
 
 
 def get_user_list(request):
@@ -101,7 +98,7 @@ def create_user(request):
         try:
             UserProfile.objects.create(
                 username=request.POST.get('username'),
-                password=make_password(request.POST.get('password')),
+                password=make_password('123456'),
                 is_superuser=request.POST.get('is_superuser'),
                 is_active=request.POST.get('is_active'),
                 mobile=request.POST.get('mobile')
@@ -120,9 +117,20 @@ def create_user(request):
                     permission = Permission.objects.get(id=i)
                     user.user_permissions.add(permission)
 
-            return JsonResponse({"code": 200, "data": None, "msg": "用户添加成功"})
+            return JsonResponse({"code": 200, "data": None, "msg": "用户添加成功！初始密码是123456"})
         except Exception as e:
             return JsonResponse({"code": 500, "data": None, "msg": "用户注册失败，原因：{}".format(e)})
+
+
+def reset_password(request, pk):
+    if request.method == 'POST':
+        try:
+            UserProfile.objects.filter(id=pk).update(
+                password=make_password('123456')
+            )
+            return JsonResponse({"code": 200, "data": None, "msg": "密码重置成功！密码为123456"})
+        except Exception as e:
+            return JsonResponse({"code": 500, "data": None, "msg": "密码重置失败，原因：{}".format(e)})
 
 
 def get_group_list(request):

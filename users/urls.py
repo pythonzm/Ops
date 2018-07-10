@@ -11,4 +11,5 @@ urlpatterns = [
     path(r'create_user', views.create_user, name='create_user'),
     path(r'create_group', views.create_group, name='create_group'),
     path(r'user_center', views.user_center, name='user_center'),
+    re_path(r'reset_password/(?P<pk>[0-9]+)', views.reset_password, name='reset_password'),
 ]

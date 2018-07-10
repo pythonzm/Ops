@@ -66,20 +66,6 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">用户密码</label>
-                                        <div class="col-sm-6">
-                                            <input type="password" class="form-control" name="password" required/>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">确认密码</label>
-                                        <div class="col-sm-6">
-                                            <input type="password" class="form-control" name="c_password" required/>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
                                         <label class="col-sm-2 control-label">手机号码</label>
                                         <div class="col-sm-6">
                                             <input type="text" class="form-control" name="mobile"/>
@@ -208,6 +194,9 @@
                                     <a href="/users/user/{{ user.id }}">
                                         <button type="button" class="btn btn-success btn-xs">详细/更新</button>
                                     </a>
+                                    <button type="button" class="btn btn-warning btn-xs"
+                                            onclick="resetPassword({{ user.id }})">重置密码
+                                    </button>
                                     <button type="button" class="btn btn-danger btn-xs"
                                             onclick="deleteUser({{ user.id }})">删除
                                     </button>
@@ -417,6 +406,51 @@
                     });
                 }
             })
+        }
+
+        // 重置密码
+        function resetPassword(id) {
+            {% if perms.users.change_userprofile %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要为这个用户重置密码么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/users/reset_password/' + id,
+                                method: 'POST',
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                },
+                                success: function (res) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'green',
+                                        content: res['msg'],
+                                    })
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            // close
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有更改用户的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
         }
 
     </script>
