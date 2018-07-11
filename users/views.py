@@ -7,17 +7,34 @@ from conf.logger import user_logger
 
 
 def user_center(request):
+    user = UserProfile.objects.get(username=request.user)
+
     if request.method == 'GET':
-        user = UserProfile.objects.get(username=request.user)
         return render(request, 'users/user_center.html', locals())
+
     elif request.method == 'POST':
-        try:
-            user = UserProfile.objects.get(username=request.user)
-            user.set_password(request.POST.get('password'))
-            user.save()
-            return JsonResponse({"code": 200, "data": None, "msg": "密码更新完毕，请重新使用新密码登录！"})
-        except Exception as e:
-            return JsonResponse({"code": 500, "data": None, "msg": "密码修改失败：%s" % str(e)})
+        if request.POST.get('password'):
+            try:
+                user.set_password(request.POST.get('password'))
+                user.save()
+                return JsonResponse({"code": 200, "data": None, "msg": "密码更新完毕，请重新使用新密码登录！"})
+            except Exception as e:
+                return JsonResponse({"code": 500, "data": None, "msg": "密码修改失败：%s" % str(e)})
+        elif request.POST.get('mobile'):
+            try:
+                user.mobile = request.POST.get('mobile')
+                user.save()
+                return JsonResponse({"code": 200, "data": request.POST.get('mobile'), "msg": "手机号码更新完毕！"})
+            except Exception as e:
+                return JsonResponse({"code": 500, "data": None, "msg": "手机号码修改失败：%s" % str(e)})
+        elif request.FILES.get('avatar'):
+            try:
+                avatar = request.FILES.get('avatar')
+                user.image = avatar
+                user.save()
+                return JsonResponse({"code": 200, "data": None, "msg": "头像更新完毕！"})
+            except Exception as e:
+                return JsonResponse({"code": 500, "data": None, "msg": "头像更新失败：%s" % str(e)})
 
 
 def get_user_list(request):
@@ -226,3 +243,4 @@ def create_group(request):
             return JsonResponse({"code": 200, "data": None, "msg": "用户组添加成功"})
         except Exception as e:
             return JsonResponse({"code": 500, "data": None, "msg": "用户组添加失败，原因：{}".format(e)})
+
