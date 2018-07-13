@@ -1,15 +1,18 @@
+from datetime import datetime
 from django.contrib.auth.hashers import make_password
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
-from users.models import UserProfile
+
+from users.models import UserProfile, UserLog, UserPlan
 from django.contrib.auth.models import Group, Permission
-from conf.logger import user_logger
+from django.core import serializers
 
 
 def user_center(request):
     user = UserProfile.objects.get(username=request.user)
 
     if request.method == 'GET':
+        events = UserPlan.objects.all()
         return render(request, 'users/user_center.html', locals())
 
     elif request.method == 'POST':
@@ -35,6 +38,24 @@ def user_center(request):
                 return JsonResponse({"code": 200, "data": None, "msg": "头像更新完毕！"})
             except Exception as e:
                 return JsonResponse({"code": 500, "data": None, "msg": "头像更新失败：%s" % str(e)})
+        elif request.FILES.get('title'):
+            start_time = '{} {}'.format(request.POST.get('sdate'), request.POST.get('stime'))
+            start_time = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            end_time = '{} {}'.format(request.POST.get('edate'), request.POST.get('etime'))
+            end_time = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+            UserPlan.objects.create(
+                title=request.POST.get('title'),
+                start_time=start_time,
+                end_time=end_time,
+                all_day=request.POST.get('allDay'),
+            )
+            data = {
+                'title': request.POST.get('title'),
+                'start': start_time,
+                'end': end_time,
+                'allDay': request.POST.get('allDay'),
+            }
+            return JsonResponse({'code': 200, 'data': data})
 
 
 def get_user_list(request):
@@ -102,7 +123,7 @@ def get_user_detail(request, pk):
 
             return JsonResponse({"code": 200, "data": None, "msg": "更新成功！"})
         except Exception as e:
-            user_logger.error('更新用户信息失败，原因：{}'.format(e))
+            return JsonResponse({"code": 500, "data": None, "msg": '更新用户信息失败，原因：{}'.format(e)})
 
     elif request.method == 'GET':
         groups = Group.objects.all().select_related()
@@ -136,7 +157,7 @@ def create_user(request):
 
             return JsonResponse({"code": 200, "data": None, "msg": "用户添加成功！初始密码是123456"})
         except Exception as e:
-            return JsonResponse({"code": 500, "data": None, "msg": "用户注册失败，原因：{}".format(e)})
+            return JsonResponse({"code": 500, "data": None, "msg": "用户添加失败，原因：{}".format(e)})
 
 
 def reset_password(request, pk):
@@ -145,6 +166,7 @@ def reset_password(request, pk):
             UserProfile.objects.filter(id=pk).update(
                 password=make_password('123456')
             )
+
             return JsonResponse({"code": 200, "data": None, "msg": "密码重置成功！密码为123456"})
         except Exception as e:
             return JsonResponse({"code": 500, "data": None, "msg": "密码重置失败，原因：{}".format(e)})
@@ -212,7 +234,7 @@ def get_group_detail(request, pk):
 
             return JsonResponse({"code": 200, "data": None, "msg": "更新成功！"})
         except Exception as e:
-            user_logger.error('更新用户组信息失败，原因：{}'.format(e))
+            return JsonResponse({"code": 500, "data": None, "msg": '更新用户组信息失败，原因：{}'.format(e)})
 
     elif request.method == 'GET':
         users = UserProfile.objects.all().select_related()
@@ -244,3 +266,17 @@ def create_group(request):
         except Exception as e:
             return JsonResponse({"code": 500, "data": None, "msg": "用户组添加失败，原因：{}".format(e)})
 
+
+def get_user_log(request):
+    if request.method == 'GET':
+        user_logs = UserLog.objects.all()
+        return render(request, 'users/user_log.html', locals())
+    elif request.method == 'POST':
+        start_time = request.POST.get('startTime')
+        end_time = request.POST.get('endTime')
+        try:
+            user_logs = UserLog.objects.filter(c_time__gte=start_time, c_time__lte=end_time)
+            user_logs = serializers.serialize('json', user_logs)
+            return HttpResponse(user_logs)
+        except Exception as e:
+            return JsonResponse({'error': '查询失败：{}'.format(e)})

@@ -4,7 +4,7 @@ from scanhosts.models import HostInfo
 from ansible_task.models import AnsibleModuleLog
 from rest_framework import serializers
 from assets.models import *
-from users.models import UserProfile
+from users.models import UserProfile, UserLog
 from django.contrib.auth.models import Permission, Group
 
 
@@ -118,3 +118,9 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
         fields = ('id', 'name')
+
+
+class UserLogSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = UserLog
+        fields = ('id', 'user', 'remote_ip', 'content')

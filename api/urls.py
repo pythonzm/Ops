@@ -19,6 +19,7 @@ router.register(r'cabinets', views.CabinetsViewSet)
 router.register(r'users', views.UsersViewSet)
 router.register(r'permission', views.PermissionViewSet)
 router.register(r'group', views.GroupViewSet)
+router.register(r'user_log', views.UserLogViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),

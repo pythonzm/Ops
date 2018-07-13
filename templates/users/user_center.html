@@ -6,6 +6,12 @@
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.css' %}">
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.print.min.css' %}"
           media="print">
+    <!-- bootstrap datepicker -->
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static 'artDialog/dist/ui-dialog.css' %}">
+    <!-- time Picker -->
+    <link rel="stylesheet" href="{% static 'css/wickedpicker.min.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
     <link rel="stylesheet" href="{% static 'cropper/dist/cropper.min.css' %}">
 
@@ -13,6 +19,32 @@
         img {
             max-width: 100%;
         }
+
+        .taxt {
+            width: 440px;
+        }
+
+        .time {
+            width: 100px;
+        }
+
+        .select {
+            width: 150px;
+        }
+
+        .textarea {
+            width: 300px;
+        }
+
+        .check {
+            padding: 8px;
+        }
+
+        .timepicker {
+            position: relative;
+            z-index: 999;
+        }
+
     </style>
 {% endblock %}
 
@@ -178,6 +210,117 @@
         </div>
         <!-- /.col -->
 
+        <div id="dialog-form" style="display:none">
+            <form class="form-inline">
+                <p>
+                    <label>事务标题：</label>
+                    <input type="text" class="form-control">
+                </p>
+                <p>
+                    <label>事务内容：</label>
+                    <textarea class="textarea" rows="4" placeholder="内容" id="titledetail"></textarea>
+                    <span>（必填）</span>
+                </p>
+                <p>
+                    <label>事务类型：</label>
+                    <select class="select">
+                        <option>工作事务</option>
+                        <option>个人事务</option>
+                    </select>
+                </p>
+                <p>
+                    <label>开始时间：</label>
+                    <input type="text" class="time datepicker" id="startdate">
+                    <input type="text" class="time timepicker" id="starttime">
+                </p>
+                <p style="display:none" id="enddate">
+                    <label>结束时间：</label>
+                    <input type="text" class="time datepicker" id="stopdate">
+                    <input type="text" class="time timepicker" id="endtime">
+                </p>
+                <p class="checkbox check">
+                    <label class="checkbox-inline"><input type="checkbox" id="isallday">全天</label>
+                    <label class="checkbox-inline"><input type="checkbox" id="end">结束时间</label>
+                    <label class="checkbox-inline"><input type="checkbox" id="repeat">重复</label>
+                </p>
+                <p id="repeattype" style="display: none">
+                    <label>重复类型：</label>
+                    <select class="select" id="repeatselect">
+                        <option value="1">按天重复</option>
+                        <option value="2">按周重复</option>
+                        <option value="3">按月重复</option>
+                        <option value="4">按年重复</option>
+                        <option value="5">按工作日重复</option>
+                    </select>
+                </p>
+                <p id="repeattime" style="display: none">
+                    <label>重复时间：</label>
+                    <select class="time" id="repeatmonth" style="display:none">
+                        <option value="">1月</option>
+                        <option value="">2月</option>
+                        <option value="">3月</option>
+                        <option value="">4月</option>
+                        <option value="">5月</option>
+                        <option value="">6月</option>
+                        <option value="">7月</option>
+                        <option value="">8月</option>
+                        <option value="">9月</option>
+                        <option value="">10月</option>
+                        <option value="">11月</option>
+                        <option value="">12月</option>
+                    </select>
+                    <select class="time" id="repeatday" style="display:none">
+                        <option value="">1日</option>
+                        <option value="">2日</option>
+                        <option value="">3日</option>
+                        <option value="">4日</option>
+                        <option value="">5日</option>
+                        <option value="">6日</option>
+                        <option value="">7日</option>
+                        <option value="">8日</option>
+                        <option value="">9日</option>
+                        <option value="">10日</option>
+                        <option value="">11日</option>
+                        <option value="">12日</option>
+                        <option value="">13日</option>
+                        <option value="">14日</option>
+                        <option value="">15日</option>
+                        <option value="">16日</option>
+                        <option value="">17日</option>
+                        <option value="">18日</option>
+                        <option value="">19日</option>
+                        <option value="">20日</option>
+                        <option value="">21日</option>
+                        <option value="">22日</option>
+                        <option value="">23日</option>
+                        <option value="">24日</option>
+                        <option value="">25日</option>
+                        <option value="">26日</option>
+                        <option value="">27日</option>
+                        <option value="">28日</option>
+                        <option value="">29日</option>
+                        <option value="">30日</option>
+                        <option value="">31日</option>
+                    </select>
+                    <select class="time" id="repeatweek" style="display:none">
+                        <option value="">星期一</option>
+                        <option value="">星期二</option>
+                        <option value="">星期三</option>
+                        <option value="">星期四</option>
+                        <option value="">星期五</option>
+                        <option value="">星期六</option>
+                        <option value="">星期日</option>
+                    </select>
+                    <input type="text" class="time timepicker" id="repeatclock">
+                </p>
+                <p>
+                    <label>&nbsp;&nbsp;&nbsp;参与者：</label>
+                    <textarea rows="3"></textarea>
+                </p>
+                <p></p>
+            </form>
+        </div>
+
         <!-- Tabs -->
         <div class="col-md-9">
             <div class="nav-tabs-custom">
@@ -242,6 +385,11 @@
     <!-- fullCalendar -->
     <script src="{% static 'AdminLTE/bower_components/moment/moment.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
+    <script src="{% static 'artDialog/dist/dialog-min.js' %}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <!-- bootstrap time picker -->
+    <script src="{% static 'js/wickedpicker.min.js' %}"></script>
     <!-- 输入验证 -->
     <script src="{% static 'parsley/dist/parsley.min.js' %}"></script>
     <!-- 修改头像 -->
@@ -296,59 +444,20 @@
                     week: 'week',
                     day: 'day'
                 },
-                //Random default events
-                events: [
-                    {
-                        title: 'All Day Event',
-                        start: new Date(y, m, 1),
-                        backgroundColor: '#f56954', //red
-                        borderColor: '#f56954' //red
-                    },
-                    {
-                        title: 'Long Event',
-                        start: new Date(y, m, d - 5),
-                        end: new Date(y, m, d - 2),
-                        backgroundColor: '#f39c12', //yellow
-                        borderColor: '#f39c12' //yellow
-                    },
-                    {
-                        title: 'Meeting',
-                        start: new Date(y, m, d, 10, 30),
-                        allDay: false,
-                        backgroundColor: '#0073b7', //Blue
-                        borderColor: '#0073b7' //Blue
-                    },
-                    {
-                        title: 'Lunch',
-                        start: new Date(y, m, d, 12, 0),
-                        end: new Date(y, m, d, 14, 0),
-                        allDay: false,
-                        backgroundColor: '#00c0ef', //Info (aqua)
-                        borderColor: '#00c0ef' //Info (aqua)
-                    },
-                    {
-                        title: 'Birthday Party',
-                        start: new Date(y, m, d + 1, 19, 0),
-                        end: new Date(y, m, d + 1, 22, 30),
-                        allDay: false,
-                        backgroundColor: '#00a65a', //Success (green)
-                        borderColor: '#00a65a' //Success (green)
-                    },
-                    {
-                        title: 'Click for Google',
-                        start: new Date(y, m, 28),
-                        end: new Date(y, m, 29),
-                        url: 'http://google.com/',
-                        backgroundColor: '#3c8dbc', //Primary (light-blue)
-                        borderColor: '#3c8dbc' //Primary (light-blue)
-                    }
-                ],
-                eventClick: function (calEvent, jsEvent, view) {
-                    alert('View: ' + view.start);
-                    alert('View: ' + view.end);
-                },
                 editable: true,
                 droppable: true, // this allows things to be dropped onto the calendar !!!
+                eventLimit: true,
+                events: [
+                    {% for event in events %}
+                        {
+                            title: '{{ event.title }}',
+                            start: '{{ event.start_time|date:"Y-m-d H:i:s" }}',
+                            end: '{{ event.end_time|date:"Y-m-d H:i:s" }}',
+                            backgroundColor: '#f56954', //red
+                            borderColor: '#f56954' //red
+                        },
+                    {% endfor %}
+                ],
                 drop: function (date, allDay) { // this function is called when something is dropped
 
                     // retrieve the dropped element's stored Event Object
@@ -373,6 +482,292 @@
                         $(this).remove()
                     }
 
+                },
+                dayClick: function (date, allDay, jsEvent, view) {
+                    var selDate = $.fullCalendar.formatDate(date, "YYYY-MM-DD");
+                    var d = dialog({
+                        title: "新建事件",
+                        content: "<textarea rows=5 class='taxt' placeholder='内容' id='eventall'></textarea><p>" + selDate + "</p>",
+                        width: 460,
+                        button: [{
+                            value: "完整编辑",
+                            callback: function () {
+                                $(".datepicker").datepicker({
+                                    language: "zh-CN",
+                                    format: "yyyy-mm-dd",
+                                    todayHighlight: true,
+                                    autoclose: true,
+                                    weekStart: 0
+                                });
+                                $('.timepicker').wickedpicker({
+                                    title: '',
+                                    showSeconds: true,
+                                    twentyFour: true
+                                });
+                                $("#isallday").click(function () {
+                                    if ($("#isallday").prop("checked") == true) {
+                                        $("#isallday").val("1");
+                                        $("#starttime,#endtime").hide();
+                                    } else {
+                                        $("#isallday").val("0");
+                                        $("#starttime,#endtime").show();
+                                    }
+                                    ;
+                                });
+                                $("#end").click(function () {
+                                    if ($("#end").prop("checked") == true) {
+                                        $("#enddate").show();
+                                    } else {
+                                        $("#enddate").hide();
+                                    }
+                                    ;
+                                });
+                                $("#repeat").click(function () {
+                                    if ($("#repeat").prop("checked") == true) {
+                                        $("#repeattype,#repeattime").show();
+                                    } else {
+                                        $("#repeattype,#repeattime").hide();
+                                    }
+                                    ;
+                                });
+                                $("#repeatselect").change(function () {
+                                    switch ($("#repeatselect").val()) {
+                                        case "1":
+                                            $("#repeatclock").show();
+                                            $("#repeatmonth,#repeatweek,#repeatday").hide();
+                                            break;
+                                        case "2":
+                                            $("#repeatmonth,#repeatday").hide();
+                                            $("#repeatweek,#repeatclock").show();
+                                            break;
+                                        case "3":
+                                            $("#repeatmonth,#repeatweek").hide();
+                                            $("#repeatday,#repeatclock").show();
+                                            break;
+                                        case "4":
+                                            $("#repeatweek").hide();
+                                            $("#repeatmonth,#repeatday,#repeatclock").show();
+                                            break;
+                                        case "5":
+                                            $("#repeatclock").show();
+                                            $("#repeatmonth,#repeatweek,#repeatday").hide();
+                                            break;
+                                    }
+                                });
+                                dialog({
+                                    title: "新建日程",
+                                    content: $("#dialog-form"),
+                                    okValue: "确定",
+                                    ok: function () {
+                                        var titledetail = $("#titledetail").val();
+                                        var startdate = $("#startdate").val();
+                                        var starttime = $("#starttime").val().split(" ").join("");
+                                        var enddate = $("#stopdate").val();
+                                        var endtime = $("#endtime").val().split(" ").join("");
+                                        var allDay = $("#isallday").val();
+                                        if (titledetail) {
+                                            $.ajax({
+                                                url: '{% url 'user_center' %}',
+                                                data: {
+                                                    title: titledetail,
+                                                    sdate: startdate,
+                                                    stime: starttime,
+                                                    edate: enddate,
+                                                    etime: endtime,
+                                                    allDay: allDay
+                                                },
+                                                type: 'POST',
+                                                dataType: 'json',
+                                                beforeSend: function (xhr) {
+                                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                                },
+                                                success: function (data) {
+                                                    $("#calendar").fullCalendar("renderEvent", data['data'], true);
+                                                },
+                                                error: function () {
+                                                    alert("Failed");
+                                                }
+
+                                            });
+                                        }
+                                        ;
+                                    },
+                                    cancelValue: "关闭",
+                                    cancel: function () {
+                                    }
+                                }).showModal();
+                            },
+                        }],
+                        okValue: "确定",
+                        ok: function () {
+                            var titleall = $("#eventall").val();
+                            if (titleall) {
+                                $.ajax({
+                                    url: 'http://localhost/fullcalendar/events.php',
+                                    data: {title: titleall, start: selDate},
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    success: function (data) {
+                                        $("#calendar").fullCalendar("renderEvent", data, true);
+                                    },
+                                    error: function () {
+                                        alert("Failed");
+                                    }
+
+                                });
+                            }
+                            ;
+                        },
+                        cancelValue: "取消",
+                        cancel: function () {
+                        }
+                    });
+                    d.showModal();
+
+                },
+                eventClick: function (event, jsEvent, view) {
+                    var editstarttime = $.fullCalendar.formatDate(event.start, "YYYY-MM-DD HH:mm:ss");
+                    $("#edittitle").html(event.title);
+                    var eventtitle = event.title;
+                    if (event.end) {
+                        var editendtime = $.fullCalendar.formatDate(event.end, "YYYY-MM-DD HH:mm:ss");
+                        $("#edittime").html(editstarttime + "  至  " + editendtime);
+                    } else {
+                        $("#edittime").html(editstarttime);
+                    }
+                    ;
+                    // var time = '19:00:00';
+                    dialog({
+                        title: "编辑日程",
+                        content: $("#edit"),
+                        okValue: "编辑",
+                        ok: function () {
+                            $(".datepicker").datepicker({
+                                language: "zh-CN",
+                                format: "yyyy-mm-dd",
+                                todayHighlight: true,
+                                autoclose: true,
+                                weekStart: 0
+                            });
+                            $('.timepicker').wickedpicker({
+                                title: '',
+                                showSeconds: true,
+                                twentyFour: true
+                            });
+                            $("#isallday").click(function () {
+                                if ($("#isallday").prop("checked") == true) {
+                                    $("#isallday").val("1");
+                                    $("#starttime,#endtime").hide();
+                                } else {
+                                    $("#isallday").val("0");
+                                    $("#starttime,#endtime").show();
+                                }
+                                ;
+                            });
+                            $("#end").click(function () {
+                                if ($("#end").prop("checked") == true) {
+                                    $("#enddate").show();
+                                } else {
+                                    $("#enddate").hide();
+                                }
+                                ;
+                            });
+                            $("#repeat").click(function () {
+                                if ($("#repeat").prop("checked") == true) {
+                                    $("#repeattype,#repeattime").show();
+                                } else {
+                                    $("#repeattype,#repeattime").hide();
+                                }
+                                ;
+                            });
+                            $("#repeatselect").change(function () {
+                                switch ($("#repeatselect").val()) {
+                                    case "1":
+                                        $("#repeatclock").show();
+                                        $("#repeatmonth,#repeatweek,#repeatday").hide();
+                                        break;
+                                    case "2":
+                                        $("#repeatmonth,#repeatday").hide();
+                                        $("#repeatweek,#repeatclock").show();
+                                        break;
+                                    case "3":
+                                        $("#repeatmonth,#repeatweek").hide();
+                                        $("#repeatday,#repeatclock").show();
+                                        break;
+                                    case "4":
+                                        $("#repeatweek").hide();
+                                        $("#repeatmonth,#repeatday,#repeatclock").show();
+                                        break;
+                                    case "5":
+                                        $("#repeatclock").show();
+                                        $("#repeatmonth,#repeatweek,#repeatday").hide();
+                                        break;
+                                }
+                            });
+                            dialog({
+                                title: "新建日程",
+                                content: $("#dialog-form"),
+                                okValue: "确定",
+                                ok: function () {
+                                    var titledetail = $("#titledetail").val();
+                                    var startdate = $("#startdate").val();
+                                    var starttime = $("#starttime").val().split(" ").join("");
+                                    var enddate = $("#stopdate").val();
+                                    var endtime = $("#endtime").val().split(" ").join("");
+                                    var allDay = $("#isallday").val();
+                                    if (titledetail) {
+                                        $.ajax({
+                                            url: 'http://localhost/fullcalendar/detail.php',
+                                            data: {
+                                                title: titledetail,
+                                                sdate: startdate,
+                                                stime: starttime,
+                                                edate: enddate,
+                                                etime: endtime,
+                                                allDay: allDay
+                                            },
+                                            type: 'POST',
+                                            dataType: 'json',
+                                            success: function (data) {
+                                                $("#calendar").fullCalendar("renderEvent", data, true);
+                                            },
+                                            error: function () {
+                                                alert("Failed");
+                                            }
+
+                                        });
+                                    }
+                                    ;
+                                },
+                                cancelValue: "关闭",
+                                cancel: function () {
+                                    //$("#ui-datepicker-div").remove();
+                                }
+                            }).showModal();
+                            $("#calendar").fullCalendar("removeEvents", function (event) {
+                                if (event.title == eventtitle) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
+                        },
+                        button: [{
+                            value: "删除",
+                            callback: function () {
+                                $("#calendar").fullCalendar("removeEvents", function (event) {
+                                    if (event.title == eventtitle) {
+                                        return true;
+                                    } else {
+                                        return false;
+                                    }
+                                });
+                            }
+                        }],
+                        cancelValue: "取消",
+                        cancel: function () {
+                        }
+                    }).showModal();
                 }
             });
 

@@ -202,7 +202,9 @@ desired effect
                         <ul class="treeview-menu">
                             <li><a href="{% url 'user_list' %}"><i class="fa  fa-user"></i>用户列表</a></li>
                             <li><a href="{% url 'group_list' %}"><i class="fa fa-users"></i>用户组</a></li>
-                            <li><a href="{% url 'scan_history' %}"><i class="fa fa-user-secret"></i>登录日志</a></li>
+                            {% if perms.users.view_userlog %}
+                                <li><a href="{% url 'user_log' %}"><i class="fa fa-user-secret"></i>操作记录</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                 {% endif %}

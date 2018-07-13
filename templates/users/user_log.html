@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>操作记录</h1>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <br>
+            <div class="col-sm-8">
+                <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
+                    <i class="fa fa-warning"></i>
+                    <span class="bigger-110">批量删除</span>
+                </button>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="moduleLogStartTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="开始时间">
+                        <span class="input-group-addon">
+										                    <span class="glyphicon glyphicon-calendar"></span>
+										                </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="moduleLogEndTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="结束时间">
+                        <span class="input-group-addon" onclick="searchUserLog()">
+										                    <span class="glyphicon glyphicon-search"
+                                                                  style="cursor: pointer"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th><label>
+                                <input type="checkbox" class="minimal-red" id="checkAll">
+                            </label></th>
+                            <th>ID</th>
+                            <th>操作用户</th>
+                            <th>操作用户IP</th>
+                            <th>操作内容</th>
+                            <th>操作时间</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user_log in user_logs %}
+
+                            <tr id="user_log-{{ user_log.id }}">
+                                <td><label>
+                                    <input type="checkbox" class="minimal" value="{{ user_log.id }}">
+                                </label></td>
+                                <td>{{ user_log.id }}</td>
+                                <td>{{ user_log.user }}</td>
+                                <td>{{ user_log.remote_ip }}</td>
+                                <td>{{ user_log.content }}</td>
+                                <td>{{ user_log.c_time|date:"Y-m-d H:i:s" }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-default"
+                                            onclick="deleteLog({{ user_log.id }})"><i
+                                            class="glyphicon glyphicon-trash"></i></button>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <!-- iCheck 1.0.1 -->
+    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                columnDefs: [{
+                    'targets': [0, -1],
+                    'orderable': false
+                }],
+                "order": [[1, "desc"]]
+            });
+
+            //Date picker
+            $('#moduleLogStartTime, #moduleLogEndTime').datepicker({
+                autoclose: true
+            });
+
+            //iCheck for checkbox inputs
+            $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
+                checkboxClass: 'icheckbox_minimal-blue',
+            });
+        });
+
+
+        //实现全选
+        $(function () {
+            let checkAll = $('#checkAll');
+            let checkboxes = $('input[type="checkbox"]');
+            checkAll.on('ifChecked ifUnchecked', function (event) {
+                if (event.type === 'ifChecked') {
+                    checkboxes.iCheck('check');
+                } else {
+                    checkboxes.iCheck('uncheck');
+                }
+            });
+            checkboxes.on('ifChanged', function () {
+                if (checkboxes.filter(':checked').length === checkboxes.length) {
+                    checkAll.prop('checked', 'checked');
+                } else {
+                    checkAll.removeProp('checked');
+                }
+                checkAll.iCheck('update');
+            });
+        });
+
+        //删除日志
+        function deleteLog(id) {
+            {% if perms.users.delete_userlog %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/user_log/' + id,
+                                method: 'DELETE',
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                },
+                                success: function () {
+                                    let str = 'user_log-' + id;
+                                    document.getElementById(str).innerHTML = '';
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除操作日志的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        }
+
+        // 批量删除
+        $("#deleteChecked").click(function () {
+            {% if perms.users.delete_userlog %}
+                let checkedID = [];
+                $('input[type="checkbox"].minimal:checked').each(function () {
+                    checkedID.push($(this).val());
+                });
+                if (checkedID.length === 0) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: '请选择要删除的日志！',
+                    })
+                } else {
+                    $.confirm({
+                        title: 'Tips',
+                        content: '确定要删除这些日志么？',
+                        type: 'red',
+                        buttons: {
+                            Ok: function () {
+                                for (let i = 0; i < checkedID.length; i++) {
+                                    $.ajax({
+                                        url: '/api/user_log/' + checkedID[i],
+                                        method: 'DELETE',
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                        },
+                                        success: function () {
+                                            let str = 'user_log-' + checkedID[i];
+                                            document.getElementById(str).innerHTML = '';
+                                        },
+                                        error: function (data) {
+                                            $.alert({
+                                                title: 'Tips',
+                                                type: 'red',
+                                                content: '删除失败！' + data.responseText,
+                                            })
+                                        }
+                                    })
+                                }
+                            },
+                            Cancel: function () {
+                                // close
+                            }
+                        }
+                    })
+                }
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除操作日志的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+
+        });
+
+        // 按日期搜索
+        function searchUserLog() {
+            let startTime = $('#moduleLogStartTime').val();
+            let endTime = $('#moduleLogEndTime').val();
+            if (startTime.length === 0 || endTime.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请选择起始时间！'
+                });
+                return false;
+            }
+            $.ajax({
+                dataType: "JSON",
+                url: '{% url 'user_log' %}',
+                type: "POST",  //提交类似
+                data: {
+                    "startTime": startTime,
+                    "endTime": endTime,
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function (response) {
+                    if (response.length === 0) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '该时间段内没有任何操作！'
+                        });
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '查询完成！'
+                        });
+                        let obj = $('#moduleLog tbody');
+                        obj.html('');
+                        for (let i = 0; i < response.length; i++) {
+                            let result = response[i];
+                            let c_time = $.format.date(result.fields['c_time'], "yyyy-MM-dd HH:mm:ss");
+                            obj.append(
+                                '<tr id="user_log-' + result.pk + '">' +
+                                '<td>' + result.pk + '</td>' +
+                                '<td>' + result.fields['user'] + '</td>' +
+                                '<td>' + result.fields['remote_ip'] + '</td>' +
+                                '<td>' + result.fields['content'] + '</td>' +
+                                '<td>' + c_time + '</td>' +
+                                '<button type="button" class="btn btn-default" onclick="deleteLog(' + result.pk + ')"><i class="glyphicon glyphicon-trash"></i></button>' + '</td>' +
+                                '</tr>'
+                            )
+                        }
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText
+                    });
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
+

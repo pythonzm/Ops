@@ -289,11 +289,6 @@
                                 success: function () {
                                     let str = 'user-' + id;
                                     document.getElementById(str).innerHTML = '';
-                                    $.alert({
-                                        title: 'Tips',
-                                        type: 'green',
-                                        content: '删除成功！'
-                                    })
                                 },
                                 error: function (data) {
                                     $.alert({
@@ -402,7 +397,7 @@
                     $.alert({
                         title: 'Tips',
                         type: 'red',
-                        content: response,
+                        content: response['msg'],
                     });
                 }
             })
@@ -430,11 +425,11 @@
                                         content: res['msg'],
                                     })
                                 },
-                                error: function (data) {
+                                error: function (res) {
                                     $.alert({
                                         title: 'Tips',
                                         type: 'red',
-                                        content: '删除失败！' + data.responseText,
+                                        content: res['msg'],
                                     })
                                 }
                             })

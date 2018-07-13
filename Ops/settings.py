@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import sys
+from kombu import Queue, Exchange
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,8 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Application definition
-
+# channel配置
 CHANNEL_LAYERS = {
     "default": {
         # This example app uses the Redis channel layer implementation channels_redis
@@ -40,6 +40,21 @@ CHANNEL_LAYERS = {
     },
 }
 
+# celery配置
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/3'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json']
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24
+CELERYD_MAX_TASKS_PER_CHILD = 40
+CELERY_TRACK_STARTED = True
+CELERY_ENABLE_UTC = False
+CELERY_TIMEZONE = 'Asia/Shanghai'
+
+CELERY_ROUTES = {
+    'users.tasks.*': {'queue': 'default', 'routing_key': 'default'},
+}
+
 ASGI_APPLICATION = "Ops.routing.application"
 
 # 执行ansible命令使用的redis信息
@@ -48,6 +63,7 @@ REDIS_PORT = 6379
 REDIS_DB = 2
 REDIS_PASSWORD = None
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -76,6 +92,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'utils.middleware.UserLoginMiddleware',
+    'utils.middleware.RecordMiddleware',
 ]
 
 REST_FRAMEWORK = {
