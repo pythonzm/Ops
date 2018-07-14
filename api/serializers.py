@@ -8,7 +8,7 @@ from users.models import UserProfile, UserLog
 from django.contrib.auth.models import Permission, Group
 
 
-class HostInfoSerializer(serializers.HyperlinkedModelSerializer):
+class HostInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = HostInfo
         fields = ('id', 'internal_ip', 'public_ip', 'system_ver', 'hostname',
@@ -16,14 +16,14 @@ class HostInfoSerializer(serializers.HyperlinkedModelSerializer):
                   'cpu_model', 'total_disk', 'scan_datetime')
 
 
-class ModuleLogSerializer(serializers.HyperlinkedModelSerializer):
+class ModuleLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnsibleModuleLog
         fields = ('id', 'ans_user', 'ans_remote_ip', 'ans_module', 'ans_args',
                   'ans_server', 'ans_result', 'ans_datetime')
 
 
-class AssetsSerializer(serializers.HyperlinkedModelSerializer):
+class AssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assets
         fields = (
@@ -32,7 +32,7 @@ class AssetsSerializer(serializers.HyperlinkedModelSerializer):
             'asset_memo')
 
 
-class ServerAssetsSerializer(serializers.HyperlinkedModelSerializer):
+class ServerAssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServerAssets
         fields = (
@@ -41,86 +41,86 @@ class ServerAssetsSerializer(serializers.HyperlinkedModelSerializer):
             'system')
 
 
-class NetworkAssetsSerializer(serializers.HyperlinkedModelSerializer):
+class NetworkAssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkAssets
         fields = ('id', 'asset', 'network_type', 'port_number', 'firmware')
 
 
-class OfficeAssetsSerializer(serializers.HyperlinkedModelSerializer):
+class OfficeAssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = OfficeAssets
         fields = ('id', 'asset', 'office_type')
 
 
-class SecurityAssetsSerializer(serializers.HyperlinkedModelSerializer):
+class SecurityAssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SecurityAssets
         fields = ('id', 'asset', 'security_type')
 
 
-class StorageAssetsSerializer(serializers.HyperlinkedModelSerializer):
+class StorageAssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = StorageAssets
         fields = ('id', 'asset', 'storage_type')
 
 
-class SoftwareAssetsSerializer(serializers.HyperlinkedModelSerializer):
+class SoftwareAssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SoftwareAssets
         fields = ('id', 'asset', 'software_type')
 
 
-class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ('id', 'parent_project', 'project_name', 'project_memo')
 
 
-class BusinessSerializer(serializers.HyperlinkedModelSerializer):
+class BusinessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
         fields = ('id', 'project_name', 'business_name', 'business_memo')
 
 
-class AssetProviderSerializer(serializers.HyperlinkedModelSerializer):
+class AssetProviderSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetProvider
         fields = (
             'id', 'asset_provider_name', 'asset_provider_contact', 'asset_provider_telephone', 'asset_provider_memo')
 
 
-class IDCSerializer(serializers.HyperlinkedModelSerializer):
+class IDCSerializer(serializers.ModelSerializer):
     class Meta:
         model = IDC
         fields = ('id', 'idc_name', 'idc_address', 'idc_contact', 'idc_telephone', 'idc_memo')
 
 
-class CabinetsSerializer(serializers.HyperlinkedModelSerializer):
+class CabinetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cabinets
         fields = ('id', 'idc', 'cabinets_name', 'cabinets_memo')
 
 
-class UsersSerializer(serializers.HyperlinkedModelSerializer):
+class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('id', 'username', 'password', 'mobile', 'is_superuser', 'is_active', 'groups', 'user_permissions')
+        fields = ('id', 'username', 'mobile', 'is_superuser', 'is_active', 'groups', 'user_permissions')
 
 
-class PermissionSerializer(serializers.HyperlinkedModelSerializer):
+class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
         fields = ('id', 'name')
 
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'user_set', 'permissions')
 
 
-class UserLogSerializer(serializers.HyperlinkedModelSerializer):
+class UserLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserLog
         fields = ('id', 'user', 'remote_ip', 'content')

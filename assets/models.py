@@ -14,9 +14,8 @@ class Assets(models.Model):
     asset_status_ = (
         (0, '已上线'),
         (1, '已下线'),
-        (2, '维修中'),
-        (3, '故障'),
-        (4, '未使用'),
+        (2, '故障中'),
+        (3, '未使用'),
     )
     asset_type = models.CharField(choices=asset_type_choices, max_length=100, default='server', verbose_name='资产类型')
     asset_nu = models.CharField(max_length=100, verbose_name='资产编号', unique=True)
@@ -248,7 +247,7 @@ class AssetProvider(models.Model):
     """供应商"""
     asset_provider_name = models.CharField(max_length=64, unique=True, verbose_name='供应商名称')
     asset_provider_contact = models.CharField(max_length=32, blank=True, null=True, verbose_name='技术支持人员')
-    asset_provider_telephone = models.SmallIntegerField(blank=True, null=True, verbose_name='支持电话')
+    asset_provider_telephone = models.CharField(max_length=11, blank=True, null=True, verbose_name='支持电话')
     asset_provider_memo = models.CharField(max_length=128, blank=True, null=True, verbose_name='备注')
 
     class Meta:
@@ -259,15 +258,10 @@ class AssetProvider(models.Model):
 
 class IDC(models.Model):
     """机房"""
-    cities = (
-        (0, '北京'),
-        (1, '上海')
-    )
     idc_name = models.CharField(max_length=64, unique=True, verbose_name='机房名称')
-    city = models.SmallIntegerField(choices=cities, verbose_name='所在城市')
     idc_address = models.CharField(max_length=100, unique=True, verbose_name='机房地址')
     idc_contact = models.CharField(max_length=32, unique=True, verbose_name='机房联系人')
-    idc_telephone = models.SmallIntegerField(blank=True, null=True, verbose_name='支持电话')
+    idc_telephone = models.CharField(max_length=11, blank=True, null=True, verbose_name='支持电话')
     idc_memo = models.CharField(max_length=100, blank=True, null=True, verbose_name='备注')
 
     class Meta:

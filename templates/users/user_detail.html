@@ -20,7 +20,7 @@
                     用户名称
                 </label>
                 <div class="col-sm-10">
-                    <input name="username" class="form-control" type="text"
+                    <input id="username" class="form-control" type="text"
                            value="{{ user.username }}">
                     <span class="help-block">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</span>
                 </div>
@@ -30,7 +30,7 @@
                     手机号码
                 </label>
                 <div class="col-sm-10">
-                    <input name="mobile" class="form-control" type="number"
+                    <input id="mobile" class="form-control" type="number"
                            value="{{ user.mobile }}">
                 </div>
             </div>
@@ -40,7 +40,7 @@
                 </label>
                 <div class="col-sm-10">
 
-                    <select class="form-control select2" name="is_superuser" style="width: 100%;">
+                    <select class="form-control select2" id="is_superuser" style="width: 100%;">
                         {% if user.is_superuser %}
                             <option selected="selected" value="1">是</option>
                             <option value="0">否</option>
@@ -58,7 +58,7 @@
                 </label>
                 <div class="col-sm-10">
 
-                    <select class="form-control select2" name="is_active" style="width: 100%;">
+                    <select class="form-control select2" id="is_active" style="width: 100%;">
                         {% if user.is_active %}
                             <option selected="selected" value="1">是</option>
                             <option value="0">否</option>
@@ -75,7 +75,7 @@
                     所属组
                 </label>
                 <div class="col-sm-10">
-                    <select class="form-control select2" multiple="multiple" name="groups" style="width: 100%;">
+                    <select class="form-control select2" multiple="multiple" id="groups" style="width: 100%;">
                         {% for group in groups %}
                             {% if group in user.groups.all %}
                                 <option value="{{ group.id }}" selected>{{ group }}</option>
@@ -91,7 +91,7 @@
                     用户权限
                 </label>
                 <div class="col-sm-10">
-                    <select class="form-control select2" multiple="multiple" name="user_permissions"
+                    <select class="form-control select2" multiple="multiple" id="user_permissions"
                             style="width: 100%;">
                         {% for permission in permissions %}
                             {% if permission in user.user_permissions.all %}
@@ -128,19 +128,28 @@
 
         function updateUser() {
             {% if perms.users.change_userprofile %}
-                let data = $('.form-horizontal').serialize();
+                let data = {
+                    username: $('#username').val(),
+                    mobile: $('#mobile').val(),
+                    is_superuser: $('#is_superuser').val(),
+                    is_active: $('#is_active').val(),
+                    groups: $('#groups').val(),
+                    user_permissions: $('#user_permissions').val()
+                };
                 $.ajax({
-                    url: "/users/user/{{ user.id }}/",
-                    type: "POST",
-                    data: data,
+                    url: "/api/users/{{ user.id }}/",
+                    type: "PUT",
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                     },
-                    success: function () {
+                    success: function (response) {
                         $.confirm({
                             title: 'Tips',
                             type: 'green',
-                            content: '修改成功！',
+                            content: response.responseText,
                             buttons: {
                                 'OK': function () {
                                     window.location.href = '/users/user_list/'
@@ -152,7 +161,7 @@
                         $.alert({
                             title: 'Tips',
                             type: 'red',
-                            content: '修改失败！' + response.responseText,
+                            content: response.responseText,
                         })
                     }
                 });

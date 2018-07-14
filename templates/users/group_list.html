@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block content-header %}
-    <h1>组列表</h1>
+    <h1>用户组列表</h1>
 {% endblock %}
 
 {% block content %}
@@ -61,7 +61,7 @@
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">用户组名称</label>
                                         <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="groupname" required/>
+                                            <input type="text" class="form-control" id="name" required/>
                                         </div>
                                     </div>
 
@@ -69,7 +69,7 @@
                                         <label class="col-sm-2 control-label">添加用户</label>
                                         <div class="col-sm-6">
 
-                                            <select class="form-control select2" multiple="multiple" name="users"
+                                            <select class="form-control select2" multiple="multiple" id="user_set"
                                                     style="width: 100%;">
                                                 {% for user in users %}
                                                     <option value="{{ user.id }}">{{ user.username }}</option>
@@ -84,7 +84,7 @@
                                         <div class="col-sm-6">
 
                                             <select class="form-control select2" multiple="multiple"
-                                                    name="group_permissions"
+                                                    id="permissions"
                                                     style="width: 100%;">
                                                 {% for permission in permissions %}
                                                     <option value="{{ permission.id }}">{{ permission.name }}</option>
@@ -326,11 +326,17 @@
 
         // 新增用户组
         function createGroup() {
-            let data = $('#register').serialize();
+            let data = {
+                name: $('#name').val(),
+                user_set: $('#user_set').val(),
+                permissions: $('#permissions').val()
+            };
             $.ajax({
-                url: '{% url 'create_group' %}',
-                method: 'POST',
-                data: data,
+                url: '/api/group/',
+                type: "POST",
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: "application/json",
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                 },

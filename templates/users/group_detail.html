@@ -20,7 +20,7 @@
                     用户组名称
                 </label>
                 <div class="col-sm-10">
-                    <input name="groupname" class="form-control" type="text"
+                    <input id="name" class="form-control" type="text"
                            value="{{ group.name }}">
                 </div>
             </div>
@@ -30,7 +30,7 @@
                     用户列表
                 </label>
                 <div class="col-sm-10">
-                    <select class="form-control select2" multiple="multiple" name="users" style="width: 100%;">
+                    <select class="form-control select2" multiple="multiple" id="user_set" style="width: 100%;">
                         {% for user in users %}
                             {% if user in group.user_set.all %}
                                 <option value="{{ user.id }}" selected>{{ user }}</option>
@@ -46,7 +46,7 @@
                     用户组权限
                 </label>
                 <div class="col-sm-10">
-                    <select class="form-control select2" multiple="multiple" name="group_permissions"
+                    <select class="form-control select2" multiple="multiple" id="permissions"
                             style="width: 100%;">
                         {% for permission in permissions %}
                             {% if permission in group.permissions.all %}
@@ -81,21 +81,47 @@
             $('.select2').select2()
         });
 
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        serializeObj[this.name] = this.value;
+                    }
+                });
+                return serializeObj;
+            };
+        })(jQuery);
+
+        //更新组信息
         function updateGroup() {
             {% if perms.auth.change_group %}
-                let data = $('.form-horizontal').serialize();
+                let data = {
+                    name: $('#name').val(),
+                    user_set: $('#user_set').val(),
+                    permissions: $('#permissions').val()
+                };
                 $.ajax({
-                    url: "/users/group/{{ group.id }}/",
-                    type: "POST",
-                    data: data,
+                    url: "/api/group/{{ group.id }}/",
+                    type: "PUT",
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                     },
-                    success: function () {
+                    success: function (response) {
                         $.confirm({
                             title: 'Tips',
                             type: 'green',
-                            content: '修改成功！',
+                            content: response.responseText,
                             buttons: {
                                 'OK': function () {
                                     window.location.href = '/users/group_list/'
@@ -107,7 +133,7 @@
                         $.alert({
                             title: 'Tips',
                             type: 'red',
-                            content: '修改失败！' + response.responseText,
+                            content: response.responseText,
                         })
                     }
                 });
