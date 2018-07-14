@@ -144,7 +144,37 @@ desired effect
                             <li class="footer"><a href="#">View all</a></li>
                         </ul>
                     </li>
+
                     <!-- Tasks Menu -->
+                    <li class="dropdown tasks-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-flag-o"></i>
+                            <span class="label label-danger">{{ user.user_plan.count }}</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="header">您有{{ user.user_plan.count }}个未办事项</li>
+                            <li>
+                                <!-- inner menu: contains the actual data -->
+                                <ul class="menu">
+                                    {% for plan in user.user_plan.all|slice:":3" %}
+                                        <li><!-- Task item -->
+                                            <a href="javascript:void(0)">
+                                                <h3 style="font-weight: bold;">
+                                                    {{ plan.title }}
+                                                    <small class="pull-right">
+                                                        结束时间：{{ plan.end_time|date:"Y-m-d H:i:s" }}</small>
+                                                </h3>
+                                            </a>
+                                        </li>
+                                        <!-- end task item -->
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li class="footer">
+                                <a href="{% url 'user_center' %}">查看所有</a>
+                            </li>
+                        </ul>
+                    </li>
 
                     <!-- User Account Menu -->
                     <li class="dropdown user user-menu">

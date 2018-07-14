@@ -2,7 +2,7 @@
 from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from users.tasks import users_record
-from users.models import UserProfile
+from users.models import UserProfile, UserPlan
 from django.contrib.auth.models import Group
 
 
@@ -16,6 +16,13 @@ class UserLoginMiddleware(MiddlewareMixin):
         user = request.session.get('username')
         if not user:
             return redirect('/login/')
+
+
+class GetUserTasksMiddleware(MiddlewareMixin):
+    @staticmethod
+    def process_request(request):
+        user_task_count = UserPlan.objects.filter(user=request.user).count()
+        return user_task_count
 
 
 class RecordMiddleware(MiddlewareMixin):

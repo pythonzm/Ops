@@ -18,10 +18,22 @@ class UserLog(models.Model):
     content = models.CharField(max_length=100, verbose_name='操作内容')
     c_time = models.DateTimeField(auto_now_add=True, verbose_name='操作时间')
 
+    class Meta:
+        db_table = 'ops_users_log'
+        verbose_name = '用户管理操作记录表'
+        verbose_name_plural = '用户管理操作记录表'
+
 
 class UserPlan(models.Model):
+    user = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='user_plan')
     title = models.CharField(max_length=32, verbose_name='计划标题')
     start_time = models.DateTimeField(null=True, blank=True, verbose_name='开始时间')
     end_time = models.DateTimeField(null=True, blank=True, verbose_name='结束时间')
     all_day = models.SmallIntegerField(null=True, blank=True, verbose_name='是否全天')
     color = models.CharField(null=True, blank=True, max_length=32, verbose_name='颜色')
+
+    class Meta:
+        db_table = 'ops_user_plan'
+        unique_together = (("user", "title"),)
+        verbose_name = '用户计划表'
+        verbose_name_plural = '用户计划表'
