@@ -191,9 +191,9 @@
                                 </td>
                                 <td>{{ user.mobile }}</td>
                                 <td>
-                                    <a href="/users/user/{{ user.id }}">
-                                        <button type="button" class="btn btn-success btn-xs">详细/更新</button>
-                                    </a>
+                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
+                                            data-target="#updateUserModal-{{ user.id }}">详细/更新
+                                    </button>
                                     <button type="button" class="btn btn-warning btn-xs"
                                             onclick="resetPassword({{ user.id }})">重置密码
                                     </button>
@@ -202,6 +202,122 @@
                                     </button>
                                 </td>
                             </tr>
+
+
+                            <!-- updateUserModal  -->
+                            <div class="modal fade" id="updateUserModal-{{ user.id }}" tabindex="-1" role="dialog"
+                                 aria-labelledby="myUpdateUserModalLabel"
+                                 aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <h4 class="modal-title" id="myUpdateUserModalLabel">
+                                                用户信息
+                                            </h4>
+                                        </div>
+                                        {% if perms.users.change_userprofile %}
+                                            <div class="modal-body">
+                                                <form id="update-user" class="main form-horizontal">
+                                                    <fieldset>
+                                                        <div class="form-group">
+                                                            <label for="username">用户名称</label>
+                                                            <input id="username" class="form-control" type="text"
+                                                                   value="{{ user.username }}">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="mobile">手机号码</label>
+                                                            <input id="mobile" class="form-control" type="number"
+                                                                   value="{{ user.mobile }}">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="is_superuser">超级管理员</label>
+                                                            <select class="form-control select2" id="is_superuser"
+                                                                    style="width: 100%;">
+                                                                {% if user.is_superuser %}
+                                                                    <option selected="selected" value="1">是</option>
+                                                                    <option value="0">否</option>
+                                                                {% else %}
+                                                                    <option value="1">是</option>
+                                                                    <option selected="selected" value="0">否</option>
+                                                                {% endif %}
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="is_active">是否激活</label>
+                                                            <select class="form-control select2" id="is_active"
+                                                                    style="width: 100%;">
+                                                                {% if user.is_active %}
+                                                                    <option selected="selected" value="1">是</option>
+                                                                    <option value="0">否</option>
+                                                                {% else %}
+                                                                    <option value="1">是</option>
+                                                                    <option selected="selected" value="0">否</option>
+                                                                {% endif %}
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="groups">所属组</label>
+                                                            <select class="form-control select2" multiple="multiple"
+                                                                    id="groups" style="width: 100%;">
+                                                                {% for group in groups %}
+                                                                    {% if group in user.groups.all %}
+                                                                        <option value="{{ group.id }}"
+                                                                                selected>{{ group }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ group.id }}">{{ group }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="user_permissions">用户权限</label>
+                                                            <select class="form-control select2" multiple="multiple"
+                                                                    id="user_permissions"
+                                                                    style="width: 100%;">
+                                                                {% for permission in permissions %}
+                                                                    {% if permission in user.user_permissions.all %}
+                                                                        <option value="{{ permission.id }}"
+                                                                                selected>{{ permission }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ permission.id }}">{{ permission }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="space-24"></div>
+
+                                                    </fieldset>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                                </button>
+                                                <button type="button" class="btn btn-primary"
+                                                        onclick="updateUser({{ user.id }})">
+                                                    确认修改
+                                                </button>
+                                            </div>
+                                        {% else %}
+                                            <div class="modal-body">
+                                                抱歉！您没有新增用户的权限！如有疑问，请联系管理员！
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">确认
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                    </div><!-- /.modal-content -->
+                                </div><!-- /.modal -->
+                            </div>
 
                         {% endfor %}
 
@@ -401,6 +517,47 @@
                     });
                 }
             })
+        }
+
+        // 修改用户
+        function updateUser(id) {
+            let data = {
+                username: $('#updateUserModal-' + id + ' #username').val(),
+                mobile: $('#updateUserModal-' + id + ' #mobile').val(),
+                is_superuser: $('#updateUserModal-' + id + ' #is_superuser').val(),
+                is_active: $('#updateUserModal-' + id + ' #is_active').val(),
+                groups: $('#updateUserModal-' + id + ' #groups').val(),
+                user_permissions: $('#updateUserModal-' + id + ' #user_permissions').val()
+            };
+            $.ajax({
+                url: "/api/users/" + id + "/",
+                type: "PUT",
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: "application/json",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function (response) {
+                    $.confirm({
+                        title: 'Tips',
+                        type: 'green',
+                        content: response.responseText,
+                        buttons: {
+                            'OK': function () {
+                                window.location.href = '/users/user_list/'
+                            }
+                        }
+                    });
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            });
         }
 
         // 重置密码

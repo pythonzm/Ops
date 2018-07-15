@@ -56,7 +56,7 @@
                     </div>
                     {% if perms.auth.add_group %}
                         <div class="modal-body">
-                            <form id="register" class="main form-horizontal">
+                            <form class="main form-horizontal" id="add-group">
                                 <fieldset>
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">用户组名称</label>
@@ -147,14 +147,94 @@
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    <a href="/users/group/{{ group.id }}">
-                                        <button type="button" class="btn btn-success btn-xs">详细/更新</button>
-                                    </a>
+                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
+                                            data-target="#updateGroupModal-{{ group.id }}">详细/更新
+                                    </button>
                                     <button type="button" class="btn btn-danger btn-xs"
                                             onclick="deleteGroup({{ group.id }})">删除
                                     </button>
                                 </td>
                             </tr>
+
+                            <!-- updateGroupModal  -->
+                            <div class="modal fade" id="updateGroupModal-{{ group.id }}" tabindex="-1" role="dialog"
+                                 aria-labelledby="updateGroupModalLabel"
+                                 aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <h4 class="modal-title" id="myUpdateGroupModalLabel">
+                                                用户组信息
+                                            </h4>
+                                        </div>
+                                        {% if perms.auth.change_group %}
+                                            <div class="modal-body">
+                                                <form class="main form-horizontal" id="update-group">
+                                                    <fieldset>
+                                                        <div class="form-group">
+                                                            <label for="name">用户组名称</label>
+                                                            <input id="name" class="form-control" type="text"
+                                                                   value="{{ group.name }}">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="user_set">用户列表</label>
+                                                            <select class="form-control select2" multiple="multiple"
+                                                                    id="user_set" style="width: 100%;">
+                                                                {% for user in users %}
+                                                                    {% if user in group.user_set.all %}
+                                                                        <option value="{{ user.id }}"
+                                                                                selected>{{ user }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ user.id }}">{{ user }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="permissions">用户组权限</label>
+                                                            <select class="form-control select2" multiple="multiple"
+                                                                    id="permissions"
+                                                                    style="width: 100%;">
+                                                                {% for permission in permissions %}
+                                                                    {% if permission in group.permissions.all %}
+                                                                        <option value="{{ permission.id }}"
+                                                                                selected>{{ permission }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ permission.id }}">{{ permission }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="space-24"></div>
+                                                    </fieldset>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                                </button>
+                                                <button type="button" class="btn btn-primary"
+                                                        onclick="updateGroup({{ group.id }})">
+                                                    确认修改
+                                                </button>
+                                            </div>
+                                        {% else %}
+                                            <div class="modal-body">
+                                                抱歉！您没有修改用户组的权限！如有疑问，请联系管理员！
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">确认
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                    </div><!-- /.modal-content -->
+                                </div><!-- /.modal -->
+                            </div>
 
                         {% endfor %}
 
@@ -327,9 +407,9 @@
         // 新增用户组
         function createGroup() {
             let data = {
-                name: $('#name').val(),
-                user_set: $('#user_set').val(),
-                permissions: $('#permissions').val()
+                name: $('#add-group #name').val(),
+                user_set: $('#add-group #user_set').val(),
+                permissions: $('#add-group #permissions').val()
             };
             $.ajax({
                 url: '/api/group/',
@@ -360,6 +440,44 @@
                     });
                 }
             })
+        }
+
+        //更新组信息
+        function updateGroup(id) {
+            let data = {
+                name: $('#updateGroupModal-' + id + ' #name').val(),
+                user_set: $('#updateGroupModal-' + id + ' #user_set').val(),
+                permissions: $('#updateGroupModal-' + id + ' #permissions').val()
+            };
+            $.ajax({
+                url: "/api/group/" + id + "/",
+                type: "PUT",
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: "application/json",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function (response) {
+                    $.confirm({
+                        title: 'Tips',
+                        type: 'green',
+                        content: response.responseText,
+                        buttons: {
+                            'OK': function () {
+                                window.location.href = '/users/group_list/'
+                            }
+                        }
+                    });
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            });
         }
 
     </script>

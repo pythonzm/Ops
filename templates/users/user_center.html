@@ -30,7 +30,6 @@
             width: 100px;
         }
 
-
         .textarea {
             width: 300px;
         }
@@ -58,7 +57,6 @@
             font-weight: bold;
             font-size: 18px;
         }
-
     </style>
 {% endblock %}
 
@@ -291,13 +289,10 @@
     <!-- 修改头像 -->
     <script src="{% static 'cropper/dist/cropper.min.js' %}"></script>
     <script>
-
         // 日历
         $(function () {
-
             //Initialize Select2 Elements
             $('.select2').select2();
-
             /* initialize the calendar
              -----------------------------------------------------------------*/
             $('#calendar').fullCalendar({
@@ -346,10 +341,10 @@
                                     showSeconds: true,
                                     twentyFour: true
                                 });
-
                                 $("#isallday").click(function () {
                                     if ($("#isallday").prop("checked") === true) {
                                         $("#isallday").val("1");
+                                        $("#starttime,#endtime").val('');
                                         $("#starttime,#endtime").hide();
                                     } else {
                                         $("#isallday").val("0");
@@ -398,7 +393,6 @@
                                                 error: function () {
                                                     alert("Failed");
                                                 }
-
                                             });
                                         }
                                     },
@@ -433,7 +427,6 @@
                                     error: function () {
                                         alert("Failed");
                                     }
-
                                 });
                             }
                         },
@@ -442,10 +435,9 @@
                         }
                     });
                     d.showModal();
-
                 },
                 eventClick: function (event, jsEvent, view) {
-                    let editstarttime = $.fullCalendar.formatDate(event.start, "YYYY-MM-DD HH:mm:ss");
+                    let editstarttime = event.allDay ? $.fullCalendar.formatDate(event.start, "YYYY-MM-DD") : $.fullCalendar.formatDate(event.start, "YYYY-MM-DD HH:mm:ss")
                     $("#edittitle").html(event.title);
                     let eventtitle = event.title;
                     if (event.end) {
@@ -454,7 +446,6 @@
                     } else {
                         $("#edittime").html(editstarttime);
                     }
-
                     dialog({
                         title: "查看日程",
                         content: $("#edit"),
@@ -483,9 +474,7 @@
                                             error: function () {
                                                 alert("Failed");
                                             }
-
                                         });
-
                                         return true;
                                     } else {
                                         return false;
@@ -533,7 +522,6 @@
                                 content: response['msg'],
                             });
                         }
-
                     },
                     error: function (response) {
                         $.alert({
@@ -544,7 +532,6 @@
                     }
                 })
             }
-
         }
 
         // 修改手机号码
@@ -584,7 +571,6 @@
             let input = document.getElementById('updateAvatar');
             let $modal = $('#modal');
             let cropper;
-
             input.addEventListener('change', function (e) {
                 let files = e.target.files;
                 let done = function (url) {
@@ -594,10 +580,8 @@
                 };
                 let reader;
                 let file;
-
                 if (files && files.length > 0) {
                     file = files[0];
-
                     if (URL) {
                         done(URL.createObjectURL(file));
                     } else if (FileReader) {
@@ -609,7 +593,6 @@
                     }
                 }
             });
-
             $modal.on('shown.bs.modal', function () {
                 cropper = new Cropper(image, {
                     aspectRatio: 1,
@@ -619,24 +602,18 @@
                 cropper.destroy();
                 cropper = null;
             });
-
             document.getElementById('crop').addEventListener('click', function () {
                 let canvas;
-
                 $modal.modal('hide');
-
                 if (cropper) {
                     canvas = cropper.getCroppedCanvas({
                         width: 160,
                         height: 160,
                     });
-
                     canvas.toBlob(function (blob) {
                         let formData = new FormData();
                         let img_name = new Date().getTime() + '.png';
-
                         formData.append('avatar', blob, img_name);
-
                         $.ajax('{% url 'user_center' %}', {
                             type: 'POST',
                             data: formData,
@@ -646,11 +623,9 @@
                             beforeSend: function (xhr) {
                                 xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                             },
-
                             xhr: function () {
                                 return new XMLHttpRequest();
                             },
-
                             success: function (res) {
                                 $.confirm({
                                     title: 'Tips！',
@@ -663,7 +638,6 @@
                                     }
                                 });
                             },
-
                             error: function (res) {
                                 $.alert({
                                     title: 'Tips',
@@ -676,6 +650,5 @@
                 }
             });
         });
-
     </script>
 {% endblock %}

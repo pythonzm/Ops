@@ -144,7 +144,37 @@ desired effect
                             <li class="footer"><a href="#">View all</a></li>
                         </ul>
                     </li>
+
                     <!-- Tasks Menu -->
+                    <li class="dropdown tasks-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-flag-o"></i>
+                            <span class="label label-danger">{{ user.user_plan.count }}</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="header">您有{{ user.user_plan.count }}个未办事项</li>
+                            <li>
+                                <!-- inner menu: contains the actual data -->
+                                <ul class="menu">
+                                    {% for plan in user.user_plan.all|slice:":3" %}
+                                        <li><!-- Task item -->
+                                            <a href="javascript:void(0)">
+                                                <h3 style="font-weight: bold;">
+                                                    {{ plan.title }}
+                                                    <small class="pull-right">
+                                                        结束时间：{{ plan.end_time|date:"Y-m-d H:i:s" }}</small>
+                                                </h3>
+                                            </a>
+                                        </li>
+                                        <!-- end task item -->
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li class="footer">
+                                <a href="{% url 'user_center' %}">查看所有</a>
+                            </li>
+                        </ul>
+                    </li>
 
                     <!-- User Account Menu -->
                     <li class="dropdown user user-menu">
@@ -172,6 +202,9 @@ desired effect
                                 <div class="pull-left">
                                     <a href="{% url 'user_center' %}" class="btn btn-default btn-flat">个人中心</a>
                                 </div>
+                                <div class="pull-left" style="margin-left: 6px">
+                                    <a href="{% url 'lock_screen' %}" class="btn btn-default btn-flat">暂时离开</a>
+                                </div>
                                 <div class="pull-right">
                                     <a href="{% url 'logout' %}" class="btn btn-default btn-flat">退出用户</a>
                                 </div>
@@ -191,7 +224,7 @@ desired effect
             <!-- Sidebar Menu -->
             <ul class="sidebar-menu" data-widget="tree">
                 <!-- Optionally, you can add icons to the links -->
-                <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i><span>仪表盘</span></a></li>
+                <li><a href="{% url 'dashboard' %}"><i class="fa fa-tachometer"></i><span>仪表盘</span></a></li>
                 {% if perms.users.view_userprofile %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-users"></i> <span>用户管理</span>
@@ -201,7 +234,25 @@ desired effect
                         </a>
                         <ul class="treeview-menu">
                             <li><a href="{% url 'user_list' %}"><i class="fa  fa-user"></i>用户列表</a></li>
-                            <li><a href="{% url 'group_list' %}"><i class="fa fa-users"></i>用户组列表</a></li>
+                            <li><a href="{% url 'group_list' %}"><i class="fa fa-users"></i>用户组</a></li>
+                            {% if perms.users.view_userlog %}
+                                <li><a href="{% url 'user_log' %}"><i class="fa fa-user-secret"></i>操作记录</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if perms.assets.view_assets %}
+                    <li class="treeview">
+                        <a href="#"><i class="fa fa-institution"></i> <span>资产管理</span>
+                            <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="{% url 'assets_charts' %}"><i class="fa  fa-pie-chart"></i>资产概览</a></li>
+                            <li><a href="{% url 'group_list' %}"><i class="fa fa-wrench"></i>基础配置</a></li>
+                            <li><a href="{% url 'group_list' %}"><i class="fa fa-plus-square"></i>新增资产</a></li>
+                            <li><a href="{% url 'group_list' %}"><i class="fa fa-list"></i>资产列表</a></li>
                             {% if perms.users.view_userlog %}
                                 <li><a href="{% url 'user_log' %}"><i class="fa fa-user-secret"></i>操作记录</a></li>
                             {% endif %}
@@ -231,7 +282,6 @@ desired effect
                         <li><a href="{% url 'run_log' %}"><i class="fa fa-circle-o"></i> 操作日志</a></li>
                     </ul>
                 </li>
-                <li><a href="#"><i class="fa fa-link"></i> <span>资产管理</span></a></li>
                 <li class="treeview">
                     <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
                         <span class="pull-right-container">

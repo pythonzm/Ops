@@ -93,57 +93,11 @@ def del_user_plan(request):
         return JsonResponse({"code": 200, "data": None, "msg": "删除失败！，原因：{}".format(e)})
 
 
-def update_user_plan(request, title):
-    if request.method == 'POST':
-        start_time = '{} {}'.format(request.POST.get('sdate'), request.POST.get('stime'))
-        start_time = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-        end_time = '{} {}'.format(request.POST.get('edate'), request.POST.get('etime'))
-        end_time = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-        add_users = request.POST.get('add_users')
-
-        chars = '0123456789abcdef'
-        color = '#{}'.format(''.join(random.sample(chars, 6)))
-
-        if add_users:
-            add_users = json.loads(add_users)
-            for user_id in add_users:
-                UserPlan.objects.filter(Q(id=user_id) | Q(title=title)).update_or_create(
-                    user=UserProfile.objects.get(id=user_id),
-                    title=request.POST.get('title'),
-                    start_time=start_time,
-                    end_time=end_time,
-                    all_day=request.POST.get('allDay'),
-                )
-        UserPlan.objects.filter(title=title).update_or_create(
-            user=UserProfile.objects.get(username=request.user),
-            title=request.POST.get('title'),
-            start_time=start_time,
-            end_time=end_time,
-            all_day=request.POST.get('allDay'),
-        )
-        data = {
-            'title': request.POST.get('title'),
-            'start': start_time,
-            'end': end_time,
-            'allDay': request.POST.get('allDay'),
-            'backgroundColor': color,
-            'borderColor': color,
-        }
-        return JsonResponse({'code': 200, 'data': data})
-
-
 def get_user_list(request):
     user_list = UserProfile.objects.all().select_related()
     groups = Group.objects.all().select_related()
     permissions = Permission.objects.all().select_related()
     return render(request, 'users/user_list.html', locals())
-
-
-def get_user_detail(request, pk):
-    user = UserProfile.objects.get(id=pk)
-    groups = Group.objects.all().select_related()
-    permissions = Permission.objects.all().select_related()
-    return render(request, 'users/user_detail.html', locals())
 
 
 def create_user(request):
@@ -189,16 +143,9 @@ def reset_password(request, pk):
 
 def get_group_list(request):
     groups = Group.objects.all().select_related()
-    users = UserProfile.objects.all()
-    permissions = Permission.objects.all().select_related()
-    return render(request, 'users/group_list.html', locals())
-
-
-def get_group_detail(request, pk):
-    group = Group.objects.get(id=pk)
     users = UserProfile.objects.all().select_related()
     permissions = Permission.objects.all().select_related()
-    return render(request, 'users/group_detail.html', locals())
+    return render(request, 'users/group_list.html', locals())
 
 
 def get_user_log(request):
