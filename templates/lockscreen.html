@@ -45,9 +45,10 @@
         <!-- /.lockscreen-image -->
 
         <!-- lockscreen credentials (contains the form) -->
-        <form class="lockscreen-credentials">
+        <form class="lockscreen-credentials" action="{% url 'lock_screen' %}" method="post">
+            {% csrf_token %}
             <div class="input-group">
-                <input type="password" class="form-control" placeholder="password">
+                <input type="password" class="form-control" placeholder="password" name="pwd">
 
                 <div class="input-group-btn">
                     <button type="button" class="btn"><i class="fa fa-arrow-right text-muted"></i></button>
@@ -75,5 +76,14 @@
 <script src="{% static 'AdminLTE/bower_components/jquery/dist/jquery.min.js' %}"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+<script language="javascript">
+    //防止页面后退
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+</script>
+
 </body>
 </html>

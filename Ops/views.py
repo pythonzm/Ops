@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import auth
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import redirect
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from assets.models import *
@@ -17,7 +18,7 @@ def dashboard(request):
 
 def login(request):
     if request.session.get('username') is not None:
-        return HttpResponseRedirect('/', {"user": request.user})
+        return render(request, 'login.html')
     else:
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -39,5 +40,13 @@ def logout(request):
 
 
 def lock_screen(request):
-    user = UserProfile.objects.get(username=request.user)
-    return render(request, 'lockscreen.html', locals())
+    if request.method == 'GET':
+        user = UserProfile.objects.get(username=request.user)
+        request.session['lock'] = 'lock'
+        return render(request, 'lockscreen.html', locals())
+    elif request.method == 'POST':
+        user = auth.authenticate(username=request.session['username'], password=request.POST.get('pwd'))
+        if user:
+            del request.session['lock']
+            return redirect('/')
+        return HttpResponse('wrong password')

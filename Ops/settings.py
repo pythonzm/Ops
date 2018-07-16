@@ -78,9 +78,6 @@ INSTALLED_APPS = [
     'ansible_task.apps.AnsibleTaskConfig',
     'assets.apps.AssetsConfig',
     'users.apps.UsersConfig',
-    'xadmin',
-    'crispy_forms',
-    'reversion',
 ]
 
 MIDDLEWARE = [

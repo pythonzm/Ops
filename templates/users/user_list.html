@@ -301,9 +301,8 @@
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭
                                                 </button>
-                                                <button type="button" class="btn btn-primary"
-                                                        onclick="updateUser({{ user.id }})">
-                                                    确认修改
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                                        onclick="updateUser({{ user.id }})">确认修改
                                                 </button>
                                             </div>
                                         {% else %}
@@ -538,17 +537,8 @@
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                 },
-                success: function (response) {
-                    $.confirm({
-                        title: 'Tips',
-                        type: 'green',
-                        content: response.responseText,
-                        buttons: {
-                            'OK': function () {
-                                window.location.href = '/users/user_list/'
-                            }
-                        }
-                    });
+                success: function () {
+                    window.location.reload();
                 },
                 error: function (response) {
                     $.alert({

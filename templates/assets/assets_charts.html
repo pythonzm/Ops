@@ -2,10 +2,7 @@
 {% load staticfiles %}
 
 {% block head %}
-    <!-- fullCalendar -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.css' %}">
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.print.min.css' %}"
-          media="print">
+
 {% endblock %}
 
 {% block content-header %}
@@ -18,7 +15,7 @@
             <!-- small box -->
             <div class="small-box bg-aqua">
                 <div class="inner">
-                    <h3>{{ assets_count }}</h3>
+                    <h3>{{ assets.count }}</h3>
 
                     <p>总资产</p>
                 </div>
@@ -76,11 +73,26 @@
         </div>
         <!-- ./col -->
 
+        <!-- 资产明细饼图 -->
         <div class="col-md-6">
-            <!-- DONUT CHART -->
             <div class="box box-primary">
                 <div class="box-header with-border">
-                    <h3 class="box-title">Donut Chart</h3>
+                    <h3 class="box-title">资产明细</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div id="pie" style="width: 460px;height:400px;"></div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+
+        <!-- 最近操作内容 -->
+        <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Recently Added Products</h3>
 
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
@@ -90,10 +102,68 @@
                         </button>
                     </div>
                 </div>
+                <!-- /.box-header -->
                 <div class="box-body">
-                    <canvas id="pieChart" style="height:250px"></canvas>
+                    <ul class="products-list product-list-in-box">
+                        <li class="item">
+                            <div class="product-img">
+                                <img src="dist/img/default-50x50.gif" alt="Product Image">
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">Samsung TV
+                                    <span class="label label-warning pull-right">$1800</span></a>
+                                <span class="product-description">
+                          Samsung 32" 1080p 60Hz LED Smart HDTV.
+                        </span>
+                            </div>
+                        </li>
+                        <!-- /.item -->
+                        <li class="item">
+                            <div class="product-img">
+                                <img src="dist/img/default-50x50.gif" alt="Product Image">
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">Bicycle
+                                    <span class="label label-info pull-right">$700</span></a>
+                                <span class="product-description">
+                          26" Mongoose Dolomite Men's 7-speed, Navy Blue.
+                        </span>
+                            </div>
+                        </li>
+                        <!-- /.item -->
+                        <li class="item">
+                            <div class="product-img">
+                                <img src="dist/img/default-50x50.gif" alt="Product Image">
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">Xbox One <span
+                                        class="label label-danger pull-right">$350</span></a>
+                                <span class="product-description">
+                          Xbox One Console Bundle with Halo Master Chief Collection.
+                        </span>
+                            </div>
+                        </li>
+                        <!-- /.item -->
+                        <li class="item">
+                            <div class="product-img">
+                                <img src="dist/img/default-50x50.gif" alt="Product Image">
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">PlayStation 4
+                                    <span class="label label-success pull-right">$399</span></a>
+                                <span class="product-description">
+                          PlayStation 4 500GB Console (PS4)
+                        </span>
+                            </div>
+                        </li>
+                        <!-- /.item -->
+                    </ul>
                 </div>
                 <!-- /.box-body -->
+                <div class="box-footer text-center">
+                    <a href="javascript:void(0)" class="uppercase">View All Products</a>
+                </div>
+                <!-- /.box-footer -->
             </div>
         </div>
     </div>
@@ -101,75 +171,110 @@
 
 {% block js %}
     <!-- ChartJS -->
-    <script src="{% static 'AdminLTE/bower_components/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'js/echarts.common.min.js' %}"></script>
 
     <script>
-        $(function () {
-            let pieChartCanvas = $('#pieChart').get(0).getContext('2d');
-            let pieChart = new Chart(pieChartCanvas);
-            let PieData = [
-                {
-                    value: 700,
-                    color: '#f56954',
-                    highlight: '#f56954',
-                    label: 'Chrome'
-                },
-                {
-                    value: 500,
-                    color: '#00a65a',
-                    highlight: '#00a65a',
-                    label: 'IE'
-                },
-                {
-                    value: 400,
-                    color: '#f39c12',
-                    highlight: '#f39c12',
-                    label: 'FireFox'
-                },
-                {
-                    value: 600,
-                    color: '#00c0ef',
-                    highlight: '#00c0ef',
-                    label: 'Safari'
-                },
-                {
-                    value: 300,
-                    color: '#3c8dbc',
-                    highlight: '#3c8dbc',
-                    label: 'Opera'
-                },
-                {
-                    value: 100,
-                    color: '#d2d6de',
-                    highlight: '#d2d6de',
-                    label: 'Navigator'
-                }
-            ];
-            let pieOptions = {
-                //Boolean - Whether we should show a stroke on each segment
-                segmentShowStroke: true,
-                //String - The colour of each segment stroke
-                segmentStrokeColor: '#fff',
-                //Number - The width of each segment stroke
-                segmentStrokeWidth: 2,
-                //Number - The percentage of the chart that we cut out of the middle
-                percentageInnerCutout: 50, // This is 0 for Pie charts
-                //Number - Amount of animation steps
-                animationSteps: 100,
-                //String - Animation easing effect
-                animationEasing: 'easeOutBounce',
-                //Boolean - Whether we animate the rotation of the Doughnut
-                animateRotate: true,
-                //Boolean - Whether we animate scaling the Doughnut from the centre
-                animateScale: false,
-                //Boolean - whether to make the chart responsive to window resizing
-                responsive: true,
-                // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-                maintainAspectRatio: true,
+
+        // 资产明细饼图
+        function genData() {
+            let legendData = [];
+            let seriesData = [];
+            {% for asset in assets %}
+                asset_name = '{{ asset.get_asset_type_display }}';
+                legendData.push(asset_name);
+                {% for asset_type in asset_types %}
+                    {% if asset_type.asset_type == asset.asset_type %}
+                        seriesData.push({
+                            name: asset_name,
+                            value: '{{ asset_type.dcount }}'
+                        });
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            return {
+                legendData: legendData,
+                seriesData: seriesData,
             };
-            //Create pie or douhnut chart
-            // You can switch between pie and douhnut using the method below.
-            pieChart.Doughnut(PieData, pieOptions);
-        })
+
+        }
+
+        function color() {
+            let color = "#";
+            for (let i = 0; i < 6; i++) {
+                color += (Math.random() * 16 | 0).toString(16);
+            }
+            return color;
+        }
+
+        function genColor() {
+            let colors = [];
+            let num = genData().legendData.length;
+            for (let i = 0; i < num; i++) {
+                colors.push(color())
+            }
+            return colors;
+        }
+
+        let myChart1 = echarts.init(document.getElementById('pie'));
+        let data = genData();
+        option_pie = {
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b}: {c} ({d}%)",
+            },
+            legend: {
+                type: 'scroll',
+                orient: 'vertical',
+                right: 10,
+                top: 20,
+                bottom: 20,
+                data: data.legendData,
+            },
+            graphic: {
+                type: 'text',
+                left: 'center',
+                top: 'center',
+                style: {
+                    text: '资产总数\n' + '{{ assets.count }}', //使用“+”可以使每行文字居中
+                    textAlign: 'center',
+                    font: 'italic bolder 16px cursive',
+                    fill: '#000',
+                    width: 30,
+                    height: 30
+                }
+            },
+            series: [
+                {
+                    name: '资产类型',//tooltip提示框中显示内容
+                    type: 'pie',//图形类型，如饼状图，柱状图等
+                    radius: ['35%', '65%'],//饼图的半径，数组的第一项是内半径，第二项是外半径。支持百分比，本例设置成环形图。具体可以看文档或改变其值试一试
+                    //roseType:'area',是否显示成南丁格尔图，默认false
+                    itemStyle: {
+                        normal: {
+                            label: {
+                                show: true,
+                                textStyle: {color: '#3c4858', fontSize: "18"},
+                                formatter: function (val) {   //让series 中的文字进行换行
+                                    return val.name.split("-").join("\n");
+                                }
+                            },//饼图图形上的文本标签，可用于说明图形的一些数据信息，比如值，名称等。可以与itemStyle属性同级，具体看文档
+                            labelLine: {
+                                show: true,
+                                lineStyle: {color: '#3c4858'}
+                            }//线条颜色
+                        },//基本样式
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)',//鼠标放在区域边框颜色
+                            textColor: '#000'
+                        }//鼠标放在各个区域的样式
+                    },
+                    data: data.seriesData,//数据，数据中其他属性，查阅文档
+                    color: genColor(),//各个区域颜色
+                },//数组中一个{}元素，一个图，以此可以做出环形图
+            ],
+        };
+        myChart1.setOption(option_pie);
     </script>
 {% endblock %}

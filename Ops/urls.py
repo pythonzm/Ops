@@ -22,9 +22,9 @@ from Ops import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.dashboard, name='dashboard'),
-    path('login/', views.login, name='login'),
-    path('logout/', views.logout, name='logout'),
-    path('lock_screen', views.lock_screen, name='lock_screen'),
+    path(r'login/', views.login, name='login'),
+    path(r'logout/', views.logout, name='logout'),
+    path(r'lock_screen/', views.lock_screen, name='lock_screen'),
     path(r'api/', include('api.urls')),
     path(r'scan_host/', include('scanhosts.urls')),
     path(r'run/', include('ansible_task.urls')),

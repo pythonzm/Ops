@@ -7,53 +7,56 @@ from django.contrib.auth.models import Group
 
 
 class UserLoginMiddleware(MiddlewareMixin):
-
     @staticmethod
     def process_request(request):
         # 若请求的是登陆页面 则往下执行
-        if request.path == '/login/':
+        if request.path == '/login/' or request.path == '/lock_screen/':
             return None
-        user = request.session.get('username')
-        if not user:
-            return redirect('/login/')
+        else:
+            user = request.session.get('username')
+            lock = request.session.get('lock')
+            if not user:
+                return redirect('/login/')
+            if lock:
+                return redirect('/lock_screen/')
 
 
 class RecordMiddleware(MiddlewareMixin):
     def process_request(self, request):
         if request.method == 'DELETE' or request.method == 'delete':
-            if r'/api/users/' in request.path:
+            if 'users' in request.path:
                 user_id = self.get_id(request.path)
                 username = UserProfile.objects.get(id=user_id).username
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='删除用户：{}'.format(username))
-            elif r'/api/group/' in request.path:
+            elif 'group' in request.path:
                 group_id = self.get_id(request.path)
                 groupname = Group.objects.get(id=group_id).name
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='删除用户组：{}'.format(groupname))
-            return None
 
-    @staticmethod
-    def process_response(request, response):
-        if str(response.status_code).startswith('2'):
-            if request.method == 'POST' or request.method == 'post':
-                if 'create_user' in request.path:
-                    users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
-                                       content='创建用户：{}'.format(request.POST.get('username')))
-                elif r'/users/user/' in request.path:
-                    users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
-                                       content='修改用户：{}'.format(request.POST.get('username')))
-                elif 'create_group' in request.path:
-                    users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
-                                       content='创建用户组：{}'.format(request.POST.get('groupname')))
-                elif r'/users/group/' in request.path:
-                    users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
-                                       content='修改用户组：{}'.format(request.POST.get('groupname')))
-            elif request.method == 'PUT' or request.method == 'put':
-                pass
+        elif request.method == 'PUT' or request.method == 'put':
+            if r'users' in request.path:
+                user_id = self.get_id(request.path)
+                username = UserProfile.objects.get(id=user_id).username
+                users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                   content='修改用户：{}'.format(username))
+            elif 'group' in request.path:
+                group_id = self.get_id(request.path)
+                groupname = Group.objects.get(id=group_id).name
+                users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                   content='修改用户组：{}'.format(groupname))
 
-            return response
-        return response
+        elif request.method == 'POST' or request.method == 'post':
+            if 'create_user' in request.path:
+                users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                   content='创建用户：{}'.format(request.POST.get('username')))
+            elif 'group' in request.path:
+                body = str(request.__dict__.get('_body'), encoding="utf-8")
+                name = eval(body)['name']
+                users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                   content='创建用户组：{}'.format(name))
+        return None
 
     @staticmethod
     def get_id(path):

@@ -218,9 +218,8 @@
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭
                                                 </button>
-                                                <button type="button" class="btn btn-primary"
-                                                        onclick="updateGroup({{ group.id }})">
-                                                    确认修改
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                                        onclick="updateGroup({{ group.id }})">确认修改
                                                 </button>
                                             </div>
                                         {% else %}
@@ -420,17 +419,8 @@
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                 },
-                success: function (response) {
-                    $.confirm({
-                        title: 'Tips',
-                        type: 'green',
-                        content: response['msg'],
-                        buttons: {
-                            'OK': function () {
-                                location.reload();
-                            }
-                        }
-                    });
+                success: function () {
+                    window.location.reload();
                 },
                 error: function (response) {
                     $.alert({
@@ -442,7 +432,7 @@
             })
         }
 
-        //更新组信息
+        // 更新组信息
         function updateGroup(id) {
             let data = {
                 name: $('#updateGroupModal-' + id + ' #name').val(),
@@ -458,17 +448,8 @@
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                 },
-                success: function (response) {
-                    $.confirm({
-                        title: 'Tips',
-                        type: 'green',
-                        content: response.responseText,
-                        buttons: {
-                            'OK': function () {
-                                window.location.href = '/users/group_list/'
-                            }
-                        }
-                    });
+                success: function () {
+                    window.location.reload();
                 },
                 error: function (response) {
                     $.alert({
