@@ -1,10 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
-{% block head %}
-
-{% endblock %}
-
 {% block content-header %}
     <h1>仪表盘</h1>
 {% endblock %}
@@ -22,7 +18,7 @@
                 <div class="icon">
                     <i class="fa fa-server"></i>
                 </div>
-                <a href="#" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="{% url 'assets_list' %}" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -37,7 +33,8 @@
                 <div class="icon">
                     <i class="fa fa-check"></i>
                 </div>
-                <a href="#" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="{% url 'assets_search' key='已上线' %}" class="small-box-footer">查看所有 <i
+                        class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -52,7 +49,7 @@
                 <div class="icon">
                     <i class="fa fa-wrench"></i>
                 </div>
-                <a href="{% url 'user_list' %}" class="small-box-footer">查看所有 <i
+                <a href="{% url 'assets_search' key='故障中' %}" class="small-box-footer">查看所有 <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -68,7 +65,8 @@
                 <div class="icon">
                     <i class="fa fa-close"></i>
                 </div>
-                <a href="#" class="small-box-footer">查看所有<i class="fa fa-arrow-circle-right"></i></a>
+                <a href="{% url 'assets_search' key='未使用' %}" class="small-box-footer">查看所有<i
+                        class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -92,76 +90,37 @@
         <div class="col-md-6">
             <div class="box box-primary">
                 <div class="box-header with-border">
-                    <h3 class="box-title">Recently Added Products</h3>
-
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                class="fa fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
-                        </button>
-                    </div>
+                    <h3 class="box-title">最近资产操作</h3>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
                     <ul class="products-list product-list-in-box">
-                        <li class="item">
-                            <div class="product-img">
-                                <img src="dist/img/default-50x50.gif" alt="Product Image">
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">Samsung TV
-                                    <span class="label label-warning pull-right">$1800</span></a>
-                                <span class="product-description">
-                          Samsung 32" 1080p 60Hz LED Smart HDTV.
-                        </span>
-                            </div>
-                        </li>
-                        <!-- /.item -->
-                        <li class="item">
-                            <div class="product-img">
-                                <img src="dist/img/default-50x50.gif" alt="Product Image">
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">Bicycle
-                                    <span class="label label-info pull-right">$700</span></a>
-                                <span class="product-description">
-                          26" Mongoose Dolomite Men's 7-speed, Navy Blue.
-                        </span>
-                            </div>
-                        </li>
-                        <!-- /.item -->
-                        <li class="item">
-                            <div class="product-img">
-                                <img src="dist/img/default-50x50.gif" alt="Product Image">
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">Xbox One <span
-                                        class="label label-danger pull-right">$350</span></a>
-                                <span class="product-description">
-                          Xbox One Console Bundle with Halo Master Chief Collection.
-                        </span>
-                            </div>
-                        </li>
-                        <!-- /.item -->
-                        <li class="item">
-                            <div class="product-img">
-                                <img src="dist/img/default-50x50.gif" alt="Product Image">
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">PlayStation 4
-                                    <span class="label label-success pull-right">$399</span></a>
-                                <span class="product-description">
-                          PlayStation 4 500GB Console (PS4)
-                        </span>
-                            </div>
-                        </li>
+                        {% for asset_log in asset_logs %}
+                            <li class="item">
+                                <div class="product-img">
+                                    <img src="{{ MEDIA_URL }}{{ asset_log.user.image }}" alt="User Image">
+                                </div>
+                                <div class="product-info">
+                                    <a href="javascript:void(0)"
+                                       class="product-title">{{ asset_log.user.username }}</a>
+                                    <span class="product-description"
+                                          style="display: inline">{{ asset_log.content }}</span>
+                                    {% if '新增' in asset_log.content %}
+                                        <span class="label label-info pull-right">新增</span>
+                                    {% elif '修改' in asset_log.content %}
+                                        <span class="label label-warning pull-right">修改</span>
+                                    {% elif '删除' in asset_log.content %}
+                                        <span class="label label-danger pull-right">删除</span>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
                         <!-- /.item -->
                     </ul>
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer text-center">
-                    <a href="javascript:void(0)" class="uppercase">View All Products</a>
+                    <a href="{% url 'assets_log' %}" class="uppercase">查看所有</a>
                 </div>
                 <!-- /.box-footer -->
             </div>
@@ -174,28 +133,29 @@
     <script src="{% static 'js/echarts.common.min.js' %}"></script>
 
     <script>
-
         // 资产明细饼图
         function genData() {
             let legendData = [];
             let seriesData = [];
-            {% for asset in assets %}
-                asset_name = '{{ asset.get_asset_type_display }}';
-                legendData.push(asset_name);
-                {% for asset_type in asset_types %}
-                    {% if asset_type.asset_type == asset.asset_type %}
+
+            {% for asset_type in asset_types %}
+                {% for asset_type_count in asset_types_count %}
+                    {% if asset_type_count.asset_type == asset_type.0 %}
+                        legendData.push('{{ asset_type.1 }}');
                         seriesData.push({
-                            name: asset_name,
-                            value: '{{ asset_type.dcount }}'
+                            name: '{{ asset_type.1 }}',
+                            value: {{ asset_type_count.dcount }}
                         });
                     {% endif %}
                 {% endfor %}
+
             {% endfor %}
+
+
             return {
                 legendData: legendData,
                 seriesData: seriesData,
             };
-
         }
 
         function color() {

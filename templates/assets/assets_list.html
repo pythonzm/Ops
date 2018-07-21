@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>资产列表</h1>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+            <a href="{% url 'add_asset' %}">
+                <button class="btn btn-sm btn-success pull-left">
+                    <i class="fa fa-plus-square"></i>
+                    <span class="bigger-110">新增资产</span>
+                </button>
+            </a>
+            <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
+                <i class="fa fa-exclamation-triangle"></i>
+                <span class="bigger-110">批量删除</span>
+            </button>
+        </div>
+
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th><label>
+                                <input type="checkbox" class="minimal-red" id="checkAll">
+                            </label></th>
+                            <th>资产类型</th>
+                            <th>资产编号</th>
+                            <th>资产型号</th>
+                            <th>管理IP</th>
+                            <th>所属项目</th>
+                            <th>设备状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for asset in assets %}
+
+                            <tr id="asset-{{ asset.id }}">
+                                <td><label>
+                                    <input type="checkbox" class="minimal" value="{{ asset.id }}">
+                                </label></td>
+                                <td>
+                                    {% if asset.asset_type == 'server' %}
+                                        {{ asset.serverassets.get_server_type_display }}
+                                    {% elif asset.asset_type == 'network' %}
+                                        {{ asset.networkassets.get_network_type_display }}
+                                    {% elif asset.asset_type == 'office' %}
+                                        {{ asset.officeassets.get_office_type_display }}
+                                    {% elif asset.asset_type == 'security' %}
+                                        {{ asset.securityassets.get_security_type_display }}
+                                    {% elif asset.asset_type == 'storage' %}
+                                        {{ asset.storageassets.get_storage_type_display }}
+                                    {% elif asset.asset_type == 'software' %}
+                                        {{ asset.softwareassets.get_software_type_display }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ asset.asset_nu }}</td>
+                                <td>
+                                    {% if asset.asset_model %}
+                                        {{ asset.asset_model }}
+                                    {% else %}
+
+                                    {% endif %}
+                                </td>
+                                <td>{{ asset.asset_management_ip|default:'' }}</td>
+                                <td>
+                                    {% for project in asset.asset_project.all %}
+                                        {{ project.project_name }}&nbsp;
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if asset.asset_status == 0 %}
+                                        <span class="label label-success">{{ asset.get_asset_status_display }}</span>
+                                    {% elif asset.asset_status == 1 %}
+                                        <span class="label label-danger">{{ asset.get_asset_status_display }}</span>
+                                    {% elif asset.asset_status == 2 %}
+                                        <span class="label label-warning">{{ asset.get_asset_status_display }}</span>
+                                    {% elif asset.asset_status == 3 %}
+                                        <span class="label label-info">{{ asset.get_asset_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if asset.asset_type == 'server' %}
+                                        <a href="{% url 'update_asset' asset_type='server' pk=asset.id %}">
+                                    {% elif asset.asset_type == 'network' %}
+                                        <a href="{% url 'update_asset' asset_type='network' pk=asset.id %}">
+                                    {% elif asset.asset_type == 'office' %}
+                                        <a href="{% url 'update_asset' asset_type='office' pk=asset.id %}">
+                                    {% elif asset.asset_type == 'security' %}
+                                        <a href="{% url 'update_asset' asset_type='security' pk=asset.id %}">
+                                    {% elif asset.asset_type == 'storage' %}
+                                        <a href="{% url 'update_asset' asset_type='storage' pk=asset.id %}">
+                                    {% elif asset.asset_type == 'software' %}
+                                        <a href="{% url 'update_asset' asset_type='software' pk=asset.id %}">
+                                    {% endif %}
+                                    <button type="button" class="btn btn-success btn-xs">详细/更新</button>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-xs"
+                                            onclick="deleteAsset({{ asset.id }})">删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- iCheck 1.0.1 -->
+    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                columnDefs: [{
+                    'targets': [0, -1],
+                    'orderable': false
+                }],
+                "order": [[2, "asc"]]
+            });
+        });
+
+        // Initialize Select2 Elements
+        $(function () {
+            $('.select2').select2()
+        });
+
+        // iCheck for checkbox inputs
+        $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
+            checkboxClass: 'icheckbox_minimal-blue',
+        });
+
+        // 实现全选
+        $(function () {
+            let checkAll = $('#checkAll');
+            let checkboxes = $('input[type="checkbox"]');
+            checkAll.on('ifChecked ifUnchecked', function (event) {
+                if (event.type === 'ifChecked') {
+                    checkboxes.iCheck('check');
+                } else {
+                    checkboxes.iCheck('uncheck');
+                }
+            });
+            checkboxes.on('ifChanged', function () {
+                if (checkboxes.filter(':checked').length === checkboxes.length) {
+                    checkAll.prop('checked', 'checked');
+                } else {
+                    checkAll.removeProp('checked');
+                }
+                checkAll.iCheck('update');
+            });
+        });
+
+        // 删除资产
+        function deleteAsset(id) {
+            {% if perms.assets.delete_assets %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条资产记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/assets/' + id,
+                                method: 'DELETE',
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                },
+                                success: function () {
+                                    let str = 'asset-' + id;
+                                    document.getElementById(str).innerHTML = '';
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            // close
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除用户的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+
+        }
+
+        // 批量删除
+        $("#deleteChecked").click(function () {
+            {% if perms.assets.delete_assets %}
+                let checkedID = [];
+                $('input[type="checkbox"].minimal:checked').each(function () {
+                    checkedID.push($(this).val());
+                });
+                if (checkedID.length === 0) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: '请选择要删除的资产！',
+                    })
+                } else {
+                    $.confirm({
+                        title: 'Tips',
+                        content: '确定要删除这些资产么？',
+                        type: 'red',
+                        buttons: {
+                            Ok: function () {
+                                for (let i = 0; i < checkedID.length; i++) {
+                                    $.ajax({
+                                        url: '/api/assets/' + checkedID[i],
+                                        method: 'DELETE',
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                        },
+                                        success: function () {
+                                            let str = 'asset-' + checkedID[i];
+                                            document.getElementById(str).innerHTML = '';
+                                        },
+                                        error: function (data) {
+                                            $.alert({
+                                                title: 'Tips',
+                                                type: 'red',
+                                                content: '删除失败！' + data.responseText,
+                                            })
+                                        }
+                                    })
+                                }
+                            },
+                            Cancel: function () {
+                                // close
+                            }
+                        }
+                    })
+                }
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除资产的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+
+        });
+
+    </script>
+
+{% endblock %}
+

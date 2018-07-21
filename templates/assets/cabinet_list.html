@@ -1,0 +1,267 @@
+<div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
+    <button class="btn btn-sm btn-success pull-left" data-toggle="modal"
+            data-target="#addCabinetModal">
+        <i class="fa fa-plus-square"></i>
+        <span class="bigger-110">新增机柜</span>
+    </button>
+</div>
+<div class="col-xs-12">
+    <!-- /.box -->
+    <div class="box">
+        <!-- dataTable -->
+        <div class="box-body">
+            <table id="asset_cabinet" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>机柜名称</th>
+                    <th>所属机房</th>
+                    <th>拥有资产</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for asset_cabinet in asset_cabinets %}
+                    <tr id="cabinet-{{ asset_cabinet.id }}">
+                        <td>{{ asset_cabinet.cabinet_name }}</td>
+                        <td>
+                            {% for idc in asset_cabinet.idc.idc_name %}
+                                {{ idc }}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for asset in asset_cabinet.assets.all %}
+                                {{ asset.asset_management_ip }}<br>
+                            {% endfor %}
+                        </td>
+                        <td>{{ asset_cabinet.cabinet_memo }}</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
+                                    data-target="#updateCabinetModal-{{ asset_cabinet.id }}">修改
+                            </button>
+                            <button type="button" class="btn btn-danger btn-xs"
+                                    onclick="deleteCabinet({{ asset_cabinet.id }})">删除
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- updateCabinetModal  -->
+                    <div class="modal fade" id="updateCabinetModal-{{ asset_cabinet.id }}" tabindex="-1"
+                         role="dialog"
+                         aria-labelledby="updateCabinetModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"
+                                            aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title" id="updateCabinetModalLabel">
+                                        机柜信息
+                                    </h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="main form-horizontal" id="update-cabinet">
+                                        <fieldset>
+                                            <div class="form-group">
+                                                <label for="cabinet_name">机柜名称</label>
+                                                <input id="cabinet_name" name="cabinet_name"
+                                                       class="form-control" type="text"
+                                                       value="{{ asset_cabinet.cabinet_name }}">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="idc">所属机房</label>
+                                                <select class="form-control select2" id="idc" name="idc"
+                                                        style="width: 100%;">
+                                                    {% for asset_idc in asset_idcs %}
+                                                        {% if asset_idc.id == asset_cabinet.idc.id %}
+                                                            <option value="{{ asset_idc.id }}"
+                                                                    selected>{{ asset_idc.idc_name }}</option>
+                                                        {% else %}
+                                                            <option value="{{ asset_idc.id }}">{{ asset_idc.idc_name }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="cabinet_memo">备注</label>
+                                                <textarea id="cabinet_memo" name="cabinet_memo"
+                                                          class="form-control">{{ asset_cabinet.cabinet_memo }}</textarea>
+                                            </div>
+
+                                            <div class="space-24"></div>
+                                        </fieldset>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                    </button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                            onclick="updateCabinet({{ asset_cabinet.id }})">确认修改
+                                    </button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <!-- /.box -->
+
+    <!-- addCabinetModal  -->
+    <div class="modal fade" id="addCabinetModal" tabindex="-1" role="dialog"
+         aria-labelledby="addCabinetModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="addCabinetModalLabel">
+                        新增机柜
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form id="add_cabinet" class="main form-horizontal">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="cabinet_name" class="col-sm-2 control-label">机柜名称</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="cabinet_name"
+                                           id="cabinet_name" required/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="idc" class="col-sm-2 control-label">所属机房</label>
+                                <div class="col-sm-6">
+                                    <select class="form-control select2" id="idc" name="idc"
+                                            style="width: 100%;">
+                                        {% for asset_idc in asset_idcs %}
+                                            <option value="{{ asset_idc.id }}">{{ asset_idc.idc_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cabinet_memo" class="col-sm-2 control-label">备注</label>
+                                <div class="col-sm-6">
+                                    <textarea class="form-control" name="cabinet_memo" id="cabinet_memo"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="space-24"></div>
+
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="addCabinet()">添加
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+</div>
+
+
+<script>
+    // 添加机柜
+    function addCabinet() {
+        let data = $('#add_cabinet').serializeJson();
+        $.ajax({
+            url: '/api/cabinet/',
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: "application/json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+            },
+            success: function () {
+                $.alert({
+                    title: 'Tips',
+                    type: 'green',
+                    content: '添加成功！若要继续添加，则不要刷新页面，直接添加即可！',
+                })
+            },
+            error: function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText,
+                })
+            }
+        })
+    }
+
+    // 更新机柜
+    function updateCabinet(id) {
+        let data = $('#updateCabinetModal-' + id + ' #update-cabinet').serializeJson();
+        $.ajax({
+            url: '/api/cabinet/' + id + '/',
+            type: 'PUT',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: "application/json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+            },
+            success: function () {
+                window.location.reload();
+            },
+            error: function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText,
+                })
+            }
+        })
+    }
+
+    // 删除机柜
+    function deleteCabinet(id) {
+        $.confirm({
+            title: 'Tips',
+            content: '确定要删除这条机柜记录么？',
+            type: 'red',
+            buttons: {
+                Ok: function () {
+                    $.ajax({
+                        url: '/api/cabinet/' + id + '/',
+                        method: 'DELETE',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                        },
+                        success: function () {
+                            let str = 'cabinet-' + id;
+                            document.getElementById(str).innerHTML = '';
+                        },
+                        error: function (data) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: '删除失败！' + data.responseText,
+                            })
+                        }
+                    })
+                },
+                Cancel: function () {
+                    // 取消
+                }
+            }
+        })
+    }
+</script>

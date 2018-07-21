@@ -3,7 +3,7 @@ from django.db import models
 
 class Assets(models.Model):
     """总资产表"""
-    asset_type_choices = (
+    asset_types = (
         ('server', '服务器'),
         ('network', '网络设备'),
         ('office', '办公设备'),
@@ -17,21 +17,23 @@ class Assets(models.Model):
         (2, '故障中'),
         (3, '未使用'),
     )
-    asset_type = models.CharField(choices=asset_type_choices, max_length=100, default='server', verbose_name='资产类型')
-    asset_nu = models.CharField(max_length=100, verbose_name='资产编号', unique=True)
+    asset_type = models.CharField(choices=asset_types, max_length=100, default='server', verbose_name='资产类型')
+    asset_nu = models.CharField(max_length=100, unique=True, verbose_name='资产编号')
     asset_model = models.CharField(max_length=100, blank=True, null=True, verbose_name='资产型号')
-    asset_provider = models.ForeignKey('AssetProvider', null=True, blank=True, verbose_name='供应商',
-                                       on_delete=models.PROTECT)
-    asset_status = models.SmallIntegerField(choices=asset_status_, blank=True, null=True, verbose_name='状态')
+    asset_provider = models.ForeignKey('AssetProvider', related_name='assets', null=True, blank=True,
+                                       verbose_name='供应商', on_delete=models.PROTECT)
+    asset_status = models.SmallIntegerField(choices=asset_status_, default=0, verbose_name='状态')
     asset_management_ip = models.GenericIPAddressField(blank=True, null=True, verbose_name='管理IP')
-    asset_admin = models.ForeignKey('users.UserProfile', verbose_name='资产管理员', on_delete=models.PROTECT)
-    asset_project = models.ManyToManyField('Project', verbose_name='所属项目', blank=True)
-    asset_idc = models.ForeignKey('IDC', null=True, blank=True, verbose_name='所在机房', on_delete=models.PROTECT)
-    asset_cabinets = models.ForeignKey('Cabinets', null=True, blank=True, verbose_name='所在机柜', on_delete=models.PROTECT)
+    asset_admin = models.ForeignKey('users.UserProfile', related_name='assets', verbose_name='资产管理员',
+                                    on_delete=models.PROTECT)
+    asset_idc = models.ForeignKey('IDC', related_name='assets', null=True, blank=True, verbose_name='所在机房',
+                                  on_delete=models.PROTECT)
+    asset_cabinet = models.ForeignKey('Cabinet', related_name='assets', null=True, blank=True, verbose_name='所在机柜',
+                                      on_delete=models.PROTECT)
 
     asset_purchase_day = models.DateField(null=True, blank=True, verbose_name="购买日期")
     asset_expire_day = models.DateField(null=True, blank=True, verbose_name="过保日期")
-    asset_price = models.FloatField(null=True, blank=True, verbose_name="价格")
+    asset_price = models.CharField(max_length=100, null=True, blank=True, verbose_name="价格(万元)")
 
     asset_create_time = models.DateTimeField(auto_now_add=True)
     asset_update_time = models.DateTimeField(auto_now_add=True)
@@ -41,7 +43,6 @@ class Assets(models.Model):
         db_table = 'ops_assets'
         verbose_name = '总资产表'
         verbose_name_plural = '总资产表'
-        ordering = ['-asset_create_time']
 
 
 class ServerAssets(models.Model):
@@ -55,10 +56,8 @@ class ServerAssets(models.Model):
         (0, '密钥认证'),
         (1, '账户密码'),
     )
-    asset = models.OneToOneField('Assets', on_delete=models.PROTECT)
+    assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     server_type = models.SmallIntegerField(choices=server_types, default=0, verbose_name='服务器类型')
-
-    server_ip = models.GenericIPAddressField(verbose_name='IP地址', unique=True)
 
     # 如果采用用户名密码认证方式，账户、密码、端口必填，采用密钥认证可不用填写
     username = models.CharField(max_length=100, blank=True, null=True, verbose_name='用户名称')
@@ -94,11 +93,8 @@ class NetworkAssets(models.Model):
         (4, 'VPN'),
         (5, '其它'),
     )
-    asset = models.OneToOneField('Assets', on_delete=models.PROTECT)
+    assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     network_type = models.SmallIntegerField(choices=network_types, default=0, verbose_name='网络设备类型')
-
-    port_number = models.SmallIntegerField(blank=True, null=True, verbose_name='端口个数')
-    firmware = models.CharField(max_length=100, blank=True, null=True, verbose_name='固件版本')
 
     class Meta:
         db_table = 'ops_network_assets'
@@ -114,7 +110,7 @@ class OfficeAssets(models.Model):
         (2, '扫描仪'),
         (3, '其它'),
     )
-    asset = models.OneToOneField('Assets', on_delete=models.PROTECT)
+    assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     office_type = models.SmallIntegerField(choices=office_types, default=0, verbose_name='办公设备类型')
 
     class Meta:
@@ -130,7 +126,7 @@ class SecurityAssets(models.Model):
         (1, '网关'),
         (2, '其它'),
     )
-    asset = models.OneToOneField('Assets', on_delete=models.PROTECT)
+    assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     security_type = models.SmallIntegerField(choices=security_types, default=0, verbose_name='安全设备类型')
 
     class Meta:
@@ -142,11 +138,12 @@ class SecurityAssets(models.Model):
 class StorageAssets(models.Model):
     """存储设备"""
     storage_types = (
-        (0, '防火墙'),
-        (1, '网关'),
-        (2, '其它'),
+        (0, '磁盘阵列'),
+        (1, '网络存储器'),
+        (2, '磁带库'),
+        (3, '磁带机'),
     )
-    asset = models.OneToOneField('Assets', on_delete=models.PROTECT)
+    assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     storage_type = models.SmallIntegerField(choices=storage_types, default=0, verbose_name='存储设备类型')
 
     class Meta:
@@ -162,7 +159,7 @@ class SoftwareAssets(models.Model):
         (1, '办公/开发软件'),
         (2, '业务软件'),
     )
-    asset = models.OneToOneField('Assets', on_delete=models.PROTECT)
+    assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     software_type = models.SmallIntegerField(choices=software_types, default=0, verbose_name="软件类型")
 
     class Meta:
@@ -172,7 +169,7 @@ class SoftwareAssets(models.Model):
 
 
 class DiskAssets(models.Model):
-    asset = models.ForeignKey('ServerAssets', on_delete=models.PROTECT)
+    asset = models.ForeignKey('Assets', related_name='disk_assets', on_delete=models.PROTECT)
     disk_volume = models.CharField(max_length=100, blank=True, null=True, verbose_name='硬盘容量')
     disk_status = models.CharField(max_length=100, blank=True, null=True, verbose_name='硬盘状态')
     disk_model = models.CharField(max_length=100, blank=True, null=True, verbose_name='硬盘型号')
@@ -188,7 +185,7 @@ class DiskAssets(models.Model):
 
 
 class RamAssets(models.Model):
-    asset = models.ForeignKey('ServerAssets', on_delete=models.PROTECT)
+    asset = models.ForeignKey('Assets', related_name='ram_assets', on_delete=models.PROTECT)
     ram_model = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存型号')
     ram_volume = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存容量')
     ram_brand = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存生产商')
@@ -203,7 +200,7 @@ class RamAssets(models.Model):
 
 
 class NetworkCardAssets(models.Model):
-    asset = models.ForeignKey('ServerAssets', on_delete=models.PROTECT)
+    asset = models.ForeignKey('Assets', related_name='network_card_assets', on_delete=models.PROTECT)
     network_card_name = models.CharField(max_length=20, blank=True, null=True, verbose_name='网卡名称')
     network_card_mac = models.CharField(max_length=64, blank=True, null=True, verbose_name='MAC地址')
     network_card_ip = models.GenericIPAddressField(blank=True, null=True, verbose_name='IP地址')
@@ -231,16 +228,16 @@ class Project(models.Model):
         verbose_name_plural = '项目表'
 
 
-class Business(models.Model):
-    """业务表"""
-    project_name = models.ForeignKey('Project', on_delete=models.PROTECT)
-    business_name = models.CharField(max_length=32, verbose_name='业务名称', help_text='数据库、中间件等')
-    business_memo = models.CharField(max_length=100, blank=True, null=True, verbose_name='基本描述')
+class Service(models.Model):
+    """服务类型表"""
+    project_name = models.ForeignKey('Project', related_name='service', on_delete=models.PROTECT)
+    service_name = models.CharField(max_length=32, verbose_name='服务名称', help_text='数据库、中间件等')
+    service_assets = models.ManyToManyField('Assets', verbose_name='提供服务的机器')
 
     class Meta:
-        db_table = 'ops_business'
-        verbose_name = '业务表'
-        verbose_name_plural = '业务表'
+        db_table = 'ops_service'
+        verbose_name = '服务类型表'
+        verbose_name_plural = '服务类型表'
 
 
 class AssetProvider(models.Model):
@@ -257,7 +254,7 @@ class AssetProvider(models.Model):
 
 
 class IDC(models.Model):
-    """机房"""
+    """机房表"""
     idc_name = models.CharField(max_length=64, unique=True, verbose_name='机房名称')
     idc_address = models.CharField(max_length=100, unique=True, verbose_name='机房地址')
     idc_contact = models.CharField(max_length=32, unique=True, verbose_name='机房联系人')
@@ -270,13 +267,26 @@ class IDC(models.Model):
         verbose_name_plural = '机房表'
 
 
-class Cabinets(models.Model):
+class Cabinet(models.Model):
     """机柜表"""
-    idc = models.ForeignKey('IDC', on_delete=models.PROTECT)
-    cabinets_name = models.CharField(max_length=64, unique=True, verbose_name='机柜名称')
-    cabinets_memo = models.CharField(max_length=100, blank=True, null=True, verbose_name='备注')
+    idc = models.ForeignKey('IDC', related_name='cabinet', on_delete=models.PROTECT)
+    cabinet_name = models.CharField(max_length=64, unique=True, verbose_name='机柜名称')
+    cabinet_memo = models.CharField(max_length=100, blank=True, null=True, verbose_name='备注')
 
     class Meta:
-        db_table = 'ops_cabinets'
+        db_table = 'ops_cabinet'
         verbose_name = '机柜表'
         verbose_name_plural = '机柜表'
+
+
+class AssetsLog(models.Model):
+    user = models.ForeignKey('users.UserProfile', related_name='asset_log', verbose_name='操作用户',
+                             on_delete=models.PROTECT)
+    remote_ip = models.GenericIPAddressField(verbose_name='操作用户IP')
+    content = models.CharField(max_length=100, verbose_name='操作内容')
+    c_time = models.DateTimeField(auto_now_add=True, verbose_name='操作时间')
+
+    class Meta:
+        db_table = 'ops_assets_log'
+        verbose_name = '资产管理操作记录表'
+        verbose_name_plural = '资产管理操作记录表'

@@ -2,8 +2,10 @@
 from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from users.tasks import users_record
+from assets.tasks import assets_record
 from users.models import UserProfile
 from django.contrib.auth.models import Group
+from assets.models import Assets
 
 
 class UserLoginMiddleware(MiddlewareMixin):
@@ -34,6 +36,11 @@ class RecordMiddleware(MiddlewareMixin):
                 groupname = Group.objects.get(id=group_id).name
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='删除用户组：{}'.format(groupname))
+            elif 'assets' in request.path:
+                asset_id = self.get_id(request.path)
+                asset_nu = Assets.objects.get(id=asset_id).asset_nu
+                assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                    content='删除资产，资产编号为：{}'.format(asset_nu))
 
         elif request.method == 'PUT' or request.method == 'put':
             if r'users' in request.path:
@@ -46,6 +53,11 @@ class RecordMiddleware(MiddlewareMixin):
                 groupname = Group.objects.get(id=group_id).name
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='修改用户组：{}'.format(groupname))
+            elif r'/api/assets' in request.path:
+                asset_id = self.get_id(request.path)
+                asset_nu = Assets.objects.get(id=asset_id).asset_nu
+                assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                    content='修改资产，资产编号为：{}'.format(asset_nu))
 
         elif request.method == 'POST' or request.method == 'post':
             if 'create_user' in request.path:
@@ -56,6 +68,11 @@ class RecordMiddleware(MiddlewareMixin):
                 name = eval(body)['name']
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='创建用户组：{}'.format(name))
+            elif 'assets' in request.path:
+                body = str(request.__dict__.get('_body'), encoding="utf-8")
+                asset_nu = eval(body)['assets']['asset_nu']
+                assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                    content='新增资产，资产编号为：{}'.format(asset_nu))
         return None
 
     @staticmethod

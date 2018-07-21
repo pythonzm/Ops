@@ -53,6 +53,7 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 
 CELERY_ROUTES = {
     'users.tasks.*': {'queue': 'default', 'routing_key': 'default'},
+    'assets.tasks.*': {'queue': 'default', 'routing_key': 'default'},
 }
 
 ASGI_APPLICATION = "Ops.routing.application"

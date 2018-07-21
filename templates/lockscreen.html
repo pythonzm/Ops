@@ -60,7 +60,11 @@
     </div>
     <!-- /.lockscreen-item -->
     <div class="help-block text-center">
-        Enter your password to retrieve your session
+        {% if login_error_info %}
+            {{ login_error_info }}
+        {% else %}
+            Enter your password to retrieve your session
+        {% endif %}
     </div>
     <div class="text-center">
         <a href="{% url 'login' %}">使用另一个用户登录</a>

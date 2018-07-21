@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import auth
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -17,7 +17,9 @@ def dashboard(request):
 
 
 def login(request):
-    if request.session.get('username') is not None:
+    if request.session.get('username') and request.session.get('lock'):
+        del request.session['lock']
+        del request.session['username']
         return render(request, 'login.html')
     else:
         username = request.POST.get('username')
@@ -49,4 +51,4 @@ def lock_screen(request):
         if user:
             del request.session['lock']
             return redirect('/')
-        return HttpResponse('wrong password')
+        return render(request, 'lockscreen.html', {"login_error_info": "密码错误！请确认输入的密码是否正确！"}, )

@@ -13,13 +13,15 @@ router.register(r'security_assets', views.SecurityAssetsViewSet)
 router.register(r'storage_assets', views.StorageAssetsViewSet)
 router.register(r'software_assets', views.SoftwareAssetsViewSet)
 router.register(r'project', views.ProjectViewSet)
+router.register(r'service', views.ServiceViewSet)
 router.register(r'asset_provider', views.AssetProviderViewSet)
 router.register(r'idc', views.IDCViewSet)
-router.register(r'cabinets', views.CabinetsViewSet)
+router.register(r'cabinet', views.CabinetViewSet)
 router.register(r'users', views.UsersViewSet)
 router.register(r'permission', views.PermissionViewSet)
 router.register(r'group', views.GroupViewSet)
 router.register(r'user_log', views.UserLogViewSet)
+router.register(r'assets_log', views.AssetsLogViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),

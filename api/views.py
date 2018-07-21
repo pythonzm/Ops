@@ -66,9 +66,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class BusinessViewSet(viewsets.ModelViewSet):
-    queryset = Business.objects.all().order_by('id')
-    serializer_class = BusinessSerializer
+class ServiceViewSet(viewsets.ModelViewSet):
+    queryset = Service.objects.all().order_by('id')
+    serializer_class = ServiceSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
 
@@ -84,9 +84,9 @@ class IDCViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class CabinetsViewSet(viewsets.ModelViewSet):
-    queryset = Cabinets.objects.all().order_by('id')
-    serializer_class = CabinetsSerializer
+class CabinetViewSet(viewsets.ModelViewSet):
+    queryset = Cabinet.objects.all().order_by('id')
+    serializer_class = CabinetSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
 
@@ -111,4 +111,10 @@ class GroupViewSet(viewsets.ModelViewSet):
 class UserLogViewSet(viewsets.ModelViewSet):
     queryset = UserLog.objects.all().order_by('id')
     serializer_class = UserLogSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class AssetsLogViewSet(viewsets.ModelViewSet):
+    queryset = AssetsLog.objects.all().order_by('id')
+    serializer_class = AssetsLogSerializer
     permission_classes = (permissions.IsAuthenticated,)

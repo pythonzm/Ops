@@ -24,88 +24,168 @@ class ModuleLogSerializer(serializers.ModelSerializer):
 
 
 class AssetsSerializer(serializers.ModelSerializer):
+    asset_management_ip = serializers.IPAddressField(allow_blank=True, allow_null=True)
+
     class Meta:
         model = Assets
-        fields = (
-            'id', 'asset_type', 'asset_nu', 'asset_provider', 'asset_status', 'asset_management_ip', 'asset_admin',
-            'asset_project', 'asset_idc', 'asset_cabinets', 'asset_purchase_day', 'asset_expire_day', 'asset_price',
-            'asset_memo')
+        fields = '__all__'
 
 
 class ServerAssetsSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=False, required=False)
+
     class Meta:
         model = ServerAssets
-        fields = (
-            'id', 'asset', 'server_type', 'server_ip', 'username', 'auth_type', 'password', 'port',
-            'hosted_on', 'hostname', 'cpu_model', 'cpu_number', 'vcpu_number', 'disk_total', 'ram_total', 'kernel',
-            'system')
+        fields = '__all__'
+
+    def create(self, data):
+        if data.get('assets'):
+            assets_data = data.pop('assets')
+            assets = Assets.objects.create(**assets_data)
+        else:
+            assets = Assets()
+        data['assets'] = assets
+        server = ServerAssets.objects.create(**data)
+        return server
 
 
 class NetworkAssetsSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=False, required=False)
+
     class Meta:
         model = NetworkAssets
-        fields = ('id', 'asset', 'network_type', 'port_number', 'firmware')
+        fields = '__all__'
+
+    def create(self, data):
+        if data.get('assets'):
+            assets_data = data.pop('assets')
+            assets = Assets.objects.create(**assets_data)
+        else:
+            assets = Assets()
+        data['assets'] = assets
+        network = NetworkAssets.objects.create(**data)
+        return network
 
 
 class OfficeAssetsSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=False, required=False)
+
     class Meta:
         model = OfficeAssets
-        fields = ('id', 'asset', 'office_type')
+        fields = '__all__'
+
+    def create(self, data):
+        if data.get('assets'):
+            assets_data = data.pop('assets')
+            assets = Assets.objects.create(**assets_data)
+        else:
+            assets = Assets()
+        data['assets'] = assets
+        office = OfficeAssets.objects.create(**data)
+        return office
 
 
 class SecurityAssetsSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=False, required=False)
+
     class Meta:
         model = SecurityAssets
-        fields = ('id', 'asset', 'security_type')
+        fields = '__all__'
+
+    def create(self, data):
+        if data.get('assets'):
+            assets_data = data.pop('assets')
+            assets = Assets.objects.create(**assets_data)
+        else:
+            assets = Assets()
+        data['assets'] = assets
+        security = SecurityAssets.objects.create(**data)
+        return security
 
 
 class StorageAssetsSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=False, required=False)
+
     class Meta:
         model = StorageAssets
-        fields = ('id', 'asset', 'storage_type')
+        fields = '__all__'
+
+    def create(self, data):
+        if data.get('assets'):
+            assets_data = data.pop('assets')
+            assets = Assets.objects.create(**assets_data)
+        else:
+            assets = Assets()
+        data['assets'] = assets
+        storage = StorageAssets.objects.create(**data)
+        return storage
 
 
 class SoftwareAssetsSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=False, required=False)
+
     class Meta:
         model = SoftwareAssets
-        fields = ('id', 'asset', 'software_type')
+        fields = '__all__'
+
+    def create(self, data):
+        if data.get('assets'):
+            assets_data = data.pop('assets')
+            assets = Assets.objects.create(**assets_data)
+        else:
+            assets = Assets()
+        data['assets'] = assets
+        software = StorageAssets.objects.create(**data)
+        return software
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ('id', 'project_name', 'service_name', 'service_assets')
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    service = ServiceSerializer(many=True, read_only=True)
+
     class Meta:
         model = Project
-        fields = ('id', 'parent_project', 'project_name', 'project_memo')
-
-
-class BusinessSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Business
-        fields = ('id', 'project_name', 'business_name', 'business_memo')
+        fields = ('id', 'parent_project', 'project_name', 'project_memo', 'service')
 
 
 class AssetProviderSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=True, read_only=True)
+
     class Meta:
         model = AssetProvider
         fields = (
-            'id', 'asset_provider_name', 'asset_provider_contact', 'asset_provider_telephone', 'asset_provider_memo')
+            'id', 'asset_provider_name', 'asset_provider_contact', 'asset_provider_telephone', 'asset_provider_memo',
+            'assets')
+
+
+class CabinetSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Cabinet
+        fields = ('id', 'idc', 'cabinet_name', 'cabinet_memo', 'assets')
 
 
 class IDCSerializer(serializers.ModelSerializer):
+    cabinet = CabinetSerializer(many=True, read_only=True)
+    assets = AssetsSerializer(many=True, read_only=True)
+
     class Meta:
         model = IDC
-        fields = ('id', 'idc_name', 'idc_address', 'idc_contact', 'idc_telephone', 'idc_memo')
-
-
-class CabinetsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cabinets
-        fields = ('id', 'idc', 'cabinets_name', 'cabinets_memo')
+        fields = ('id', 'idc_name', 'idc_address', 'idc_contact', 'idc_telephone', 'idc_memo', 'cabinet', 'assets')
 
 
 class UsersSerializer(serializers.ModelSerializer):
+    assets = AssetsSerializer(many=True, read_only=True)
+
     class Meta:
         model = UserProfile
-        fields = ('id', 'username', 'mobile', 'is_superuser', 'is_active', 'groups', 'user_permissions')
+        fields = ('id', 'username', 'mobile', 'is_superuser', 'is_active', 'groups', 'user_permissions', 'assets')
 
 
 class PermissionSerializer(serializers.ModelSerializer):
@@ -123,4 +203,10 @@ class GroupSerializer(serializers.ModelSerializer):
 class UserLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserLog
-        fields = ('id', 'user', 'remote_ip', 'content')
+        fields = '__all__'
+
+
+class AssetsLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssetsLog
+        fields = '__all__'
