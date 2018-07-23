@@ -1,0 +1,204 @@
+<div class="col-md-6">
+    <div class="box-body">
+        <form role="form">
+            <!-- text input -->
+            <div class="form-group">
+                <label for="host">选择主机</label>
+                <select class="form-control" id="host" name="host">
+                    <option>请选择主机</option>
+                    {% for host in hosts %}
+                        <option value="{{ host.id }}">{{ host.assets.asset_management_ip }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- textarea -->
+            <div class="form-group">
+                <label>主机变量</label>
+                <textarea class="form-control" rows="5" placeholder="字典格式" id="host_vars" name="host_vars"></textarea>
+            </div>
+
+            <div class="box-footer">
+                <button type="reset" class="btn btn-default">重置</button>
+                <button type="button" class="btn btn-info pull-right" onclick="addHostVars()">添加</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="col-md-6">
+    <div class="col-xs-12">
+        <!-- /.box -->
+        <div class="box">
+            <div class="box-body">
+                <table id="ans_host" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>主机</th>
+                        <th>主机变量</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for host in hosts %}
+                        {% if host.host_vars %}
+                            <tr id="host-{{ host.id }}">
+                                <td>{{ host.assets.asset_management_ip }}</td>
+                                <td>{{ host.host_vars }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
+                                            data-target="#updateHostModal-{{ host.id }}">修改
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs"
+                                            onclick="deleteHostVars({{ host.id }})">删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <!-- updateHostVarsModal  -->
+                        <div class="modal fade" id="updateHostModal-{{ host.id }}" tabindex="-1" role="dialog"
+                             aria-labelledby="updateHostModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal"
+                                                aria-hidden="true">
+                                            &times;
+                                        </button>
+                                        <h4 class="modal-title" id="updateHostModalLabel">
+                                            主机变量信息
+                                        </h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="main form-horizontal" id="update-host">
+                                            <fieldset>
+                                                <div class="form-group">
+                                                    <label for="ans_host_ip">主机IP</label>
+                                                    <select class="form-control select2" id="ans_host_ip"
+                                                            name="ans_host_ip" disabled="disabled" style="width: 100%;">
+                                                        <option value="{{ host.id }}"
+                                                                selected>{{ host.assets.asset_management_ip }}</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="ans_host_vars">主机变量</label>
+                                                    <textarea id="ans_host_vars" name="ans_host_vars"
+                                                              class="form-control"
+                                                              rows="5">{{ host.host_vars }}</textarea>
+                                                </div>
+
+                                                <div class="space-24"></div>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default"
+                                                data-dismiss="modal">关闭
+                                        </button>
+                                        <button type="button" class="btn btn-primary"
+                                                data-dismiss="modal"
+                                                onclick="updateHostVars({{ host.id }})">确认修改
+                                        </button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal -->
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 添加主机变量
+    function addHostVars() {
+        let selected_host = $('#host').val();
+        let host_vars = $('#host_vars').val();
+        $.ajax({
+            url: '/assets/update_asset/server/' + selected_host + '/',
+            type: 'POST',
+            data: {'host_vars': host_vars},
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+            },
+            success: function () {
+                $('#ans_host tbody').append(
+                    '<tr id="host-' + selected_host + '">' +
+                    '<td>' + $('#host').val() + '</td>' +
+                    '<td>' + $('#host_vars').val() + '</td>' +
+                    '<td>' + '<button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#updateHostModal-' + selected_host + '">修改</button>' +
+                    '<button type="button" class="btn btn-danger btn-xs" onclick="deleteHost(' + selected_host + ')">删除</button></td>'
+                )
+            },
+            error: function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText,
+                })
+            }
+        })
+    }
+
+    // 更新主机变量
+    function updateHostVars(id) {
+        let host_vars = $('#updateHostModal-' + id + ' #ans_host_vars').val();
+        $.ajax({
+            url: '/assets/update_asset/server/' + id + '/',
+            type: 'POST',
+            data: {'host_vars': host_vars},
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+            },
+            success: function () {
+                $('#ans_host tbody #host-' + id + ' td:eq(1)' ).text(host_vars)
+            },
+            error: function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText,
+                })
+            }
+        })
+    }
+
+    // 删除主机变量
+    function deleteHostVars(id) {
+        $.ajax({
+            url: '/assets/update_asset/server/' + id + '/',
+            type: 'POST',
+            data: {'host_vars': 'null'},
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+            },
+            success: function () {
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            let str = 'host-' + id;
+                            document.getElementById(str).innerHTML = '';
+                        },
+                        Cancel: function () {
+                            // close
+                        }
+                    }
+                });
+            },
+            error: function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText,
+                })
+            }
+        })
+    }
+</script>

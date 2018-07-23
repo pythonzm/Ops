@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>执行模块</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="box box-default">
+        <div class="box-body">
+            <form role="form" id="runModel">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="hostGroup">选择主机组</label>
+                        <select class="form-control select2" multiple="multiple" style="width: 100%;" id="hostGroup"
+                                name="hostGroup" data-placeholder="可选择多个" onchange="groupSelect()">
+                            {% for ans_group in inventory %}
+                                <option value="{{ ans_group.id }}">{{ ans_group.ans_group_name }}</option>
+                            {% endfor %}
+                            <option value="custom">自定义主机</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ans_group_hosts">选择主机</label>
+                        <select class="form-control select2" multiple="multiple" style="width: 100%;"
+                                name="ans_group_hosts" id="ans_group_hosts">
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>选择模块</label>
+                        <select class="form-control select2" style="width: 100%;" name="ansibleModel"
+                                onchange="modelSelect()" id="ansibleModel">
+                            <option selected="selected" name="ansible_model" value="shell">shell</option>
+                            <option name="ansible_model" value="ping">ping</option>
+                            <option name="ansible_model" value="yum">yum</option>
+                            <option name="ansible_model" value="copy">copy</option>
+                            <option name="ansible_model" value="service">service</option>
+                            <option name="ansible_model" value="user">user</option>
+                            <option name="ansible_model" value="file">file</option>
+                            <option name="ansible_model" value="cron">cron</option>
+                            <option name="ansible_model" value="wget">wget</option>
+                            <option name="ansible_model" value="synchronize">synchronize</option>
+                            <option name="ansible_model" value="custom">自定义</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:none;" id="customModel">
+                        <label for="customModel">自定义模块</label>
+                        <input type="text" class="form-control" placeholder="Enter model"
+                               name="customModel">
+                    </div>
+                    <div class="form-group">
+                        <label for="ansibleModelArgs">模块参数</label>
+                        <input type="text" class="form-control" id="ansibleModelArgs" value="uptime"
+                               name="ansibleModelArgs">
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" onclick="runModel()">执行</button>
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+                <!-- /.col -->
+            </form>
+        </div>
+        <!-- /.box-body -->
+
+    </div>
+
+    <div class="box-footer">
+        <pre style="background-color: black"></pre>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('.select2').select2();
+        });
+
+        function groupSelect() {
+            let hosts_obj = $('#ans_group_hosts');
+            let hostGroups = $('#hostGroup').val();
+            hosts_obj.empty();
+            if (hostGroups[0] === 'custom') {
+                {% for host in hosts %}
+                    hosts_obj.append(
+                        '<option value={{ host.id }}>{{ host.assets.asset_management_ip }}</option>'
+                    );
+                {% endfor %}
+            } else {
+                for (let i = 0; i < hostGroups.length; i++) {
+                    $.ajax({
+                        url: '/api/inventory/' + hostGroups[i] + '/',
+                        type: 'GET',
+                        success: function (res) {
+                            let obj = res.ans_group_hosts;
+                            for (let j = 0; j < obj.length; j++) {
+                                hosts_obj.append(
+                                    '<option value="' + obj[j].id + '" selected>' + obj[j].assets.asset_management_ip + '</option>'
+                                );
+                            }
+                        }
+                    })
+                }
+            }
+        }
+
+        function modelSelect() {
+            let value = $('#ansibleModel').val();
+            if (value === "shell") {
+                $('#ansibleModelArgs').val("uptime");
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "yum") {
+                $('#ansibleModelArgs').val("name=httpd state=present");
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "service") {
+                $('#ansibleModelArgs').val("name=httpd state=restarted enabled=yes");
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "cron") {
+                $('#ansibleModelArgs').val('name="sync time" minute=*/3 hour=* day=* month=* weekday=* job="/usr/sbin/ntpdate window.time.com"');
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "file") {
+                $('#ansibleModelArgs').val("src=/root/test.txt dest=/tmp/test.txt owner=root group=root mode=700 state=touch");
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "copy") {
+                $('#ansibleModelArgs').val("src=/root/test.txt dest=/tmp/test.txt");
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "user") {
+                $('#ansibleModelArgs').val("name=zz password='$6yshUMNL8dhY'");
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "synchronize") {
+                $('#ansibleModelArgs').val('src=/root/a dest=/tmp/ compress=yes rsync_opts="--exclude=.git --exclude=static/image"');
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "wget") {
+                $('#ansibleModelArgs').val("url=http://url/test.tar.gz dest=/tmp");
+                $('#customModel').css('display', 'none');
+            }
+            else if (value === "custom") {
+                $('#customModel').css('display', 'block');
+                $('#ansibleModelArgs').val("");
+            }
+            else if (value === "ping") {
+                $('#ansibleModelArgs').val("");
+                $('#customModel').css('display', 'none');
+            }
+            else {
+                $('#ansibleModelArgs').val("");
+            }
+        }
+
+        function runModel() {
+            let obj = $('pre');
+            let data = $('#runModel').serialize();
+            obj.html('开始执行....\n');
+            $.ajax({
+                url: "{% url 'run_module' %}",
+                type: "POST",
+                data: data,
+                success: function (res) {
+                    console.log(res);
+                    res = res.res;
+                    for (let i = 0; i < res.length; i++) {
+                        if (res[i].indexOf('success') !== -1) {
+                            obj.append('<code style="color: green">' + res[i] + '</code><br>')
+                        } else {
+                            obj.append('<code style="color: red">' + res[i] + '</code><br>')
+                        }
+                    }
+                    obj.append('<code>执行完毕....</code>')
+                },
+                error: function (res) {
+                    alert('执行失败：' + res.responseText)
+                }
+            })
+        }
+    </script>
+{% endblock %}

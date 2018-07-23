@@ -4,6 +4,7 @@ from django.shortcuts import render
 from assets.models import *
 from users.models import UserProfile
 from django.core import serializers
+from utils.crypt_pwd import CryptPwd
 
 
 def get_assets_charts(request):
@@ -13,7 +14,7 @@ def get_assets_charts(request):
     break_assets_count = Assets.objects.filter(asset_status=2).count()
     unused_assets_count = Assets.objects.filter(asset_status=3).count()
     asset_types_count = Assets.objects.values('asset_type').annotate(dcount=Count('asset_type'))
-    asset_logs = AssetsLog.objects.all().order_by('-c_time')[:6]
+    asset_logs = AssetsLog.objects.all().order_by('-c_time')[:5]
 
     return render(request, 'assets/assets_charts.html', locals())
 
@@ -60,13 +61,23 @@ def update_asset(request, asset_type, pk):
         asset_idcs = IDC.objects.all().select_related()
         server_assets = ServerAssets.objects.all().select_related()
         return render(request, 'assets/update_asset.html', locals())
-    elif request.method == 'PUT':
+    elif request.method == 'POST':
         if asset_type == 'server':
+            if request.POST.get('host_vars'):
+                if request.POST.get('host_vars') == 'null':
+                    ServerAssets.objects.filter(id=pk).update(
+                        host_vars=''
+                    )
+                else:
+                    ServerAssets.objects.filter(id=pk).update(
+                        host_vars=request.POST.get('host_vars')
+                    )
+                return JsonResponse({'code': 200, 'msg': '更新成功'})
             ServerAssets.objects.filter(id=asset.serverassets.id).update(
                 username=request.POST.get('username'),
                 auth_type=request.POST.get('auth_type'),
-                password=request.POST.get('password'),
-                port=request.POST.get('port')
+                password=CryptPwd().encrypt_pwd(request.POST.get('password')),
+                port=request.POST.get('port'),
             )
             return JsonResponse({'code': 200, 'msg': '修改成功'})
         return JsonResponse({'code': 200, 'msg': '修改成功'})

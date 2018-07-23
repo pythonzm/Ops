@@ -27,7 +27,7 @@ urlpatterns = [
     path(r'lock_screen/', views.lock_screen, name='lock_screen'),
     path(r'api/', include('api.urls')),
     path(r'scan_host/', include('scanhosts.urls')),
-    path(r'run/', include('ansible_task.urls')),
+    path(r'run/', include('task.urls')),
     path(r'users/', include('users.urls')),
     path(r'assets/', include('assets.urls')),
     re_path(r'^media/(?P<path>.*)', serve, {"document_root": MEDIA_ROOT}),

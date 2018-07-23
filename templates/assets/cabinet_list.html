@@ -24,11 +24,7 @@
                 {% for asset_cabinet in asset_cabinets %}
                     <tr id="cabinet-{{ asset_cabinet.id }}">
                         <td>{{ asset_cabinet.cabinet_name }}</td>
-                        <td>
-                            {% for idc in asset_cabinet.idc.idc_name %}
-                                {{ idc }}
-                            {% endfor %}
-                        </td>
+                        <td>{{ asset_cabinet.idc.idc_name }}</td>
                         <td>
                             {% for asset in asset_cabinet.assets.all %}
                                 {{ asset.asset_management_ip }}<br>

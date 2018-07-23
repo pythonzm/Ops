@@ -68,7 +68,7 @@ class RecordMiddleware(MiddlewareMixin):
                 name = eval(body)['name']
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='创建用户组：{}'.format(name))
-            elif 'assets' in request.path:
+            elif 'api' in request.path and '_assets/' in request.path:
                 body = str(request.__dict__.get('_body'), encoding="utf-8")
                 asset_nu = eval(body)['assets']['asset_nu']
                 assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],

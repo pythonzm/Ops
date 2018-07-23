@@ -3,7 +3,7 @@ from rest_framework import routers
 from api import views
 
 router = routers.DefaultRouter()
-router.register(r'hostinfo', views.HostInfoViewSet)
+router.register(r'inventory', views.InventoryViewSet)
 router.register(r'run_log', views.RunModuleLogViewSet)
 router.register(r'assets', views.AssetsViewSet)
 router.register(r'server_assets', views.ServerAssetsViewSet)

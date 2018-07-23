@@ -76,9 +76,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'api.apps.ApiConfig',
     'channels',
-    'ansible_task.apps.AnsibleTaskConfig',
     'assets.apps.AssetsConfig',
     'users.apps.UsersConfig',
+    'task.apps.TaskConfig',
 ]
 
 MIDDLEWARE = [

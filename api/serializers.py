@@ -1,26 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from scanhosts.models import HostInfo
-from ansible_task.models import AnsibleModuleLog
+from task.models import *
 from rest_framework import serializers
 from assets.models import *
 from users.models import UserProfile, UserLog
 from django.contrib.auth.models import Permission, Group
-
-
-class HostInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HostInfo
-        fields = ('id', 'internal_ip', 'public_ip', 'system_ver', 'hostname',
-                  'host_type', 'sn', 'manufacturer', 'server_model', 'mac', 'total_mem', 'cpu_counts',
-                  'cpu_model', 'total_disk', 'scan_datetime')
+from utils.crypt_pwd import CryptPwd
 
 
 class ModuleLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnsibleModuleLog
-        fields = ('id', 'ans_user', 'ans_remote_ip', 'ans_module', 'ans_args',
-                  'ans_server', 'ans_result', 'ans_datetime')
+        fields = '__all__'
 
 
 class AssetsSerializer(serializers.ModelSerializer):
@@ -45,6 +36,7 @@ class ServerAssetsSerializer(serializers.ModelSerializer):
         else:
             assets = Assets()
         data['assets'] = assets
+        data['password'] = CryptPwd().encrypt_pwd(data['password'])
         server = ServerAssets.objects.create(**data)
         return server
 
@@ -209,4 +201,10 @@ class UserLogSerializer(serializers.ModelSerializer):
 class AssetsLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetsLog
+        fields = '__all__'
+
+
+class InventorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnsibleInventory
         fields = '__all__'

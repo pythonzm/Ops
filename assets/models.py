@@ -77,6 +77,8 @@ class ServerAssets(models.Model):
     kernel = models.CharField(max_length=100, blank=True, null=True, verbose_name='内核版本')
     system = models.CharField(max_length=100, blank=True, null=True, verbose_name='操作系统')
 
+    host_vars = models.TextField(blank=True, null=True, verbose_name='主机变量')
+
     class Meta:
         db_table = 'ops_server_assets'
         verbose_name = '服务器资产表'

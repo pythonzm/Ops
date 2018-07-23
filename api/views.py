@@ -1,14 +1,15 @@
 from rest_framework import viewsets, permissions
 from api.serializers import *
 from assets.models import *
+from task.models import *
 
 
-class HostInfoViewSet(viewsets.ModelViewSet):
+class InventoryViewSet(viewsets.ModelViewSet):
     """
-    处理 /api/hostinfo/ GET POST , 处理 /api/post/<pk>/ GET PUT PATCH DELETE
+    处理  GET POST , 处理 /api/post/<pk>/ GET PUT PATCH DELETE
     """
-    queryset = HostInfo.objects.all().order_by('id')
-    serializer_class = HostInfoSerializer
+    queryset = AnsibleInventory.objects.all().order_by('id')
+    serializer_class = InventorySerializer
     permission_classes = (permissions.IsAuthenticated,)
 
 
