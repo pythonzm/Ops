@@ -1,3 +1,5 @@
+import json
+
 from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -64,15 +66,13 @@ def update_asset(request, asset_type, pk):
     elif request.method == 'POST':
         if asset_type == 'server':
             if request.POST.get('host_vars'):
+                server_obj = ServerAssets.objects.filter(id=pk)
                 if request.POST.get('host_vars') == 'null':
-                    ServerAssets.objects.filter(id=pk).update(
-                        host_vars=''
-                    )
+                    server_obj.update(host_vars='')
                 else:
-                    ServerAssets.objects.filter(id=pk).update(
-                        host_vars=request.POST.get('host_vars')
-                    )
-                return JsonResponse({'code': 200, 'msg': '更新成功'})
+                    server_obj.update(host_vars=request.POST.get('host_vars'))
+                msg = ServerAssets.objects.get(id=pk).assets.asset_management_ip
+                return JsonResponse({'code': 200, 'msg': msg})
             ServerAssets.objects.filter(id=asset.serverassets.id).update(
                 username=request.POST.get('username'),
                 auth_type=request.POST.get('auth_type'),

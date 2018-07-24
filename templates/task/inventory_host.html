@@ -125,13 +125,12 @@
             beforeSend: function (xhr) {
                 xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
             },
-            success: function () {
+            success: function (res) {
                 $('#ans_host tbody').append(
                     '<tr id="host-' + selected_host + '">' +
-                    '<td>' + $('#host').val() + '</td>' +
-                    '<td>' + $('#host_vars').val() + '</td>' +
-                    '<td>' + '<button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#updateHostModal-' + selected_host + '">修改</button>' +
-                    '<button type="button" class="btn btn-danger btn-xs" onclick="deleteHost(' + selected_host + ')">删除</button></td>'
+                    '<td>' + res["msg"] + '</td>' +
+                    '<td>' + host_vars + '</td>' +
+                    '<td>' + '<button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#updateHostModal-' + selected_host + '">修改</button> <button type="button" class="btn btn-danger btn-xs" onclick="deleteHost(' + selected_host + ')">删除</button></td>'
                 )
             },
             error: function (response) {

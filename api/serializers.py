@@ -205,6 +205,7 @@ class AssetsLogSerializer(serializers.ModelSerializer):
 
 
 class InventorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = AnsibleInventory
         fields = '__all__'

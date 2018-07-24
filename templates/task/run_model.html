@@ -22,6 +22,7 @@
                             {% for ans_group in inventory %}
                                 <option value="{{ ans_group.id }}">{{ ans_group.ans_group_name }}</option>
                             {% endfor %}
+                            <option value="all">所有主机</option>
                             <option value="custom">自定义主机</option>
                         </select>
                     </div>
@@ -87,11 +88,18 @@
         function groupSelect() {
             let hosts_obj = $('#ans_group_hosts');
             let hostGroups = $('#hostGroup').val();
-            hosts_obj.empty();
+            let host_id_list = [];
+            hosts_obj.html('');
             if (hostGroups[0] === 'custom') {
                 {% for host in hosts %}
                     hosts_obj.append(
                         '<option value={{ host.id }}>{{ host.assets.asset_management_ip }}</option>'
+                    );
+                {% endfor %}
+            } else if (hostGroups[0] === 'all') {
+                {% for host in hosts %}
+                    hosts_obj.append(
+                        '<option value={{ host.id }} selected>{{ host.assets.asset_management_ip }}</option>'
                     );
                 {% endfor %}
             } else {
@@ -99,14 +107,19 @@
                     $.ajax({
                         url: '/api/inventory/' + hostGroups[i] + '/',
                         type: 'GET',
+                        async: false,
                         success: function (res) {
                             let obj = res.ans_group_hosts;
-                            for (let j = 0; j < obj.length; j++) {
-                                hosts_obj.append(
-                                    '<option value="' + obj[j].id + '" selected>' + obj[j].assets.asset_management_ip + '</option>'
-                                );
-                            }
+                            host_id_list = host_id_list.concat(obj);
+
                         }
+                    })
+                }
+                for (let j of Array.from(new Set(host_id_list))) {
+                    $.get('/api/server_assets/' + j + '/', function (response) {
+                        hosts_obj.append(
+                            '<option value="' + response.id + '" selected>' + response.assets.asset_management_ip + '</option>'
+                        );
                     })
                 }
             }
