@@ -94,7 +94,7 @@ class MyInventory(InventoryManager):
             {
                 "group1": {
                     "hosts": [{"ip": "10.0.0.0", "port": "22", "username": "test", "password": "pass"}, ...],
-                    "vars": {"var1": value1, "var2": value2, ...}
+                    "group_vars": {"var1": value1, "var2": value2, ...}
                 }
             }
              如果你只传入1个列表，这默认该列表内的所有主机属于default 组,比如
@@ -158,7 +158,7 @@ class MyInventory(InventoryManager):
             self.add_dynamic_group(self.resource, 'default')
         elif isinstance(self.resource, dict):
             for groupname, hosts_and_vars in self.resource.items():
-                self.add_dynamic_group(hosts_and_vars.get("hosts"), groupname, hosts_and_vars.get("vars"))
+                self.add_dynamic_group(hosts_and_vars.get("hosts"), groupname, hosts_and_vars.get("group_vars"))
 
 
 class ANSRunner(object):

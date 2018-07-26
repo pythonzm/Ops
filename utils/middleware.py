@@ -3,9 +3,10 @@ from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from users.tasks import users_record
 from assets.tasks import assets_record
+from task.tasks import module_record
 from users.models import UserProfile
 from django.contrib.auth.models import Group
-from assets.models import Assets
+from assets.models import Assets, ServerAssets
 
 
 class UserLoginMiddleware(MiddlewareMixin):
@@ -74,6 +75,19 @@ class RecordMiddleware(MiddlewareMixin):
                 assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                     content='新增资产，资产编号为：{}'.format(asset_nu))
         return None
+
+    @staticmethod
+    def process_response(request, response):
+        if request.method == 'POST' and 'run_module' in request.path and response.status_code == 200:
+            post_data = dict(request._post)
+            ans_server = [ServerAssets.objects.get(id=host_id).assets.asset_management_ip for host_id in
+                          post_data['ans_group_hosts']]
+            response_data = str(response.__dict__.get('_container')[0], encoding="utf-8")
+            res = eval(response_data)['msg']
+            module_record.delay(ans_user=request.user, ans_remote_ip=request.META['REMOTE_ADDR'],
+                                ans_module=post_data['ansibleModule'], ans_args=post_data['ansibleModuleArgs'],
+                                ans_server=ans_server, ans_result=res)
+        return response
 
     @staticmethod
     def get_id(path):

@@ -51,6 +51,10 @@
                 <div class="col-lg-12">
                     <br>
                     <div class="col-sm-8">
+                        <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
+                            <i class="fa fa-warning"></i>
+                            <span class="bigger-110">批量删除</span>
+                        </button>
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group">
@@ -88,7 +92,6 @@
                                         <th><label>
                                             <input type="checkbox" class="minimal-red" id="checkAll">
                                         </label></th>
-                                        <th>ID</th>
                                         <th>操作用户</th>
                                         <th>操作用户IP</th>
                                         <th>模块名称</th>
@@ -104,7 +107,6 @@
                                             <td><label>
                                                 <input type="checkbox" class="minimal" value="{{ info.id }}">
                                             </label></td>
-                                            <td>{{ info.id }}</td>
                                             <td>{{ info.ans_user }}</td>
                                             <td>{{ info.ans_remote_ip }}</td>
                                             <td>{{ info.ans_module }}</td>
@@ -168,7 +170,6 @@
                                         <th><label>
                                             <input type="checkbox" class="minimal-red" id="checkAll">
                                         </label></th>
-                                        <th>{{ fields.id }}</th>
                                         <th>{{ fields.internal_ip }}</th>
                                         <th>{{ fields.public_ip }}</th>
                                         <th>{{ fields.hostname }}</th>
@@ -185,7 +186,6 @@
                                             <td><label>
                                                 <input type="checkbox" class="minimal" value="{{ info.id }}">
                                             </label></td>
-                                            <td>{{ hostinfo.id }}</td>
                                             <td>{{ hostinfo.internal_ip }}</td>
                                             <td>{{ hostinfo.public_ip }}</td>
                                             <td>{{ hostinfo.hostname }}</td>
@@ -221,11 +221,6 @@
                 <!-- /.tab-pane -->
             </div>
             <!-- /.tab-content -->
-            <div class="btn-group">
-                <button type="button" class="btn btn-danger" id="deleteChecked"
-                        style="margin-left: 35px; margin-bottom: 10px">批量删除
-                </button>
-            </div>
         </div>
         <!-- nav-tabs-custom -->
     </div>
@@ -253,7 +248,7 @@
                     'targets': [0, -1],
                     'orderable': false
                 }],
-                "order": [[1, "asc"]]
+                "order": [[6, "asc"]]
             });
         });
 

@@ -7,44 +7,74 @@ from task.models import *
 from assets.models import ServerAssets
 from utils.db.redis_ops import RedisOps
 from Ops import settings
+from utils.crypt_pwd import CryptPwd
+
+
+def gen_resource(host_ids, group_ids=None):
+    host_list = []
+    for host_id in host_ids:
+        host = {}
+        host_obj = ServerAssets.objects.get(id=host_id)
+        host['ip'] = host_obj.assets.asset_management_ip
+        host['port'] = host_obj.port
+        host['username'] = host_obj.username
+        host['password'] = CryptPwd().decrypt_pwd(host_obj.password)
+        if host_obj.host_vars:
+            host_vars = eval(host_obj.host_vars)
+            for k, v in host_vars.items():
+                host[k] = v
+        host_list.append(host)
+    if group_ids:
+        resource = {}
+        group_values = {}
+        for group_id in group_ids:
+            group_obj = AnsibleInventory.objects.get(id=group_id)
+            group_values['hosts'] = host_list
+            if group_obj.ans_group_vars:
+                group_values['group_vars'] = eval(group_obj.ans_group_vars)
+            resource[group_obj.ans_group_name] = group_values
+    else:
+        resource = host_list
+
+    return resource
 
 
 def run_module(request):
     if request.method == 'POST':
         redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
         remote_ip = request.META['REMOTE_ADDR']
-        host = request.POST.getlist('host')
-        selected_module_name = request.POST.get('ansibleModel')
-        custom_model_name = request.POST.get('customModel')
-        module_name = selected_module_name if selected_module_name else custom_model_name
-        module_args = request.POST.get('ansibleModelArgs')
+        group_ids = request.POST.getlist('hostGroup')
+        host_ids = request.POST.getlist('ans_group_hosts')
+        if group_ids == ['custom'] or group_ids == ['all']:
+            resource = gen_resource(host_ids)
+        else:
+            resource = gen_resource(host_ids, group_ids)
 
-        unique_key = '{}.{}.{}'.format(host, module_name, module_args)
+        host_list = [ServerAssets.objects.get(id=host_id).assets.asset_management_ip for host_id in host_ids]
+        selected_module_name = request.POST.get('ansibleModule')
+        custom_model_name = request.POST.get('customModule')
+        module_name = selected_module_name if selected_module_name else custom_model_name
+        module_args = request.POST.get('ansibleModuleArgs')
+
+        unique_key = '{}.{}.{}'.format(host_ids, module_name, module_args)
 
         if redis_conn.exists(unique_key):
-            return JsonResponse({'res': ['有相同的任务正在执行，请稍后再试']})
+            return JsonResponse({'msg': ['有相同的任务正在执行，请稍后再试'], 'code': 403})
         else:
             try:
                 redis_conn.set(unique_key, 1)
-                ans = ANSRunner()
-                ans.run_module(host_list=host, module_name=module_name, module_args=module_args)
+                ans = ANSRunner(resource)
+                ans.run_module(host_list=host_list, module_name=module_name, module_args=module_args)
                 res = ans.get_model_result()
-                AnsibleModuleLog.objects.create(
-                    ans_user=str(request.user),
-                    ans_remote_ip=remote_ip,
-                    ans_module=module_name,
-                    ans_args=module_args,
-                    ans_server=','.join(host),
-                    ans_result=res,
-                )
-                return JsonResponse({'res': res})
+
+                return JsonResponse({'msg': res})
             except Exception as e:
-                return JsonResponse({'res': ['任务执行失败：{}'.format(e)]})
+                return JsonResponse({'msg': ['任务执行失败：{}'.format(e)]})
             finally:
                 redis_conn.delete(unique_key)
     inventory = AnsibleInventory.objects.all().select_related()
     hosts = ServerAssets.objects.all().select_related()
-    return render(request, 'task/run_model.html', locals())
+    return render(request, 'task/run_module.html', locals())
 
 
 @csrf_exempt

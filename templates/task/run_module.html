@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>执行模块</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="box box-default">
+        <div class="box-body">
+            <form role="form" id="runModule">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="hostGroup">选择主机组</label>
+                        <select class="form-control select2" multiple="multiple" style="width: 100%;" id="hostGroup"
+                                name="hostGroup" data-placeholder="可选择多个" onchange="groupSelect()">
+                            {% for ans_group in inventory %}
+                                <option value="{{ ans_group.id }}">{{ ans_group.ans_group_name }}</option>
+                            {% endfor %}
+                            <option value="all">所有主机</option>
+                            <option value="custom">自定义主机</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ans_group_hosts">选择主机</label>
+                        <select class="form-control select2" multiple="multiple" style="width: 100%;"
+                                name="ans_group_hosts" id="ans_group_hosts">
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ansibleModule">选择模块</label>
+                        <select class="form-control select2" style="width: 100%;" name="ansibleModule"
+                                onchange="moduleSelect()" id="ansibleModule">
+                            <option selected="selected" value="shell">shell</option>
+                            <option value="ping">ping</option>
+                            <option value="yum">yum</option>
+                            <option value="copy">copy</option>
+                            <option value="service">service</option>
+                            <option value="user">user</option>
+                            <option value="file">file</option>
+                            <option value="cron">cron</option>
+                            <option value="wget">wget</option>
+                            <option value="synchronize">synchronize</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:none;" id="customModule">
+                        <label for="customModule">自定义模块</label>
+                        <input type="text" class="form-control" placeholder="Enter model"
+                               name="customModule">
+                    </div>
+                    <div class="form-group">
+                        <label for="ansibleModuleArgs">模块参数</label>
+                        <input type="text" class="form-control" id="ansibleModuleArgs" value="uptime"
+                               name="ansibleModuleArgs">
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" onclick="runModule()">执行</button>
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+                <!-- /.col -->
+            </form>
+        </div>
+        <!-- /.box-body -->
+
+    </div>
+
+    <div class="box-footer">
+        <pre style="background-color: black"></pre>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('.select2').select2();
+        });
+
+        function groupSelect() {
+            let hosts_obj = $('#ans_group_hosts');
+            let hostGroups = $('#hostGroup').val();
+            let host_id_list = [];
+            hosts_obj.html('');
+            if (hostGroups[0] === 'custom') {
+                {% for host in hosts %}
+                    hosts_obj.append(
+                        '<option value={{ host.id }}>{{ host.assets.asset_management_ip }}</option>'
+                    );
+                {% endfor %}
+            } else if (hostGroups[0] === 'all') {
+                {% for host in hosts %}
+                    hosts_obj.append(
+                        '<option value={{ host.id }} selected>{{ host.assets.asset_management_ip }}</option>'
+                    );
+                {% endfor %}
+            } else {
+                for (let i = 0; i < hostGroups.length; i++) {
+                    $.ajax({
+                        url: '/api/inventory/' + hostGroups[i] + '/',
+                        type: 'GET',
+                        async: false,
+                        success: function (res) {
+                            let obj = res.ans_group_hosts;
+                            host_id_list = host_id_list.concat(obj);
+
+                        }
+                    })
+                }
+                for (let j of Array.from(new Set(host_id_list))) {
+                    $.get('/api/server_assets/' + j + '/', function (response) {
+                        hosts_obj.append(
+                            '<option value="' + response.id + '" selected>' + response.assets.asset_management_ip + '</option>'
+                        );
+                    })
+                }
+            }
+        }
+
+        function moduleSelect() {
+            let value = $('#ansibleModule').val();
+            if (value === "shell") {
+                $('#ansibleModuleArgs').val("uptime");
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "yum") {
+                $('#ansibleModuleArgs').val("name=httpd state=present");
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "service") {
+                $('#ansibleModuleArgs').val("name=httpd state=restarted enabled=yes");
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "cron") {
+                $('#ansibleModuleArgs').val('name="sync time" minute=*/3 hour=* day=* month=* weekday=* job="/usr/sbin/ntpdate window.time.com"');
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "file") {
+                $('#ansibleModuleArgs').val("src=/root/test.txt dest=/tmp/test.txt owner=root group=root mode=700 state=touch");
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "copy") {
+                $('#ansibleModuleArgs').val("src=/root/test.txt dest=/tmp/test.txt");
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "user") {
+                $('#ansibleModuleArgs').val("name=zz password='$6yshUMNL8dhY'");
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "synchronize") {
+                $('#ansibleModuleArgs').val('src=/root/a dest=/tmp/ compress=yes rsync_opts="--exclude=.git --exclude=static/image"');
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "wget") {
+                $('#ansibleModuleArgs').val("url=http://url/test.tar.gz dest=/tmp");
+                $('#customModule').css('display', 'none');
+            }
+            else if (value === "custom") {
+                $('#customModule').css('display', 'block');
+                $('#ansibleModuleArgs').val("");
+            }
+            else if (value === "ping") {
+                $('#ansibleModuleArgs').val("");
+                $('#customModule').css('display', 'none');
+            }
+            else {
+                $('#ansibleModuleArgs').val("");
+            }
+        }
+
+        function runModule() {
+            let obj = $('pre');
+            let data = $('#runModule').serialize();
+            obj.html('开始执行....\n');
+            $.ajax({
+                url: "{% url 'run_module' %}",
+                type: "POST",
+                data: data,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function (res) {
+                    res = res['msg'];
+                    for (let i = 0; i < res.length; i++) {
+                        if (res[i].indexOf('success') !== -1) {
+                            obj.append('<code style="color: green">' + res[i] + '</code><br>')
+                        } else {
+                            obj.append('<code style="color: red">' + res[i] + '</code><br>')
+                        }
+                    }
+                    obj.append('<code>执行完毕....</code>')
+                },
+                error: function (res) {
+                    alert('执行失败：' + res.responseText)
+                }
+            })
+        }
+    </script>
+{% endblock %}

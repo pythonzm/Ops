@@ -2,7 +2,7 @@ from django.db import models
 
 
 class AnsibleModuleLog(models.Model):
-    ans_user = models.OneToOneField('users.UserProfile', on_delete=models.PROTECT, verbose_name='操作用户')
+    ans_user = models.ForeignKey('users.UserProfile', on_delete=models.PROTECT, verbose_name='操作用户')
     ans_remote_ip = models.GenericIPAddressField(verbose_name='操作用户IP')
     ans_module = models.CharField(max_length=100, verbose_name='模块名称')
     ans_args = models.CharField(max_length=500, blank=True, null=True, verbose_name='模块参数', default=None)
