@@ -17,7 +17,6 @@
                     <th>组内主机</th>
                     <th>主机组变量</th>
                     <th>主机组描述</th>
-                    <th>添加人</th>
                     <th>添加时间</th>
                     <th>操作</th>
                 </tr>
@@ -33,7 +32,6 @@
                         </td>
                         <td>{{ group.ans_group_vars }}</td>
                         <td>{{ group.ans_group_memo }}</td>
-                        <td>{{ group.ans_group_adder }}</td>
                         <td>{{ group.ans_group_datetime|date:"Y-m-d H:i:s" }}</td>
                         <td>
                             <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
@@ -95,13 +93,6 @@
                                                 <label for="ans_group_memo">主机组描述</label>
                                                 <textarea id="ans_group_memo" name="ans_group_memo"
                                                           class="form-control">{{ group.ans_group_memo }}</textarea>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="ans_group_adder">添加人</label>
-                                                <input id="ans_group_adder" name="ans_group_adder"
-                                                       class="form-control" type="text"
-                                                       value="{{ request.user }}" readonly>
                                             </div>
 
                                             <div class="space-24"></div>
@@ -182,14 +173,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="ans_group_adder" class="col-sm-2 control-label">添加人</label>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control" name="ans_group_adder"
-                                           id="ans_group_adder" value="{{ request.user }}" readonly/>
-                                </div>
-                            </div>
-
                             <div class="space-24"></div>
 
                         </fieldset>
@@ -211,8 +194,12 @@
 
     // 添加主机组
     function addGroup() {
-        let data = $('#add_group').serializeJson();
-        console.log(data);
+        let data = {
+            ans_group_name: $('#addGroupModal #ans_group_name').val(),
+            ans_group_hosts: $('#addGroupModal #ans_group_hosts').val(),
+            ans_group_vars: $('#addGroupModal #ans_group_vars').val(),
+            ans_group_memo: $('#addGroupModal #ans_group_memo').val(),
+        };
         $.ajax({
             url: '/api/inventory/',
             type: 'POST',
@@ -242,7 +229,6 @@
             ans_group_hosts: $('#updateGroupModal-' + id + ' #ans_group_hosts').val(),
             ans_group_vars: $('#updateGroupModal-' + id + ' #ans_group_vars').val(),
             ans_group_memo: $('#updateGroupModal-' + id + ' #ans_group_memo').val(),
-            ans_group_adder: $('#updateGroupModal-' + id + ' #ans_group_adder').val(),
         };
         $.ajax({
             url: '/api/inventory/' + id + '/',

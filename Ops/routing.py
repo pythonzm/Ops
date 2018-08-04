@@ -14,6 +14,7 @@ from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from utils.log_websocket import LogConsumer
+from utils.webssh_websocket import SSHConsumer
 
 application = ProtocolTypeRouter({
 
@@ -21,7 +22,7 @@ application = ProtocolTypeRouter({
         URLRouter([
             # URLRouter just takes standard Django path() or url() entries.
             path(r'ws/log/', LogConsumer),
+            path(r'ws/webssh/', SSHConsumer),
         ]),
     ),
 })
-

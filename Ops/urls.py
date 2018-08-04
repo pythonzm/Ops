@@ -30,5 +30,6 @@ urlpatterns = [
     path(r'run/', include('task.urls')),
     path(r'users/', include('users.urls')),
     path(r'assets/', include('assets.urls')),
+    path(r'fort/', include('fort.urls')),
     re_path(r'^media/(?P<path>.*)', serve, {"document_root": MEDIA_ROOT}),
 ]

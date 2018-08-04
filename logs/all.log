@@ -1,116 +1,104 @@
-INFO 2018-07-25 16:30:33 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 16:30:33 _log Authentication (publickey) successful!
-INFO 2018-07-25 16:30:35 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 16:30:37 _log [chan 2] sftp session closed.
-INFO 2018-07-25 16:32:15 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 16:32:15 _log Authentication (publickey) successful!
-INFO 2018-07-25 16:32:17 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 16:32:19 _log [chan 2] sftp session closed.
-INFO 2018-07-25 18:23:44 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 18:23:44 _log Authentication (publickey) successful!
-INFO 2018-07-25 18:23:46 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 18:23:47 _log [chan 2] sftp session closed.
-INFO 2018-07-25 18:32:55 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 18:32:55 _log Authentication (publickey) successful!
-INFO 2018-07-25 18:32:57 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 18:32:59 _log [chan 2] sftp session closed.
-INFO 2018-07-25 18:33:08 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 18:33:08 _log Authentication (publickey) successful!
-INFO 2018-07-25 18:33:10 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 18:33:12 _log [chan 2] sftp session closed.
-INFO 2018-07-25 18:45:20 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 18:45:20 _log Authentication (publickey) successful!
-INFO 2018-07-25 18:45:22 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 18:45:23 _log [chan 2] sftp session closed.
-INFO 2018-07-25 18:49:42 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 18:49:42 _log Authentication (publickey) successful!
-INFO 2018-07-25 18:49:44 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 18:49:45 _log [chan 2] sftp session closed.
-INFO 2018-07-25 18:52:31 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 18:52:31 _log Authentication (publickey) successful!
-INFO 2018-07-25 18:52:33 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 18:52:35 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:09:27 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:09:27 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:09:29 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:09:31 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:10:29 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:10:29 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:10:31 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:10:32 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:25:14 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:25:14 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:25:16 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:25:17 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:28:35 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:28:35 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:28:37 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:28:38 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:31:21 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:31:21 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:31:23 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:31:24 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:37:44 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:37:44 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:37:46 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:37:47 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:40:58 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:40:58 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:41:00 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:41:02 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:48:44 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:48:44 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:48:46 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:48:47 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:49:12 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:49:12 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:49:14 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:49:16 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:49:36 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:49:36 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:49:38 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:49:39 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:50:21 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:50:21 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:50:23 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:50:24 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:51:35 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:51:35 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:51:37 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:51:38 _log [chan 2] sftp session closed.
-INFO 2018-07-25 19:55:45 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 19:55:45 _log Authentication (publickey) successful!
-INFO 2018-07-25 19:55:47 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 19:55:48 _log [chan 2] sftp session closed.
-INFO 2018-07-25 20:01:06 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 20:01:06 _log Authentication (publickey) successful!
-INFO 2018-07-25 20:01:08 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 20:01:10 _log [chan 2] sftp session closed.
-INFO 2018-07-25 20:08:40 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 20:08:40 _log Authentication (publickey) successful!
-INFO 2018-07-25 20:08:42 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 20:08:43 _log [chan 2] sftp session closed.
-INFO 2018-07-25 20:16:02 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 20:16:02 _log Authentication (publickey) successful!
-INFO 2018-07-25 20:16:04 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 20:16:06 _log [chan 2] sftp session closed.
-INFO 2018-07-25 20:18:01 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 20:18:01 _log Authentication (publickey) successful!
-INFO 2018-07-25 20:18:03 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 20:18:04 _log [chan 2] sftp session closed.
-INFO 2018-07-25 20:30:41 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 20:30:41 _log Authentication (publickey) successful!
-INFO 2018-07-25 20:30:43 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 20:30:44 _log [chan 2] sftp session closed.
-INFO 2018-07-25 20:49:27 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 20:49:27 _log Authentication (publickey) successful!
-INFO 2018-07-25 20:49:29 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 20:49:30 _log [chan 2] sftp session closed.
-INFO 2018-07-25 20:53:53 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 20:53:53 _log Authentication (publickey) successful!
-INFO 2018-07-25 20:53:55 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 20:53:56 _log [chan 2] sftp session closed.
-INFO 2018-07-25 21:27:09 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-07-25 21:27:11 _log Authentication (publickey) successful!
-INFO 2018-07-25 21:27:13 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2018-07-25 21:27:15 _log [chan 2] sftp session closed.
+INFO 2018-08-01 14:23:07 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-01 14:23:07 _log Authentication (publickey) successful!
+INFO 2018-08-01 14:23:09 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-08-01 14:23:11 _log [chan 2] sftp session closed.
+INFO 2018-08-01 14:45:48 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-01 14:45:48 _log Authentication (publickey) successful!
+INFO 2018-08-01 14:45:50 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-08-01 14:45:51 _log [chan 2] sftp session closed.
+INFO 2018-08-01 14:50:43 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-01 14:50:43 _log Authentication (publickey) successful!
+INFO 2018-08-01 14:50:45 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-08-01 14:50:47 _log [chan 2] sftp session closed.
+INFO 2018-08-01 14:55:24 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-01 14:55:24 _log Authentication (publickey) successful!
+INFO 2018-08-01 14:55:26 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-08-01 14:55:27 _log [chan 2] sftp session closed.
+INFO 2018-08-01 14:56:01 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-01 14:56:01 _log Authentication (publickey) successful!
+INFO 2018-08-01 14:56:03 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-08-01 14:56:04 _log [chan 2] sftp session closed.
+INFO 2018-08-01 15:03:13 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-01 15:03:14 _log Authentication (publickey) successful!
+INFO 2018-08-01 15:03:15 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-08-01 15:03:17 _log [chan 2] sftp session closed.
+INFO 2018-08-01 22:42:39 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-01 22:42:39 _log Authentication (publickey) successful!
+INFO 2018-08-01 22:42:41 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-08-01 22:42:43 _log [chan 2] sftp session closed.
+INFO 2018-08-02 11:43:57 scan_hosts 开始扫描
+INFO 2018-08-02 11:44:04 scan_linux 10.1.19.10 扫描成功,结果是Linux主机
+INFO 2018-08-02 11:44:04 scan_linux 10.1.19.106 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:44:09 scan_linux 10.1.19.113 扫描成功,结果是Linux主机
+INFO 2018-08-02 11:44:14 scan_linux 10.1.19.144 扫描失败，原因：timed out
+INFO 2018-08-02 11:44:19 scan_linux 10.1.19.148 扫描失败，原因：timed out
+INFO 2018-08-02 11:44:19 scan_linux 10.1.19.152 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:44:19 scan_linux 10.1.19.171 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:44:24 scan_linux 10.1.19.183 扫描失败，原因：timed out
+INFO 2018-08-02 11:44:29 scan_linux 10.1.19.2 扫描失败，原因：timed out
+INFO 2018-08-02 11:44:34 scan_linux 10.1.19.203 扫描成功,结果是Linux主机
+INFO 2018-08-02 11:44:39 scan_linux 10.1.19.204 扫描成功,结果是Linux主机
+INFO 2018-08-02 11:44:44 scan_linux 10.1.19.214 扫描失败，原因：timed out
+INFO 2018-08-02 11:44:49 scan_linux 10.1.19.215 扫描失败，原因：timed out
+INFO 2018-08-02 11:44:49 scan_linux 10.1.19.219 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:44:54 scan_linux 10.1.19.253 扫描成功,结果是Linux主机
+INFO 2018-08-02 11:44:54 scan_linux 10.1.19.254 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:44:54 scan_linux 10.1.19.45 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:44:59 scan_linux 10.1.19.46 扫描失败，原因：timed out
+INFO 2018-08-02 11:44:59 scan_linux 10.1.19.47 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:45:04 scan_linux 10.1.19.48 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:09 scan_linux 10.1.19.49 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:14 scan_linux 10.1.19.50 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:19 scan_linux 10.1.19.51 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:19 scan_linux 10.1.19.52 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:45:24 scan_linux 10.1.19.53 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:29 scan_linux 10.1.19.55 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:34 scan_linux 10.1.19.62 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:39 scan_linux 10.1.19.63 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:44 scan_linux 10.1.19.65 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:49 scan_linux 10.1.19.78 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:54 scan_linux 10.1.19.89 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:54 scan_linux 10.1.19.92 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:45:59 scan_linux 10.1.19.98 扫描失败，原因：timed out
+INFO 2018-08-02 11:45:59 scan_linux 10.1.19.99 扫描失败，原因：[Errno 111] Connection refused
+INFO 2018-08-02 11:45:59 scan_linux 获取Linux主机结束，开始尝试连接主机获取数据
+INFO 2018-08-02 11:45:59 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-02 11:45:59 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:01 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:01 get_results 初始化连接10.1.19.10失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:01 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-02 11:46:01 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:03 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:03 get_results 初始化连接10.1.19.10失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:03 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-02 11:46:03 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:05 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:05 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:05 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-08-02 11:46:05 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:07 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:07 get_results 初始化连接10.1.19.113失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:07 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-08-02 11:46:07 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:09 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:09 get_results 初始化连接10.1.19.203失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:09 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-08-02 11:46:09 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:12 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:12 get_results 初始化连接10.1.19.203失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:12 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-08-02 11:46:12 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:14 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:14 get_results 初始化连接10.1.19.204失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:14 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-08-02 11:46:14 _log Authentication (publickey) failed.
+INFO 2018-08-02 11:46:16 _log Authentication (password) failed.
+ERROR 2018-08-02 11:46:16 get_results 初始化连接10.1.19.204失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:16 _log Connected (version 1.99, client Cisco-1.25)
+INFO 2018-08-02 11:46:17 _log Disconnect (code 2): Protocol error: expected packet type 50, got 5
+ERROR 2018-08-02 11:46:17 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:17 _log Connected (version 1.99, client Cisco-1.25)
+INFO 2018-08-02 11:46:17 _log Disconnect (code 2): Protocol error: expected packet type 50, got 5
+ERROR 2018-08-02 11:46:17 get_results 初始化连接10.1.19.253失败，原因：Authentication failed.
+INFO 2018-08-02 11:46:17 result 获取数据完成！开始保存至扫描数据库！
+INFO 2018-08-02 11:46:18 result 更新scanhosts.yaml文件完成，扫描任务结束

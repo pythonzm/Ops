@@ -74,7 +74,6 @@ class RecordMiddleware(MiddlewareMixin):
                 asset_nu = eval(body)['assets']['asset_nu']
                 assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                     content='新增资产，资产编号为：{}'.format(asset_nu))
-        return None
 
     @staticmethod
     def process_response(request, response):

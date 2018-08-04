@@ -6,6 +6,7 @@ from assets.models import *
 from users.models import UserProfile, UserLog
 from django.contrib.auth.models import Permission, Group
 from utils.crypt_pwd import CryptPwd
+from fort.models import *
 
 
 class ModuleLogSerializer(serializers.ModelSerializer):
@@ -205,7 +206,18 @@ class AssetsLogSerializer(serializers.ModelSerializer):
 
 
 class InventorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = AnsibleInventory
+        fields = '__all__'
+
+
+class FortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FortServer
+        fields = '__all__'
+
+
+class FortUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FortServerUser
         fields = '__all__'

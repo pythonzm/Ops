@@ -28,7 +28,8 @@ def login(request):
         if user and user.is_active:
             auth.login(request, user)
             request.session['username'] = username
-            return HttpResponseRedirect('/', {"user": request.user})
+            users = UserProfile.objects.all()
+            return HttpResponseRedirect('/', {"user": request.user, "users": users})
         else:
             if request.method == "POST":
                 return render(request, 'login.html', {"login_error_info": "用户名不错存在，或者密码错误！"}, )

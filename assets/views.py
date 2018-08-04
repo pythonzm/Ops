@@ -22,7 +22,7 @@ def get_assets_charts(request):
 
 
 def get_assets_list(request):
-    assets = Assets.objects.all().select_related()
+    assets = Assets.objects.all()
     asset_types = Assets.asset_types
     return render(request, 'assets/assets_list.html', locals())
 
@@ -36,19 +36,19 @@ def add_asset(request):
     storage_types = StorageAssets.storage_types
     software_types = SoftwareAssets.software_types
     asset_status_ = Assets.asset_status_
-    asset_providers = AssetProvider.objects.all().select_related()
-    asset_admins = UserProfile.objects.all().select_related()
-    asset_idcs = IDC.objects.all().select_related()
-    asset_cabinets = Cabinet.objects.all().select_related()
+    asset_providers = AssetProvider.objects.all()
+    asset_admins = UserProfile.objects.all()
+    asset_idcs = IDC.objects.all()
+    asset_cabinets = Cabinet.objects.select_related('idc')
     auth_types = ServerAssets.auth_types
-    server_assets = ServerAssets.objects.all().select_related()
+    server_assets = ServerAssets.objects.select_related('assets')
     return render(request, 'assets/add_asset.html', locals())
 
 
 def add_base_asset(request):
-    asset_idcs = IDC.objects.all().select_related()
-    asset_cabinets = Cabinet.objects.all().select_related()
-    asset_providers = AssetProvider.objects.all().select_related()
+    asset_idcs = IDC.objects.all()
+    asset_cabinets = Cabinet.objects.select_related('idc')
+    asset_providers = AssetProvider.objects.all()
     return render(request, 'assets/add_base_asset.html', locals())
 
 
@@ -58,10 +58,11 @@ def update_asset(request, asset_type, pk):
         asset_types = Assets.asset_types
         auth_types = ServerAssets.auth_types
         asset_status_ = Assets.asset_status_
-        asset_admins = UserProfile.objects.all().select_related()
-        asset_providers = AssetProvider.objects.all().select_related()
-        asset_idcs = IDC.objects.all().select_related()
-        server_assets = ServerAssets.objects.all().select_related()
+        asset_admins = UserProfile.objects.all()
+        asset_providers = AssetProvider.objects.all()
+        asset_idcs = IDC.objects.all()
+        password = CryptPwd().decrypt_pwd(asset.serverassets.password)
+        server_assets = ServerAssets.objects.select_related('assets')
         return render(request, 'assets/update_asset.html', locals())
     elif request.method == 'POST':
         if asset_type == 'server':
@@ -99,6 +100,6 @@ def get_assets_log(request):
 
 
 def assets_search(request, key):
-    assets = Assets.objects.all().select_related()
+    assets = Assets.objects.all()
     asset_types = Assets.asset_types
     return render(request, 'assets/assets_search.html', locals())

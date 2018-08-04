@@ -17,11 +17,10 @@ class AnsibleModuleLog(models.Model):
 
 
 class AnsibleInventory(models.Model):
-    ans_group_name = models.CharField(max_length=32, verbose_name='主机组名称')
+    ans_group_name = models.CharField(max_length=32, unique=True, verbose_name='主机组名称')
     ans_group_hosts = models.ManyToManyField('assets.ServerAssets', verbose_name='组内主机')
     ans_group_vars = models.TextField(blank=True, null=True, verbose_name='主机组变量')
     ans_group_memo = models.TextField(blank=True, null=True, verbose_name='主机组描述')
-    ans_group_adder = models.CharField(max_length=32, verbose_name='添加人')
     ans_group_datetime = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
 
     class Meta:

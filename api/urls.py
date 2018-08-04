@@ -22,6 +22,8 @@ router.register(r'permission', views.PermissionViewSet)
 router.register(r'group', views.GroupViewSet)
 router.register(r'user_log', views.UserLogViewSet)
 router.register(r'assets_log', views.AssetsLogViewSet)
+router.register(r'fort', views.FortViewSet)
+router.register(r'fort_user', views.FortUserViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),

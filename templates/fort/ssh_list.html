@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content-header %}
+    <h1>主机列表</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>主机</th>
+                            <th>系统</th>
+                            <th>账号</th>
+                            <th>账号说明</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for fort_server in fort_servers %}
+                            {% for fort_user in fort_server.fortserveruser_set.all %}
+                                {% if fort_server.server_status == 1 and fort_user.fort_user_status == 1 %}
+                                    <tr>
+                                        <td>{{ fort_server.server.assets.asset_management_ip }}</td>
+                                        <td>
+                                            {% if 'win' in fort_server.server.system or 'Win' in fort_server.server.system %}
+                                                <i class="fa fa-fw fa-windows"
+                                                   style="color: #00a7d0;font-size: 25px"></i>
+                                            {% else %}
+                                                <i class="fa fa-fw fa-linux"
+                                                   style="color: green;font-size: 25px"></i>
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            <a href="{% url 'terminal' server_id=fort_server.server.id fort_user_id=fort_user.id %}"
+                                               target="_blank">{{ fort_user.fort_username }}</a>
+                                        </td>
+                                        <td><span
+                                                class="badge bg-gray">{{ fort_user.fort_username }}</span>: {{ fort_user.fort_user_memo }}<br>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                columnDefs: [{
+                    'targets': [2, 3],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
+            });
+        });
+    </script>
+
+{% endblock %}
+

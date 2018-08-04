@@ -1,0 +1,53 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSSH</title>
+
+    <link href="{% static 'css/xterm.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<div id="terminal"></div>
+</body>
+
+<script src="{% static 'js/xterm.min.js' %}"></script>
+<script>
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/webssh/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/');
+
+    const ssh_info = {
+        username: '{{ fort_user.fort_username }}',
+        password: '{{ fort_user.fort_password }}',
+        port: '{{ server.port }}',
+        host: '{{ server.assets.asset_management_ip }}',
+    };
+
+    socket.onopen = function () {
+
+        const info = JSON.stringify(ssh_info);
+        const term = new Terminal();
+        term.open(document.getElementById('terminal'));
+
+        term.on('data', function () {
+            socket.send(info);
+        });
+
+        socket.onmessage = function (msg) {
+            console.log(msg);
+            console.log(msg.data);
+            term.write(msg.data);
+        };
+        socket.onerror = function (e) {
+            console.log(e);
+        };
+
+        socket.onclose = function (e) {
+            console.log(e);
+            term.destroy();
+        };
+    };
+
+</script>
+
+</html>

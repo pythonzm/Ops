@@ -1,7 +1,5 @@
 from rest_framework import viewsets, permissions
 from api.serializers import *
-from assets.models import *
-from task.models import *
 
 
 class InventoryViewSet(viewsets.ModelViewSet):
@@ -118,4 +116,16 @@ class UserLogViewSet(viewsets.ModelViewSet):
 class AssetsLogViewSet(viewsets.ModelViewSet):
     queryset = AssetsLog.objects.all().order_by('id')
     serializer_class = AssetsLogSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class FortViewSet(viewsets.ModelViewSet):
+    queryset = FortServer.objects.all().order_by('id')
+    serializer_class = FortSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class FortUserViewSet(viewsets.ModelViewSet):
+    queryset = FortServerUser.objects.all().order_by('id')
+    serializer_class = FortUserSerializer
     permission_classes = (permissions.IsAuthenticated,)

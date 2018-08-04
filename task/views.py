@@ -72,8 +72,8 @@ def run_module(request):
                 return JsonResponse({'msg': ['任务执行失败：{}'.format(e)]})
             finally:
                 redis_conn.delete(unique_key)
-    inventory = AnsibleInventory.objects.all().select_related()
-    hosts = ServerAssets.objects.all().select_related()
+    inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
+    hosts = ServerAssets.objects.select_related('assets')
     return render(request, 'task/run_module.html', locals())
 
 
@@ -113,6 +113,6 @@ def run_log(request):
 
 
 def gen_inventory(request):
-    inventory = AnsibleInventory.objects.all().select_related()
-    hosts = ServerAssets.objects.all().select_related()
+    inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
+    hosts = ServerAssets.objects.select_related('assets')
     return render(request, 'task/inventory.html', locals())
