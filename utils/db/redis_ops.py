@@ -19,10 +19,11 @@ class RedisOps:
     def __init__(self, host, port, db, password=None):
         pool = redis.ConnectionPool(host=host, port=port, db=db, password=password, decode_responses=True)
         self.redis_conn = redis.StrictRedis(connection_pool=pool)
+        self.r = self.redis_conn.pubsub()
 
     def lpush(self, rediskey, *values):
         """
-        在rediskey对应的list中添加元素每个新的元素都添加到列表的最左边
+        在rediskey对应的list中添加元素每个新的元素都添加到列表的头部
         :param rediskey:
         :return:
         """
@@ -31,9 +32,32 @@ class RedisOps:
         except Exception as e:
             ansible_logger.error("添加数据失败：{}".format(e))
 
+    def lpop(self, rediskey):
+        """
+        移除并返回列表的第一个元素
+        :param rediskey:
+        :return:
+        """
+        try:
+            data = self.redis_conn.lpop(rediskey)
+            return data
+        except Exception as e:
+            ansible_logger.error("获取数据（lpop）失败：{}".format(e))
+
+    def rpush(self, rediskey, *values):
+        """
+        在rediskey对应的list中添加元素每个新的元素都添加到列表的尾部
+        :param rediskey:
+        :return:
+        """
+        try:
+            self.redis_conn.rpush(rediskey, *values)
+        except Exception as e:
+            ansible_logger.error("添加数据失败：{}".format(e))
+
     def rpop(self, rediskey):
         """
-        在rediskey对应的列表的左侧获取第一个元素并在列表中移除，返回值则是第一个元素
+        移除并返回列表的最后一个元素
         :param rediskey:
         :return:
         """
@@ -103,3 +127,17 @@ class RedisOps:
 
     def exists(self, rediskey):
         self.redis_conn.exists(rediskey)
+
+    def publish(self, channel, message):
+        self.redis_conn.publish(channel, message)
+
+    def subscribe(self, channel, *args, **kwargs):
+        self.r.subscribe(channel, *args, **kwargs)
+        return self.r.listen()
+
+    def unsubscribe(self, channel):
+        self.r.unsubscribe(channel)
+
+    def sub_message(self, channel):
+        self.r.subscribe(channel)
+        return self.r.get_message(ignore_subscribe_messages=True)

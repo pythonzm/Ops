@@ -1,3 +1,42 @@
-ERROR 2018-07-25 20:18:04 module_record 添加执行模块操作记录失败，原因：(1062, "Duplicate entry '1' for key 'ops_ansible_module_log_ans_user_id_4beb14d3_uniq'")
-ERROR 2018-07-25 20:30:44 module_record 添加执行模块操作记录失败，原因：(1062, "Duplicate entry '1' for key 'ops_ansible_module_log_ans_user_id_4beb14d3_uniq'")
-ERROR 2018-07-25 20:49:30 module_record 添加执行模块操作记录失败，原因：(1062, "Duplicate entry '1' for key 'ops_ansible_module_log_ans_user_id_4beb14d3_uniq'")
+ERROR 2018-08-10 18:39:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:22 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:23 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:25 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:25 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:25 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:06 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:17 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:17 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:17 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-08-10 18:41:22 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value

@@ -84,7 +84,8 @@ class RecordMiddleware(MiddlewareMixin):
             response_data = str(response.__dict__.get('_container')[0], encoding="utf-8")
             res = eval(response_data)['msg']
             module_record.delay(ans_user=request.user, ans_remote_ip=request.META['REMOTE_ADDR'],
-                                ans_module=post_data['ansibleModule'], ans_args=post_data['ansibleModuleArgs'],
+                                ans_module=''.join(post_data['ansibleModule']),
+                                ans_args=''.join(post_data['ansibleModuleArgs']),
                                 ans_server=ans_server, ans_result=res)
         return response
 

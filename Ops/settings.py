@@ -16,7 +16,6 @@ from kombu import Queue, Exchange
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -64,6 +63,11 @@ REDIS_HOST = '10.1.19.10'
 REDIS_PORT = 6379
 REDIS_DB = 2
 REDIS_PASSWORD = None
+
+# mongodb配置信息
+MONGODB_HOST = '10.1.19.10'
+MONGODB_PORT = 27017
+COMMANDS_DB = 'commands'
 
 # Application definition
 INSTALLED_APPS = [
@@ -186,3 +190,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 LOGIN_URL = '/login'
+
+TIME_FORMAT = '%Y-%m-%d %X'

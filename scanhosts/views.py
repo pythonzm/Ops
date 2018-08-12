@@ -4,7 +4,7 @@ from scanhosts.utils.get_scan_results import get_scan_results
 from conf.logger import scanhost_logger
 from django.views.decorators.csrf import csrf_exempt
 from scanhosts.models import HostInfo
-from utils.init_yaml import Yaml
+from utils.init_yml import Yaml
 import yaml
 from django.core import serializers
 from utils.get_verbose_name import get_model_fields
@@ -20,7 +20,7 @@ def result(request):
     if request.method == 'POST':
         results = get_scan_results()
         scanhost_logger.info('获取数据完成！开始保存至扫描数据库！')
-        conf = Yaml('scanhosts.yaml').init_yaml()
+        conf = Yaml('scanhosts.yaml').init_yml()
         black_list = conf['hostinfo']['black_list']
         try:
             for hostinfo in results:

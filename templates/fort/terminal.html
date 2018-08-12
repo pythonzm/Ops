@@ -8,44 +8,46 @@
     <link href="{% static 'css/xterm.css' %}" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-
-<div id="terminal"></div>
+<p style="background-color: #dd4b39 !important;color: #fff !important;">关闭窗口之前请先执行<span
+        style="background-color: #ffff00;color: #000000;">exit</span>命令退出服务器！当前使用账号为：<span
+        style="background-color: #ffff00;color: #000000;">{{ fort_username }}@{{ server_ip }}</span>
+</p>
+<div id="terms"></div>
 </body>
 
-<script src="{% static 'js/xterm.min.js' %}"></script>
+<script src="{% static 'js/xterm.js' %}"></script>
 <script>
     const socket = new WebSocket('ws://' + window.location.host + '/ws/webssh/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/');
 
-    const ssh_info = {
-        username: '{{ fort_user.fort_username }}',
-        password: '{{ fort_user.fort_password }}',
-        port: '{{ server.port }}',
-        host: '{{ server.assets.asset_management_ip }}',
-    };
-
     socket.onopen = function () {
 
-        const info = JSON.stringify(ssh_info);
-        const term = new Terminal();
-        term.open(document.getElementById('terminal'));
+        const term = new Terminal({
+            rows: 34,
+            cols: 128,
+            screenKeys: true,
+            useStyle: true,
+            cursorBlink: true,
+        });
+        term.open(document.getElementById('terms'));
 
-        term.on('data', function () {
-            socket.send(info);
+        term.on('data', function (data) {
+            socket.send(data);
         });
 
         socket.onmessage = function (msg) {
-            console.log(msg);
-            console.log(msg.data);
             term.write(msg.data);
         };
         socket.onerror = function (e) {
-            console.log(e);
+            alert(e);
         };
 
-        socket.onclose = function (e) {
-            console.log(e);
+        socket.onclose = function () {
             term.destroy();
         };
+    };
+
+    window.onbeforeunload = function () {
+        return '请确认是否输入了exit命令';
     };
 
 </script>

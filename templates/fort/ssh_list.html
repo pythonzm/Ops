@@ -55,7 +55,7 @@
 
                                         <td>
                                             <a href="{% url 'terminal' server_id=fort_server.server.id fort_user_id=fort_user.id %}"
-                                               target="_blank">{{ fort_user.fort_username }}</a>
+                                               target="_blank">{{ fort_user.fort_username }}@{{ fort_server.server.assets.asset_management_ip }}</a>
                                         </td>
                                         <td><span
                                                 class="badge bg-gray">{{ fort_user.fort_username }}</span>: {{ fort_user.fort_user_memo }}<br>

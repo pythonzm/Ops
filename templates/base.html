@@ -29,6 +29,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{% static 'AdminLTE/dist/css/skins/_all-skins.min.css' %}">
     <!-- Pace style -->
     <link rel="stylesheet" href="{% static 'AdminLTE/plugins/pace/pace.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custombox.min.css' %}">
 
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -204,9 +205,14 @@ desired effect
                                 <div class="pull-left">
                                     <a href="{% url 'user_center' %}" class="btn btn-default btn-flat">个人中心</a>
                                 </div>
+
                                 <div class="pull-left" style="margin-left: 6px">
                                     <a href="{% url 'lock_screen' %}" class="btn btn-default btn-flat">暂时离开</a>
                                 </div>
+                                <!--
+                                <div class="pull-left" style="margin-left: 6px">
+                                    <a href="#lockscreen" class="btn btn-default btn-flat inline">暂时离开</a>
+                                </div> -->
                                 <div class="pull-right">
                                     <a href="{% url 'logout' %}" class="btn btn-default btn-flat">退出用户</a>
                                 </div>
@@ -369,20 +375,32 @@ desired effect
     <aside class="control-sidebar control-sidebar-light">
         <div class="tab-pane" id="control-sidebar-home-tab">
             <h3 class="control-sidebar-heading" style="text-align: center">用户列表</h3>
-            <ul class="control-sidebar-menu" style="margin-left: 0">
+            <ul class="control-sidebar-menu" id="user-list" style="margin-left: 0">
                 {% for user in users %}
-                    <li>
-                        <a href="javascript:void(0)">
-                            <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon bg-gray-light"
-                                 alt="User Image">
+                    {% if user.id != request.user.id %}
+                        <li data-username="{{ user.username }}">
+                            <a href="javascript:void(0)">
+                                {% if user.login_status == 0 %}
+                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                         alt="User Image" style="border: 2px solid #00a65a;">
+                                {% elif user.login_status == 1 %}
+                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                         alt="User Image" style="border: 2px solid #ff0000;">
+                                {% elif user.login_status == 2 %}
+                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                         alt="User Image" style="border: 2px solid #FFFF00;">
+                                {% elif user.login_status == 3 %}
+                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                         alt="User Image" style="border: 2px solid #808080;">
+                                {% endif %}
+                                <div class="menu-info">
+                                    <h4 class="control-sidebar-subheading">{{ user.username }}</h4>
 
-                            <div class="menu-info">
-                                <h4 class="control-sidebar-subheading">{{ user.username }}</h4>
-
-                                <p>Will be 23 on April 24th</p>
-                            </div>
-                        </a>
-                    </li>
+                                    <p>Will be 23 on April 24th</p>
+                                </div>
+                            </a>
+                        </li>
+                    {% endif %}
                 {% endfor %}
             </ul>
             <!-- /.control-sidebar-menu -->
@@ -393,6 +411,58 @@ desired effect
          immediately after the control sidebar -->
     <div class="control-sidebar-bg"></div>
 
+    <!-- Chat -->
+    <div id="chat-box" class="box box-primary direct-chat direct-chat-primary" style="display: none">
+        <div class="box-header with-border" style="text-align: center">
+            <h3 class="box-title" id="chatTitle"></h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body" id="chat-body">
+            <!-- Conversations are loaded here -->
+            <div class="direct-chat-messages" id="msg-list">
+                <div class="direct-chat-msg">
+                    <div class="direct-chat-info clearfix">
+                        <span class="direct-chat-timestamp pull-right">23 Jan 2:00 pm</span>
+                    </div>
+                    <!-- /.direct-chat-info
+                    <img class="direct-chat-img" src="plugins/adminLTE/dist/img/user2-160x160.jpg"
+                         alt="Message User Image"><!-- /.direct-chat-img -->
+                    <div class="direct-chat-text">
+                        早上好
+                    </div>
+                    <!-- /.direct-chat-text -->
+                </div>
+                <!-- /.direct-chat-msg -->
+                <!-- Message to the right -->
+                <div class="direct-chat-msg right">
+                    <div class="direct-chat-info clearfix">
+                        <span class="direct-chat-timestamp pull-left">23 Jan 2:05 pm</span>
+                    </div>
+                    <!-- /.direct-chat-info
+                    <img class="direct-chat-img" src="plugins/adminLTE/dist/img/user3-128x128.jpg"
+                         alt="Message User Image"><!-- /.direct-chat-img -->
+                    <div class="direct-chat-text">
+                        早上好!
+                    </div>
+                    <!-- /.direct-chat-text -->
+                </div>
+            </div>
+            <!--/.direct-chat-messages-->
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <form action="#" method="post">
+                <div class="input-group">
+                    <input type="text" id="message" name="message" placeholder="输入信息 ..."
+                           class="form-control">
+                    <span class="input-group-btn">
+                            <button type="button" id="sendMessage" class="btn btn-primary btn-flat">发送</button>
+                        </span>
+                </div>
+            </form>
+        </div>
+        <!-- /.box-footer-->
+    </div>
 </div>
 <!-- ./wrapper -->
 
@@ -415,13 +485,34 @@ desired effect
 <script src="{% static 'AdminLTE/bower_components/fastclick/lib/fastclick.js' %}"></script>
 <!-- AdminLTE App -->
 <script src="{% static 'AdminLTE/dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'js/custombox.min.js' %}"></script>
 
 <script>
     $(document).ajaxStart(function () {
         Pace.restart()
     });
 
+    $('#user-list').on('click', 'li', function () {
+        const username = $(this).attr('data-username');
+        $('#chatTitle').text(username);
+        $('#message').val('');
+        const modal = new Custombox.modal({
+            content: {
+                effect: 'fadein',
+                target: '#chat-box',
+                width: '50%',
+            },
+        });
+        // Open
+        modal.open();
+    });
 
+    $('#sendMessage').click(function () {
+        alert($('#message').val())
+    });
+
+
+    <!-- 固定标签 -->
     let pathname = window.location.pathname;
 
     $("li a").each(function () {

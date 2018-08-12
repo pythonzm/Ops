@@ -248,20 +248,17 @@
                     'targets': [0, -1],
                     'orderable': false
                 }],
-                "order": [[6, "asc"]]
+                "order": [[6, "desc"]]
             });
         });
-
         //Date picker
         $('#moduleLogStartTime, #moduleLogEndTime').datepicker({
             autoclose: true
         });
-
         //iCheck for checkbox inputs
         $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
             checkboxClass: 'icheckbox_minimal-blue',
         });
-
         //实现全选
         $(function () {
             let checkAll = $('#checkAll');
@@ -282,7 +279,6 @@
                 checkAll.iCheck('update');
             });
         });
-
         //批量删除
         $("#deleteChecked").click(function () {
             let checkedID = [];
@@ -446,4 +442,3 @@
     </script>
 
 {% endblock %}
-

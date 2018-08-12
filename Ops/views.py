@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 from django.contrib import auth
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
-from django.shortcuts import render
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from assets.models import *
 from users.models import UserProfile
+from utils.db.redis_ops import RedisOps
+from Ops import settings
+
+c = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, db=5)
 
 
 @login_required()
 def dashboard(request):
     assets_count = Assets.objects.all().count()
     project_count = Project.objects.all().count()
-    user_count = UserProfile.objects.all().count()
+    users = UserProfile.objects.all()
     return render(request, 'dashboard.html', locals())
+
+
+def pub_chat(channel, message):
+    c.publish(channel, message)
 
 
 def login(request):
@@ -28,8 +35,10 @@ def login(request):
         if user and user.is_active:
             auth.login(request, user)
             request.session['username'] = username
-            users = UserProfile.objects.all()
-            return HttpResponseRedirect('/', {"user": request.user, "users": users})
+            UserProfile.objects.filter(username=username).update(
+                login_status=0
+            )
+            return HttpResponseRedirect('/users/user_center/', locals())
         else:
             if request.method == "POST":
                 return render(request, 'login.html', {"login_error_info": "用户名不错存在，或者密码错误！"}, )
@@ -38,6 +47,10 @@ def login(request):
 
 
 def logout(request):
+    c.unsubscribe(request.user)
+    UserProfile.objects.filter(username=request.user).update(
+        login_status=1
+    )
     auth.logout(request)
     return HttpResponseRedirect('/login/')
 

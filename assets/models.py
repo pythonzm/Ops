@@ -63,7 +63,7 @@ class ServerAssets(models.Model):
     username = models.CharField(max_length=100, blank=True, null=True, verbose_name='用户名称')
     auth_type = models.SmallIntegerField(choices=auth_types, default=0, verbose_name='认证方式')
     password = models.CharField(max_length=100, blank=True, null=True, verbose_name='用户密码')
-    port = models.DecimalField(max_digits=6, decimal_places=0, blank=True, null=True, verbose_name='SSH端口')
+    port = models.DecimalField(max_digits=6, decimal_places=0, blank=True, null=True, default=22, verbose_name='SSH端口')
 
     hosted_on = models.ForeignKey('self', related_name='hosted_on_server',
                                   blank=True, null=True, verbose_name="宿主机", on_delete=models.PROTECT)  # 虚拟机专用字段

@@ -168,7 +168,8 @@
 
                                                                 {% if fort_user.fort_auth_type == 0 %}
                                                                     <div class="form-group fort_password">
-                                                                        <label for="fort_password">用户密码</label>
+                                                                        <label for="fort_password">用户密码</label><span
+                                                                            class="text-red">若修改密码，不会在服务器中更改</span>
                                                                         <input type="password" class="form-control"
                                                                                name="fort_password" id="fort_password"
                                                                                value="{{ fort_user.fort_password }}"/>
@@ -184,7 +185,8 @@
                                                                 {% elif fort_user.fort_auth_type == 1 %}
                                                                     <div class="form-group fort_password"
                                                                          style="display: none">
-                                                                        <label for="fort_password">用户密码</label>
+                                                                        <label for="fort_password">用户密码</label><span
+                                                                            class="text-red">若修改密码，不会在服务器中更改</span>
                                                                         <input type="password" class="form-control"
                                                                                name="fort_password"
                                                                                id="fort_password"
@@ -247,7 +249,7 @@
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-primary"
-                                                                data-dismiss="modal" title="若修改密码，不会在服务器中更改"
+                                                                data-dismiss="modal"
                                                                 onclick="updateFortUser({{ fort_user.id }})">修改
                                                         </button>
                                                         <button type="button" class="btn btn-danger"
@@ -799,6 +801,7 @@
                     url: '{% url 'run_module' %}',
                     type: 'POST',
                     data: ansible_data,
+                    async: false,
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                     },
@@ -912,6 +915,7 @@
                                     $.ajax({
                                         url: '/api/fort_user/' + user_id,
                                         method: 'DELETE',
+                                        async: false,
                                         beforeSend: function (xhr) {
                                             xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                                         },

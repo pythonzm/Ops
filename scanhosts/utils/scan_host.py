@@ -14,7 +14,7 @@
 import nmap
 import telnetlib
 import paramiko
-from utils.init_yaml import Yaml
+from utils.init_yml import Yaml
 from conf.logger import scanhost_logger
 from utils.crypt_pwd import CryptPwd
 
@@ -22,7 +22,7 @@ from utils.crypt_pwd import CryptPwd
 class ScanResults:
     def __init__(self):
         self.logger = scanhost_logger
-        self.conf = Yaml('scanhosts.yaml').init_yaml()
+        self.conf = Yaml('scanhosts.yml').init_yml()
         self.black_list = self.conf['hostinfo']['black_list']
 
     def scan_hosts(self, nets):
@@ -127,4 +127,3 @@ class ScanResults:
             self.logger.error('初始化连接{}失败，原因：{}'.format(host, e))
         finally:
             ssh.close()
-

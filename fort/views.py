@@ -28,6 +28,6 @@ def ssh_list(request):
 
 
 def terminal(request, server_id, fort_user_id):
-    server = ServerAssets.objects.select_related('assets').get(id=server_id)
-    fort_user = FortServerUser.objects.get(id=fort_user_id)
+    server_ip = ServerAssets.objects.select_related('assets').get(id=server_id).assets.asset_management_ip
+    fort_username = FortServerUser.objects.get(id=fort_user_id).fort_username
     return render(request, 'fort/terminal.html', locals())

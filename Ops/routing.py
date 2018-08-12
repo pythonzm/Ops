@@ -10,7 +10,7 @@
                     2018/6/6:
 -------------------------------------------------
 """
-from django.urls import path
+from django.urls import path, re_path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from utils.log_websocket import LogConsumer
@@ -22,7 +22,7 @@ application = ProtocolTypeRouter({
         URLRouter([
             # URLRouter just takes standard Django path() or url() entries.
             path(r'ws/log/', LogConsumer),
-            path(r'ws/webssh/', SSHConsumer),
+            re_path(r'ws/webssh/([0-9]+)/([0-9]+)/', SSHConsumer),
         ]),
     ),
 })
