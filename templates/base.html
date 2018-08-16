@@ -30,6 +30,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- Pace style -->
     <link rel="stylesheet" href="{% static 'AdminLTE/plugins/pace/pace.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/custombox.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toastr.min.css' %}">
 
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -310,7 +311,7 @@ desired effect
                                 <li><a href="{% url 'fort_server' %}"><i class="fa fa-street-view"></i> 主机用户配置</a></li>
                             {% endif %}
                             <li><a href="{% url 'ssh_list' %}"><i class="fa fa-location-arrow"></i> 终端连接</a></li>
-                            <li><a href="{% url 'run_log' %}"><i class="fa fa-user-secret"></i> 操作日志</a></li>
+                            <li><a href="{% url 'login_fort_record' %}"><i class="fa fa-user-secret"></i> 登录日志</a></li>
                         </ul>
                     </li>
                 {% endif %}
@@ -486,11 +487,55 @@ desired effect
 <!-- AdminLTE App -->
 <script src="{% static 'AdminLTE/dist/js/adminlte.min.js' %}"></script>
 <script src="{% static 'js/custombox.min.js' %}"></script>
+<script src="{% static 'js/toastr.min.js' %}"></script>
 
 <script>
-    $(document).ajaxStart(function () {
-        Pace.restart()
+
+    $(function () {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
     });
+
+    /*
+    $(function () {
+        {% if request.user.login_status == 0 or request.user.login_status == 2 %}
+            const interval = setInterval(function () {
+                Pace.ignore(function () {
+                    $.ajax({
+                        url: '{% url 'get_chat_msg' %}',
+                        type: 'GET',
+                        success: function (result) {
+                            if (result.msg !== null) {
+                                msg = JSON.parse(result.msg);
+                                toastr["info"](msg.msg_body, 'From: ' + msg.from_user + '&nbsp;&nbsp;&nbsp;&nbsp;' + msg.msg_time)
+                            }
+                        },
+                        error: function (result) {
+                            alert(result.responseText);
+                            clearInterval(interval);
+                        }
+                    });
+                });
+            }, 3000);
+        {% else %}
+            clearInterval(interval);
+        {% endif %}
+    });*/
 
     $('#user-list').on('click', 'li', function () {
         const username = $(this).attr('data-username');
@@ -508,7 +553,20 @@ desired effect
     });
 
     $('#sendMessage').click(function () {
-        alert($('#message').val())
+        const username = $('#chatTitle').text();
+        const msg = {
+            from_user: '{{ user.username }}',
+            to_user: username,
+            msg_body: $('#message').val()
+        };
+        $.ajax({
+            url: '{% url 'put_chat_msg' %}',
+            type: 'POST',
+            data: msg,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+            },
+        })
     });
 
 

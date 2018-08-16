@@ -5,6 +5,7 @@ from fort.models import FortServerUser
 from utils.db.redis_ops import RedisOps
 from Ops import settings
 from utils.db.mongo_ops import MongoOps, get_mongo_json_res
+from fort.tasks import fort_record
 import paramiko
 import threading
 import time
@@ -18,6 +19,8 @@ class MyThread(threading.Thread):
         self.chan = chan
 
     def run(self):
+        start_time = time.time()
+        current_time = time.strftime(settings.TIME_FORMAT)
         while not self.chan.chan.exit_status_ready():
             try:
                 data = self.chan.chan.recv(1024)
@@ -29,6 +32,17 @@ class MyThread(threading.Thread):
         self.send_msg('\r\n已成功登出，刷新页面重新登录，关闭页面断开连接')
         c.rpush('commands', 'logout')
         self.chan.ssh.close()
+        login_status_time = time.time() - start_time
+        if login_status_time >= 60:
+            login_status_time = '{} m'.format(round(login_status_time / 60, 2))
+        elif login_status_time >= 3600:
+            login_status_time = '{} h'.format(round(login_status_time / 3660, 2))
+        else:
+            login_status_time = '{} s'.format(round(login_status_time))
+
+        fort_record.delay(login_user=self.chan.scope['user'], fort=self.chan.fort,
+                          remote_ip=self.chan.scope["client"][0], start_time=current_time,
+                          login_status_time=login_status_time)
 
     def send_msg(self, msg):
         async_to_sync(self.chan.channel_layer.group_send)(
@@ -58,6 +72,7 @@ def record_command(login_user, fort):
 
 
 class SSHConsumer(WebsocketConsumer):
+    commands = []
 
     def connect(self):
         path = self.scope['path']
@@ -65,16 +80,17 @@ class SSHConsumer(WebsocketConsumer):
         fort_user_id = path.split('/')[4]
         host = ServerAssets.objects.select_related('assets').get(id=server_id)
         fort_user = FortServerUser.objects.get(id=fort_user_id)
-        self.host_ip = host.assets.asset_management_ip
+        host_ip = host.assets.asset_management_ip
         host_port = int(host.port)
-        self.username = fort_user.fort_username
+        username = fort_user.fort_username
         password = fort_user.fort_password
+        self.fort = r'{}@{}'.format(username, host_ip)
         # 创建channels group， 命名为：用户名，并使用channel_layer写入到redis
         async_to_sync(self.channel_layer.group_add)(self.channel_name, self.channel_name)
         self.ssh = paramiko.SSHClient()
         self.ssh.load_system_host_keys()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.ssh.connect(self.host_ip, host_port, self.username, password)
+        self.ssh.connect(host_ip, host_port, username, password)
         self.chan = self.ssh.invoke_shell(term='xterm')
         self.chan.settimeout(0)
         t1 = MyThread(self)
@@ -85,13 +101,12 @@ class SSHConsumer(WebsocketConsumer):
 
     def receive(self, text_data=None, bytes_data=None):
         self.chan.send(text_data)
-        c.rpush('commands', text_data)
 
     def user_message(self, event):
         self.send(text_data=event["text"])
         if '登出' in event["text"]:
             t2 = threading.Thread(target=record_command,
-                                  args=(self.scope['user'].username, '{}@{}'.format(self.username, self.host_ip)))
+                                  args=(self.scope['user'].username, self.fort))
             t2.setDaemon(True)
             t2.start()
 

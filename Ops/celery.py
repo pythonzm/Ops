@@ -23,6 +23,7 @@ app.conf.task_default_queue = 'default'
 app.conf.task_queues = (
     Queue('default', routing_key='default.#'),
     Queue('ansible', routing_key='ansible.#'),
+    Queue('fort', routing_key='fort.#'),
 )
 task_default_exchange = 'default'
 task_default_exchange_type = 'direct'

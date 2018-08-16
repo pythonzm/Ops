@@ -42,3 +42,16 @@ class FortServerUser(models.Model):
         db_table = 'ops_fort_user'
         verbose_name = '堡垒机用户表'
         verbose_name_plural = '堡垒机用户表'
+
+
+class FortRecord(models.Model):
+    login_user = models.ForeignKey('users.UserProfile', verbose_name='用户', on_delete=models.CASCADE)
+    fort = models.CharField(max_length=32, verbose_name='登录主机及用户')
+    remote_ip = models.GenericIPAddressField(verbose_name='远程地址')
+    start_time = models.CharField(max_length=64, verbose_name='开始时间')
+    login_status_time = models.CharField(max_length=16, verbose_name='登录时长')
+
+    class Meta:
+        db_table = 'ops_fort_record'
+        verbose_name = '操作记录表'
+        verbose_name_plural = '操作记录表'

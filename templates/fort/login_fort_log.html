@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content-header %}
+    <h1>登录记录</h1>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <br>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="loginLogStartTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="开始时间">
+                        <span class="input-group-addon">
+										                    <span class="glyphicon glyphicon-calendar"></span>
+										                </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="loginLogEndTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="结束时间">
+                        <span class="input-group-addon" onclick="searchUserLog()">
+										                    <span class="glyphicon glyphicon-search"
+                                                                  style="cursor: pointer"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>登录用户及主机</th>
+                            <th>远程地址</th>
+                            <th>开始时间</th>
+                            <th>登录时长</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for result in results %}
+
+                            <tr>
+                                <td>{{ result.login_user.username }}</td>
+                                <td>{{ result.fort }}</td>
+                                <td>{{ result.remote_ip }}</td>
+                                <td>{{ result.start_time }}</td>
+                                <td>{{ result.login_status_time }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('#example1').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[3, "desc"]]
+            });
+
+            //Date picker
+            $('#loginLogStartTime, #loginLogEndTime').datepicker({
+                autoclose: true
+            });
+        });
+
+        // 按日期搜索
+        function searchUserLog() {
+            let startTime = $('#loginLogStartTime').val();
+            let endTime = $('#loginLogEndTime').val();
+            if (startTime.length === 0 || endTime.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请选择起始时间！'
+                });
+                return false;
+            }
+            $.ajax({
+                dataType: "JSON",
+                url: '{% url 'login_fort_record' %}',
+                type: "POST",  //提交类似
+                data: {
+                    "startTime": startTime,
+                    "endTime": endTime,
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function (response) {
+                    if (response.length === 0) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '该时间段内没有任何操作！'
+                        });
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '查询完成！'
+                        });
+                        let obj = $('#example1 tbody');
+                        obj.html('');
+                        for (let i = 0; i < response.length; i++) {
+                            let result = response[i];
+                            let s_time = $.format.date(result.fields['start_time'], "yyyy-MM-dd HH:mm:ss");
+                            obj.append(
+                                '<td>' + result.fields['login_user'] + '</td>' +
+                                '<td>' + result.fields['fort'] + '</td>' +
+                                '<td>' + result.fields['remote_ip'] + '</td>' +
+                                '<td>' + s_time + '</td>' +
+                                '<td>' + result.fields['login_status_time'] + '</td>' +
+                                '</tr>'
+                            )
+                        }
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText
+                    });
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
+

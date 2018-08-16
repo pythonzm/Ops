@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+import time
 from django.contrib import auth
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
@@ -19,8 +21,23 @@ def dashboard(request):
     return render(request, 'dashboard.html', locals())
 
 
-def pub_chat(channel, message):
-    c.publish(channel, message)
+def put_chat_msg(request):
+    if request.method == 'POST':
+        from_user = request.POST.get('from_user')
+        to_user = request.POST.get('to_user')
+        msg_body = request.POST.get('msg_body')
+        msg = {'from_user': from_user, 'to_user': to_user, 'msg_body': msg_body,
+               'msg_time': time.strftime(settings.TIME_FORMAT)}
+        c.rpush(to_user, json.dumps(msg))
+        return JsonResponse({'code': 200})
+
+
+def get_chat_msg(request):
+    try:
+        msg = c.lpop(request.user)
+        return JsonResponse({'code': 200, 'msg': msg})
+    except Exception as e:
+        return JsonResponse({'code': 500, 'msg': '获取即时消息失败，原因：{}'.format(e)})
 
 
 def login(request):
@@ -58,6 +75,9 @@ def logout(request):
 def lock_screen(request):
     if request.method == 'GET':
         user = UserProfile.objects.get(username=request.user)
+        UserProfile.objects.filter(username=request.user).update(
+            login_status=3
+        )
         request.session['lock'] = 'lock'
         return render(request, 'lockscreen.html', locals())
     elif request.method == 'POST':

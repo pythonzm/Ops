@@ -25,6 +25,8 @@ urlpatterns = [
     path(r'login/', views.login, name='login'),
     path(r'logout/', views.logout, name='logout'),
     path(r'lock_screen/', views.lock_screen, name='lock_screen'),
+    path(r'get_chat_mag/', views.get_chat_msg, name='get_chat_msg'),
+    path(r'put_chat_msg/', views.put_chat_msg, name='put_chat_msg'),
     path(r'api/', include('api.urls')),
     path(r'scan_host/', include('scanhosts.urls')),
     path(r'run/', include('task.urls')),
