@@ -435,23 +435,11 @@
                             <div class="form-group">
                                 <label for="server" class="col-sm-2 control-label">主机</label>
                                 <div class="col-sm-6">
-                                    <select class="form-control select2" id="server" name="server"
+                                    <select class="form-control select2" id="server" name="server" multiple="multiple"
                                             style="width: 100%;">
                                         <option>选择主机</option>
                                         {% for host in hosts %}
                                             <option value="{{ host.id }}">{{ host.assets.asset_management_ip }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="system_type" class="col-sm-2 control-label">系统</label>
-                                <div class="col-sm-6">
-                                    <select class="form-control select2" id="system_type" name="system_type"
-                                            style="width: 100%;">
-                                        {% for system_type in system_types %}
-                                            <option value="{{ system_type.0 }}">{{ system_type.1 }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -463,7 +451,7 @@
                                     <select class="form-control select2" id="server_status" name="server_status"
                                             style="width: 100%;">
                                         {% for status in server_status %}
-                                            <option value="{{ status.0 }}">{{ status.1 }}</option>
+                                            <option value="{{ status.0}}">{{ status.1 }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -543,27 +531,32 @@
         // 添加主机
         function addFort() {
             {% if perms.fort.add_fortserver %}
-                const data = $('#add_fort').serializeJson();
-                $.ajax({
-                    url: '/api/fort/',
-                    type: 'POST',
-                    data: JSON.stringify(data),
-                    dataType: 'json',
-                    contentType: "application/json",
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
-                    success: function () {
-                        window.location.reload();
-                    },
-                    error: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.responseText,
-                        })
-                    }
-                });
+                const data = {
+                    server_list: $('#add_fort #server').val(),
+                    server_status: $('#add_fort #server_status').val(),
+                };
+                for (let i = 0; i < data.server_list.length; i++) {
+                    $.ajax({
+                        url: '/api/fort/',
+                        type: 'POST',
+                        data: JSON.stringify({server: data.server_list[i], server_status: data.server_status}),
+                        dataType: 'json',
+                        contentType: "application/json",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                        },
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    });
+                }
             {% else %}
                 $.alert({
                     title: 'Tips',
@@ -754,26 +747,6 @@
 
             auth_type === '0' ? key_file.hide() && pwd.show() : key_file.show() && pwd.hide();
         }
-
-        // 将数据JSON化
-        (function ($) {
-            $.fn.serializeJson = function () {
-                let serializeObj = {};
-                let array = this.serializeArray();
-                $(array).each(function () {
-                    if (serializeObj[this.name]) {
-                        if ($.isArray(serializeObj[this.name])) {
-                            serializeObj[this.name].push(this.value);
-                        } else {
-                            serializeObj[this.name] = [serializeObj[this.name], this.value];
-                        }
-                    } else {
-                        serializeObj[this.name] = this.value;
-                    }
-                });
-                return serializeObj;
-            };
-        })(jQuery);
 
         // 添加用户
         function addFortUser(fort_server_id, server_id) {
