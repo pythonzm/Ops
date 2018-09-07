@@ -1,0 +1,16 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ host_ip }}</title>
+</head>
+<body>
+<div>
+    {% for graph in graphs %}
+        <img src="{{ MEDIA_URL }}{{ graph }}">
+    {% endfor %}
+</div>
+
+</body>
+</html>

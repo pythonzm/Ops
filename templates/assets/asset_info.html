@@ -1,0 +1,218 @@
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">资产信息</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tr>
+                        <th>资产类型</th>
+                        <th>资产编号</th>
+                        <th>资产型号</th>
+                        <th>供应商</th>
+                        <th>状态</th>
+                        <th>管理IP</th>
+                        <th>资产管理员</th>
+                        <th>所在机房</th>
+                        <th>所在机柜</th>
+                        <th>购买日期</th>
+                        <th>过保日期</th>
+                        <th>价格(万元)</th>
+                        <th>备注</th>
+                    </tr>
+                    <tr>
+                        {% if asset.asset_type == 'server' %}
+                            <td>{{ asset.get_asset_type_display }}</td>
+                        {% elif asset.asset_type == 'network' %}
+                            <td>{{ asset.networkassets.get_network_type_display }}</td>
+                        {% elif asset.asset_type == 'office' %}
+                            <td>{{ asset.officeassets.get_office_type_display }}</td>
+                        {% elif asset.asset_type == 'security' %}
+                            <td>{{ asset.securityassets.get_security_type_display }}</td>
+                        {% elif asset.asset_type == 'storage' %}
+                            <td>{{ asset.storageassets.get_storage_type_display }}</td>
+                        {% elif asset.asset_type == 'software' %}
+                            <td>{{ asset.softwareassets.get_software_type_display }}</td>
+                        {% endif %}
+                        <td>{{ asset.asset_nu }}</td>
+                        <td>{{ asset.asset_model }}</td>
+                        <td>{{ asset.asset_provider.asset_provider_name }}</td>
+                        <td>{{ asset.get_asset_status_display }}</td>
+                        <td>{{ asset.asset_management_ip }}</td>
+                        <td>{{ asset.asset_admin.username }}</td>
+                        <td>{{ asset.asset_idc.idc_name }}</td>
+                        <td>{{ asset.asset_cabinet.cabinet_name }}</td>
+                        <td>{{ asset.asset_purchase_day|date:"Y-m-d" }}</td>
+                        <td>{{ asset.asset_expire_day|date:"Y-m-d" }}</td>
+                        <td>{{ asset.asset_price }}</td>
+                        <td>{{ asset.asset_memo }}</td>
+                    </tr>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+</div>
+{% if asset.asset_type == 'server' %}
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">主体信息</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover">
+                        <tr>
+                            <th>服务器类型</th>
+                            <th>用户名称</th>
+                            <th>认证方式</th>
+                            <th>SSH端口
+                                {% if asset.serverassets.server_type == 1 %}
+                                    <th>宿主机</th>
+                                {% endif %}
+                            <th>主机名称</th>
+                            <th>CPU型号</th>
+                            <th>物理CPU数</th>
+                            <th>逻辑CPU数</th>
+                            <th>磁盘空间</th>
+                            <th>内存容量</th>
+                            <th>内核版本</th>
+                            <th>操作系统</th>
+                        </tr>
+                        <tr>
+                            <td>{{ asset.serverassets.get_server_type_display }}</td>
+                            <td>{{ asset.serverassets.username }}</td>
+                            <td>{{ asset.serverassets.get_auth_type_display }}</td>
+                            <td>{{ asset.serverassets.port }}</td>
+                            {% if asset.serverassets.server_type == 1 %}
+                                <td>{{ asset.serverassets.hosted_on.assets.asset_management_ip }}</td>
+                            {% endif %}
+                            <td>{{ asset.serverassets.hostname }}</td>
+                            <td>{{ asset.serverassets.cpu_model }}</td>
+                            <td>{{ asset.serverassets.cpu_number }}</td>
+                            <td>{{ asset.serverassets.vcpu_number }}</td>
+                            <td>{{ asset.serverassets.disk_total }}</td>
+                            <td>{{ asset.serverassets.ram_total }}&nbsp;MB</td>
+                            <td>{{ asset.serverassets.kernel }}</td>
+                            <td>{{ asset.serverassets.system }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">网卡信息</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover">
+                        <tr>
+                            <th>网卡名称</th>
+                            <th>MAC地址</th>
+                            <th>IP地址</th>
+                            <th>网卡类型</th>
+                            <th>MTU</th>
+                            <th>网卡状态</th>
+                        </tr>
+                        {% for nk in asset.network_card_assets.all %}
+                            <tr>
+                                <td>{{ nk.network_card_name }}</td>
+                                <td>{{ nk.network_card_mac }}</td>
+                                <td>{{ nk.network_card_ip }}</td>
+                                <td>{{ nk.network_card_model }}</td>
+                                <td>{{ nk.network_card_mtu }}</td>
+                                {% if nk.network_card_status == 1 %}
+                                    <td><span class="label label-success">正常</span></td>
+                                {% elif nk.network_card_status == 0 %}
+                                    <td><span class="label label-danger">不正常</span></td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">内存信息</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover">
+                        <tr>
+                            <th>内存序列号</th>
+                            <th>内存容量</th>
+                            <th>内存生产商</th>
+                            <th>内存插槽</th>
+                        </tr>
+                        {% for ram in asset.ram_assets.all %}
+                            <tr>
+                                <td>{{ ram.ram_serial }}</td>
+                                <td>{{ ram.ram_volume }}</td>
+                                <td>{{ ram.ram_brand }}</td>
+                                <td>{{ ram.ram_slot }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- 硬盘信息
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">硬盘信息</h3>
+            </div>
+
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tr>
+                        <th>硬盘容量</th>
+                        <th>硬盘型号</th>
+                        <th>硬盘生产商</th>
+                        <th>硬盘序列号</th>
+                        <th>硬盘插槽</th>
+                        <th>硬盘状态</th>
+                    </tr>
+                    {% for disk in asset.disk_assets.all %}
+                        <tr>
+                            <td>{{ disk.disk_volume }}</td>
+                            <td>{{ disk.disk_model }}</td>
+                            <td>{{ disk.disk_brand }}</td>
+                            <td>{{ disk.disk_serial }}</td>
+                            <td>{{ disk.disk_slot }}</td>
+                            {% if disk.disk_status == 1 %}
+                                <td><span class="label label-success">正常</span></td>
+                            {% elif disk.disk_status == 0 %}
+                                <td><span class="label label-danger">不正常</span></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+-->
+{% endif %}

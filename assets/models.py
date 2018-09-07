@@ -72,7 +72,7 @@ class ServerAssets(models.Model):
     cpu_model = models.CharField(max_length=100, blank=True, null=True, verbose_name='CPU型号')
     cpu_number = models.SmallIntegerField(blank=True, null=True, verbose_name='物理CPU个数')
     vcpu_number = models.SmallIntegerField(blank=True, null=True, verbose_name='逻辑CPU个数')
-    disk_total = models.IntegerField(blank=True, null=True, verbose_name='磁盘空间')
+    disk_total = models.CharField(max_length=16, blank=True, null=True, verbose_name='磁盘空间')
     ram_total = models.SmallIntegerField(blank=True, null=True, verbose_name='内存容量')
     kernel = models.CharField(max_length=100, blank=True, null=True, verbose_name='内核版本')
     system = models.CharField(max_length=100, blank=True, null=True, verbose_name='操作系统')
@@ -144,6 +144,7 @@ class StorageAssets(models.Model):
         (1, '网络存储器'),
         (2, '磁带库'),
         (3, '磁带机'),
+        (4, '其它'),
     )
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     storage_type = models.SmallIntegerField(choices=storage_types, default=0, verbose_name='存储设备类型')
@@ -160,6 +161,7 @@ class SoftwareAssets(models.Model):
         (0, '操作系统'),
         (1, '办公/开发软件'),
         (2, '业务软件'),
+        (3, '其它'),
     )
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     software_type = models.SmallIntegerField(choices=software_types, default=0, verbose_name="软件类型")
@@ -188,11 +190,10 @@ class DiskAssets(models.Model):
 
 class RamAssets(models.Model):
     asset = models.ForeignKey('Assets', related_name='ram_assets', on_delete=models.PROTECT)
-    ram_model = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存型号')
+    ram_serial = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存序列号')
     ram_volume = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存容量')
     ram_brand = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存生产商')
     ram_slot = models.SmallIntegerField(blank=True, null=True, verbose_name='内存插槽')
-    ram_status = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存状态')
 
     class Meta:
         db_table = 'ops_ram_assets'
@@ -205,7 +206,7 @@ class NetworkCardAssets(models.Model):
     asset = models.ForeignKey('Assets', related_name='network_card_assets', on_delete=models.PROTECT)
     network_card_name = models.CharField(max_length=20, blank=True, null=True, verbose_name='网卡名称')
     network_card_mac = models.CharField(max_length=64, blank=True, null=True, verbose_name='MAC地址')
-    network_card_ip = models.GenericIPAddressField(blank=True, null=True, verbose_name='IP地址')
+    network_card_ip = models.CharField(max_length=16, blank=True, null=True, verbose_name='IP地址')
     network_card_model = models.CharField(max_length=50, blank=True, null=True, verbose_name='网卡类型')
     network_card_mtu = models.CharField(max_length=50, blank=True, null=True, verbose_name='MTU')
     network_card_status = models.SmallIntegerField(blank=True, null=True, verbose_name='网卡状态')

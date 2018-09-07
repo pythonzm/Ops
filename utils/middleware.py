@@ -7,6 +7,7 @@ from task.tasks import module_record
 from users.models import UserProfile
 from django.contrib.auth.models import Group
 from assets.models import Assets, ServerAssets
+from django.core import serializers
 
 
 class UserLoginMiddleware(MiddlewareMixin):
@@ -84,7 +85,8 @@ class RecordMiddleware(MiddlewareMixin):
             response_data = str(response.__dict__.get('_container')[0], encoding="utf-8")
             res = eval(response_data)['msg']
             module_record.delay(ans_user=request.user, ans_remote_ip=request.META['REMOTE_ADDR'],
-                                ans_module=''.join(post_data['ansibleModule']),
+                                ans_module=''.join(post_data['ansibleModule']) if
+                                post_data['ansibleModule'] != ['custom'] else ''.join(post_data['customModule']),
                                 ans_args=''.join(post_data['ansibleModuleArgs']),
                                 ans_server=ans_server, ans_result=res)
         return response

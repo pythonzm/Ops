@@ -211,3 +211,12 @@ INFO 2018-08-16 16:06:37 _log Authentication (publickey) failed.
 INFO 2018-08-16 16:06:37 _log Authentication (password) successful!
 INFO 2018-08-16 16:10:09 _log Connected (version 2.0, client OpenSSH_5.3)
 INFO 2018-08-16 16:10:10 _log Authentication (publickey) successful!
+INFO 2018-09-07 23:44:22 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-09-07 23:44:22 _log Authentication (publickey) successful!
+INFO 2018-09-07 23:44:25 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-09-07 23:44:31 _log [chan 2] sftp session closed.
+INFO 2018-09-07 23:45:46 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-09-07 23:45:46 _log Authentication (publickey) successful!
+INFO 2018-09-07 23:45:48 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-09-07 23:45:49 _log [chan 3] Opened sftp connection (server version 3)
+INFO 2018-09-07 23:45:50 _log [chan 3] sftp session closed.

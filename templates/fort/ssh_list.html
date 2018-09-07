@@ -40,7 +40,7 @@
                         <tbody>
                         {% for fort_server in fort_servers %}
                             {% for fort_user in fort_server.fortserveruser_set.all %}
-                                {% if fort_server.server_status == 1 and fort_user.fort_user_status == 1 %}
+                                {% if fort_server.server_status == 1 and fort_user.fort_user_status == 1 and request.user in fort_user.fort_belong_user.all %}
                                     <tr>
                                         <td>{{ fort_server.server.assets.asset_management_ip }}</td>
                                         <td>

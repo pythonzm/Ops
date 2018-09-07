@@ -1,16 +1,14 @@
+import paramiko
+import threading
+import time
+import os
+import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets
 from fort.models import FortServerUser
-from utils.db.redis_ops import RedisOps
 from Ops import settings
-from utils.db.mongo_ops import MongoOps, get_mongo_json_res
 from fort.tasks import fort_record
-import paramiko
-import threading
-import time
-
-c = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, db=6)
 
 
 class MyThread(threading.Thread):
@@ -20,6 +18,7 @@ class MyThread(threading.Thread):
 
     def run(self):
         start_time = time.time()
+        stdout = []
         current_time = time.strftime(settings.TIME_FORMAT)
         while not self.chan.chan.exit_status_ready():
             try:
@@ -27,11 +26,36 @@ class MyThread(threading.Thread):
                 if data:
                     str_data = bytes.decode(data)
                     self.send_msg(str_data)
+                    stdout.append([time.time() - start_time, 'o', str_data])
             except Exception:
                 pass
         self.send_msg('\r\n已成功登出，刷新页面重新登录，关闭页面断开连接')
-        c.rpush('commands', 'logout')
         self.chan.ssh.close()
+
+        record_path = os.path.join(settings.MEDIA_ROOT, 'records', self.chan.scope['user'].username,
+                                   time.strftime('%Y-%m-%d'))
+        if not os.path.exists(record_path):
+            os.makedirs(record_path, exist_ok=True)
+        record_file_name = '{}.{}.cast'.format(self.chan.fort, time.strftime('%Y%m%d%H%M%S'))
+        record_file_path = os.path.join(record_path, record_file_name)
+
+        header = {
+            "version": 2,
+            "width": 120,
+            "height": 35,
+            "timestamp": round(start_time),
+            "title": "Demo",
+            "env": {
+                "TERM": os.environ.get('TERM'),
+                "SHELL": os.environ.get('SHELL', '/bin/bash')
+            },
+        }
+
+        f = open(record_file_path, 'a')
+        f.write(json.dumps(header) + '\n')
+        for out in stdout:
+            f.write(json.dumps(out) + '\n')
+        f.close()
         login_status_time = time.time() - start_time
         if login_status_time >= 60:
             login_status_time = '{} m'.format(round(login_status_time / 60, 2))
@@ -42,7 +66,7 @@ class MyThread(threading.Thread):
 
         fort_record.delay(login_user=self.chan.scope['user'], fort=self.chan.fort,
                           remote_ip=self.chan.scope["client"][0], start_time=current_time,
-                          login_status_time=login_status_time)
+                          login_status_time=login_status_time, record_file=record_file_path.split('media/')[1])
 
     def send_msg(self, msg):
         async_to_sync(self.chan.channel_layer.group_send)(
@@ -52,23 +76,6 @@ class MyThread(threading.Thread):
                 "text": msg
             },
         )
-
-
-def record_command(login_user, fort):
-    mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.COMMANDS_DB, coll=login_user)
-    a = ''
-    while True:
-        command = c.lpop('commands')
-        if command == '\r':
-            content = {'fort': fort, 'command': a.strip(),
-                       'datetime': get_mongo_json_res(time.strftime(settings.TIME_FORMAT))}
-            mongo.insert(content)
-            a = ''
-            continue
-        elif command == 'logout':
-            break
-        else:
-            a += command
 
 
 class SSHConsumer(WebsocketConsumer):
@@ -104,11 +111,6 @@ class SSHConsumer(WebsocketConsumer):
 
     def user_message(self, event):
         self.send(text_data=event["text"])
-        if '登出' in event["text"]:
-            t2 = threading.Thread(target=record_command,
-                                  args=(self.scope['user'].username, self.fort))
-            t2.setDaemon(True)
-            t2.start()
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(self.channel_name, self.channel_name)

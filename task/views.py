@@ -53,7 +53,7 @@ def run_module(request):
         host_list = [ServerAssets.objects.get(id=host_id).assets.asset_management_ip for host_id in host_ids]
         selected_module_name = request.POST.get('ansibleModule')
         custom_model_name = request.POST.get('customModule')
-        module_name = selected_module_name if selected_module_name else custom_model_name
+        module_name = selected_module_name if selected_module_name != 'custom' else custom_model_name
         module_args = request.POST.get('ansibleModuleArgs')
 
         unique_key = '{}.{}.{}'.format(host_ids, module_name, module_args)

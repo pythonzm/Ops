@@ -17,7 +17,7 @@ from conf.logger import fort_logger
 
 
 @app.task
-def fort_record(login_user, fort, remote_ip, start_time, login_status_time):
+def fort_record(login_user, fort, remote_ip, start_time, login_status_time, record_file):
     try:
         FortRecord.objects.create(
             login_user=login_user,
@@ -25,6 +25,7 @@ def fort_record(login_user, fort, remote_ip, start_time, login_status_time):
             remote_ip=remote_ip,
             start_time=start_time,
             login_status_time=login_status_time,
+            record_file=record_file
         )
     except Exception as e:
         fort_logger.error('添加用户操作记录失败，原因：{}'.format(e))

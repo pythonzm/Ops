@@ -1,0 +1,15 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'css/asciinema-player.css' %}">
+</head>
+<body>
+<div>
+    <asciinema-player src="{{ MEDIA_URL }}{{ record.record_file }}"></asciinema-player>
+</div>
+<script src="{% static 'js/asciinema-player.js' %}"></script>
+</body>
+</html>

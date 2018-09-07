@@ -35,10 +35,6 @@ def terminal(request, server_id, fort_user_id):
     return render(request, 'fort/terminal.html', locals())
 
 
-def test(request):
-    return render(request, 'fort/test.html', {})
-
-
 def login_fort_record(request):
     if request.method == 'GET':
         results = FortRecord.objects.select_related('login_user').all()
@@ -53,3 +49,8 @@ def login_fort_record(request):
             return HttpResponse(search_records)
         except Exception as e:
             return JsonResponse({'error': '查询失败：{}'.format(e)})
+
+
+def record_play(request, pk):
+    record = FortRecord.objects.select_related('login_user').get(id=pk)
+    return render(request, 'fort/record_play.html', locals())
