@@ -84,5 +84,5 @@ def lock_screen(request):
         user = auth.authenticate(username=request.session['username'], password=request.POST.get('pwd'))
         if user:
             del request.session['lock']
-            return redirect('/')
+            return redirect('/users/user_center/')
         return render(request, 'lockscreen.html', {"login_error_info": "密码错误！请确认输入的密码是否正确！"}, )

@@ -13,6 +13,7 @@
             <table id="asset_idc" class="table table-bordered table-striped">
                 <thead>
                 <tr>
+                    <th>ID</th>
                     <th>机房名称</th>
                     <th>机房地址</th>
                     <th>机房联系人</th>
@@ -25,6 +26,7 @@
                 <tbody>
                 {% for asset_idc in asset_idcs %}
                     <tr id="idc-{{ asset_idc.id }}">
+                        <td>{{ asset_idc.id }}</td>
                         <td>{{ asset_idc.idc_name }}</td>
                         <td>{{ asset_idc.idc_address }}</td>
                         <td>{{ asset_idc.idc_contact }}</td>

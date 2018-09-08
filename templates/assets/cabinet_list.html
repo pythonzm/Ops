@@ -13,6 +13,7 @@
             <table id="asset_cabinet" class="table table-bordered table-striped">
                 <thead>
                 <tr>
+                    <th>ID</th>
                     <th>机柜名称</th>
                     <th>所属机房</th>
                     <th>拥有资产</th>
@@ -23,6 +24,7 @@
                 <tbody>
                 {% for asset_cabinet in asset_cabinets %}
                     <tr id="cabinet-{{ asset_cabinet.id }}">
+                        <td>{{ asset_cabinet.id }}</td>
                         <td>{{ asset_cabinet.cabinet_name }}</td>
                         <td>{{ asset_cabinet.idc.idc_name }}</td>
                         <td>

@@ -193,3 +193,12 @@ MEDIA_URL = '/media/'
 LOGIN_URL = '/login'
 
 TIME_FORMAT = '%Y-%m-%d %X'
+
+# zabbix配置
+ZABBIX_INFO = {
+    'api_url': 'http://172.16.1.176/zabbix/api_jsonrpc.php',
+    'graph_url': 'http://172.16.1.176/zabbix/chart2.php',
+    'login_url': 'http://172.16.1.176/zabbix/index.php',
+    'username': 'admin',
+    'password': '123.juREN'
+}

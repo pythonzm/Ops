@@ -12,6 +12,7 @@
             <table id="asset_provider" class="table table-bordered table-striped">
                 <thead>
                 <tr>
+                    <th>ID</th>
                     <th>供应商名称</th>
                     <th>供应商联系人</th>
                     <th>支持电话</th>
@@ -22,6 +23,7 @@
                 <tbody>
                 {% for asset_provider in asset_providers %}
                     <tr id="provider-{{ asset_provider.id }}">
+                        <td>{{ asset_provider.id }}</td>
                         <td>{{ asset_provider.asset_provider_name }}</td>
                         <td>{{ asset_provider.asset_provider_contact }}</td>
                         <td>{{ asset_provider.asset_provider_telephone }}</td>

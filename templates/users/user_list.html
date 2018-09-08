@@ -154,6 +154,7 @@
                             <th><label>
                                 <input type="checkbox" class="minimal-red" id="checkAll">
                             </label></th>
+                            <th>ID</th>
                             <th>用户名称</th>
                             <th>超级管理员</th>
                             <th>所属组</th>
@@ -169,6 +170,7 @@
                                 <td><label>
                                     <input type="checkbox" class="minimal" value="{{ user.id }}">
                                 </label></td>
+                                <td>{{ user.id }}</td>
                                 <td>{{ user.username }}</td>
                                 <td>
                                     {% if user.is_superuser %}
