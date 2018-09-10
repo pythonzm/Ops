@@ -42,6 +42,7 @@ class FortServerUser(models.Model):
         db_table = 'ops_fort_user'
         verbose_name = '堡垒机用户表'
         verbose_name_plural = '堡垒机用户表'
+        unique_together = ('fort_server', 'fort_username')
 
 
 class FortRecord(models.Model):

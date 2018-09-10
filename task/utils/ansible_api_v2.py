@@ -308,7 +308,8 @@ class ANSRunner(object):
         server_facts['disk_total'] = 0
         for k, v in facts['ansible_devices'].items():
             if k[0:2] in ['sd', 'hd', 'ss', 'vd']:
-                server_facts['disk_total'] += v['size']
+                disk_size = float(v['size'][0: v['size'].rindex('G') - 1])
+                server_facts['disk_total'] += round(disk_size, 2)
         server_facts['ram_total'] = int(facts['ansible_memtotal_mb'])
         server_facts['kernel'] = facts['ansible_kernel']
         server_facts['system'] = '{} {} {}'.format(facts['ansible_distribution'],

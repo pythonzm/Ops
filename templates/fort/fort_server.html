@@ -254,7 +254,7 @@
                                                         </button>
                                                         <button type="button" class="btn btn-danger"
                                                                 title="同时会在服务器中删除该用户" data-dismiss="modal"
-                                                                onclick="deleteFortUser({{ fort_server.id }}, {{ fort_user.id }})">
+                                                                onclick="deleteFortUser({{ fort_server.server.id }}, {{ fort_user.id }})">
                                                             删除
                                                         </button>
                                                         <button type="button" class="btn btn-default"
@@ -767,8 +767,8 @@
                 const ansible_data = {
                     hostGroup: 'custom',
                     ans_group_hosts: server_id,
-                    ansibleModule: 'user',
-                    ansibleModuleArgs: 'name=' + username + ' password=' + password,
+                    ansibleModule: 'shell',
+                    ansibleModuleArgs: 'useradd ' + username + ' && echo ' + password + ' | passwd --stdin ' + username,
                 };
                 $.ajax({
                     url: '{% url 'run_module' %}',
@@ -881,6 +881,7 @@
                                 url: '{% url 'run_module' %}',
                                 type: 'POST',
                                 data: ansible_data,
+                                async: false,
                                 beforeSend: function (xhr) {
                                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                                 },

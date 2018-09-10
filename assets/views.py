@@ -142,19 +142,8 @@ def server_facts(request):
                         asset = Assets.objects.get(id=server_obj.assets_id)
                         for nk in nks:
                             mac = nk.get('network_card_mac')
-                            network_card = NetworkCardAssets.objects.select_related('asset').filter(asset=asset,
-                                                                                                    network_card_mac=mac)
-                            count = network_card.count()
-                            if count > 0:
-                                network_card.update(
-                                    asset=asset,
-                                    **nk
-                                )
-                            else:
-                                NetworkCardAssets.objects.create(
-                                    asset=asset,
-                                    **nk
-                                )
+                            NetworkCardAssets.objects.select_related('asset').update_or_create(defaults=nk, asset=asset,
+                                                                                               network_card_mac=mac)
                         return JsonResponse({'code': 200, 'msg': '收集完成！'})
                     else:
                         return JsonResponse({'code': 200, 'msg': data[data.index('>>') + 1:]})
@@ -165,18 +154,8 @@ def server_facts(request):
                         asset = Assets.objects.get(id=server_obj.assets_id)
                         for mem_info in mem_infos:
                             ram_slot = mem_info.get('ram_slot')
-                            mem_obj = RamAssets.objects.select_related('asset').filter(asset=asset, ram_slot=ram_slot)
-                            count = mem_obj.count()
-                            if count > 0:
-                                mem_obj.update(
-                                    asset=asset,
-                                    **mem_info
-                                )
-                            else:
-                                RamAssets.objects.create(
-                                    asset=asset,
-                                    **mem_info
-                                )
+                            RamAssets.objects.select_related('asset').update_or_create(defaults=mem_info, asset=asset,
+                                                                                       ram_slot=ram_slot)
                         return JsonResponse({'code': 200, 'msg': '收集完成！'})
                     else:
                         return JsonResponse({'code': 200, 'msg': data[data.index('>>') + 1:]})
