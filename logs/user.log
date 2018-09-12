@@ -1,2 +1,2 @@
-ERROR 2018-07-13 08:26:47 users_record 添加用户操作记录失败，原因：(1146, "Table 'ops.users_userlog' doesn't exist")
-ERROR 2018-07-13 08:27:01 users_record 添加用户操作记录失败，原因：(1146, "Table 'ops.users_userlog' doesn't exist")
+ERROR 2018-09-11 17:49:05 users_record 添加用户操作记录失败，原因：(1054, "Unknown column 'user' in 'field list'")
+ERROR 2018-09-11 20:50:49 users_record 添加用户操作记录失败，原因：(1054, "Unknown column 'user' in 'field list'")

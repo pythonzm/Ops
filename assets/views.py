@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import xlrd
@@ -7,14 +8,12 @@ from utils.export_excel import ExportExcel
 from Ops import settings
 from assets.utils.zabbix_api import ZabbixApi
 from django.db.models import Count
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.shortcuts import render
 from assets.models import *
 from users.models import UserProfile
-from django.core import serializers
 from utils.crypt_pwd import CryptPwd
 from task.utils.ansible_api_v2 import ANSRunner
-from django.http import FileResponse
 
 
 def get_assets_charts(request):
@@ -99,10 +98,21 @@ def get_assets_log(request):
     elif request.method == 'POST':
         start_time = request.POST.get('startTime')
         end_time = request.POST.get('endTime')
+        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+        end_time = new_end_time.strftime('%Y-%m-%d')
         try:
-            assets_logs = AssetsLog.objects.filter(c_time__gte=start_time, c_time__lte=end_time)
-            assets_logs = serializers.serialize('json', assets_logs)
-            return HttpResponse(assets_logs)
+            records = []
+            assets_logs = AssetsLog.objects.filter(c_time__gt=start_time, c_time__lt=end_time)
+            for assets_log in assets_logs:
+                record = {
+                    'id': assets_log.id,
+                    'user': assets_log.user.username,
+                    'remote_ip': assets_log.remote_ip,
+                    'content': assets_log.content,
+                    'c_time': assets_log.c_time
+                }
+                records.append(record)
+            return JsonResponse({'code': 200, 'records': records})
         except Exception as e:
             return JsonResponse({'error': '查询失败：{}'.format(e)})
 

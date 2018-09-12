@@ -7,7 +7,6 @@ from task.tasks import module_record
 from users.models import UserProfile
 from django.contrib.auth.models import Group
 from assets.models import Assets, ServerAssets
-from django.core import serializers
 
 
 class UserLoginMiddleware(MiddlewareMixin):
@@ -38,7 +37,7 @@ class RecordMiddleware(MiddlewareMixin):
                 groupname = Group.objects.get(id=group_id).name
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='删除用户组：{}'.format(groupname))
-            elif 'assets' in request.path:
+            elif 'assets' in request.path and 'log' not in request.path:
                 asset_id = self.get_id(request.path)
                 asset_nu = Assets.objects.get(id=asset_id).asset_nu
                 assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],

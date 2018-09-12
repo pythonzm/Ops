@@ -1,7 +1,7 @@
+import datetime
 from django.shortcuts import render
 from task.utils.ansible_api_v2 import ANSRunner
-from django.http import JsonResponse, HttpResponse
-from django.core import serializers
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from task.models import *
 from assets.models import ServerAssets
@@ -98,17 +98,31 @@ def run_log(request):
         ansible_logs = None
         start_time = request.POST.get('startTime')
         end_time = request.POST.get('endTime')
+        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+        end_time = new_end_time.strftime('%Y-%m-%d')
         log_type = request.POST.get('logType')
         try:
             if log_type == 'module':
-                ansible_logs = AnsibleModuleLog.objects.filter(ans_datetime__gte=start_time, ans_datetime__lte=end_time)
+                records = []
+                ansible_logs = AnsibleModuleLog.objects.filter(ans_datetime__gt=start_time, ans_datetime__lt=end_time)
+                for ansible_log in ansible_logs:
+                    record = {
+                        'id': ansible_log.id,
+                        'ans_user': ansible_log.ans_user.username,
+                        'ans_remote_ip': ansible_log.ans_remote_ip,
+                        'ans_module': ansible_log.ans_module,
+                        'ans_args': ansible_log.ans_args,
+                        'ans_server': ansible_log.ans_server,
+                        'ans_result': ansible_log.ans_result,
+                        'ans_datetime': ansible_log.ans_datetime,
+                    }
+                    records.append(record)
+                return JsonResponse({'code': 200, 'records': records})
             elif log_type == 'playbook':
                 pass
-            ansible_logs = serializers.serialize('json', ansible_logs)
-            return HttpResponse(ansible_logs)
         except Exception as e:
-            return JsonResponse({'error': '查询失败：{}'.format(e)})
-    module_log_info = AnsibleModuleLog.objects.all()
+            return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
+    module_log_info = AnsibleModuleLog.objects.select_related('ans_user').all()
     return render(request, 'task/run_log.html', locals())
 
 

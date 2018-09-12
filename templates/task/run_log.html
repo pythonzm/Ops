@@ -7,9 +7,6 @@
     <!-- bootstrap datepicker -->
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
-    <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
-
     <style>
         /* dataTables列内容居中 */
         #moduleLog > tbody > tr > td {
@@ -50,12 +47,6 @@
             <div class="tab-content">
                 <div class="col-lg-12">
                     <br>
-                    <div class="col-sm-8">
-                        <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
-                            <i class="fa fa-warning"></i>
-                            <span class="bigger-110">批量删除</span>
-                        </button>
-                    </div>
                     <div class="col-sm-2">
                         <div class="form-group">
                             <div class="input-group">
@@ -89,9 +80,6 @@
                                 <table id="moduleLog" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th><label>
-                                            <input type="checkbox" class="minimal-red" id="checkAll">
-                                        </label></th>
                                         <th>操作用户</th>
                                         <th>操作用户IP</th>
                                         <th>模块名称</th>
@@ -103,10 +91,7 @@
                                     </thead>
                                     <tbody>
                                     {% for info in module_log_info %}
-                                        <tr id="moduleLog-{{ info.id }}">
-                                            <td><label>
-                                                <input type="checkbox" class="minimal" value="{{ info.id }}">
-                                            </label></td>
+                                        <tr>
                                             <td>{{ info.ans_user }}</td>
                                             <td>{{ info.ans_remote_ip }}</td>
                                             <td>{{ info.ans_module }}</td>
@@ -114,14 +99,14 @@
                                             <td>{{ info.ans_server }}</td>
                                             <td>{{ info.ans_datetime|date:"Y-m-d H:i:s" }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-default" data-toggle="modal"
-                                                        data-target="#modal-default"
-                                                        onclick="getModuleResult({{ info.ans_result }})"><abbr
-                                                        title="查看详细信息"><i
-                                                        class="glyphicon glyphicon-info-sign"></i></abbr>
+                                                <button type="button" class="result btn btn-default"
+                                                        onclick="getModuleResult({{ info.ans_result }})"
+                                                        data-toggle="modal"
+                                                        data-target="#modal-default"><i
+                                                        class="fa fa-fw fa-eye"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-default"
-                                                        onclick="deleteModuleResult({{ info.id }})"><i
+                                                <button type="button" class="delete btn btn-default"
+                                                        data-id="{{ info.id }}"><i
                                                         class="glyphicon glyphicon-trash"></i></button>
                                             </td>
                                         </tr>
@@ -235,100 +220,35 @@
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
     <!-- bootstrap datepicker -->
     <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
-    <!-- iCheck 1.0.1 -->
-    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
 
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
 
     <script>
         $(function () {
-            $('#moduleLog, #playbookLog').DataTable({
+            module_table = $('#moduleLog').DataTable({
                 columnDefs: [{
-                    'targets': [0, -1],
+                    'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[6, "desc"]]
+                "order": [[5, "desc"]]
+            });
+            playbook_table = $('#playbookLog').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[5, "desc"]]
             });
         });
+
         //Date picker
         $('#moduleLogStartTime, #moduleLogEndTime').datepicker({
             autoclose: true
         });
-        //iCheck for checkbox inputs
-        $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
-            checkboxClass: 'icheckbox_minimal-blue',
-        });
-        //实现全选
-        $(function () {
-            let checkAll = $('#checkAll');
-            let checkboxes = $('input[type="checkbox"]');
-            checkAll.on('ifChecked ifUnchecked', function (event) {
-                if (event.type === 'ifChecked') {
-                    checkboxes.iCheck('check');
-                } else {
-                    checkboxes.iCheck('uncheck');
-                }
-            });
-            checkboxes.on('ifChanged', function () {
-                if (checkboxes.filter(':checked').length === checkboxes.length) {
-                    checkAll.prop('checked', 'checked');
-                } else {
-                    checkAll.removeProp('checked');
-                }
-                checkAll.iCheck('update');
-            });
-        });
-        //批量删除
-        $("#deleteChecked").click(function () {
-            let checkedID = [];
-            $('input[type="checkbox"].minimal:checked').each(function () {
-                checkedID.push($(this).val());
-            });
-            if (checkedID.length === 0) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '请选择要删除的记录！',
-                })
-            } else {
-                $.confirm({
-                    title: 'Tips',
-                    content: '确定要删除这些记录么？',
-                    type: 'red',
-                    buttons: {
-                        Ok: function () {
-                            for (let i = 0; i < checkedID.length; i++) {
-                                $.ajax({
-                                    url: '/api/run_log/' + checkedID[i],
-                                    method: 'DELETE',
-                                    beforeSend: function (xhr) {
-                                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                    },
-                                    success: function () {
-                                        let str = 'moduleLog-' + checkedID[i];
-                                        document.getElementById(str).innerHTML = '';
-                                    },
-                                    error: function (data) {
-                                        $.alert({
-                                            title: 'Tips',
-                                            type: 'red',
-                                            content: '删除失败！' + data.responseText,
-                                        })
-                                    }
-                                })
-                            }
-                        },
-                        Cancel: function () {
-                            $.alert('canceled');
-                        }
-                    }
-                })
-            }
-        });
 
+        // 获取执行结果
         function getModuleResult(result) {
-            result = Array.from(result);
             let obj = $('pre');
             obj.html('');
             for (let i = 0; i < result.length; i++) {
@@ -340,44 +260,51 @@
             }
         }
 
-        function deleteModuleResult(id) {
-            $.confirm({
-                title: 'Tips',
-                content: '确定要删除这条记录么？',
-                type: 'red',
-                buttons: {
-                    Ok: function () {
-                        $.ajax({
-                            url: '/api/run_log/' + id,
-                            method: 'DELETE',
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                            },
-                            success: function () {
-                                let str = 'moduleLog-' + id;
-                                document.getElementById(str).innerHTML = '';
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'green',
-                                    content: '删除成功！'
-                                });
-                            },
-                            error: function (data) {
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'red',
-                                    content: '删除失败！' + data.responseText,
-                                })
-                            }
-                        })
-                    },
-                    Cancel: function () {
-                        $.alert('canceled');
-                    }
-                }
-            })
-        }
+        //删除日志
+        $('#moduleLog tbody').on('click', 'button.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
 
+            {% if perms.assets.delete_assetslog %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/run_log/' + pk + '/',
+                                method: 'DELETE',
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                                },
+                                success: function () {
+                                    module_table.row(tr_obj).remove().draw();
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除操作日志的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+        // 按日期搜索
         function searchModuleLog() {
             let startTime = $('#moduleLogStartTime').val();
             let endTime = $('#moduleLogEndTime').val();
@@ -402,31 +329,34 @@
                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                 },
                 success: function (response) {
-                    if (response.length === 0) {
+                    if (response.records.length === 0) {
                         $.alert({
                             title: 'Tips',
                             type: 'red',
                             content: '该时间段内没有执行任何模块！'
                         });
                     } else {
-                        let obj = $('#moduleLog tbody');
-                        obj.html('');
-                        for (let i = 0; i < response.length; i++) {
-                            let result = response[i];
-                            let ans_datetime = $.format.date(result.fields['ans_datetime'], "yyyy-MM-dd HH:mm:ss");
-                            obj.append(
-                                '<tr id="moduleLog-' + result.pk + '">' +
-                                '<td>' + result.pk + '</td>' +
-                                '<td>' + result.fields['ans_user'] + '</td>' +
-                                '<td>' + result.fields['ans_remote_ip'] + '</td>' +
-                                '<td>' + result.fields['ans_module'] + '</td>' +
-                                '<td>' + result.fields['ans_args'] + '</td>' +
-                                '<td>' + result.fields['ans_server'] + '</td>' +
-                                '<td>' + ans_datetime + '</td>' +
-                                '<td>' + '<button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default" onclick="getModuleResult(' + result.fields['ans_result'] + ')"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr> </button>' +
-                                '<button type="button" class="btn btn-default" onclick="deleteModuleResult(' + result.pk + ')"><i class="glyphicon glyphicon-trash"></i></button>' + '</td>' +
-                                '</tr>'
-                            )
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '查询完成！'
+                        });
+                        module_table.clear().draw();
+                        for (let i = 0; i < response.records.length; i++) {
+                            let result = response.records[i];
+                            let id = result['id'];
+                            let ans_datetime = $.format.date(result['ans_datetime'], "yyyy-MM-dd HH:mm:ss");
+                            let counter = 1;
+                            module_table.row.add([
+                                result['ans_user'],
+                                result['ans_remote_ip'],
+                                result['ans_module'],
+                                result['ans_args'],
+                                result['ans_server'],
+                                ans_datetime,
+                                `<button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
+                            ]).draw();
+                            counter++;
                         }
                     }
                 },
@@ -442,3 +372,4 @@
     </script>
 
 {% endblock %}
+

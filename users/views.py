@@ -1,14 +1,17 @@
 import random
 import json
-from datetime import datetime
+import datetime
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 
 from users.models import UserProfile, UserLog, UserPlan
 from django.contrib.auth.models import Group, Permission
-from django.core import serializers
+from utils.db.redis_ops import RedisOps
+from Ops import settings
+
+c = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, db=5)
 
 
 def user_center(request):
@@ -44,9 +47,9 @@ def user_center(request):
                 return JsonResponse({"code": 500, "data": None, "msg": "头像更新失败：%s" % str(e)})
         elif request.POST.get('title'):
             start_time = '{} {}'.format(request.POST.get('sdate'), request.POST.get('stime'))
-            start_time = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
             end_time = '{} {}'.format(request.POST.get('edate'), request.POST.get('etime'))
-            end_time = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+            end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
             add_users = request.POST.get('add_users')
 
             chars = '0123456789abcdef'
@@ -155,9 +158,27 @@ def get_user_log(request):
     elif request.method == 'POST':
         start_time = request.POST.get('startTime')
         end_time = request.POST.get('endTime')
+        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+        end_time = new_end_time.strftime('%Y-%m-%d')
         try:
-            user_logs = UserLog.objects.filter(c_time__gte=start_time, c_time__lte=end_time)
-            user_logs = serializers.serialize('json', user_logs)
-            return HttpResponse(user_logs)
+            records = []
+            user_logs = UserLog.objects.filter(c_time__gt=start_time, c_time__lt=end_time)
+            for user_log in user_logs:
+                record = {
+                    'id': user_log.id,
+                    'user': user_log.user.username,
+                    'remote_ip': user_log.remote_ip,
+                    'content': user_log.content,
+                    'c_time': user_log.c_time
+                }
+                records.append(record)
+            return JsonResponse({'code': 200, 'records': records})
         except Exception as e:
-            return JsonResponse({'error': '查询失败：{}'.format(e)})
+            return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
+
+
+def listen_msg(request):
+    data = c.subscribe(request.user)
+    for item in data:
+        if item['type'] == 'message':
+            print(item['data'])

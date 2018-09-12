@@ -1,11 +1,11 @@
-from django.core import serializers
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 from fort.models import FortServer, FortServerUser, FortRecord
 from assets.models import ServerAssets
 from django.contrib.auth.models import Group
 from users.models import UserProfile
+import datetime
 
 
 def fort_server(request):
@@ -42,13 +42,25 @@ def login_fort_record(request):
     elif request.method == 'POST':
         start_time = request.POST.get('startTime')
         end_time = request.POST.get('endTime')
+        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+        end_time = new_end_time.strftime('%Y-%m-%d')
         try:
-            search_records = FortRecord.objects.select_related('login_user').filter(c_time__gte=start_time,
-                                                                                    c_time__lte=end_time)
-            search_records = serializers.serialize('json', search_records)
-            return HttpResponse(search_records)
+            records = []
+            search_records = FortRecord.objects.select_related('login_user').filter(start_time__gt=start_time,
+                                                                                    start_time__lt=end_time)
+            for search_record in search_records:
+                record = {
+                    'id': search_record.id,
+                    'login_user': search_record.login_user.username,
+                    'fort': search_record.fort,
+                    'remote_ip': search_record.remote_ip,
+                    'start_time': search_record.start_time,
+                    'login_status_time': search_record.login_status_time
+                }
+                records.append(record)
+            return JsonResponse({'code': 200, 'records': records})
         except Exception as e:
-            return JsonResponse({'error': '查询失败：{}'.format(e)})
+            return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
 
 
 def record_play(request, pk):

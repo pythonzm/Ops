@@ -20,7 +20,7 @@ class UserProfile(AbstractUser):
 
 
 class UserLog(models.Model):
-    user = models.CharField(max_length=16, verbose_name='操作用户')
+    user = models.ForeignKey('UserProfile', on_delete=models.CASCADE, verbose_name='操作用户')
     remote_ip = models.GenericIPAddressField(verbose_name='操作用户IP')
     content = models.CharField(max_length=100, verbose_name='操作内容')
     c_time = models.DateTimeField(auto_now_add=True, verbose_name='操作时间')

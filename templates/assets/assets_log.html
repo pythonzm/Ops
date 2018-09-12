@@ -6,8 +6,6 @@
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
-    <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
     <style>
         /* dataTables列内容居中 */
         #example1 > tbody > tr > td {
@@ -31,12 +29,6 @@
     <div class="row">
         <div class="col-lg-12">
             <br>
-            <div class="col-sm-8">
-                <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
-                    <i class="fa fa-warning"></i>
-                    <span class="bigger-110">批量删除</span>
-                </button>
-            </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <div class="input-group">
@@ -68,9 +60,6 @@
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th><label>
-                                <input type="checkbox" class="minimal-red" id="checkAll">
-                            </label></th>
                             <th>操作用户</th>
                             <th>操作用户IP</th>
                             <th>操作内容</th>
@@ -81,17 +70,13 @@
                         <tbody>
                         {% for assets_log in assets_logs %}
 
-                            <tr id="assets_log-{{ assets_log.id }}">
-                                <td><label>
-                                    <input type="checkbox" class="minimal" value="{{ assets_log.id }}">
-                                </label></td>
+                            <tr>
                                 <td>{{ assets_log.user }}</td>
                                 <td>{{ assets_log.remote_ip }}</td>
                                 <td>{{ assets_log.content }}</td>
                                 <td>{{ assets_log.c_time|date:"Y-m-d H:i:s" }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-default"
-                                            onclick="deleteLog({{ assets_log.id }})"><i
+                                    <button type="button" class="btn btn-default" data-id="{{ assets_log.id }}"><i
                                             class="glyphicon glyphicon-trash"></i></button>
                                 </td>
                             </tr>
@@ -117,55 +102,29 @@
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
     <!-- bootstrap datepicker -->
     <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
-    <!-- iCheck 1.0.1 -->
-    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
     <script>
         $(function () {
-            $('#example1').DataTable({
+            table = $('#example1').DataTable({
                 columnDefs: [{
-                    'targets': [0, -1],
+                    'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[4, "desc"]]
+                "order": [[3, "desc"]]
             });
 
             //Date picker
             $('#assetsLogStartTime, #assetsLogEndTime').datepicker({
                 autoclose: true
             });
-
-            //iCheck for checkbox inputs
-            $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
-                checkboxClass: 'icheckbox_minimal-blue',
-            });
-        });
-
-
-        //实现全选
-        $(function () {
-            let checkAll = $('#checkAll');
-            let checkboxes = $('input[type="checkbox"]');
-            checkAll.on('ifChecked ifUnchecked', function (event) {
-                if (event.type === 'ifChecked') {
-                    checkboxes.iCheck('check');
-                } else {
-                    checkboxes.iCheck('uncheck');
-                }
-            });
-            checkboxes.on('ifChanged', function () {
-                if (checkboxes.filter(':checked').length === checkboxes.length) {
-                    checkAll.prop('checked', 'checked');
-                } else {
-                    checkAll.removeProp('checked');
-                }
-                checkAll.iCheck('update');
-            });
         });
 
         //删除日志
-        function deleteLog(id) {
+        $('#example1 tbody').on('click', 'button', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
             {% if perms.assets.delete_assetslog %}
                 $.confirm({
                     title: 'Tips',
@@ -174,14 +133,13 @@
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/api/assets_log/' + id,
+                                url: '/api/assets_log/' + pk + '/',
                                 method: 'DELETE',
                                 beforeSend: function (xhr) {
                                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                                 },
                                 success: function () {
-                                    let str = 'assets_log-' + id;
-                                    document.getElementById(str).innerHTML = '';
+                                    table.row(tr_obj).remove().draw();
                                 },
                                 error: function (data) {
                                     $.alert({
@@ -204,63 +162,6 @@
                     content: '抱歉！您没有删除操作日志的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-        }
-
-        // 批量删除
-        $("#deleteChecked").click(function () {
-            {% if perms.users.delete_userlog %}
-                let checkedID = [];
-                $('input[type="checkbox"].minimal:checked').each(function () {
-                    checkedID.push($(this).val());
-                });
-                if (checkedID.length === 0) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: '请选择要删除的日志！',
-                    })
-                } else {
-                    $.confirm({
-                        title: 'Tips',
-                        content: '确定要删除这些日志么？',
-                        type: 'red',
-                        buttons: {
-                            Ok: function () {
-                                for (let i = 0; i < checkedID.length; i++) {
-                                    $.ajax({
-                                        url: '/api/assets_log/' + checkedID[i],
-                                        method: 'DELETE',
-                                        beforeSend: function (xhr) {
-                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                        },
-                                        success: function () {
-                                            let str = 'assets_log-' + checkedID[i];
-                                            document.getElementById(str).innerHTML = '';
-                                        },
-                                        error: function (data) {
-                                            $.alert({
-                                                title: 'Tips',
-                                                type: 'red',
-                                                content: '删除失败！' + data.responseText,
-                                            })
-                                        }
-                                    })
-                                }
-                            },
-                            Cancel: function () {
-                                // close
-                            }
-                        }
-                    })
-                }
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有删除操作日志的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
-
         });
 
         // 按日期搜索
@@ -287,7 +188,7 @@
                     xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                 },
                 success: function (response) {
-                    if (response.length === 0) {
+                    if (response.records.length === 0) {
                         $.alert({
                             title: 'Tips',
                             type: 'red',
@@ -299,21 +200,19 @@
                             type: 'green',
                             content: '查询完成！'
                         });
-                        let obj = $('#example1 tbody');
-                        obj.html('');
-                        for (let i = 0; i < response.length; i++) {
-                            let result = response[i];
-                            let c_time = $.format.date(result.fields['c_time'], "yyyy-MM-dd HH:mm:ss");
-                            obj.append(
-                                '<tr id="user_log-' + result.pk + '">' +
-                                '<td>' + result.pk + '</td>' +
-                                '<td>' + result.fields['user'] + '</td>' +
-                                '<td>' + result.fields['remote_ip'] + '</td>' +
-                                '<td>' + result.fields['content'] + '</td>' +
-                                '<td>' + c_time + '</td>' +
-                                '<button type="button" class="btn btn-default" onclick="deleteLog(' + result.pk + ')"><i class="glyphicon glyphicon-trash"></i></button>' + '</td>' +
-                                '</tr>'
-                            )
+                        table.clear().draw();
+                        for (let i = 0; i < response.records.length; i++) {
+                            let result = response.records[i];
+                            let c_time = $.format.date(result['c_time'], "yyyy-MM-dd HH:mm:ss");
+                            let counter = 1;
+                            table.row.add([
+                                result['user'],
+                                result['remote_ip'],
+                                result['content'],
+                                c_time,
+                                '<button type="button" class="btn btn-default" data-id="'+ result['id'] + '"><i class="glyphicon glyphicon-trash"></i></button>'
+                            ]).draw();
+                            counter++;
                         }
                     }
                 },
