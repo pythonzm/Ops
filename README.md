@@ -13,6 +13,9 @@
 ### 资产管理，需要关联的项目管理还未完成
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_list.png)
 
+### 资产详细，CPU等信息可以通过收集按钮自动获取
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_info.jpg)
+
 ### ansible执行模块
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/ansible_module.png)
 
