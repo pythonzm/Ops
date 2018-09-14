@@ -4,7 +4,7 @@
 ### 用户管理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_list.png)
 
-### 添加用户以及分配用户权限等，用户组同理
+### 添加用户以及分配用户权限(采用的django自带的权限系统)等，用户组同理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_user.png)
 
 ### 资产概览
