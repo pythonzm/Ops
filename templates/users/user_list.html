@@ -23,10 +23,6 @@
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
 {% endblock %}
 
-{% block content-header %}
-    <h1>用户列表</h1>
-{% endblock %}
-
 {% block content %}
 
     <div class="row">
@@ -233,7 +229,7 @@
                                                         <div class="form-group">
                                                             <label for="mobile">手机号码</label>
                                                             <input id="mobile" class="form-control" type="number"
-                                                                   value="{{ user.mobile }}">
+                                                                   value="{{ user.mobile|default:'' }}">
                                                         </div>
 
                                                         <div class="form-group">

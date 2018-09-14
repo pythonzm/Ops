@@ -311,7 +311,10 @@ desired effect
                                 <li><a href="{% url 'fort_server' %}"><i class="fa fa-street-view"></i> 主机用户配置</a></li>
                             {% endif %}
                             <li><a href="{% url 'ssh_list' %}"><i class="fa fa-location-arrow"></i> 终端连接</a></li>
-                            <li><a href="{% url 'login_fort_record' %}"><i class="fa fa-user-secret"></i> 登录日志</a></li>
+                            {% if perms.fort.change_fortrecord %}
+                                <li><a href="{% url 'login_fort_record' %}"><i class="fa fa-user-secret"></i> 登录日志</a>
+                                </li>
+                            {% endif %}
                         </ul>
                     </li>
                 {% endif %}
@@ -347,11 +350,16 @@ desired effect
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-        <section class="content-header">
-            {% block content-header %}
-
-            {% endblock %}
-        </section>
+        {% if request.path != '/' %}
+            <section class="content-header">
+                <h1></h1>
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> 仪表盘</a></li>
+                    <li><a href="javascript:void(0);"></a></li>
+                    <li class="active"></li>
+                </ol>
+            </section>
+        {% endif %}
 
         <!-- Main content -->
         <section class="content container-fluid">
@@ -578,6 +586,19 @@ desired effect
         if (pathname === href) {
             $(this).parents("ul").parent("li").addClass("active");
             $(this).parent("li").addClass("active");
+        }
+    });
+
+
+    <!-- 生成面包屑和h1标题 -->
+    $(".treeview-menu li a").each(function () {
+        let href = $(this).attr("href");
+        if (pathname === href) {
+            let current_name = $(this).text();
+            let pre_name = $(this).parent('li').parent('ul').prev('a').text();
+            $('.content-header h1').text(current_name);
+            $('.content-header ol li:eq(1)').text(pre_name);
+            $('.content-header ol li:last').text(current_name);
         }
     });
 </script>
