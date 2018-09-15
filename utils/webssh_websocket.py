@@ -79,8 +79,6 @@ class MyThread(threading.Thread):
 
 
 class SSHConsumer(WebsocketConsumer):
-    commands = []
-
     def connect(self):
         path = self.scope['path']
         server_id = path.split('/')[3]

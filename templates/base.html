@@ -350,7 +350,7 @@ desired effect
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-        {% if request.path != '/' %}
+        {% if request.path != '/' and request.path != '/users/user_center/' %}
             <section class="content-header">
                 <h1></h1>
                 <ol class="breadcrumb">

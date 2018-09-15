@@ -76,11 +76,7 @@
                          alt="User profile picture">
 
                     <h3 class="profile-username text-center">{{ user.username }}</h3>
-                    {% if user.mobile %}
-                        <p class="text-muted text-center" id="userMobile">手机：{{ user.mobile }}</p>
-                    {% else %}
-                        <p class="text-muted text-center" id="userMobile">手机：NULL</p>
-                    {% endif %}
+                    <p class="text-muted text-center" id="userMobile">手机：{{ user.mobile|default:'' }}</p>
 
                     <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#updateMobile">
                         <b>修改手机号码</b></button>
