@@ -16,4 +16,7 @@ urlpatterns = [
     re_path(r'get_server_info/(?P<pk>[0-9]+)/', views.get_asset_info, name='get_asset_info'),
     path(r'import_assets/', views.import_assets, name='import_assets'),
     re_path(r'export_assets/', views.export_assets, name='export_assets'),
+    re_path(r'ssh/(?P<pk>[0-9]+)/', views.ssh_terminal, name='ssh'),
+    path(r'login_ssh_record/', views.login_ssh_record, name='login_ssh_record'),
+    re_path(r'ssh_play/(?P<pk>[0-9]+)/', views.ssh_play, name='ssh_play'),
 ]

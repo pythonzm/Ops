@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import paramiko
 import threading
 import time
@@ -6,9 +7,8 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets
-from fort.models import FortServerUser
 from Ops import settings
-from fort.tasks import fort_record
+from assets.tasks import ssh_record
 
 
 class MyThread(threading.Thread):
@@ -32,11 +32,11 @@ class MyThread(threading.Thread):
         self.send_msg('\r\n已成功登出，刷新页面重新登录，关闭页面断开连接')
         self.chan.ssh.close()
 
-        record_path = os.path.join(settings.MEDIA_ROOT, 'fort_records', self.chan.scope['user'].username,
+        record_path = os.path.join(settings.MEDIA_ROOT, 'ssh_records', self.chan.scope['user'].username,
                                    time.strftime('%Y-%m-%d'))
         if not os.path.exists(record_path):
             os.makedirs(record_path, exist_ok=True)
-        record_file_name = '{}.{}.cast'.format(self.chan.fort, time.strftime('%Y%m%d%H%M%S'))
+        record_file_name = '{}.{}.cast'.format(self.chan.host_ip, time.strftime('%Y%m%d%H%M%S'))
         record_file_path = os.path.join(record_path, record_file_name)
 
         header = {
@@ -64,9 +64,9 @@ class MyThread(threading.Thread):
         else:
             login_status_time = '{} s'.format(round(login_status_time))
 
-        fort_record.delay(login_user=self.chan.scope['user'], fort=self.chan.fort,
-                          remote_ip=self.chan.scope["client"][0], start_time=current_time,
-                          login_status_time=login_status_time, record_file=record_file_path.split('media/')[1])
+        ssh_record.delay(ssh_login_user=self.chan.scope['user'], ssh_server=self.chan.host_ip,
+                         ssh_remote_ip=self.chan.scope["client"][0], ssh_start_time=current_time,
+                         ssh_login_status_time=login_status_time, ssh_record_file=record_file_path.split('media/')[1])
 
     def send_msg(self, msg):
         async_to_sync(self.chan.channel_layer.group_send)(
@@ -78,24 +78,22 @@ class MyThread(threading.Thread):
         )
 
 
-class FortConsumer(WebsocketConsumer):
+class SSHConsumer(WebsocketConsumer):
     def connect(self):
         path = self.scope['path']
         server_id = path.split('/')[3]
-        fort_user_id = path.split('/')[4]
         host = ServerAssets.objects.select_related('assets').get(id=server_id)
-        fort_user = FortServerUser.objects.get(id=fort_user_id)
-        host_ip = host.assets.asset_management_ip
+        username = host.username
+        self.host_ip = host.assets.asset_management_ip
         host_port = int(host.port)
-        username = fort_user.fort_username
-        password = fort_user.fort_password
-        self.fort = r'{}@{}'.format(username, host_ip)
+        password = host.password
+
         # 创建channels group， 命名为：用户名，并使用channel_layer写入到redis
         async_to_sync(self.channel_layer.group_add)(self.channel_name, self.channel_name)
         self.ssh = paramiko.SSHClient()
         self.ssh.load_system_host_keys()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.ssh.connect(host_ip, host_port, username, password)
+        self.ssh.connect(self.host_ip, host_port, username, password)
         self.chan = self.ssh.invoke_shell(term='xterm')
         self.chan.settimeout(0)
         t1 = MyThread(self)
@@ -112,3 +110,4 @@ class FortConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(self.channel_name, self.channel_name)
+

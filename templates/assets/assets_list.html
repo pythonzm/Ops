@@ -200,6 +200,12 @@
                                         <a href="{% url 'get_host_graph' asset.id %}" target="_blank">
                                             <button type="button" class="btn btn-info btn-xs">监控</button>
                                         </a>
+                                        {% if request.user.is_superuser %}
+                                            <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
+                                                <button type="button" class="btn btn-info btn-xs"><i
+                                                        class="fa fa-fw fa-terminal"></i></button>
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
                                     <button type="button" class="btn btn-danger btn-xs"
                                             onclick="deleteAsset({{ asset.id }})">删除
@@ -413,7 +419,7 @@
                             }
                         }
                     };
-                    xhr.send('pks='+JSON.stringify(checkedID))
+                    xhr.send('pks=' + JSON.stringify(checkedID))
                 }
             {% else %}
                 $.alert({

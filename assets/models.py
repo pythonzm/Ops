@@ -60,7 +60,7 @@ class ServerAssets(models.Model):
     server_type = models.SmallIntegerField(choices=server_types, default=0, verbose_name='服务器类型')
 
     # 如果采用用户名密码认证方式，账户、密码、端口必填，采用密钥认证可不用填写
-    username = models.CharField(max_length=100, blank=True, null=True, verbose_name='用户名称')
+    username = models.CharField(max_length=100, blank=True, null=True, verbose_name='管理用户')
     auth_type = models.SmallIntegerField(choices=auth_types, default=0, verbose_name='认证方式')
     password = models.CharField(max_length=100, blank=True, null=True, verbose_name='用户密码')
     port = models.DecimalField(max_digits=6, decimal_places=0, blank=True, null=True, default=22, verbose_name='SSH端口')
@@ -293,3 +293,17 @@ class AssetsLog(models.Model):
         db_table = 'ops_assets_log'
         verbose_name = '资产管理操作记录表'
         verbose_name_plural = '资产管理操作记录表'
+
+
+class SSHRecord(models.Model):
+    ssh_login_user = models.ForeignKey('users.UserProfile', verbose_name='用户', on_delete=models.CASCADE)
+    ssh_server = models.CharField(max_length=32, verbose_name='登录主机')
+    ssh_remote_ip = models.GenericIPAddressField(verbose_name='远程地址')
+    ssh_start_time = models.CharField(max_length=64, verbose_name='开始时间')
+    ssh_login_status_time = models.CharField(max_length=16, verbose_name='登录时长')
+    ssh_record_file = models.CharField(max_length=256, verbose_name='操作记录')
+
+    class Meta:
+        db_table = 'ops_ssh_record'
+        verbose_name = '登录管理用户记录表'
+        verbose_name_plural = '登录管理用户记录表'

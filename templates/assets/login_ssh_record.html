@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <br>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="loginLogStartTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="开始时间">
+                        <span class="input-group-addon">
+										                    <span class="glyphicon glyphicon-calendar"></span>
+										                </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="loginLogEndTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="结束时间">
+                        <span class="input-group-addon" onclick="searchUserLog()">
+										                    <span class="glyphicon glyphicon-search"
+                                                                  style="cursor: pointer"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>登录主机</th>
+                            <th>远程地址</th>
+                            <th>开始时间</th>
+                            <th>登录时长</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for result in results %}
+
+                            <tr>
+                                <td>{{ result.ssh_login_user.username }}</td>
+                                <td>{{ result.ssh_server }}</td>
+                                <td>{{ result.ssh_remote_ip }}</td>
+                                <td>{{ result.ssh_start_time }}</td>
+                                <td>{{ result.ssh_login_status_time }}</td>
+                                <td>
+                                    <a onclick="window.open('{% url 'ssh_play' result.id %}','newwindow', 'height=600, width=800, top=400, left=400, toolbar=no, menubar=no, scrollbars=no, location=no, status=no')"
+                                       class="btn btn-xs btn-warning btn-replay">回放</a>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script>
+        $(function () {
+            table = $('#example1').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[3, "desc"]]
+            });
+
+            //Date picker
+            $('#loginLogStartTime, #loginLogEndTime').datepicker({
+                autoclose: true
+            });
+        });
+
+        // 按日期搜索
+        function searchUserLog() {
+            let startTime = $('#loginLogStartTime').val();
+            let endTime = $('#loginLogEndTime').val();
+            if (startTime.length === 0 || endTime.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请选择起始时间！'
+                });
+                return false;
+            }
+            $.ajax({
+                dataType: "JSON",
+                url: '{% url 'login_ssh_record' %}',
+                type: "POST",  //提交类似
+                data: {
+                    "startTime": startTime,
+                    "endTime": endTime,
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                },
+                success: function (response) {
+                    if (response.records.length === 0) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '该时间段内没有任何操作！'
+                        });
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '查询完成！'
+                        });
+                        table.clear().draw();
+                        for (let i = 0; i < response.records.length; i++) {
+                            let result = response.records[i];
+                            let counter = 1;
+                            table.row.add([
+                                result['ssh_login_user'],
+                                result['ssh_server'],
+                                result['ssh_remote_ip'],
+                                result['ssh_start_time'],
+                                result['ssh_login_status_time'],
+                                '<a onclick="window.open(\'/assets/ssh_play/' + result['id'] +  '/' + '\',\'newwindow\', \'height=600, width=800, top=400, left=400, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a>'
+                            ]).draw();
+                            counter++;
+                        }
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText
+                    });
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
+

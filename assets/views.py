@@ -313,3 +313,41 @@ def export_assets(request):
         except Exception as e:
             logger = logging.getLogger(__name__)
             logger.error('导出失败！{}'.format(e))
+
+
+def ssh_terminal(request, pk):
+    ssh_server_ip = ServerAssets.objects.get(id=pk).assets.asset_management_ip
+    return render(request, 'assets/ssh_terminal.html', locals())
+
+
+def login_ssh_record(request):
+    if request.method == 'GET':
+        results = SSHRecord.objects.select_related('ssh_login_user').all()
+        return render(request, 'assets/login_ssh_record.html', locals())
+    elif request.method == 'POST':
+        start_time = request.POST.get('startTime')
+        end_time = request.POST.get('endTime')
+        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+        end_time = new_end_time.strftime('%Y-%m-%d')
+        try:
+            records = []
+            search_records = SSHRecord.objects.select_related('ssh_login_user').filter(ssh_start_time__gt=start_time,
+                                                                                       ssh_start_time__lt=end_time)
+            for search_record in search_records:
+                record = {
+                    'id': search_record.id,
+                    'ssh_login_user': search_record.ssh_login_user.username,
+                    'ssh_server': search_record.ssh_server,
+                    'ssh_remote_ip': search_record.ssh_remote_ip,
+                    'ssh_start_time': search_record.ssh_start_time,
+                    'ssh_login_status_time': search_record.ssh_login_status_time
+                }
+                records.append(record)
+            return JsonResponse({'code': 200, 'records': records})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
+
+
+def ssh_play(request, pk):
+    record = SSHRecord.objects.select_related('ssh_login_user').get(id=pk)
+    return render(request, 'assets/ssh_play.html', locals())
