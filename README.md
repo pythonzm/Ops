@@ -58,7 +58,7 @@ rabbitmqctl set_permissions -p myvhost myuser ".*" ".*" ".*"
 cp conf/celeryd.conf /etc/default/celeryd
 ### 将配置文件里的内容按照实际情况更改
 
-cp conf/celeryd /etc/init.d/celeryd
+cp conf/celeryd.server /etc/init.d/celeryd
 /etc/init.d/celeryd start
 ```
 
