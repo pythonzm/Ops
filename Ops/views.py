@@ -48,10 +48,13 @@ def login(request):
     else:
         username = request.POST.get('username')
         password = request.POST.get('password')
+        remember_me = request.POST.get('remember_me')
         user = auth.authenticate(username=username, password=password)
         if user and user.is_active:
             auth.login(request, user)
             request.session['username'] = username
+            if remember_me is None:
+                request.session.set_expiry(0)
             UserProfile.objects.filter(username=username).update(
                 login_status=0
             )

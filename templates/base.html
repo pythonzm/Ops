@@ -389,25 +389,25 @@ desired effect
         <div class="tab-pane" id="control-sidebar-home-tab">
             <h3 class="control-sidebar-heading" style="text-align: center">用户列表</h3>
             <ul class="control-sidebar-menu" id="user-list" style="margin-left: 0">
-                {% for user in users %}
-                    {% if user.id != request.user.id %}
-                        <li data-username="{{ user.username }}">
+                {% for user_info in request.session.user_infos %}
+                    {% if user_info.user_id != request.user.id %}
+                        <li data-username="{{ user_info.username }}">
                             <a href="javascript:void(0)">
-                                {% if user.login_status == 0 %}
-                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                {% if user_info.login_status == 0 %}
+                                    <img src="{{ MEDIA_URL }}{{ user_info.user_image }}" class="menu-icon"
                                          alt="User Image" style="border: 2px solid #00a65a;">
-                                {% elif user.login_status == 1 %}
-                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                {% elif user_info.login_status == 1 %}
+                                    <img src="{{ MEDIA_URL }}{{ user_info.user_image }}" class="menu-icon"
                                          alt="User Image" style="border: 2px solid #ff0000;">
-                                {% elif user.login_status == 2 %}
-                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                {% elif user_info.login_status == 2 %}
+                                    <img src="{{ MEDIA_URL }}{{ user_info.user_image }}" class="menu-icon"
                                          alt="User Image" style="border: 2px solid #FFFF00;">
-                                {% elif user.login_status == 3 %}
-                                    <img src="{{ MEDIA_URL }}{{ user.image }}" class="menu-icon"
+                                {% elif user_info.login_status == 3 %}
+                                    <img src="{{ MEDIA_URL }}{{ user_info.user_image }}" class="menu-icon"
                                          alt="User Image" style="border: 2px solid #808080;">
                                 {% endif %}
                                 <div class="menu-info">
-                                    <h4 class="control-sidebar-subheading">{{ user.username }}</h4>
+                                    <h4 class="control-sidebar-subheading">{{ user_info.username }}</h4>
 
                                     <p>Will be 23 on April 24th</p>
                                 </div>
@@ -569,16 +569,19 @@ desired effect
         const msg = {
             from_user: '{{ user.username }}',
             to_user: username,
-            msg_body: $('#message').val()
+            msg_body: $('#message').val(),
+            current_time: new Date()
         };
-        $.ajax({
-            url: '{% url 'put_chat_msg' %}',
-            type: 'POST',
-            data: msg,
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-            },
-        })
+        $('#msg-list').append(`<div class="direct-chat-msg right">
+                    <div class="direct-chat-info clearfix">
+                        <span class="direct-chat-timestamp pull-left">${msg.current_time}</span>
+                    </div>
+                    <img class="direct-chat-img" src="${'{{ MEDIA_URL }}{{ user.image }}'}"
+                         alt="Message User Image">
+                    <div class="direct-chat-text">
+                        ${msg.msg_body}
+                    </div>
+                </div`)
     });
 
 

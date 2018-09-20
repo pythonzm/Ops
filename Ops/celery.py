@@ -12,7 +12,7 @@
 """
 import os
 from celery import Celery
-from kombu import Queue
+from kombu import Queue, Exchange
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Ops.settings')
@@ -21,9 +21,9 @@ app = Celery('Ops', broker='amqp://rabbitmq:rabbitmq@localhost:5672/myvhost')
 
 app.conf.task_default_queue = 'default'
 app.conf.task_queues = (
-    Queue('default', routing_key='default.#'),
-    Queue('ansible', routing_key='ansible.#'),
-    Queue('fort', routing_key='fort.#'),
+    Queue('default', Exchange('default', type='direct'), routing_key='default'),
+    Queue('ansible', Exchange('ansible', type='direct'), routing_key='ansible'),
+    Queue('fort', Exchange('fort', type='direct'), routing_key='fort'),
 )
 task_default_exchange = 'default'
 task_default_exchange_type = 'direct'

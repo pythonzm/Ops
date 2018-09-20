@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from users.tasks import users_record
@@ -88,6 +89,18 @@ class RecordMiddleware(MiddlewareMixin):
                                 post_data['ansibleModule'] != ['custom'] else ''.join(post_data['customModule']),
                                 ans_args=''.join(post_data['ansibleModuleArgs']),
                                 ans_server=ans_server, ans_result=res)
+        elif request.method == 'GET' and response.status_code == 200:
+            user_infos = []
+            users = UserProfile.objects.all()
+            for user in users:
+                user_info = {
+                    'user_id': user.id,
+                    'username': user.username,
+                    'user_image': str(user.image),
+                    'login_status': user.login_status
+                }
+                user_infos.append(user_info)
+            request.session['user_infos'] = user_infos
         return response
 
     @staticmethod
