@@ -79,7 +79,7 @@ python manage.py runserver 0.0.0.0:8000
 ### 添加用户以及分配用户权限(采用的django自带的权限系统)等，用户组同理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_user.png)
 
-### 个人中心，功能包括：修改头像、修改密码、修改手机号和一个建议日程安排
+### 个人中心，功能包括：修改头像、修改密码、修改手机号和一个简易日程安排
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_center.png)
 
 ### 资产概览
