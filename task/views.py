@@ -16,7 +16,7 @@ def gen_resource(host_ids, group_ids=None):
         host = {}
         host_obj = ServerAssets.objects.get(id=host_id)
         host['ip'] = host_obj.assets.asset_management_ip
-        host['port'] = host_obj.port
+        host['port'] = int(host_obj.port)
         host['username'] = host_obj.username
         host['password'] = CryptPwd().decrypt_pwd(host_obj.password)
         if host_obj.host_vars:
@@ -67,9 +67,9 @@ def run_module(request):
                 ans.run_module(host_list=host_list, module_name=module_name, module_args=module_args)
                 res = ans.get_model_result()
 
-                return JsonResponse({'msg': res})
+                return JsonResponse({'code': 200, 'msg': res})
             except Exception as e:
-                return JsonResponse({'msg': ['任务执行失败：{}'.format(e)]})
+                return JsonResponse({'code': 500, 'msg': ['任务执行失败：{}'.format(e)]})
             finally:
                 redis_conn.delete(unique_key)
     inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')

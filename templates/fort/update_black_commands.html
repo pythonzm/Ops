@@ -1,0 +1,65 @@
+<!-- updateBlackCommands  -->
+<div class="modal fade" id="updateBlackCommands" tabindex="-1" role="dialog"
+     aria-labelledby="updateBlackCommandsLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="updateBlackCommandsLabel">
+                    配置统一禁用命令
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="update-black-commands">
+                    <div class="form-group">
+                        <p class="text-red">*这里配置的是统一禁用的命令，若要给某个用户设置特定的禁用命令，请到用户信息中修改，添加新的命令使用逗号隔开，建议添加命令的全路径</p>
+                        <label for="black_commands" class="col-sm-2 control-label">禁用命令清单</label>
+                        <div class="col-sm-6">
+                                    <textarea class="form-control" name="black_commands" id="black_commands"
+                                              rows="8">{{ black_commands.black_commands }}</textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="updateBlackCommands()">
+                    更新
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<script>
+
+    // 更新禁用命令
+    function updateBlackCommands() {
+        $.ajax({
+            url: '{% url 'fort_server' %}',
+            type: 'POST',
+            data: {black_commands: $('#black_commands').val()},
+            async: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+            },
+            success: function (res) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'green',
+                    content: res.msg,
+                })
+            },
+            error: function (res) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: res.msg,
+                })
+            }
+        })
+    }
+</script>

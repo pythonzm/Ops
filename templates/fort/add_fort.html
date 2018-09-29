@@ -1,0 +1,96 @@
+<!-- addFortModal  -->
+<div class="modal fade" id="addFortModal" tabindex="-1" role="dialog"
+     aria-labelledby="addFortModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="addFortModalLabel">
+                    新增主机
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="add_fort" class="main form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="server" class="col-sm-2 control-label">主机</label>
+                            <div class="col-sm-6">
+                                <select class="form-control select2" id="server" name="server" multiple="multiple"
+                                        style="width: 100%;">
+                                    {% for host in hosts %}
+                                        <option value="{{ host.id }}">{{ host.assets.asset_management_ip }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="server_status" class="col-sm-2 control-label">状态</label>
+                            <div class="col-sm-6">
+                                <select class="form-control select2" id="server_status" name="server_status"
+                                        style="width: 100%;">
+                                    {% for status in server_status %}
+                                        <option value="{{ status.0 }}">{{ status.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-24"></div>
+
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="addFort()">添加
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<script>
+
+    // 添加主机
+    function addFort() {
+        {% if perms.fort.add_fortserver %}
+            const data = {
+                server_list: $('#add_fort #server').val(),
+                server_status: $('#add_fort #server_status').val(),
+            };
+            for (let i = 0; i < data.server_list.length; i++) {
+                $.ajax({
+                    url: '/api/fort/',
+                    type: 'POST',
+                    data: JSON.stringify({server: data.server_list[i], server_status: data.server_status}),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+                    },
+                    success: function () {
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                });
+            }
+        {% else %}
+            $.alert({
+                title: 'Tips',
+                type: 'red',
+                content: '抱歉！您没有添加主机的权限！如有疑问，请联系管理员！',
+            });
+        {% endif %}
+
+    }
+</script>

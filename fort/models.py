@@ -36,6 +36,7 @@ class FortServerUser(models.Model):
     fort_key_file = models.TextField(null=True, blank=True, verbose_name='私钥内容')
     fort_belong_user = models.ManyToManyField('users.UserProfile', blank=True, verbose_name='所属用户')
     fort_belong_group = models.ManyToManyField('auth.Group', blank=True, verbose_name='所属组')
+    fort_black_commands = models.TextField(null=True, blank=True, verbose_name='禁用命令清单')
     fort_user_memo = models.TextField(null=True, blank=True, verbose_name='用户说明')
 
     class Meta:
@@ -43,6 +44,17 @@ class FortServerUser(models.Model):
         verbose_name = '堡垒机用户表'
         verbose_name_plural = '堡垒机用户表'
         unique_together = ('fort_server', 'fort_username')
+
+
+class FortBlackCommand(models.Model):
+    black_commands = models.TextField(verbose_name='默认禁用命令清单',
+                                      default='/bin/rm, /sbin/reboot, /sbin/halt, /sbin/shutdown, /usr/bin/passwd, '
+                                              '/bin/su, /sbin/init, /bin/chmod, /bin/chown')
+
+    class Meta:
+        db_table = 'ops_fort_black_command'
+        verbose_name = '禁用命令清单表'
+        verbose_name_plural = '禁用命令清单表'
 
 
 class FortRecord(models.Model):

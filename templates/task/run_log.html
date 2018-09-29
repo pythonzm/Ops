@@ -91,7 +91,7 @@
                                             <td>{{ info.ans_user }}</td>
                                             <td>{{ info.ans_remote_ip }}</td>
                                             <td>{{ info.ans_module }}</td>
-                                            <td>{{ info.ans_args }}</td>
+                                            <td>{{ info.ans_args|slice:":50" }}</td>
                                             <td>{{ info.ans_server }}</td>
                                             <td>{{ info.ans_datetime|date:"Y-m-d H:i:s" }}</td>
                                             <td>

@@ -1,16 +1,44 @@
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render
-from fort.models import FortServer, FortServerUser, FortRecord
+from fort.models import *
 from assets.models import ServerAssets
 from django.contrib.auth.models import Group
 from users.models import UserProfile
 import datetime
+from task.views import gen_resource
+from task.utils.ansible_api_v2 import ANSRunner
 
 
 def fort_server(request):
     fort_servers = FortServer.objects.select_related('server')
+    black_commands, created = FortBlackCommand.objects.get_or_create(id=1)
     fort_users = FortServerUser.objects.select_related('fort_server')
+    if request.method == 'POST':
+        try:
+            new_black_commands = request.POST.get('black_commands')
+            FortBlackCommand.objects.filter(id=1).update(black_commands=new_black_commands)
+
+            if fort_users.count() > 0:
+
+                old_format_commands = format_commands(black_commands.black_commands)
+                new_format_commands = format_commands(new_black_commands)
+
+                for fort_server_obj in fort_servers:
+                    sudo_users = [user.fort_username for user in fort_server_obj.fortserveruser_set.all()]
+
+                    resource = gen_resource(list(str(fort_server_obj.server.id)))
+                    ans = ANSRunner(resource)
+                    ans.run_module(host_list=fort_server_obj.server.assets.asset_management_ip,
+                                   module_name='shell',
+                                   module_args=r"cd /etc/sudoers.d/ && sed -i 's@{}@{}@' {}".format(old_format_commands,
+                                                                                                    new_format_commands,
+                                                                                                    ' '.join(
+                                                                                                        sudo_users)))
+            return JsonResponse({'code': 200, 'msg': '更新成功！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '更新失败！：{}'.format(e)})
+
     hosts = ServerAssets.objects.select_related('assets')
     server_status = FortServer.server_status_
     fort_user_status = FortServerUser.fort_user_status_
@@ -18,6 +46,13 @@ def fort_server(request):
     users = UserProfile.objects.all()
     groups = Group.objects.all()
     return render(request, 'fort/fort_server.html', locals())
+
+
+def format_commands(commands):
+    command_list = []
+    for command in commands.split(','):
+        command_list.append('!' + command.strip())
+    return ','.join(command_list)
 
 
 def ssh_list(request):

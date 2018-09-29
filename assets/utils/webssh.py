@@ -9,6 +9,7 @@ from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets
 from Ops import settings
 from assets.tasks import ssh_record
+from utils.crypt_pwd import CryptPwd
 
 
 class MyThread(threading.Thread):
@@ -86,7 +87,7 @@ class SSHConsumer(WebsocketConsumer):
         username = host.username
         self.host_ip = host.assets.asset_management_ip
         host_port = int(host.port)
-        password = host.password
+        password = CryptPwd().decrypt_pwd(host.password)
 
         # 创建channels group， 命名为：用户名，并使用channel_layer写入到redis
         async_to_sync(self.channel_layer.group_add)(self.channel_name, self.channel_name)

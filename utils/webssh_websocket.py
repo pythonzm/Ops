@@ -15,12 +15,16 @@ class MyThread(threading.Thread):
     def __init__(self, chan):
         super(MyThread, self).__init__()
         self.chan = chan
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
 
     def run(self):
         start_time = time.time()
         stdout = []
         current_time = time.strftime(settings.TIME_FORMAT)
-        while not self.chan.chan.exit_status_ready():
+        while not self._stop_event.is_set():
             try:
                 data = self.chan.chan.recv(1024)
                 if data:
@@ -31,6 +35,7 @@ class MyThread(threading.Thread):
                 pass
         self.send_msg('\r\n已成功登出，刷新页面重新登录，关闭页面断开连接')
         self.chan.ssh.close()
+        self.stop()
 
         record_path = os.path.join(settings.MEDIA_ROOT, 'fort_records', self.chan.scope['user'].username,
                                    time.strftime('%Y-%m-%d'))
@@ -98,9 +103,9 @@ class FortConsumer(WebsocketConsumer):
         self.ssh.connect(host_ip, host_port, username, password)
         self.chan = self.ssh.invoke_shell(term='xterm')
         self.chan.settimeout(0)
-        t1 = MyThread(self)
-        t1.setDaemon(True)
-        t1.start()
+        self.t1 = MyThread(self)
+        self.t1.setDaemon(True)
+        self.t1.start()
         # 返回给receive方法处理
         self.accept()
 
@@ -111,4 +116,5 @@ class FortConsumer(WebsocketConsumer):
         self.send(text_data=event["text"])
 
     def disconnect(self, close_code):
+        self.t1.stop()
         async_to_sync(self.channel_layer.group_discard)(self.channel_name, self.channel_name)
