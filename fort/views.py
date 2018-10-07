@@ -8,8 +8,10 @@ from users.models import UserProfile
 import datetime
 from task.views import gen_resource
 from task.utils.ansible_api_v2 import ANSRunner
+from django.contrib.auth.decorators import permission_required
 
 
+@permission_required('Ops.add_fortserver', raise_exception=True)
 def fort_server(request):
     fort_servers = FortServer.objects.select_related('server')
     black_commands, created = FortBlackCommand.objects.get_or_create(id=1)
@@ -17,7 +19,6 @@ def fort_server(request):
     if request.method == 'POST':
         try:
             new_black_commands = request.POST.get('black_commands')
-            FortBlackCommand.objects.filter(id=1).update(black_commands=new_black_commands)
 
             if fort_users.count() > 0:
 
@@ -35,7 +36,16 @@ def fort_server(request):
                                                                                                     new_format_commands,
                                                                                                     ' '.join(
                                                                                                         sudo_users)))
-            return JsonResponse({'code': 200, 'msg': '更新成功！'})
+                    res = ans.get_model_result()[0]
+                    if 'success' in res:
+                        FortBlackCommand.objects.filter(id=1).update(black_commands=new_black_commands)
+                        return JsonResponse({'code': 200, 'msg': '更新成功！'})
+                    else:
+                        return JsonResponse({'code': 500, 'msg': '{}ansible更新失败！：{}'.format(
+                            fort_server_obj.server.assets.asset_management_ip, res)})
+            else:
+                FortBlackCommand.objects.filter(id=1).update(black_commands=new_black_commands)
+                return JsonResponse({'code': 200, 'msg': '更新成功！'})
         except Exception as e:
             return JsonResponse({'code': 500, 'msg': '更新失败！：{}'.format(e)})
 
@@ -55,6 +65,7 @@ def format_commands(commands):
     return ','.join(command_list)
 
 
+@permission_required('Ops.add_fortserveruser', raise_exception=True)
 def ssh_list(request):
     user = UserProfile.objects.get(username=request.user)
     groups = user.groups.all()
@@ -64,12 +75,14 @@ def ssh_list(request):
     return render(request, 'fort/ssh_list.html', locals())
 
 
+@permission_required('Ops.ssh_fortserver', raise_exception=True)
 def terminal(request, server_id, fort_user_id):
     server_ip = ServerAssets.objects.select_related('assets').get(id=server_id).assets.asset_management_ip
     fort_username = FortServerUser.objects.get(id=fort_user_id).fort_username
     return render(request, 'fort/terminal.html', locals())
 
 
+@permission_required('Ops.add_fortrecord', raise_exception=True)
 def login_fort_record(request):
     if request.method == 'GET':
         results = FortRecord.objects.select_related('login_user').all()
@@ -98,6 +111,7 @@ def login_fort_record(request):
             return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
 
 
+@permission_required('Ops.change_fortrecord', raise_exception=True)
 def record_play(request, pk):
     record = FortRecord.objects.select_related('login_user').get(id=pk)
     return render(request, 'fort/record_play.html', locals())

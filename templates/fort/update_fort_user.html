@@ -173,9 +173,9 @@
 
     // 更新用户
     function updateFortUser(fort_user_id, server_id) {
-        {% if perms.fortserveruser.change_fortserveruser %}
+        {% if perms.fort.change_fortserveruser %}
             let fort_username = $('#updateFortUserModal-' + fort_user_id + ' #fort_username').val();
-            let fort_black_commands = $('#updateFortUserModal-' + fort_user_id + ' #fort_black_commands').val()
+            let fort_black_commands = $('#updateFortUserModal-' + fort_user_id + ' #fort_black_commands').val();
             let black_commands = gen_sudo_conf(fort_black_commands);
             let data = {
                 fort_server: $('#updateFortUserModal-' + fort_user_id + ' #fort_server').val(),
@@ -199,10 +199,6 @@
                 url: '{% url 'run_module' %}',
                 type: 'POST',
                 data: ansible_data,
-                async: false,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function (res) {
                     if (res.msg[0].indexOf('success') !== -1) {
                         $.ajax({
@@ -211,9 +207,6 @@
                             data: JSON.stringify(data),
                             dataType: 'json',
                             contentType: "application/json",
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                            },
                             success: function () {
                                 window.location.reload();
                             },
@@ -271,18 +264,10 @@
                             url: '{% url 'run_module' %}',
                             type: 'POST',
                             data: ansible_data,
-                            async: false,
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                            },
                             success: function () {
                                 $.ajax({
                                     url: '/api/fort_user/' + user_id + '/',
                                     method: 'DELETE',
-                                    async: false,
-                                    beforeSend: function (xhr) {
-                                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                    },
                                     success: function () {
                                         window.location.reload()
                                     },

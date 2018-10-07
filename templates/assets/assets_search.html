@@ -25,10 +25,6 @@
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
 {% endblock %}
 
-{% block content-header %}
-    <h1>资产列表</h1>
-{% endblock %}
-
 {% block content %}
 
     <div class="row">
@@ -204,6 +200,12 @@
                                         <a href="{% url 'get_host_graph' asset.id %}" target="_blank">
                                             <button type="button" class="btn btn-info btn-xs">监控</button>
                                         </a>
+                                        {% if request.user.is_superuser %}
+                                            <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
+                                                <button type="button" class="btn btn-info btn-xs"><i
+                                                        class="fa fa-fw fa-terminal"></i></button>
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
                                     <button type="button" class="btn btn-danger btn-xs"
                                             onclick="deleteAsset({{ asset.id }})">删除
@@ -297,9 +299,6 @@
                             $.ajax({
                                 url: '/api/assets/' + id,
                                 method: 'DELETE',
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                },
                                 success: function () {
                                     let str = 'asset-' + id;
                                     document.getElementById(str).innerHTML = '';
@@ -352,9 +351,6 @@
                                     $.ajax({
                                         url: '/api/assets/' + checkedID[i],
                                         method: 'DELETE',
-                                        beforeSend: function (xhr) {
-                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                        },
                                         success: function () {
                                             let str = 'asset-' + checkedID[i];
                                             document.getElementById(str).innerHTML = '';
@@ -418,7 +414,7 @@
                             }
                         }
                     };
-                    xhr.send('pks='+JSON.stringify(checkedID))
+                    xhr.send('pks=' + JSON.stringify(checkedID))
                 }
             {% else %}
                 $.alert({
@@ -440,9 +436,6 @@
                     url: "{% url 'server_facts' %}",
                     type: "POST",
                     data: data,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (res) {
                         $.alert({
                             title: 'Tips',
@@ -478,9 +471,6 @@
                     url: "{% url 'server_facts' %}",
                     type: "POST",
                     data: data,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (res) {
                         $.alert({
                             title: 'Tips',
@@ -518,9 +508,6 @@
                     processData: false,
                     // 告诉jQuery不要去设置Content-Type请求头
                     contentType: false,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (responseStr) {
                         $.confirm({
                             title: 'Tips!',

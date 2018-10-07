@@ -355,7 +355,9 @@
 
         // Initialize Select2 Elements
         $(function () {
-            $('.select2').select2()
+            $('.select2').select2({
+                allowClear: true
+            })
         });
 
         // iCheck for checkbox inputs
@@ -396,9 +398,6 @@
                             $.ajax({
                                 url: '/api/users/' + id,
                                 method: 'DELETE',
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                },
                                 success: function () {
                                     let str = 'user-' + id;
                                     document.getElementById(str).innerHTML = '';
@@ -451,9 +450,6 @@
                                     $.ajax({
                                         url: '/api/users/' + checkedID[i],
                                         method: 'DELETE',
-                                        beforeSend: function (xhr) {
-                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                        },
                                         success: function () {
                                             let str = 'user-' + checkedID[i];
                                             document.getElementById(str).innerHTML = '';
@@ -491,9 +487,6 @@
                 url: '{% url 'create_user' %}',
                 method: 'POST',
                 data: data,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function (response) {
                     $.confirm({
                         title: 'Tips',
@@ -532,9 +525,6 @@
                 data: JSON.stringify(data),
                 dataType: 'json',
                 contentType: "application/json",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function () {
                     window.location.reload();
                 },
@@ -560,9 +550,6 @@
                             $.ajax({
                                 url: '/users/reset_password/' + id,
                                 method: 'POST',
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                },
                                 success: function (res) {
                                     $.alert({
                                         title: 'Tips',

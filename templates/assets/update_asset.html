@@ -374,17 +374,11 @@
                     data: JSON.stringify(data.assets),
                     dataType: 'json',
                     contentType: "application/json",
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function () {
                         $.ajax({
                             url: '{% url 'update_asset' asset_type=asset.asset_type pk=asset.id %}',
                             data: $('#update_asset').serialize(),
                             type: 'POST',
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                            },
                             success: function (res) {
                                 $.alert({
                                     title: 'Tips',

@@ -1,6 +1,6 @@
 <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
-    <button class="btn btn-sm btn-success pull-left" data-toggle="modal"
-            data-target="#addGroupModal">
+    <button class="btn btn-sm btn-success pull-left" data-toggle="modal" id="add-ans-group"
+            data-target="#AnsGroupModal">
         <i class="fa fa-plus-square"></i>
         <span class="bigger-110">新增主机组</span>
     </button>
@@ -23,7 +23,7 @@
                 </thead>
                 <tbody>
                 {% for group in inventory %}
-                    <tr id="group-{{ group.id }}">
+                    <tr>
                         <td>{{ group.ans_group_name }}</td>
                         <td>
                             {% for foo in group.ans_group_hosts.all %}
@@ -34,83 +34,13 @@
                         <td>{{ group.ans_group_memo }}</td>
                         <td>{{ group.ans_group_datetime|date:"Y-m-d H:i:s" }}</td>
                         <td>
-                            <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
-                                    data-target="#updateGroupModal-{{ group.id }}">修改
+                            <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="{{ group.id }}"
+                                    data-target="#AnsGroupModal">修改
                             </button>
-                            <button type="button" class="btn btn-danger btn-xs"
-                                    onclick="deleteGroup({{ group.id }})">删除
+                            <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ group.id }}">删除
                             </button>
                         </td>
                     </tr>
-                    <!-- updateGroupModal  -->
-                    <div class="modal fade" id="updateGroupModal-{{ group.id }}" tabindex="-1" role="dialog"
-                         aria-labelledby="updateGroupModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal"
-                                            aria-hidden="true">
-                                        &times;
-                                    </button>
-                                    <h4 class="modal-title" id="updateGroupModalLabel">
-                                        主机组信息
-                                    </h4>
-                                </div>
-                                <div class="modal-body">
-                                    <form class="main form-horizontal" id="update-group">
-                                        <fieldset>
-                                            <div class="form-group">
-                                                <label for="ans_group_name">主机组名称</label>
-                                                <input id="ans_group_name" name="ans_group_name"
-                                                       class="form-control" type="text"
-                                                       value="{{ group.ans_group_name }}">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="ans_group_hosts">组内主机</label>
-                                                <select class="form-control select2" multiple="multiple"
-                                                        id="ans_group_hosts" name="ans_group_hosts"
-                                                        style="width: 100%;">
-                                                    {% for host in hosts %}
-                                                        {% if host in group.ans_group_hosts.all %}
-                                                            <option value="{{ host.id }}"
-                                                                    selected>{{ host.assets.asset_management_ip }}</option>
-                                                        {% else %}
-                                                            <option value="{{ host.id }}">{{ host.assets.asset_management_ip }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="ans_group_vars">主机组变量</label>
-                                                <input id="ans_group_vars" name="ans_group_vars"
-                                                       class="form-control" type="text"
-                                                       value="{{ group.ans_group_vars }}">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="ans_group_memo">主机组描述</label>
-                                                <textarea id="ans_group_memo" name="ans_group_memo"
-                                                          class="form-control">{{ group.ans_group_memo }}</textarea>
-                                            </div>
-
-                                            <div class="space-24"></div>
-                                        </fieldset>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default"
-                                            data-dismiss="modal">关闭
-                                    </button>
-                                    <button type="button" class="btn btn-primary"
-                                            data-dismiss="modal"
-                                            onclick="updateGroup({{ group.id }})">确认修改
-                                    </button>
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
-                    </div>
                 {% endfor %}
                 </tbody>
             </table>
@@ -119,9 +49,9 @@
     </div>
     <!-- /.box -->
 
-    <!-- addGroupModal  -->
-    <div class="modal fade" id="addGroupModal" tabindex="-1" role="dialog"
-         aria-labelledby="addGroupModalLabel"
+    <!-- AnsGroupModal  -->
+    <div class="modal fade" id="AnsGroupModal" tabindex="-1" role="dialog"
+         aria-labelledby="AnsGroupModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -129,12 +59,12 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                         &times;
                     </button>
-                    <h4 class="modal-title" id="addGroupModalLabel">
-                        新增主机组
+                    <h4 class="modal-title" id="AnsGroupModalLabel">
+
                     </h4>
                 </div>
                 <div class="modal-body">
-                    <form id="add_group" class="main form-horizontal">
+                    <form id="ans_group_info" class="main form-horizontal">
                         <fieldset>
                             <div class="form-group">
                                 <label for="ans_group_name" class="col-sm-2 control-label">主机组名称</label>
@@ -179,110 +109,10 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
-                    </button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="addGroup()">添加
-                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="ans_group_ops"></button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
 </div>
-
-
-<script>
-
-    // 添加主机组
-    function addGroup() {
-        let data = {
-            ans_group_name: $('#addGroupModal #ans_group_name').val(),
-            ans_group_hosts: $('#addGroupModal #ans_group_hosts').val(),
-            ans_group_vars: $('#addGroupModal #ans_group_vars').val(),
-            ans_group_memo: $('#addGroupModal #ans_group_memo').val(),
-        };
-        $.ajax({
-            url: '/api/inventory/',
-            type: 'POST',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: "application/json",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-            },
-            success: function () {
-                window.location.reload();
-            },
-            error: function (response) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: response.responseText,
-                })
-            }
-        })
-    }
-
-    // 更新主机组
-    function updateGroup(id) {
-        let data = {
-            ans_group_name: $('#updateGroupModal-' + id + ' #ans_group_name').val(),
-            ans_group_hosts: $('#updateGroupModal-' + id + ' #ans_group_hosts').val(),
-            ans_group_vars: $('#updateGroupModal-' + id + ' #ans_group_vars').val(),
-            ans_group_memo: $('#updateGroupModal-' + id + ' #ans_group_memo').val(),
-        };
-        $.ajax({
-            url: '/api/inventory/' + id + '/',
-            type: 'PUT',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: "application/json",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-            },
-            success: function () {
-                window.location.reload();
-            },
-            error: function (response) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: response.responseText,
-                })
-            }
-        })
-    }
-
-    // 删除主机组
-    function deleteGroup(id) {
-        $.confirm({
-            title: 'Tips',
-            content: '确定要删除主机组么？',
-            type: 'red',
-            buttons: {
-                Ok: function () {
-                    $.ajax({
-                        url: '/api/inventory/' + id + '/',
-                        method: 'DELETE',
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                        },
-                        success: function () {
-                            let str = 'group-' + id;
-                            document.getElementById(str).innerHTML = '';
-                        },
-                        error: function (data) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: '删除失败！' + data.responseText,
-                            })
-                        }
-                    })
-                },
-                Cancel: function () {
-                    // 取消
-                }
-            }
-        })
-    }
-</script>

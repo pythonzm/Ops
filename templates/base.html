@@ -280,9 +280,12 @@ desired effect
                             <li><a href="{% url 'add_base_asset' %}"><i class="fa fa-wrench"></i>基础配置</a></li>
                             <li><a href="{% url 'add_asset' %}"><i class="fa fa-plus-square"></i>新增资产</a></li>
                             <li><a href="{% url 'assets_list' %}"><i class="fa fa-list"></i>资产列表</a></li>
-                            <li><a href="{% url 'assets_log' %}"><i class="fa fa-user-secret"></i>操作记录</a></li>
+                            {% if perms.assets.delete_assetslog %}
+                                <li><a href="{% url 'assets_log' %}"><i class="fa fa-user-secret"></i>操作记录</a></li>
+                            {% endif %}
                             {% if perms.assets.change_sshrecord %}
-                                <li><a href="{% url 'login_ssh_record' %}"><i class="fa fa-user-secret"></i> WebSSH日志</a>
+                                <li><a href="{% url 'login_ssh_record' %}"><i class="fa fa-user-secret"></i>
+                                    WebSSH日志</a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -303,7 +306,7 @@ desired effect
                         </ul>
                     </li>
                 {% endif %}
-                {% if perms.fort.view_fort %}
+                {% if perms.fort.view_fortserver %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-terminal"></i> <span>连接管理</span>
                             <span class="pull-right-container">
@@ -311,10 +314,14 @@ desired effect
                         </span>
                         </a>
                         <ul class="treeview-menu">
-                            {% if perms.fort.change_fort %}
+                            {% if perms.fort.add_fortserver %}
                                 <li><a href="{% url 'fort_server' %}"><i class="fa fa-street-view"></i> 主机用户配置</a></li>
                             {% endif %}
-                            <li><a href="{% url 'ssh_list' %}"><i class="fa fa-location-arrow"></i> 终端连接</a></li>
+
+                            {% if perms.fort.ssh_fortserver %}
+                                <li><a href="{% url 'ssh_list' %}"><i class="fa fa-location-arrow"></i> 终端连接</a></li>
+                            {% endif %}
+
                             {% if perms.fort.change_fortrecord %}
                                 <li><a href="{% url 'login_fort_record' %}"><i class="fa fa-user-secret"></i> 登录日志</a>
                                 </li>
@@ -476,6 +483,13 @@ desired effect
         </div>
         <!-- /.box-footer-->
     </div>
+
+    <!-- Loading-image -->
+    <div id="loading-image"
+         style="position: fixed;top: 0;right: 0;bottom: 0;left: 0;z-index: 1050;display: none;overflow: hidden;background: rgba(0,0,0,0.3);">
+        <img src="{% static 'spinner.svg' %}" style="position: relative; top: 40%; left: 50%">
+    </div>
+
 </div>
 <!-- ./wrapper -->
 
@@ -503,6 +517,20 @@ desired effect
 
 <script>
 
+    $(document).ajaxStart(function () {
+        $('#loading-image').show();
+    });
+
+    $(document).ajaxSend(function (event, request, url) {
+        if (!(url.type in ['GET', 'get'])) {
+            request.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
+        }
+    });
+
+    $(document).ajaxComplete(function () {
+        $('#loading-image').hide();
+    });
+
     $(function () {
         toastr.options = {
             "closeButton": false,
@@ -520,34 +548,8 @@ desired effect
             "hideEasing": "linear",
             "showMethod": "fadeIn",
             "hideMethod": "fadeOut"
-        }
+        };
     });
-
-    /*
-    $(function () {
-        {% if request.user.login_status == 0 or request.user.login_status == 2 %}
-            const interval = setInterval(function () {
-                Pace.ignore(function () {
-                    $.ajax({
-                        url: '{% url 'get_chat_msg' %}',
-                        type: 'GET',
-                        success: function (result) {
-                            if (result.msg !== null) {
-                                msg = JSON.parse(result.msg);
-                                toastr["info"](msg.msg_body, 'From: ' + msg.from_user + '&nbsp;&nbsp;&nbsp;&nbsp;' + msg.msg_time)
-                            }
-                        },
-                        error: function (result) {
-                            alert(result.responseText);
-                            clearInterval(interval);
-                        }
-                    });
-                });
-            }, 3000);
-        {% else %}
-            clearInterval(interval);
-        {% endif %}
-    });*/
 
     $('#user-list').on('click', 'li', function () {
         const username = $(this).attr('data-username');

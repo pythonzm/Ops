@@ -131,9 +131,6 @@
                             $.ajax({
                                 url: '/api/user_log/' + pk + '/',
                                 method: 'DELETE',
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                },
                                 success: function () {
                                     table.row(tr_obj).remove().draw();
                                 },
@@ -179,9 +176,6 @@
                 data: {
                     "startTime": startTime,
                     "endTime": endTime,
-                },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
                 },
                 success: function (response) {
                     if (response.records.length === 0) {

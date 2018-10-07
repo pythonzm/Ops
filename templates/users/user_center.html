@@ -379,9 +379,6 @@
                                                 },
                                                 type: 'POST',
                                                 dataType: 'json',
-                                                beforeSend: function (xhr) {
-                                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                                },
                                                 success: function (data) {
                                                     $("#calendar").fullCalendar("renderEvent", data['data'], true);
                                                 },
@@ -413,9 +410,6 @@
                                     },
                                     type: 'POST',
                                     dataType: 'json',
-                                    beforeSend: function (xhr) {
-                                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                    },
                                     success: function (data) {
                                         $("#calendar").fullCalendar("renderEvent", data['data'], true);
                                     },
@@ -456,9 +450,6 @@
                                             },
                                             type: 'POST',
                                             dataType: 'json',
-                                            beforeSend: function (xhr) {
-                                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                            },
                                             success: function (data) {
                                                 $.alert({
                                                     title: 'Tips',
@@ -494,9 +485,6 @@
                     url: '{% url 'user_center' %}',
                     type: 'POST',
                     data: obj.serialize(),
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (response) {
                         if (response['code'] === 200) {
                             $.confirm({
@@ -538,9 +526,6 @@
                     url: '{% url 'user_center' %}',
                     type: 'POST',
                     data: obj.serialize(),
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (response) {
                         $.alert({
                             title: 'Tips',
@@ -615,9 +600,6 @@
                             dataType: 'JSON',
                             processData: false,
                             contentType: false,
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                            },
                             xhr: function () {
                                 return new XMLHttpRequest();
                             },

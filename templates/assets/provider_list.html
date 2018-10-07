@@ -1,6 +1,6 @@
 <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
-    <button class="btn btn-sm btn-success pull-left" data-toggle="modal"
-            data-target="#addProviderModal">
+    <button class="btn btn-sm btn-success pull-left" data-toggle="modal" id="add-provider"
+            data-target="#ProviderModal">
         <i class="fa fa-plus-square"></i>
         <span class="bigger-110">新增供应商</span>
     </button>
@@ -22,83 +22,21 @@
                 </thead>
                 <tbody>
                 {% for asset_provider in asset_providers %}
-                    <tr id="provider-{{ asset_provider.id }}">
+                    <tr>
                         <td>{{ asset_provider.id }}</td>
                         <td>{{ asset_provider.asset_provider_name }}</td>
                         <td>{{ asset_provider.asset_provider_contact }}</td>
                         <td>{{ asset_provider.asset_provider_telephone }}</td>
                         <td>{{ asset_provider.asset_provider_memo }}</td>
                         <td>
-                            <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
-                                    data-target="#updateProviderModal-{{ asset_provider.id }}">修改
+                            <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                    data-id="{{ asset_provider.id }}" data-target="#ProviderModal">修改
                             </button>
-                            <button type="button" class="btn btn-danger btn-xs"
-                                    onclick="deleteProvider({{ asset_provider.id }})">删除
+                            <button type="button" class="btn btn-danger btn-xs delete"
+                                    data-id="{{ asset_provider.id }}">删除
                             </button>
                         </td>
                     </tr>
-
-                    <!-- updateProviderModal  -->
-                    <div class="modal fade" id="updateProviderModal-{{ asset_provider.id }}" tabindex="-1"
-                         role="dialog"
-                         aria-labelledby="updateProviderModalLabel"
-                         aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal"
-                                            aria-hidden="true">
-                                        &times;
-                                    </button>
-                                    <h4 class="modal-title" id="updateProviderModalLabel">
-                                        供应商信息
-                                    </h4>
-                                </div>
-                                <div class="modal-body">
-                                    <form class="main form-horizontal" id="update-provider">
-                                        <fieldset>
-                                            <div class="form-group">
-                                                <label for="asset_provider_name">供应商名称</label>
-                                                <input id="asset_provider_name" name="asset_provider_name"
-                                                       class="form-control" type="text"
-                                                       value="{{ asset_provider.asset_provider_name }}">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="asset_provider_contact">供应商联系人</label>
-                                                <input id="asset_provider_contact" name="asset_provider_contact"
-                                                       class="form-control" type="text"
-                                                       value="{{ asset_provider.asset_provider_contact }}">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="asset_provider_telephone">支持电话</label>
-                                                <input id="asset_provider_telephone" name="asset_provider_telephone"
-                                                       class="form-control" type="text"
-                                                       value="{{ asset_provider.asset_provider_telephone }}">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="asset_provider_memo">备注</label>
-                                                <textarea id="asset_provider_memo" name="asset_provider_memo"
-                                                          class="form-control">{{ asset_provider.asset_provider_memo }}</textarea>
-                                            </div>
-
-                                            <div class="space-24"></div>
-                                        </fieldset>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default"
-                                            data-dismiss="modal">关闭
-                                    </button>
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                            onclick="updateProvider({{ asset_provider.id }})">确认修改
-                                    </button>
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
-                    </div>
                 {% endfor %}
                 </tbody>
             </table>
@@ -107,22 +45,21 @@
     </div>
     <!-- /.box -->
 
-    <!-- addProviderModal  -->
-    <div class="modal fade" id="addProviderModal" tabindex="-1" role="dialog"
-         aria-labelledby="addProviderModalLabel"
-         aria-hidden="true">
+    <!-- ProviderModal  -->
+    <div class="modal fade" id="ProviderModal" tabindex="-1" role="dialog"
+         aria-labelledby="ProviderModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                         &times;
                     </button>
-                    <h4 class="modal-title" id="addProviderModalLabel">
-                        新增供应商
+                    <h4 class="modal-title" id="ProviderModalLabel">
+
                     </h4>
                 </div>
                 <div class="modal-body">
-                    <form id="add_provider" class="main form-horizontal">
+                    <form id="provider_info" class="main form-horizontal">
                         <fieldset>
                             <div class="form-group">
                                 <label for="asset_provider_name" class="col-sm-2 control-label">供应商名称</label>
@@ -164,114 +101,10 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
-                    </button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="addProvider()">添加
-                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="provider_ops"></button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
 </div>
-
-
-<script>
-    // 添加供应商
-    function addProvider() {
-        let data = $('#add_provider').serializeJson();
-        $.ajax({
-            url: '/api/asset_provider/',
-            type: 'POST',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: "application/json",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-            },
-            success: function (res) {
-                $('#asset_provider tbody').append(
-                    '<tr id="provider-' + res.id + '">' +
-                    '<td>' + res.asset_provider_name + '</td>' +
-                    '<td>' + res.asset_provider_contact + '</td>' +
-                    '<td>' + res.asset_provider_telephone + '</td>' +
-                    '<td>' + res.asset_provider_memo + '</td>' +
-                    '<td>' + '<button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#updateProviderModal-' + res.id + '">修改</button> <button type="button" class="btn btn-danger btn-xs" onclick="deleteProvider(' + res.id + ')">删除</button>' + '</td>' +
-                    '</tr>'
-                );
-            },
-            error: function (response) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: response.responseText,
-                })
-            }
-        })
-    }
-
-    // 更新供应商
-    function updateProvider(id) {
-        let data = $('#updateProviderModal-' + id + ' #update-provider').serializeJson();
-        $.ajax({
-            url: '/api/asset_provider/' + id + '/',
-            type: 'PUT',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: "application/json",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-            },
-            success: function (res) {
-                let str = 'provider-' + id;
-                document.getElementById(str).innerHTML = '<tr id="provider-' + res.id + '">' +
-                    '<td>' + res.asset_provider_name + '</td>' +
-                    '<td>' + res.asset_provider_contact + '</td>' +
-                    '<td>' + res.asset_provider_telephone + '</td>' +
-                    '<td>' + res.asset_provider_memo + '</td>' +
-                    '<td>' + '<button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#updateProviderModal-' + res.id + '">修改</button> <button type="button" class="btn btn-danger btn-xs" onclick="deleteProvider(' + res.id + ')">删除</button>' + '</td>' +
-                    '</tr>';
-            },
-            error: function (response) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: response.responseText,
-                })
-            }
-        })
-    }
-
-    // 删除供应商
-    function deleteProvider(id) {
-        $.confirm({
-            title: 'Tips',
-            content: '确定要删除这条供应商记录么？',
-            type: 'red',
-            buttons: {
-                Ok: function () {
-                    $.ajax({
-                        url: '/api/asset_provider/' + id + '/',
-                        method: 'DELETE',
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                        },
-                        success: function () {
-                            let str = 'provider-' + id;
-                            document.getElementById(str).innerHTML = '';
-                        },
-                        error: function (data) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: '删除失败！' + data.responseText,
-                            })
-                        }
-                    })
-                },
-                Cancel: function () {
-                    // 取消
-                }
-            }
-        })
-    }
-</script>

@@ -8,11 +8,7 @@
 </head>
 <body>
 <div>
-    {% if record.ssh_record_file %}
-        <asciinema-player cols="120" rows="35" src="{{ MEDIA_URL }}{{ record.ssh_record_file }}"></asciinema-player>
-    {% else %}
-        <asciinema-player cols="120" rows="35" src="{{ MEDIA_URL }}{{ record.record_file }}"></asciinema-player>
-    {% endif %}
+    <asciinema-player cols="120" rows="35" src="{{ MEDIA_URL }}{{ record.record_file }}"></asciinema-player>
 </div>
 <script src="{% static 'js/asciinema-player.js' %}"></script>
 </body>

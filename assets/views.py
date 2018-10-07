@@ -14,8 +14,10 @@ from assets.models import *
 from users.models import UserProfile
 from utils.crypt_pwd import CryptPwd
 from task.utils.ansible_api_v2 import ANSRunner
+from django.contrib.auth.decorators import permission_required
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def get_assets_charts(request):
     assets = Assets.objects.all()
     asset_types = Assets.asset_types
@@ -28,12 +30,14 @@ def get_assets_charts(request):
     return render(request, 'assets/assets_charts.html', locals())
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def get_assets_list(request):
     assets = Assets.objects.all()
     asset_types = Assets.asset_types
     return render(request, 'assets/assets_list.html', locals())
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def add_asset(request):
     asset_types = Assets.asset_types
     server_types = ServerAssets.server_types
@@ -52,6 +56,7 @@ def add_asset(request):
     return render(request, 'assets/add_asset.html', locals())
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def add_base_asset(request):
     asset_idcs = IDC.objects.all()
     asset_cabinets = Cabinet.objects.select_related('idc')
@@ -59,9 +64,10 @@ def add_base_asset(request):
     return render(request, 'assets/add_base_asset.html', locals())
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def update_asset(request, asset_type, pk):
-    asset = Assets.objects.get(id=pk)
     if request.method == 'GET':
+        asset = Assets.objects.get(id=pk)
         asset_types = Assets.asset_types
         auth_types = ServerAssets.auth_types
         asset_status_ = Assets.asset_status_
@@ -81,16 +87,19 @@ def update_asset(request, asset_type, pk):
                     server_obj.update(host_vars=request.POST.get('host_vars'))
                 msg = ServerAssets.objects.get(id=pk).assets.asset_management_ip
                 return JsonResponse({'code': 200, 'msg': msg})
-            ServerAssets.objects.filter(id=asset.serverassets.id).update(
-                username=request.POST.get('username'),
-                auth_type=request.POST.get('auth_type'),
-                password=CryptPwd().encrypt_pwd(request.POST.get('password')),
-                port=request.POST.get('port'),
-            )
-            return JsonResponse({'code': 200, 'msg': '修改成功'})
+            else:
+                asset = Assets.objects.get(id=pk)
+                ServerAssets.objects.filter(id=asset.serverassets.id).update(
+                    username=request.POST.get('username'),
+                    auth_type=request.POST.get('auth_type'),
+                    password=CryptPwd().encrypt_pwd(request.POST.get('password')),
+                    port=request.POST.get('port'),
+                )
+                return JsonResponse({'code': 200, 'msg': '修改成功'})
         return JsonResponse({'code': 200, 'msg': '修改成功'})
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def get_assets_log(request):
     if request.method == 'GET':
         assets_logs = AssetsLog.objects.all()
@@ -117,12 +126,14 @@ def get_assets_log(request):
             return JsonResponse({'error': '查询失败：{}'.format(e)})
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def assets_search(request, key):
     assets = Assets.objects.all()
     asset_types = Assets.asset_types
     return render(request, 'assets/assets_search.html', locals())
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def server_facts(request):
     if request.method == 'POST':
         pk = request.POST.get('pk')
@@ -173,6 +184,7 @@ def server_facts(request):
             return JsonResponse({'code': 500, 'msg': str(e)})
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def get_host_graph(request, pk):
     host_ip = Assets.objects.get(id=pk).asset_management_ip
     zabbix_api = ZabbixApi(settings.ZABBIX_INFO['api_url'], settings.ZABBIX_INFO['username'],
@@ -189,11 +201,13 @@ def get_host_graph(request, pk):
     return render(request, 'assets/graph.html', {'graphs': graphs})
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def get_asset_info(request, pk):
     asset = Assets.objects.get(id=pk)
     return render(request, 'assets/asset_info.html', locals())
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def import_assets(request):
     if request.method == 'POST':
         file = request.FILES.get('file')
@@ -258,6 +272,7 @@ def import_assets(request):
             return JsonResponse({'code': 500, 'msg': '导入失败！，{}'.format(e)})
 
 
+@permission_required('Ops.add_assets', raise_exception=True)
 def export_assets(request):
     if request.method == 'POST':
         pks = request.POST.get('pks')
@@ -315,11 +330,13 @@ def export_assets(request):
             logger.error('导出失败！{}'.format(e))
 
 
+@permission_required('Ops.ssh_fortserver', raise_exception=True)
 def ssh_terminal(request, pk):
     ssh_server_ip = ServerAssets.objects.get(id=pk).assets.asset_management_ip
     return render(request, 'assets/ssh_terminal.html', locals())
 
 
+@permission_required('Ops.add_sshrecord', raise_exception=True)
 def login_ssh_record(request):
     if request.method == 'GET':
         results = SSHRecord.objects.select_related('ssh_login_user').all()
@@ -348,6 +365,7 @@ def login_ssh_record(request):
             return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
 
 
+@permission_required('Ops.add_sshrecord', raise_exception=True)
 def ssh_play(request, pk):
     record = SSHRecord.objects.select_related('ssh_login_user').get(id=pk)
     return render(request, 'assets/ssh_play.html', locals())

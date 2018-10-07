@@ -38,7 +38,6 @@
                             <option value="yum">yum</option>
                             <option value="copy">copy</option>
                             <option value="service">service</option>
-                            <option value="user">user</option>
                             <option value="file">file</option>
                             <option value="cron">cron</option>
                             <option value="wget">wget</option>
@@ -78,7 +77,9 @@
     <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
     <script>
         $(function () {
-            $('.select2').select2();
+            $('.select2').select2({
+                allowClear: true
+            });
         });
 
         function groupSelect() {
@@ -147,10 +148,6 @@
                 $('#ansibleModuleArgs').val("src=/root/test.txt dest=/tmp/test.txt");
                 $('#customModule').css('display', 'none');
             }
-            else if (value === "user") {
-                $('#ansibleModuleArgs').val("name=zz password='$6yshUMNL8dhY'");
-                $('#customModule').css('display', 'none');
-            }
             else if (value === "synchronize") {
                 $('#ansibleModuleArgs').val('src=/root/a dest=/tmp/ compress=yes rsync_opts="--exclude=.git --exclude=static/image"');
                 $('#customModule').css('display', 'none');
@@ -180,9 +177,6 @@
                 url: "{% url 'run_module' %}",
                 type: "POST",
                 data: data,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function (res) {
                     res = res['msg'];
                     for (let i = 0; i < res.length; i++) {

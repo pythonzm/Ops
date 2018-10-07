@@ -69,9 +69,6 @@
                     data: JSON.stringify({server: data.server_list[i], server_status: data.server_status}),
                     dataType: 'json',
                     contentType: "application/json",
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function () {
                         window.location.reload();
                     },

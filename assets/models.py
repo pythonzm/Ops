@@ -260,7 +260,7 @@ class IDC(models.Model):
     """机房表"""
     idc_name = models.CharField(max_length=64, unique=True, verbose_name='机房名称')
     idc_address = models.CharField(max_length=100, unique=True, verbose_name='机房地址')
-    idc_contact = models.CharField(max_length=32, unique=True, verbose_name='机房联系人')
+    idc_contact = models.CharField(max_length=32, verbose_name='机房联系人')
     idc_telephone = models.CharField(max_length=11, blank=True, null=True, verbose_name='支持电话')
     idc_memo = models.CharField(max_length=100, blank=True, null=True, verbose_name='备注')
 

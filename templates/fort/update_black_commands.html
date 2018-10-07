@@ -42,10 +42,6 @@
             url: '{% url 'fort_server' %}',
             type: 'POST',
             data: {black_commands: $('#black_commands').val()},
-            async: false,
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-            },
             success: function (res) {
                 $.alert({
                     title: 'Tips',

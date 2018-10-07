@@ -219,9 +219,6 @@
                             $.ajax({
                                 url: '/api/fort/' + id,
                                 method: 'DELETE',
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                },
                                 success: function () {
                                     let str = 'fort-' + id;
                                     document.getElementById(str).innerHTML = '';
@@ -274,9 +271,6 @@
                                     $.ajax({
                                         url: '/api/fort/' + checkedID[i],
                                         method: 'DELETE',
-                                        beforeSend: function (xhr) {
-                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                        },
                                         success: function () {
                                             let str = 'fort-' + checkedID[i];
                                             document.getElementById(str).innerHTML = '';
@@ -320,9 +314,6 @@
                     data: JSON.stringify(data),
                     dataType: 'json',
                     contentType: "application/json",
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function () {
                         $('#fort-' + fort_server_id + ' td:eq(4)').html('<span class="badge bg-red">禁用</span>')
                     },
@@ -356,9 +347,6 @@
                     data: JSON.stringify(data),
                     dataType: 'json',
                     contentType: "application/json",
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function () {
                         $('#fort-' + fort_server_id + ' td:eq(4)').html('<span class="badge bg-green">正常</span>')
                     },

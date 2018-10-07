@@ -305,9 +305,6 @@
                 data: JSON.stringify(data),
                 dataType: 'json',
                 contentType: "application/json",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function () {
                     if (another) {
                         $.confirm({
@@ -317,6 +314,7 @@
                             buttons: {
                                 Ok: function () {
                                     document.getElementById("asset_form").reset();
+                                    $(".select2").val('').trigger('change');
                                 },
                             }
                         })

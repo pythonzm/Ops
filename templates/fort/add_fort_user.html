@@ -127,7 +127,7 @@
 
     // 添加用户
     function addFortUser(fort_server_id, server_id) {
-        {% if perms.fortserveruser.add_fortserveruser %}
+        {% if perms.fort.add_fortserveruser %}
             let username = $('#addFortUserModal-' + fort_server_id + ' #fort_username').val();
             let password = $('#addFortUserModal-' + fort_server_id + ' #fort_password').val();
             let fort_black_commands = $('#addFortUserModal-' + fort_server_id + ' #fort_black_commands').val();
@@ -154,22 +154,14 @@
                 url: '{% url 'run_module' %}',
                 type: 'POST',
                 data: ansible_data,
-                async: false,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function (res) {
                     if (res.msg[0].indexOf('success') !== -1) {
                         $.ajax({
                             url: '/api/fort_user/',
                             type: 'POST',
                             data: JSON.stringify(data),
-                            async: false,
                             dataType: 'json',
                             contentType: "application/json",
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                            },
                             success: function () {
                                 window.location.reload();
                             },

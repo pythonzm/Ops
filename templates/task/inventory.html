@@ -65,10 +65,19 @@
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
 
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
 
     <script>
         $(function () {
-            $('#ans_group, #ans_host').DataTable({
+            ans_group_table = $('#ans_group').DataTable({
+                columnDefs: [{
+                    'targets': [-1,],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
+            });
+
+            ans_host_table = $('#ans_host').DataTable({
                 columnDefs: [{
                     'targets': [-1,],
                     'orderable': false
@@ -77,28 +86,242 @@
             });
 
             // Initialize Select2 Elements
-            $('.select2').select2()
+            $('.select2').select2({
+                allowClear: true
+            })
         });
 
-        // 将数据JSON化
-        (function ($) {
-            $.fn.serializeJson = function () {
-                let serializeObj = {};
-                let array = this.serializeArray();
-                $(array).each(function () {
-                    if (serializeObj[this.name]) {
-                        if ($.isArray(serializeObj[this.name])) {
-                            serializeObj[this.name].push(this.value);
-                        } else {
-                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+        <!-- 主机组操作 -->
+        let ans_group_tbody = $('#ans_group tbody');
+        let ans_group_ops = $('#ans_group_ops');
+
+        // 添加主机组
+        $('#add-ans-group').on('click', function () {
+            $("#ans_group_info").trigger('reset');
+            $(".select2").val('').trigger('change');
+            $('.modal-title').text('新增主机组');
+            ans_group_ops.text('添加');
+
+            ans_group_ops.unbind('click').on('click', function () {
+                let data = {
+                    ans_group_name: $('#ans_group_name').val(),
+                    ans_group_hosts: $('#ans_group_hosts').val(),
+                    ans_group_vars: $('#ans_group_vars').val(),
+                    ans_group_memo: $('#ans_group_memo').val(),
+                };
+                let group_hosts = $('#ans_group_hosts option:selected').text();
+                $.ajax({
+                    url: '/api/inventory/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        let c_time = $.format.date(res['ans_group_datetime'], "yyyy-MM-dd HH:mm:ss");
+                        ans_group_table.row.add([
+                            res.ans_group_name,
+                            group_hosts,
+                            res.ans_group_vars,
+                            res.ans_group_memo,
+                            c_time,
+                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#AnsGroupModal">修改</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                        ]).draw();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新主机组
+        ans_group_tbody.on('click', '.modify', function () {
+            let ans_group_id = $(this).attr('data-id');
+            let ans_group_td_obj = $(this).parents('tr').children();
+            $('.modal-title').text('修改主机组');
+            ans_group_ops.text('确认修改');
+            $('#ans_group_name').val(ans_group_td_obj[0].innerText);
+            $.get('/api/inventory/' + ans_group_id + '/', function (data) {
+                $('#ans_group_hosts').val(data.ans_group_hosts).trigger('change')
+            });
+            $('#ans_group_vars').val(ans_group_td_obj[2].innerText);
+            $('#ans_group_memo').val(ans_group_td_obj[3].innerText);
+
+            ans_group_ops.unbind('click').on('click', function () {
+                let data = {
+                    ans_group_name: $('#ans_group_name').val(),
+                    ans_group_hosts: $('#ans_group_hosts').val(),
+                    ans_group_vars: $('#ans_group_vars').val(),
+                    ans_group_memo: $('#ans_group_memo').val(),
+                };
+                let ans_group_hosts = $('#ans_group_hosts').find(':selected').text();
+                $.ajax({
+                    url: '/api/inventory/' + ans_group_id + '/',
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        ans_group_td_obj[0].innerText = res.ans_group_name;
+                        ans_group_td_obj[1].innerText = ans_group_hosts;
+                        ans_group_td_obj[2].innerText = res.ans_group_vars;
+                        ans_group_td_obj[3].innerText = res.ans_group_memo;
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除主机组
+        ans_group_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            {% if perms.task.delete_ansibleinventory %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/inventory/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    ans_group_table.row(tr_obj).remove().draw();
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
                         }
-                    } else {
-                        serializeObj[this.name] = this.value;
                     }
                 });
-                return serializeObj;
-            };
-        })(jQuery);
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除主机组的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+
+        <!-- 主机变量操作 -->
+        let ans_host_tbody = $('#ans_host tbody');
+        // 添加主机变量
+        $('#add-host-vars').on('click', function () {
+            let selected_host = $('#host').val();
+            let host_vars = $('#host_vars').val();
+            $.ajax({
+                url: '/assets/update_asset/server/' + selected_host + '/',
+                type: 'POST',
+                data: {'host_vars': host_vars},
+                success: function (res) {
+                    ans_host_table.row.add([
+                        res.msg,
+                        host_vars,
+                        `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${selected_host}" data-target="#HostVarsModal">修改</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${selected_host}">删除</button>`
+                    ]).draw();
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        // 更新主机变量
+        ans_host_tbody.on('click', '.modify', function () {
+            let ans_host_id = $(this).attr('data-id');
+            let ans_host_td_obj = $(this).parents('tr').children();
+
+            $('#ans_host_ip').val(ans_host_id).trigger('change');
+            $('#ans_host_vars').val(ans_host_td_obj[1].innerText);
+
+            $('#update-host-vars').unbind('click').on('click', function () {
+                let host_vars = $('#ans_host_vars').val();
+                $.ajax({
+                    url: '/assets/update_asset/server/' + ans_host_id + '/',
+                    type: 'POST',
+                    data: {'host_vars': host_vars},
+                    success: function () {
+                        ans_host_td_obj[1].innerText = host_vars;
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除主机变量
+        ans_host_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/assets/update_asset/server/' + pk + '/',
+                            type: 'POST',
+                            data: {'host_vars': 'null'},
+                            success: function () {
+                                ans_host_table.row(tr_obj).remove().draw();
+                            },
+                            error: function (response) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: response.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        });
     </script>
 
 {% endblock %}

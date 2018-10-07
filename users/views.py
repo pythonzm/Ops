@@ -8,10 +8,7 @@ from django.shortcuts import render
 
 from users.models import UserProfile, UserLog, UserPlan
 from django.contrib.auth.models import Group, Permission
-from utils.db.redis_ops import RedisOps
-from Ops import settings
-
-c = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, db=5)
+from django.contrib.auth.decorators import permission_required
 
 
 def user_center(request):
@@ -96,6 +93,7 @@ def del_user_plan(request):
         return JsonResponse({"code": 200, "data": None, "msg": "删除失败！，原因：{}".format(e)})
 
 
+@permission_required('Ops.add_userprofile', raise_exception=True)
 def get_user_list(request):
     user_list = UserProfile.objects.all().select_related()
     groups = Group.objects.all().select_related()
@@ -144,6 +142,7 @@ def reset_password(request, pk):
             return JsonResponse({"code": 500, "data": None, "msg": "密码重置失败，原因：{}".format(e)})
 
 
+@permission_required('Ops.add_group', raise_exception=True)
 def get_group_list(request):
     groups = Group.objects.all().select_related()
     users = UserProfile.objects.all().select_related()
@@ -151,6 +150,7 @@ def get_group_list(request):
     return render(request, 'users/group_list.html', locals())
 
 
+@permission_required('Ops.add_userlog', raise_exception=True)
 def get_user_log(request):
     if request.method == 'GET':
         user_logs = UserLog.objects.all()
@@ -175,10 +175,3 @@ def get_user_log(request):
             return JsonResponse({'code': 200, 'records': records})
         except Exception as e:
             return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
-
-
-def listen_msg(request):
-    data = c.subscribe(request.user)
-    for item in data:
-        if item['type'] == 'message':
-            print(item['data'])

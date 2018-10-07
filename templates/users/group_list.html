@@ -270,7 +270,9 @@
 
         // Initialize Select2 Elements
         $(function () {
-            $('.select2').select2()
+            $('.select2').select2({
+                allowClear: true
+            })
         });
 
         // iCheck for checkbox inputs
@@ -311,9 +313,6 @@
                             $.ajax({
                                 url: '/api/group/' + id,
                                 method: 'DELETE',
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                },
                                 success: function () {
                                     let str = 'group-' + id;
                                     document.getElementById(str).innerHTML = '';
@@ -366,9 +365,6 @@
                                     $.ajax({
                                         url: '/api/group/' + checkedID[i],
                                         method: 'DELETE',
-                                        beforeSend: function (xhr) {
-                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                        },
                                         success: function () {
                                             let str = 'group-' + checkedID[i];
                                             document.getElementById(str).innerHTML = '';
@@ -412,9 +408,6 @@
                 data: JSON.stringify(data),
                 dataType: 'json',
                 contentType: "application/json",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function () {
                     window.location.reload();
                 },
@@ -441,9 +434,6 @@
                 data: JSON.stringify(data),
                 dataType: 'json',
                 contentType: "application/json",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function () {
                     window.location.reload();
                 },

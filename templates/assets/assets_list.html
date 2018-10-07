@@ -298,9 +298,6 @@
                             $.ajax({
                                 url: '/api/assets/' + id,
                                 method: 'DELETE',
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                },
                                 success: function () {
                                     let str = 'asset-' + id;
                                     document.getElementById(str).innerHTML = '';
@@ -353,9 +350,6 @@
                                     $.ajax({
                                         url: '/api/assets/' + checkedID[i],
                                         method: 'DELETE',
-                                        beforeSend: function (xhr) {
-                                            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                                        },
                                         success: function () {
                                             let str = 'asset-' + checkedID[i];
                                             document.getElementById(str).innerHTML = '';
@@ -441,9 +435,6 @@
                     url: "{% url 'server_facts' %}",
                     type: "POST",
                     data: data,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (res) {
                         $.alert({
                             title: 'Tips',
@@ -479,9 +470,6 @@
                     url: "{% url 'server_facts' %}",
                     type: "POST",
                     data: data,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (res) {
                         $.alert({
                             title: 'Tips',
@@ -519,9 +507,6 @@
                     processData: false,
                     // 告诉jQuery不要去设置Content-Type请求头
                     contentType: false,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                    },
                     success: function (responseStr) {
                         $.confirm({
                             title: 'Tips!',

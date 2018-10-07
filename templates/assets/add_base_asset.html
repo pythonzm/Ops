@@ -85,16 +85,407 @@
 
     <script>
         $(function () {
-            $('#asset_idc, #asset_cabinet, #asset_provider').DataTable({
+            idc_table = $('#asset_idc').DataTable({
                 columnDefs: [{
-                    'targets': [0, -1],
+                    'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[1, "asc"]]
+                "order": [[0, "asc"]]
+            });
+
+            cabinet_table = $('#asset_cabinet').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
+            });
+
+            provider_table = $('#asset_provider').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
             });
 
             // Initialize Select2 Elements
-            $('.select2').select2()
+            $('.select2').select2({
+                allowClear: true
+            })
+        });
+
+
+        <!-- 机房操作 -->
+        let idc_tbody = $('#asset_idc tbody');
+        let idc_ops = $('#idc_ops');
+
+        // 添加机房
+        $('#add-idc').on('click', function () {
+            document.getElementById('idc_info').reset();
+            $('.modal-title').text('新增机房');
+            idc_ops.text('添加');
+
+            idc_ops.unbind('click').on('click', function () {
+                let data = $('#idc_info').serializeJson();
+                $.ajax({
+                    url: '/api/idc/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        idc_table.row.add([
+                            res.id,
+                            res.idc_name,
+                            res.idc_address,
+                            res.idc_contact,
+                            res.idc_telephone,
+                            '',
+                            res.idc_memo,
+                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#IDCModal">修改</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                        ]).draw();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新机房
+        idc_tbody.on('click', '.modify', function () {
+            let idc_id = $(this).attr('data-id');
+            let idc_td_obj = $(this).parents('tr').children();
+            $('.modal-title').text('修改机房信息');
+            idc_ops.text('确认修改');
+            $('#idc_name').val(idc_td_obj[1].innerText);
+            $('#idc_address').val(idc_td_obj[2].innerText);
+            $('#idc_contact').val(idc_td_obj[3].innerText);
+            $('#idc_telephone').val(idc_td_obj[4].innerText);
+            $('#idc_memo').val(idc_td_obj[6].innerText);
+
+            idc_ops.unbind('click').on('click', function () {
+                let data = $('#idc_info').serializeJson();
+                $.ajax({
+                    url: '/api/idc/' + idc_id + '/',
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        idc_td_obj[1].innerText = res.idc_name;
+                        idc_td_obj[2].innerText = res.idc_address;
+                        idc_td_obj[3].innerText = res.idc_contact;
+                        idc_td_obj[4].innerText = res.idc_telephone;
+                        idc_td_obj[6].innerText = res.idc_memo;
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除机房
+        idc_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            {% if perms.assets.delete_idc %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/idc/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    idc_table.row(tr_obj).remove().draw();
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除机房的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+
+        <!-- 机柜操作 -->
+        let cabinet_tbody = $('#asset_cabinet tbody');
+        let cabinet_ops = $('#cabinet_ops');
+
+        // 添加机柜
+        $('#add-cabinet').on('click', function () {
+            document.getElementById('cabinet_info').reset();
+            $(".select2").val('').trigger('change');
+            $('.modal-title').text('新增机柜');
+            cabinet_ops.text('添加');
+
+            cabinet_ops.unbind('click').on('click', function () {
+                let data = $('#cabinet_info').serializeJson();
+                let idc_name = $('#idc option:selected').text();
+                $.ajax({
+                    url: '/api/cabinet/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        cabinet_table.row.add([
+                            res.id,
+                            res.cabinet_name,
+                            idc_name,
+                            '',
+                            res.cabinet_memo,
+                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-idc="${res.idc}"  data-target="#CabinetModal">修改</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                        ]).draw();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新机柜
+        cabinet_tbody.on('click', '.modify', function () {
+            let select_obj = $("#idc");
+            let cabinet_id = $(this).attr('data-id');
+            let idc_id = $(this).attr('data-idc');
+            let cabinet_td_obj = $(this).parents('tr').children();
+            $('.modal-title').text('修改机柜信息');
+            cabinet_ops.text('确认修改');
+            $('#cabinet_name').val(cabinet_td_obj[1].innerText);
+            select_obj.val(idc_id).trigger('change');
+            $('#cabinet_memo').val(cabinet_td_obj[4].innerText);
+
+            cabinet_ops.unbind('click').on('click', function () {
+                let data = $('#cabinet_info').serializeJson();
+                let idc_name = $('#idc').find(':selected').text();
+                $.ajax({
+                    url: '/api/cabinet/' + cabinet_id + '/',
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        cabinet_td_obj[1].innerText = res.cabinet_name;
+                        cabinet_td_obj[2].innerText = idc_name;
+                        cabinet_td_obj[4].innerText = res.cabinet_memo;
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除机柜
+        cabinet_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            {% if perms.assets.delete_cabinet %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/cabinet/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    cabinet_table.row(tr_obj).remove().draw();
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除机柜的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+
+        <!-- 供应商操作 -->
+        let provider_tbody = $('#asset_provider tbody');
+        let provider_ops = $('#provider_ops');
+
+        // 添加供应商
+        $('#add-provider').on('click', function () {
+            document.getElementById('provider_info').reset();
+            $('.modal-title').text('新增供应商');
+            provider_ops.text('添加');
+
+            provider_ops.unbind('click').on('click', function () {
+                let data = $('#provider_info').serializeJson();
+                $.ajax({
+                    url: '/api/asset_provider/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        provider_table.row.add([
+                            res.id,
+                            res.asset_provider_name,
+                            res.asset_provider_contact,
+                            res.asset_provider_telephone,
+                            res.asset_provider_memo,
+                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#ProviderModal">修改</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                        ]).draw();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新供应商
+        provider_tbody.on('click', '.modify', function () {
+            let provider_id = $(this).attr('data-id');
+            let provider_td_obj = $(this).parents('tr').children();
+            $('.modal-title').text('修改供应商信息');
+            provider_ops.text('确认修改');
+            $('#asset_provider_name').val(provider_td_obj[1].innerText);
+            $('#asset_provider_contact').val(provider_td_obj[2].innerText);
+            $('#asset_provider_telephone').val(provider_td_obj[3].innerText);
+            $('#asset_provider_memo').val(provider_td_obj[4].innerText);
+
+            provider_ops.unbind('click').on('click', function () {
+                let data = $('#provider_info').serializeJson();
+                $.ajax({
+                    url: '/api/asset_provider/' + provider_id + '/',
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        provider_td_obj[1].innerText = res.asset_provider_name;
+                        provider_td_obj[2].innerText = res.asset_provider_contact;
+                        provider_td_obj[3].innerText = res.asset_provider_telephone;
+                        provider_td_obj[4].innerText = res.asset_provider_memo;
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除供应商
+        provider_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            {% if perms.assets.delete_assetprovider %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/asset_provider/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    provider_table.row(tr_obj).remove().draw();
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除供应商的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
         });
 
         // 将数据JSON化

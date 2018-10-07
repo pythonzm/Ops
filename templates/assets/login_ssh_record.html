@@ -138,9 +138,6 @@
                     "startTime": startTime,
                     "endTime": endTime,
                 },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
-                },
                 success: function (response) {
                     if (response.records.length === 0) {
                         $.alert({
