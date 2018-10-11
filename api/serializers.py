@@ -7,6 +7,7 @@ from users.models import UserProfile, UserLog
 from django.contrib.auth.models import Permission, Group
 from utils.crypt_pwd import CryptPwd
 from fort.models import *
+from projs.models import *
 
 
 class ModuleLogSerializer(serializers.ModelSerializer):
@@ -135,15 +136,13 @@ class SoftwareAssetsSerializer(serializers.ModelSerializer):
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = ('id', 'project_name', 'service_name', 'service_assets')
+        fields = '__all__'
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    service = ServiceSerializer(many=True, read_only=True)
-
     class Meta:
         model = Project
-        fields = ('id', 'parent_project', 'project_name', 'project_memo', 'service')
+        fields = '__all__'
 
 
 class AssetProviderSerializer(serializers.ModelSerializer):

@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'orgchart/css/jquery.orgchart.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #service-list > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #service-list > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        #chart-container {
+            font-family: Arial, serif;
+            height: 420px;
+            border: 2px dashed #aaa;
+            border-radius: 5px;
+            overflow: auto;
+            text-align: center;
+        }
+
+        /* 抵消AdminLTE.min.css中content的配置 */
+        .orgchart .node .content {
+            min-height: 0;
+            margin-right: 0;
+            margin-left: 0;
+            padding: 0;
+        }
+
+        .orgchart .top-level .title {
+            background-color: #006699;
+        }
+
+        .orgchart .second-level .title {
+            background-color: #009933;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#ServiceModal"
+                    id="add-service">
+                <i class="fa fa-plus-square"></i>
+                <span class="bigger-110">新增应用</span>
+            </button>
+        </div>
+
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+                    <table id="service-list" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>当前项目</th>
+                            <th>服务名称</th>
+                            <th>所在机器</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for service in services %}
+                            <tr>
+                                <td>{{ project_obj.project_name }} | {{ project_obj.get_project_env_display }}</td>
+                                <td>{{ service.service_name }}</td>
+                                <td>
+                                    {% for asset in service.service_assets.all %}
+                                        {{ asset.asset_management_ip }}<br>
+                                    {% endfor %}
+                                </td>
+                                <td>{{ service.service_memo }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-id="{{ service.id }}" data-target="#ServiceModal">详细/更新
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete"
+                                            data-id="{{ service.id }}">删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <!-- ServiceModal  -->
+            <div class="modal fade" id="ServiceModal" tabindex="-1" role="dialog" aria-labelledby="ServiceModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="ServiceModalLabel">
+
+                            </h4>
+                        </div>
+                        {% if perms.projs.add_service %}
+                            <div class="modal-body">
+                                <form id="service_info" class="main form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="project" class="col-sm-2 control-label">当前项目</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" disabled name="project"
+                                                        id="project"
+                                                        style="width: 100%;">
+                                                    <option value="{{ project_obj.id }}"
+                                                            selected>{{ project_obj.project_name }}</option>
+                                                </select>
+                                            </div>
+                                            <span>{{ project_obj.get_project_env_display }}</span>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="service_name" class="col-sm-2 control-label">服务名称</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="service_name"
+                                                       id="service_name"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="service_assets" class="col-sm-2 control-label">所在机器</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="service_assets" multiple
+                                                        id="service_assets"
+                                                        style="width: 100%;">
+                                                    {% for asset in assets %}
+                                                        <option value="{{ asset.id }}">{{ asset.asset_management_ip }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="service_memo" class="col-sm-2 control-label">备注</label>
+                                            <div class="col-sm-6">
+                                            <textarea class="form-control" name="service_memo"
+                                                      id="service_memo"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-24"></div>
+
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                        id="service_ops"></button>
+                            </div>
+                        {% else %}
+                            <div class="modal-body">
+                                抱歉！您没有新增应用的权限！如有疑问，请联系管理员！
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                            </div>
+                        {% endif %}
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+        </div>
+
+        <div id="chart-container"></div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'orgchart/js/jquery.orgchart.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            $('#service-list').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
+            });
+        });
+
+        // Initialize Select2 Elements
+        $(function () {
+            $('.select2').select2({
+                allowClear: true
+            })
+        });
+
+
+        let service_tbody = $('#service-list tbody');
+        let service_ops = $('#service_ops');
+
+        // 新增项目
+        $('#add-service').on('click', function () {
+            document.getElementById('service_info').reset();
+            $("#project").val('{{ pk }}').trigger('change');
+            $('#service_assets').val('').trigger('change');
+            $('.modal-title').text('新增服务');
+            service_ops.text('添加');
+
+            service_ops.unbind('click').on('click', function () {
+                let data = {
+                    project: $('#project').val(),
+                    service_name: $('#service_name').val(),
+                    service_assets: $('#service_assets').val(),
+                    service_memo: $('#service_memo').val(),
+                };
+
+                $.ajax({
+                    url: '/api/service/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function () {
+                        window.location.reload()
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新项目
+        service_tbody.on('click', '.modify', function () {
+            let service_id = $(this).attr('data-id');
+            $('.modal-title').text('修改项目信息');
+            service_ops.text('确认修改');
+            $.get('/api/service/' + service_id + '/', function (data) {
+                $('#project').val(data.project).trigger('change');
+                $('#service_name').val(data.service_name);
+                $('#service_assets').val(data.service_assets).trigger('change');
+                $('#service_memo').val(data.service_memo);
+            });
+
+            service_ops.unbind('click').on('click', function () {
+                let data = {
+                    service_name: $('#service_name').val(),
+                    service_assets: $('#service_assets').val(),
+                    service_memo: $('#service_memo').val(),
+                };
+
+                $.ajax({
+                    url: '/api/service/' + service_id + '/',
+                    type: 'PATCH',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function () {
+                        window.location.reload()
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除项目
+        service_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+
+            {% if perms.projs.delete_service %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/service/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    window.location.reload()
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除项目的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+
+        // 生成架构图
+        (function ($) {
+            $(function () {
+                let ds = {
+                    'name': '{{ project_obj.project_name }}',
+                    'title': '{{ project_obj.project_web }}',
+                    'className': 'top-level',
+                    'children': [
+                        {% for service in services %}
+                            {
+                                'name': '{{ service.service_name }}',
+                                'title': '{{ service.service_assets.count }} host',
+                                'className': 'second-level',
+                                'children': [
+                                    {% for asset in service.service_assets.all %}
+                                        {
+                                            'name': '{{ asset.asset_management_ip }}',
+                                            'title': '{{ asset.asset_model }}',
+                                            'className': 'third-level',
+                                        },
+                                    {% endfor %}
+                                ]
+                            },
+                        {% endfor %}
+                    ]
+                };
+
+                $('#chart-container').orgchart({
+                    'data': ds,
+                    'nodeContent': 'title',
+                });
+            });
+        })(jQuery);
+    </script>
+
+{% endblock %}
+

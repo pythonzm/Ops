@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'modaal/css/modaal.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #proj-list > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #proj-list > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#ProjectModal"
+                    id="add-proj">
+                <i class="fa fa-plus-square"></i>
+                <span class="bigger-110">新增项目</span>
+            </button>
+        </div>
+
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+                    <table id="proj-list" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>项目名称</th>
+                            <th>项目环境</th>
+                            <th>项目网址</th>
+                            <th>仓库路径</th>
+                            <th>代码目录</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for project in projects %}
+                            <tr>
+                                <td>{{ project.project_name }}</td>
+                                <td>
+                                    {% if project.project_env == 0 %}
+                                        <span class="badge bg-green">{{ project.get_project_env_display }}</span>
+                                    {% elif project.project_env == 1 %}
+                                        <span class="badge bg-yellow">{{ project.get_project_env_display }}</span>
+                                    {% elif project.project_env == 2 %}
+                                        <span class="badge bg-red">{{ project.get_project_env_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ project.project_web|default:'' }}</td>
+                                <td>{{ project.project_repo }}</td>
+                                <td>{{ project.project_dir }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-id="{{ project.id }}" data-target="#ProjectModal">详细/更新
+                                    </button>
+                                    <a href="{% url 'org_chart' project.id %}" class="modaal-ajax" target="_blank">
+                                        <button type="button" class="btn btn-info btn-xs">架构</button>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-xs delete"
+                                            data-id="{{ project.id }}">删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <!-- ProjectModal  -->
+            <div class="modal fade" id="ProjectModal" tabindex="-1" role="dialog" aria-labelledby="ProjectModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="ProjectModalLabel">
+
+                            </h4>
+                        </div>
+                        {% if perms.projs.add_project %}
+                            <div class="modal-body">
+                                <form id="proj_info" class="main form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="project_name" class="col-sm-2 control-label">项目名称</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="project_name"
+                                                       id="project_name" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_env" class="col-sm-2 control-label">项目环境</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="project_env" id="project_env"
+                                                        style="width: 100%;">
+                                                    {% for project_env in project_envs %}
+                                                        <option value="{{ project_env.0 }}">{{ project_env.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_web" class="col-sm-2 control-label">项目网址</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="project_web"
+                                                       id="project_web" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_model" class="col-sm-2 control-label">仓库类型</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="project_model"
+                                                        id="project_model"
+                                                        style="width: 100%;">
+                                                    {% for project_model in project_models %}
+                                                        <option value="{{ project_model.0 }}">{{ project_model.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_repo" class="col-sm-2 control-label">仓库路径</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="project_repo"
+                                                       id="project_repo"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_dir" class="col-sm-2 control-label">代码目录</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="project_dir"
+                                                       id="project_dir"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_admin" class="col-sm-2 control-label">项目负责人</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="project_admin"
+                                                        id="project_admin"
+                                                        style="width: 100%;">
+                                                    {% for project_admin in project_admins %}
+                                                        <option value="{{ project_admin.id }}">{{ project_admin.username }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_memo" class="col-sm-2 control-label">备注</label>
+                                            <div class="col-sm-6">
+                                            <textarea class="form-control" name="project_memo"
+                                                      id="project_memo"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-24"></div>
+
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                        id="proj_ops"></button>
+                            </div>
+                        {% else %}
+                            <div class="modal-body">
+                                抱歉！您没有新增项目的权限！如有疑问，请联系管理员！
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                            </div>
+                        {% endif %}
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'modaal/js/modaal.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            proj_table = $('#proj-list').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
+            });
+        });
+
+        // Initialize Select2 Elements
+        $(function () {
+            $('.select2').select2()
+        });
+
+        // 查看架构图
+        $('.modaal-ajax').modaal({
+            type: 'ajax',
+            width: 1000
+        });
+
+
+        let proj_tbody = $('#proj-list tbody');
+        let proj_ops = $('#proj_ops');
+
+        // 新增项目
+        $('#add-proj').on('click', function () {
+            document.getElementById('proj_info').reset();
+            $(".select2").val('').trigger('change');
+            $('#project_name').removeAttr("readonly");
+            $('#project_env').removeAttr("disabled");
+            $('.modal-title').text('新增项目');
+            proj_ops.text('添加');
+
+            proj_ops.unbind('click').on('click', function () {
+                let data = $('#proj_info').serializeJson();
+                let proj_env_text = $('#project_env option:selected').text();
+
+                $.ajax({
+                    url: '/api/project/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        proj_table.row.add([
+                            res.project_name,
+                            proj_env_text,
+                            res.project_web,
+                            res.project_repo,
+                            res.project_dir,
+                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#ProjectModal">详细/更新</button> <a href="/project/proj_list/${res.id}/" target="_blank"><button type="button" class="btn btn-info btn-xs">架构</button></a> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                        ]).draw();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新项目
+        proj_tbody.on('click', '.modify', function () {
+            let proj_id = $(this).attr('data-id');
+            let proj_td_obj = $(this).parents('tr').children();
+            $('.modal-title').text('修改项目信息');
+            proj_ops.text('确认修改');
+            $.get('/api/project/' + proj_id + '/', function (data) {
+                $('#project_name').val(data.project_name);
+                $('#project_env').val(data.project_env).trigger('change');
+                $('#project_web').val(data.project_web);
+                $('#project_model').val(data.project_model).trigger('change');
+                $('#project_repo').val(data.project_repo);
+                $('#project_dir').val(data.project_dir);
+                $('#project_admin').val(data.project_admin).trigger('change');
+                $('#project_memo').val(data.project_memo);
+            });
+            $('#project_name').attr('readonly', true);
+            $('#project_env').attr('disabled', true);
+
+            proj_ops.unbind('click').on('click', function () {
+                let data = $('#proj_info').serializeJson();
+                $.ajax({
+                    url: '/api/project/' + proj_id + '/',
+                    type: 'PATCH',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        proj_td_obj[2].innerText = res.project_web;
+                        proj_td_obj[3].innerText = res.project_repo;
+                        proj_td_obj[4].innerText = res.project_dir;
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除项目
+        proj_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            {% if perms.projs.delete_project %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/project/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    proj_table.row(tr_obj).remove().draw();
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除项目的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+        // 将数据JSON化
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        serializeObj[this.name] = this.value;
+                    }
+                });
+                return serializeObj;
+            };
+        })(jQuery);
+    </script>
+
+{% endblock %}
+

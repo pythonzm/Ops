@@ -1,0 +1,78 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'orgchart/css/jquery.orgchart.min.css' %}">
+<style>
+    #chart-container {
+        font-family: Arial, serif;
+        height: 420px;
+        border: 2px dashed #aaa;
+        border-radius: 5px;
+        overflow: auto;
+        text-align: center;
+    }
+
+    /* 抵消AdminLTE.min.css中content的配置 */
+    .orgchart .node .content {
+        min-height: 0;
+        margin-right: 0;
+        margin-left: 0;
+        padding: 0;
+    }
+
+    .orgchart .top-level .title {
+        background-color: #006699;
+    }
+
+    .orgchart .second-level .title {
+        background-color: #009933;
+    }
+</style>
+
+
+<div id="chart-container">
+    <div align="center" id="edit-org">
+        <a href="{% url 'proj_org' project_obj.id %}" target="_blank">
+            <button type="button" class="btn btn-block btn-primary btn-flat"
+                    style="width: 10%;margin-bottom: 10px">编辑
+            </button>
+        </a>
+    </div>
+</div>
+<script src="{% static 'orgchart/js/jquery.orgchart.min.js' %}"></script>
+
+<script>
+    // 生成架构图
+    (function ($) {
+        $(function () {
+            let ds = {
+                'name': '{{ project_obj.project_name }}',
+                'title': '{{ project_obj.project_web }}',
+                'className': 'top-level',
+                'children': [
+                    {% for service in services %}
+                        {
+                            'name': '{{ service.service_name }}',
+                            'title': '{{ service.service_assets.count }} host',
+                            'className': 'second-level',
+                            'children': [
+                                {% for asset in service.service_assets.all %}
+                                    {
+                                        'name': '{{ asset.asset_management_ip }}',
+                                        'title': '{{ asset.asset_model }}',
+                                        'className': 'third-level',
+                                    },
+                                {% endfor %}
+                            ]
+                        },
+                    {% endfor %}
+                ]
+            };
+
+            $('#chart-container').orgchart({
+                'data': ds,
+                'nodeContent': 'title',
+            });
+        });
+    })(jQuery);
+</script>
+
+

@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'task.apps.TaskConfig',
     'fort.apps.FortConfig',
+    'projs.apps.ProjsConfig'
 ]
 
 MIDDLEWARE = [

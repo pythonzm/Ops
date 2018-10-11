@@ -150,8 +150,11 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% for project in asset.asset_project.all %}
-                                        {{ project.project_name }}&nbsp;
+                                    {% for service in asset.service_set.all %}
+                                        <a href="{% url 'org_chart' service.project.id %}"
+                                           class="modaal-ajax">{{ service.project.project_name }}</a>
+                                        |{{ service.project.get_project_env_display }}
+                                        |{{ service.service_name }}<br>
                                     {% endfor %}
                                 </td>
                                 <td>

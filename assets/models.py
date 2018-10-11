@@ -218,31 +218,6 @@ class NetworkCardAssets(models.Model):
         verbose_name_plural = '服务器网卡资产表'
 
 
-class Project(models.Model):
-    """项目表"""
-    parent_project = models.ForeignKey('self', blank=True, null=True, related_name='parent_level',
-                                       on_delete=models.PROTECT)
-    project_name = models.CharField(max_length=64, unique=True, verbose_name='项目名称')
-    project_memo = models.CharField(max_length=100, blank=True, null=True, verbose_name='基本描述')
-
-    class Meta:
-        db_table = 'ops_project'
-        verbose_name = '项目表'
-        verbose_name_plural = '项目表'
-
-
-class Service(models.Model):
-    """服务类型表"""
-    project_name = models.ForeignKey('Project', related_name='service', on_delete=models.PROTECT)
-    service_name = models.CharField(max_length=32, verbose_name='服务名称', help_text='数据库、中间件等')
-    service_assets = models.ManyToManyField('Assets', verbose_name='提供服务的机器')
-
-    class Meta:
-        db_table = 'ops_service'
-        verbose_name = '服务类型表'
-        verbose_name_plural = '服务类型表'
-
-
 class AssetProvider(models.Model):
     """供应商"""
     asset_provider_name = models.CharField(max_length=64, unique=True, verbose_name='供应商名称')
