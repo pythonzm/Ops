@@ -85,7 +85,7 @@ python manage.py runserver 0.0.0.0:8000
 ### 资产概览
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_chart.png)
 
-### 资产管理，需要关联的项目管理还未完成
+### 资产管理，需要关联的项目管理只完成了一部分
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_list.png)
 
 ### 资产详细，CPU等信息可以通过收集按钮自动获取
@@ -104,3 +104,7 @@ python manage.py runserver 0.0.0.0:8000
 
 ### webssh操作记录回放
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/record.png)
+
+### 项目管理
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_list.png)
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_chart.png)
