@@ -71,114 +71,34 @@ class ZabbixApi(object):
         req = self.request(method, params)
 
         host_id = req[0]['hostid']
-        group_id = req[0]['groups'][0]['groupid']
-        return host_id, group_id
+        return host_id
 
-    def create_host(self, host_name, hostgroups, templates, host_ip):
-        if self.get_host(host_name=host_name):
-            return {"code": "10001", "message": "The host was added!"}
-
-        group_list = [{"groupid": hostgroup_id} for hostgroup_id in hostgroups]
-        template_list = [{"templateid": templete_id} for templete_id in templates]
-
-        method = "host.create"
-        params = {
-            "host": host_name,
-            "interfaces": [
-                {
-                    "type": 1,
-                    "main": 1,
-                    "useip": 1,
-                    "ip": host_ip,
-                    "dns": "",
-                    "port": "10050"
-                }
-            ],
-            "groups": group_list,
-            "templates": template_list,
-        }
-        req = self.request(method, params)
-        return req
-
-    def update_host(self, host_id, host_name=None, hostgroups=None, templates_clear=None, host_ip=None):
-        """
-        zabbix api更新主机模板时，主机名对模板中的一些item有依赖，无法正常更新主机，这个update用起来很不方便
-        """
-        group_list = [{"groupid": hostgroup_id} for hostgroup_id in hostgroups]
-        templates_clear_list = [{"templateid": templete_id} for templete_id in templates_clear]
-
-        method = "host.update"
-        params = {
-            "hostid": host_id,
-            "host": host_name,
-            "interfaces": [
-                {
-                    "type": 1,
-                    "main": 1,
-                    "useip": 1,
-                    "ip": host_ip,
-                    "dns": "",
-                    "port": "10050"
-                }
-            ],
-            "groups": group_list,
-            "templates_clear": templates_clear_list,
-        }
-        req = self.request(method, params)
-        return req
-
-    def delete_host(self, host_ids):
-        """
-        :param host_ids: 主机ID
-        :type host_ids: list
-        :return:
-        """
-        method = "host.delete"
-        params = host_ids
-        req = self.request(method, params)
-        return req
-
-    def get_hostgroups(self, hostgroupName):
-        """
-        :param hostgroupName: 主机组名称
-        :type hostgroupName: list
-        :return:
-        """
-        method = "hostgroup.get"
+    def get_item(self, hostids):
+        method = "item.get"
         params = {
             "output": "extend",
-            "selectHosts": "extend",
-            "filter": {
-                "name": hostgroupName
-            }
+            "hostids": hostids,
+            "search": {
+                'key_': ['system.cpu.load', 'vm.memory', 'net']
+            },
+            'searchByAny': True,
+            "sortfield": "name"
         }
-        req = self.request(method, params)
-        return req
+        res = self.request(method, params)
+        return res
 
-    def create_hostgroup(self, hostgroupName):
-        if self.get_hostgroups([hostgroupName]):
-            return {"code": "10002", "message": "The hostgroup was added!"}
-
-        method = "hostgroup.create"
-        params = {"name": hostgroupName}
-        req = self.request(method, params)
-        return req
-
-    def get_templetes(self, templateName):
-        """
-        :param templateName:
-        :type templateName: list
-        :return:
-        """
-        method = "template.get"
+    def get_history(self, itemids, history=3):
+        method = "history.get"
         params = {
             "output": "extend",
-            "filter": {
-                "name": templateName
-            }
+            "history": history,
+            "itemids": itemids,
+            "sortfield": "clock",
+            "sortorder": "DESC",
+            "limit": 10
         }
-        req = self.request(method, params)
-        return req
+        res = self.request(method, params)
+        return res
 
     def get_graph(self, host_id):
         method = "graph.get"

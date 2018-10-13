@@ -6,7 +6,6 @@ import xlwt
 import logging
 from utils.export_excel import ExportExcel
 from Ops import settings
-from assets.utils.zabbix_api import ZabbixApi
 from django.db.models import Count
 from django.http import JsonResponse, FileResponse
 from django.shortcuts import render
@@ -182,23 +181,6 @@ def server_facts(request):
                         return JsonResponse({'code': 200, 'msg': data[data.index('>>') + 1:]})
         except Exception as e:
             return JsonResponse({'code': 500, 'msg': str(e)})
-
-
-@permission_required('Ops.add_assets', raise_exception=True)
-def get_host_graph(request, pk):
-    host_ip = Assets.objects.get(id=pk).asset_management_ip
-    zabbix_api = ZabbixApi(settings.ZABBIX_INFO['api_url'], settings.ZABBIX_INFO['username'],
-                           settings.ZABBIX_INFO['password'])
-    zabbix_api.login()
-    host_id, group_id = zabbix_api.get_host(host_ip=host_ip)
-    graphids = zabbix_api.get_graph(host_id)
-    graphs = set()
-    for graphid in graphids:
-        graph_name = zabbix_api.save_graph(settings.ZABBIX_INFO['login_url'], settings.ZABBIX_INFO['graph_url'],
-                                           int(graphid['graphid']))
-        graphs.add(graph_name)
-
-    return render(request, 'assets/graph.html', {'graphs': graphs})
 
 
 @permission_required('Ops.add_assets', raise_exception=True)

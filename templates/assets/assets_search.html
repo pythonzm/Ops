@@ -197,9 +197,6 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <a href="{% url 'get_host_graph' asset.id %}" target="_blank">
-                                            <button type="button" class="btn btn-info btn-xs">监控</button>
-                                        </a>
                                         {% if request.user.is_superuser %}
                                             <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
                                                 <button type="button" class="btn btn-info btn-xs"><i
