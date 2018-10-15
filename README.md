@@ -63,8 +63,9 @@ cp conf/celeryd.server /etc/init.d/celeryd
 ```
 
 七、配置获取主机内存脚本
-编辑ansible配置文件
+
 ```
+// 编辑ansible配置文件
 [defaults] 
 library        = /usr/share/ansible/my_modules/
 
