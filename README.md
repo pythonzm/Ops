@@ -62,7 +62,16 @@ cp conf/celeryd.server /etc/init.d/celeryd
 /etc/init.d/celeryd start
 ```
 
-七、启动服务
+七、配置获取主机内存脚本
+编辑ansible配置文件
+```
+[defaults] 
+library        = /usr/share/ansible/my_modules/
+
+cp conf/get_mem.py /usr/share/ansible/my_modules/
+```
+
+八、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
 ```
 python manage.py makemigrations
