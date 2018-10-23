@@ -10,7 +10,6 @@
                     2018-07-16:
 -------------------------------------------------
 """
-from __future__ import absolute_import, unicode_literals
 from Ops.celery import app
 from assets.models import AssetsLog, SSHRecord
 from conf.logger import user_logger

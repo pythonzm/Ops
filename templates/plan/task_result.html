@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #celery-result > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #celery-result > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- /.box -->
+
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="celery-result" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>任务函数</th>
+                            <th>执行状态</th>
+                            <th>完成时间</th>
+                            <th>任务结果</th>
+                            <th>任务异常</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for task_result in task_results %}
+
+                            <tr>
+                                <td>{{ task_result.task_name }}</td>
+                                <td>{{ task_result.status }}</td>
+                                <td>{{ task_result.date_done|date:"Y-m-d H:i:s" }}</td>
+                                <td>{{ task_result.result }}</td>
+                                <td>{{ task_result.traceback }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('#celery-result').DataTable({
+                "order": [[2, "desc"]]
+            });
+        });
+    </script>
+
+{% endblock %}
+

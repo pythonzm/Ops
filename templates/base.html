@@ -73,11 +73,16 @@ desired effect
     <header class="main-header">
 
         <!-- Logo -->
-        <a href="{% url 'dashboard' %}" class="logo">
-            <!-- mini logo for sidebar mini 50x50 pixels -->
-            <span class="logo-mini"><b>JR</b></span>
-            <!-- logo for regular state and mobile devices -->
-            <span class="logo-lg"><b>巨人</b>运维系统</span>
+        {% if user.is_superuser %}
+            <a href="{% url 'dashboard' %}" class="logo">
+        {% else %}
+            <a href="javascript:void(0)" class="logo">
+        {% endif %}
+
+        <!-- mini logo for sidebar mini 50x50 pixels -->
+        <span class="logo-mini"><b>JR</b></span>
+        <!-- logo for regular state and mobile devices -->
+        <span class="logo-lg"><b>巨人</b>运维系统</span>
         </a>
 
         <!-- Header Navbar -->
@@ -345,6 +350,21 @@ desired effect
                     </li>
                 {% endif %}
 
+                {% if perms.plan.add_periodictask %}
+                    <li class="treeview">
+                        <a href="#"><i class="fa fa-fw fa-sliders"></i> <span>任务编排</span>
+                            <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="{% url 'schedule_list' %}"><i class="fa fa-clock-o"></i> 调度管理</a></li>
+                            <li><a href="{% url 'task_list' %}"><i class="fa fa-star"></i> 任务管理</a></li>
+                            <li><a href="{% url 'task_result' %}"><i class="fa fa-retweet"></i> 任务结果</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+
                 <li class="treeview">
                     <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
                         <span class="pull-right-container">
@@ -369,7 +389,7 @@ desired effect
             <section class="content-header">
                 <h1></h1>
                 <ol class="breadcrumb">
-                    <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> 仪表盘</a></li>
+                    <li><a href="javascript:void(0);"><i class="fa fa-dashboard"></i> 仪表盘</a></li>
                     <li><a href="javascript:void(0);"></a></li>
                     <li class="active"></li>
                 </ol>

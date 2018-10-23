@@ -129,3 +129,9 @@ class FortUserViewSet(viewsets.ModelViewSet):
     queryset = FortServerUser.objects.all().order_by('id')
     serializer_class = FortUserSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+class PeriodicTaskViewSet(viewsets.ModelViewSet):
+    queryset = PeriodicTask.objects.all()
+    serializer_class = PeriodicTaskSerializer
+    permission_classes = (permissions.IsAuthenticated,)

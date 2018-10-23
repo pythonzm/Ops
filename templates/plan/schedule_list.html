@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #interval_schedule > tbody > tr > td {
+            text-align: center;
+        }
+
+        #crontab_schedule > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #crontab_schedule > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        #interval_schedule > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+
+        <!-- crontab_schedule -->
+        <div class="col-md-6">
+            <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
+                <button class="btn btn-sm btn-success pull-left" data-toggle="modal"
+                        data-target="#CrontabScheduleModal">
+                    <i class="fa fa-plus-square"></i>
+                    <span class="bigger-110">新增crontab_schedule</span>
+                </button>
+            </div>
+            <div class="col-xs-12">
+                <!-- /.box -->
+                <div class="box">
+                    <div class="box-body">
+                        <table id="crontab_schedule" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>分</th>
+                                <th>时</th>
+                                <th>日</th>
+                                <th>月</th>
+                                <th>周</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for crontab_schedule in crontab_schedules %}
+
+                                <tr>
+                                    <td>{{ crontab_schedule.minute }}</td>
+                                    <td>{{ crontab_schedule.hour }}</td>
+                                    <td>{{ crontab_schedule.day_of_month }}</td>
+                                    <td>{{ crontab_schedule.month_of_year }}</td>
+                                    <td>{{ crontab_schedule.day_of_week }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-xs delete"
+                                                data-id="{{ crontab_schedule.id }}">删除
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CrontabScheduleModal  -->
+                <div class="modal fade" id="CrontabScheduleModal" tabindex="-1" role="dialog"
+                     aria-labelledby="CrontabScheduleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title" id="CrontabScheduleModalLabel">
+                                    新增crontab_schedule
+                                </h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="main form-horizontal" id="add-crontab_schedule">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="minute" class="col-sm-2 control-label">分</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="minute"
+                                                       id="minute" value="*/5" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="hour" class="col-sm-2 control-label">时</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="hour"
+                                                       id="hour" value="*" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="day_of_month" class="col-sm-2 control-label">日</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="day_of_month" value="*"
+                                                       id="day_of_month" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="month_of_year" class="col-sm-2 control-label">月</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="month_of_year" value="*"
+                                                       id="month_of_year" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="day_of_week" class="col-sm-2 control-label">周</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="day_of_week" value="*"
+                                                       id="day_of_week" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" style="display: none">
+                                            <label for="timezone" class="col-sm-2 control-label">时区</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="timezone" value="{{ timezone }}"
+                                                       id="timezone" readonly/>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-24"></div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                        id="crontab_schedule_ops">添加
+                                </button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+                </div>
+            </div>
+        </div>
+
+        <!-- interval_schedule -->
+        <div class="col-md-6">
+            <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
+                <button class="btn btn-sm btn-success pull-left" data-toggle="modal"
+                        data-target="#IntervalScheduleModal">
+                    <i class="fa fa-plus-square"></i>
+                    <span class="bigger-110">新增interval_schedule</span>
+                </button>
+            </div>
+            <div class="col-xs-12">
+                <!-- /.box -->
+                <div class="box">
+                    <div class="box-body">
+                        <table id="interval_schedule" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>间隔</th>
+                                <th>类型</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for interval_schedule in interval_schedules %}
+
+                                <tr>
+                                    <td>{{ interval_schedule.every }}</td>
+                                    <td>
+                                        {% if 'days' == interval_schedule.period %}
+                                            天
+                                        {% elif 'hours' == interval_schedule.period %}
+                                            小时
+                                        {% elif 'minutes' == interval_schedule.period %}
+                                            分钟
+                                        {% elif 'seconds' == interval_schedule.period %}
+                                            秒
+                                        {% elif 'microseconds' == interval_schedule.period %}
+                                            毫秒
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-xs delete"
+                                                data-id="{{ interval_schedule.id }}">删除
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- IntervalScheduleModal  -->
+                <div class="modal fade" id="IntervalScheduleModal" tabindex="-1" role="dialog"
+                     aria-labelledby="IntervalScheduleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title" id="IntervalScheduleModalLabel">
+                                    新增interval_schedule
+                                </h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="main form-horizontal" id="add-interval_schedule">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="every" class="col-sm-2 control-label">间隔</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="every" placeholder="5"
+                                                       id="every" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="period" class="col-sm-2 control-label">类型</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="period" id="period"
+                                                        style="width: 100%;">
+                                                    <option value="days">天</option>
+                                                    <option value="hours">小时</option>
+                                                    <option value="minutes">分钟</option>
+                                                    <option value="seconds">秒</option>
+                                                    <option value="microseconds">毫秒</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-24"></div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                        id="interval_schedule_ops">添加
+                                </button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            crontab_schedule_table = $('#crontab_schedule').DataTable({
+                ordering: false
+            });
+
+            interval_schedule_table = $('#interval_schedule').DataTable({
+                ordering: false
+            });
+
+            // Initialize Select2 Elements
+            $('.select2').select2()
+        });
+
+        // 添加crontab_schedule
+        $('#crontab_schedule_ops').on('click', function () {
+            $.ajax({
+                url: '{% url 'add_crontab_schedule' %}',
+                type: 'POST',
+                data: $('#add-crontab_schedule').serialize(),
+                success: function (res) {
+                    crontab_schedule_table.row.add([
+                        $('#minute').val(),
+                        $('#hour').val(),
+                        $('#day_of_month').val(),
+                        $('#month_of_year').val(),
+                        $('#day_of_week').val(),
+                        `<button type="button" class="btn btn-danger btn-xs delete" data-id="${res.data}">删除 </button>`
+                    ]).draw();
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        // 删除crontab_schedule
+        $('#crontab_schedule tbody').on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/plan/del_schedule/' + pk + '/',
+                            method: 'POST',
+                            data: {schedule_type: 'crontab_schedule'},
+                            success: function () {
+                                crontab_schedule_table.row(tr_obj).remove().draw();
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        });
+
+        // 添加interval_schedule
+        $('#interval_schedule_ops').on('click', function () {
+            $.ajax({
+                url: '{% url 'add_interval_schedule' %}',
+                type: 'POST',
+                data: $('#add-interval_schedule').serialize(),
+                success: function (res) {
+                    interval_schedule_table.row.add([
+                        $('#every').val(),
+                        $('#period option:selected').text(),
+                        `<button type="button" class="btn btn-danger btn-xs delete" data-id="${res.data}">删除 </button>`
+                    ]).draw();
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        // 删除interval_schedule
+        $('#interval_schedule tbody').on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/plan/del_schedule/' + pk + '/',
+                            method: 'POST',
+                            data: {schedule_type: 'interval_schedule'},
+                            success: function () {
+                                interval_schedule_table.row(tr_obj).remove().draw();
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        });
+
+    </script>
+
+{% endblock %}
+

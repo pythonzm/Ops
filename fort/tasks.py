@@ -29,3 +29,9 @@ def fort_record(login_user, fort, remote_ip, start_time, login_status_time, reco
         )
     except Exception as e:
         fort_logger.error('添加用户操作记录失败，原因：{}'.format(e))
+
+
+@app.task
+def test_celery(filename, some):
+    with open(filename, 'a+') as f:
+        f.write(some)

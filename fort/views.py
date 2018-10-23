@@ -52,7 +52,6 @@ def fort_server(request):
     hosts = ServerAssets.objects.select_related('assets')
     server_status = FortServer.server_status_
     fort_user_status = FortServerUser.fort_user_status_
-    auth_types = FortServerUser.auth_types
     users = UserProfile.objects.all()
     groups = Group.objects.all()
     return render(request, 'fort/fort_server.html', locals())

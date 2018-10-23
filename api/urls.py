@@ -24,6 +24,7 @@ router.register(r'user_log', views.UserLogViewSet)
 router.register(r'assets_log', views.AssetsLogViewSet)
 router.register(r'fort', views.FortViewSet)
 router.register(r'fort_user', views.FortUserViewSet)
+router.register(r'periodic_task', views.PeriodicTaskViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),

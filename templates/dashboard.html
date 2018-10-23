@@ -40,7 +40,7 @@
                 <div class="icon">
                     <i class="fa fa-github"></i>
                 </div>
-                <a href="#" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="{% url 'proj_list' %}" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -64,14 +64,14 @@
             <!-- small box -->
             <div class="small-box bg-red">
                 <div class="inner">
-                    <h3>65</h3>
+                    <h3>{{ fort_server_count }}</h3>
 
-                    <p>Unique Visitors</p>
+                    <p>终端总数</p>
                 </div>
                 <div class="icon">
-                    <i class="ion ion-pie-graph"></i>
+                    <i class="ion fa-location-arrow"></i>
                 </div>
-                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="{% url 'fort_server' %}" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->

@@ -4,19 +4,17 @@
 {% block head %}
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
-    <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
 
     <style>
         /* dataTables列内容居中 */
-        #example1 > tbody > tr > td {
+        #group > tbody > tr > td {
             text-align: center;
         }
 
         /* dataTables表头居中 */
-        #example1 > thead:first-child > tr:first-child > th {
+        #group > thead:first-child > tr:first-child > th {
             text-align: center;
         }
     </style>
@@ -27,18 +25,15 @@
 
     <div class="row">
         <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
-            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#myAddGroupModal">
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#GroupModal"
+                    id="add-group">
                 <i class="fa fa-user-plus"></i>
                 <span class="bigger-110">新增用户组</span>
             </button>
-            <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
-                <i class="fa fa-user-times"></i>
-                <span class="bigger-110">批量删除</span>
-            </button>
         </div>
 
-        <!-- addGroupModal  -->
-        <div class="modal fade" id="myAddGroupModal" tabindex="-1" role="dialog" aria-labelledby="myAddGroupModalLabel"
+        <!-- GroupModal  -->
+        <div class="modal fade" id="GroupModal" tabindex="-1" role="dialog" aria-labelledby="GroupModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -46,26 +41,27 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                             &times;
                         </button>
-                        <h4 class="modal-title" id="myAddGroupModalLabel">
-                            新增用户组
+                        <h4 class="modal-title" id="GroupModalLabel">
+
                         </h4>
                     </div>
                     {% if perms.auth.add_group %}
                         <div class="modal-body">
-                            <form class="main form-horizontal" id="add-group">
+                            <form class="main form-horizontal" id="group_detail">
                                 <fieldset>
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">用户组名称</label>
+                                        <label for="name" class="col-sm-2 control-label">用户组名称</label>
                                         <div class="col-sm-6">
-                                            <input type="text" class="form-control" id="name" required/>
+                                            <input type="text" class="form-control" id="name" name="name" required/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">添加用户</label>
+                                        <label for="user_set" class="col-sm-2 control-label">组内用户</label>
                                         <div class="col-sm-6">
 
                                             <select class="form-control select2" multiple="multiple" id="user_set"
+                                                    name="user_set"
                                                     style="width: 100%;">
                                                 {% for user in users %}
                                                     <option value="{{ user.id }}">{{ user.username }}</option>
@@ -76,11 +72,11 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">添加权限</label>
+                                        <label for="permissions" class="col-sm-2 control-label">用户组权限</label>
                                         <div class="col-sm-6">
 
                                             <select class="form-control select2" multiple="multiple"
-                                                    id="permissions"
+                                                    id="permissions" name="permissions"
                                                     style="width: 100%;">
                                                 {% for permission in permissions %}
                                                     <option value="{{ permission.id }}">{{ permission.name }}</option>
@@ -95,11 +91,9 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="createGroup()">
-                                添加
-                            </button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                    id="group_ops"></button>
                         </div>
                     {% else %}
                         <div class="modal-body">
@@ -118,12 +112,9 @@
             <!-- /.box -->
             <div class="box">
                 <div class="box-body">
-                    <table id="example1" class="table table-bordered table-striped">
+                    <table id="group" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th><label>
-                                <input type="checkbox" class="minimal-red" id="checkAll">
-                            </label></th>
                             <th>用户组名称</th>
                             <th>组内用户</th>
                             <th>操作</th>
@@ -132,10 +123,7 @@
                         <tbody>
                         {% for group in groups %}
 
-                            <tr id="group-{{ group.id }}">
-                                <td><label>
-                                    <input type="checkbox" class="minimal" value="{{ group.id }}">
-                                </label></td>
+                            <tr>
                                 <td>{{ group.name }}</td>
                                 <td>
                                     {% for user in group.user_set.all %}
@@ -143,93 +131,14 @@
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
-                                            data-target="#updateGroupModal-{{ group.id }}">详细/更新
+                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-target="#GroupModal" data-id="{{ group.id }}">详细/更新
                                     </button>
-                                    <button type="button" class="btn btn-danger btn-xs"
-                                            onclick="deleteGroup({{ group.id }})">删除
+                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ group.id }}">
+                                        删除
                                     </button>
                                 </td>
                             </tr>
-
-                            <!-- updateGroupModal  -->
-                            <div class="modal fade" id="updateGroupModal-{{ group.id }}" tabindex="-1" role="dialog"
-                                 aria-labelledby="updateGroupModalLabel"
-                                 aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                                                &times;
-                                            </button>
-                                            <h4 class="modal-title" id="myUpdateGroupModalLabel">
-                                                用户组信息
-                                            </h4>
-                                        </div>
-                                        {% if perms.auth.change_group %}
-                                            <div class="modal-body">
-                                                <form class="main form-horizontal" id="update-group">
-                                                    <fieldset>
-                                                        <div class="form-group">
-                                                            <label for="name">用户组名称</label>
-                                                            <input id="name" class="form-control" type="text"
-                                                                   value="{{ group.name }}">
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label for="user_set">用户列表</label>
-                                                            <select class="form-control select2" multiple="multiple"
-                                                                    id="user_set" style="width: 100%;">
-                                                                {% for user in users %}
-                                                                    {% if user in group.user_set.all %}
-                                                                        <option value="{{ user.id }}"
-                                                                                selected>{{ user }}</option>
-                                                                    {% else %}
-                                                                        <option value="{{ user.id }}">{{ user }}</option>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label for="permissions">用户组权限</label>
-                                                            <select class="form-control select2" multiple="multiple"
-                                                                    id="permissions"
-                                                                    style="width: 100%;">
-                                                                {% for permission in permissions %}
-                                                                    {% if permission in group.permissions.all %}
-                                                                        <option value="{{ permission.id }}"
-                                                                                selected>{{ permission }}</option>
-                                                                    {% else %}
-                                                                        <option value="{{ permission.id }}">{{ permission }}</option>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="space-24"></div>
-                                                    </fieldset>
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
-                                                </button>
-                                                <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                                        onclick="updateGroup({{ group.id }})">确认修改
-                                                </button>
-                                            </div>
-                                        {% else %}
-                                            <div class="modal-body">
-                                                抱歉！您没有修改用户组的权限！如有疑问，请联系管理员！
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">确认
-                                                </button>
-                                            </div>
-                                        {% endif %}
-                                    </div><!-- /.modal-content -->
-                                </div><!-- /.modal -->
-                            </div>
 
                         {% endfor %}
 
@@ -252,19 +161,17 @@
     <!-- DataTables -->
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
-    <!-- iCheck 1.0.1 -->
-    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
 
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 
     <script>
         $(function () {
-            $('#example1').DataTable({
+            group_table = $('#group').DataTable({
                 columnDefs: [{
-                    'targets': [0, -1],
+                    'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[1, "asc"]]
+                "order": [[0, "asc"]]
             });
         });
 
@@ -275,47 +182,101 @@
             })
         });
 
-        // iCheck for checkbox inputs
-        $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
-            checkboxClass: 'icheckbox_minimal-blue',
+        let group_tbody = $('#group tbody');
+        let group_ops = $('#group_ops');
+        // 新增用户组
+        $('#add-group').on('click', function () {
+            $(".select2").val('').trigger('change');
+            $('.modal-title').text('新增用户组');
+            group_ops.text('添加');
+
+            group_ops.unbind('click').on('click', function () {
+                let user_name = $('#user_set option:selected').text();
+                let data = $('#group_detail').serializeJson();
+                $.ajax({
+                    url: '/api/group/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        group_table.row.add([
+                            res.name,
+                            user_name,
+                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-target="#GroupModal" data-id="${res.id}">详细/更新</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                        ]).draw();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
         });
 
-        // 实现全选
-        $(function () {
-            let checkAll = $('#checkAll');
-            let checkboxes = $('input[type="checkbox"]');
-            checkAll.on('ifChecked ifUnchecked', function (event) {
-                if (event.type === 'ifChecked') {
-                    checkboxes.iCheck('check');
-                } else {
-                    checkboxes.iCheck('uncheck');
-                }
+        // 更新组信息
+        group_tbody.on('click', '.modify', function () {
+            let group_id = $(this).attr('data-id');
+            $('.modal-title').text('修改用户组');
+            group_ops.text('确认修改');
+
+            $.get('/api/group/' + group_id + '/', function (data) {
+                $('#name').val(data.name);
+                $('#user_set').val(data.user_set).trigger('change');
+                $('#permissions').val(data.permissions).trigger('change');
             });
-            checkboxes.on('ifChanged', function () {
-                if (checkboxes.filter(':checked').length === checkboxes.length) {
-                    checkAll.prop('checked', 'checked');
-                } else {
-                    checkAll.removeProp('checked');
-                }
-                checkAll.iCheck('update');
+
+            group_ops.unbind('click').on('click', function () {
+                let data = $('#group_detail').serializeJson();
+                $.ajax({
+                    url: '/api/group/' + group_id + '/',
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function () {
+                        $.confirm({
+                            title: 'Tips!',
+                            content: '修改完成!',
+                            type: 'green',
+                            buttons: {
+                                ok: function () {
+                                    window.location.reload()
+                                }
+                            }
+                        });
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
             });
         });
 
         // 删除用户组
-        function deleteGroup(id) {
+        group_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
             {% if perms.auth.delete_group %}
                 $.confirm({
                     title: 'Tips',
-                    content: '确定要删除这个用户组么？',
+                    content: '确定要删除这条记录么？',
                     type: 'red',
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/api/group/' + id,
+                                url: '/api/group/' + pk + '/',
                                 method: 'DELETE',
                                 success: function () {
-                                    let str = 'group-' + id;
-                                    document.getElementById(str).innerHTML = '';
+                                    group_table.row(tr_obj).remove().draw();
                                 },
                                 error: function (data) {
                                     $.alert({
@@ -327,7 +288,7 @@
                             })
                         },
                         Cancel: function () {
-                            // close
+                            //
                         }
                     }
                 });
@@ -338,114 +299,31 @@
                     content: '抱歉！您没有删除用户组的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-
-        }
-
-        // 批量删除
-        $("#deleteChecked").click(function () {
-            {% if perms.auth.delete_group %}
-                let checkedID = [];
-                $('input[type="checkbox"].minimal:checked').each(function () {
-                    checkedID.push($(this).val());
-                });
-                if (checkedID.length === 0) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: '请选择要删除的用户组！',
-                    })
-                } else {
-                    $.confirm({
-                        title: 'Tips',
-                        content: '确定要删除这些用户组么？',
-                        type: 'red',
-                        buttons: {
-                            Ok: function () {
-                                for (let i = 0; i < checkedID.length; i++) {
-                                    $.ajax({
-                                        url: '/api/group/' + checkedID[i],
-                                        method: 'DELETE',
-                                        success: function () {
-                                            let str = 'group-' + checkedID[i];
-                                            document.getElementById(str).innerHTML = '';
-                                        },
-                                        error: function (data) {
-                                            $.alert({
-                                                title: 'Tips',
-                                                type: 'red',
-                                                content: '删除失败！' + data.responseText,
-                                            })
-                                        }
-                                    })
-                                }
-                            },
-                            Cancel: function () {
-                                // close
-                            }
-                        }
-                    })
-                }
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有删除用户组的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
-
         });
 
-        // 新增用户组
-        function createGroup() {
-            let data = {
-                name: $('#add-group #name').val(),
-                user_set: $('#add-group #user_set').val(),
-                permissions: $('#add-group #permissions').val()
+        // 将数据JSON化
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        if (this.name === 'name') {
+                            serializeObj[this.name] = this.value;
+                        } else {
+                            serializeObj[this.name] = [this.value];
+                        }
+                    }
+                });
+                return serializeObj;
             };
-            $.ajax({
-                url: '/api/group/',
-                type: "POST",
-                data: JSON.stringify(data),
-                dataType: 'json',
-                contentType: "application/json",
-                success: function () {
-                    window.location.reload();
-                },
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response.responseText,
-                    });
-                }
-            })
-        }
-
-        // 更新组信息
-        function updateGroup(id) {
-            let data = {
-                name: $('#updateGroupModal-' + id + ' #name').val(),
-                user_set: $('#updateGroupModal-' + id + ' #user_set').val(),
-                permissions: $('#updateGroupModal-' + id + ' #permissions').val()
-            };
-            $.ajax({
-                url: "/api/group/" + id + "/",
-                type: "PUT",
-                data: JSON.stringify(data),
-                dataType: 'json',
-                contentType: "application/json",
-                success: function () {
-                    window.location.reload();
-                },
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response.responseText,
-                    })
-                }
-            });
-        }
+        })(jQuery);
 
     </script>
 

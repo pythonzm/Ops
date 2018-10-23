@@ -8,6 +8,7 @@ from django.contrib.auth.models import Permission, Group
 from utils.crypt_pwd import CryptPwd
 from fort.models import *
 from projs.models import *
+from django_celery_beat.models import PeriodicTask
 
 
 class ModuleLogSerializer(serializers.ModelSerializer):
@@ -219,4 +220,10 @@ class FortSerializer(serializers.ModelSerializer):
 class FortUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = FortServerUser
+        fields = '__all__'
+
+
+class PeriodicTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodicTask
         fields = '__all__'

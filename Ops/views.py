@@ -5,13 +5,15 @@ from django.shortcuts import redirect, render
 from assets.models import *
 from users.models import UserProfile
 from projs.models import Project
+from fort.models import FortServer
 
 
 def dashboard(request):
     if request.user.is_superuser:
-        assets_count = Assets.objects.all().count()
-        project_count = Project.objects.all().count()
-        user_count = UserProfile.objects.all().count()
+        assets_count = Assets.objects.count()
+        project_count = Project.objects.count()
+        user_count = UserProfile.objects.count()
+        fort_server_count = FortServer.objects.count()
         return render(request, 'dashboard.html', locals())
     else:
         return HttpResponseForbidden('<h1>403 Forbidden</h1>', content_type='text/html')

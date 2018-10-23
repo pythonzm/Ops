@@ -19,15 +19,19 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Ops.settings')
 
 app = Celery('Ops', broker='amqp://rabbitmq:rabbitmq@localhost:5672/myvhost')
 
-app.conf.task_default_queue = 'default'
 app.conf.task_queues = (
     Queue('default', Exchange('default', type='direct'), routing_key='default'),
     Queue('ansible', Exchange('ansible', type='direct'), routing_key='ansible'),
     Queue('fort', Exchange('fort', type='direct'), routing_key='fort'),
+    Queue('plan', Exchange('plan', type='direct'), routing_key='plan'),
 )
-task_default_exchange = 'default'
-task_default_exchange_type = 'direct'
-task_default_routing_key = 'default'
+
+app.conf.task_default_queue = 'default'
+app.conf.task_default_exchange = 'default'
+app.conf.task_default_exchange_type = 'direct'
+app.conf.task_default_routing_key = 'default'
+app.conf.timezone = 'Asia/Shanghai'
+app.conf.enable_utc = False
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

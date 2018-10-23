@@ -4,20 +4,22 @@
 {% block head %}
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
-    <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
 
     <style>
         /* dataTables列内容居中 */
-        #example1 > tbody > tr > td {
+        #user > tbody > tr > td {
             text-align: center;
         }
 
         /* dataTables表头居中 */
-        #example1 > thead:first-child > tr:first-child > th {
+        #user > thead:first-child > tr:first-child > th {
             text-align: center;
+        }
+
+        .form-horizontal .form-group {
+            margin-right: -200px;
         }
     </style>
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
@@ -27,18 +29,14 @@
 
     <div class="row">
         <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
-            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#myAddUserModal">
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#UserModal" id="add-user">
                 <i class="fa fa-user-plus"></i>
                 <span class="bigger-110">新增用户</span>
             </button>
-            <button class="btn btn-sm btn-danger pull-left" id="deleteChecked" style="margin-left: 2px">
-                <i class="fa fa-user-times"></i>
-                <span class="bigger-110">批量删除</span>
-            </button>
         </div>
 
-        <!-- addUserModal  -->
-        <div class="modal fade" id="myAddUserModal" tabindex="-1" role="dialog" aria-labelledby="myAddUserModalLabel"
+        <!-- UserModal  -->
+        <div class="modal fade" id="UserModal" tabindex="-1" role="dialog" aria-labelledby="UserModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -46,95 +44,87 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                             &times;
                         </button>
-                        <h4 class="modal-title" id="myAddUserModalLabel">
-                            新增用户
+                        <h4 class="modal-title" id="UserModalLabel">
+
                         </h4>
                     </div>
-                    {% if perms.users.add_userprofile %}
-                        <div class="modal-body">
-                            <form id="register" class="main form-horizontal">
-                                <fieldset>
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">用户名称</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="username" required/>
-                                        </div>
+
+                    <div class="modal-body">
+                        <form id="user_detail" class="main form-horizontal">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="username" class="col-sm-2 control-label">用户名称</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="username" id="username"
+                                               required/>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">手机号码</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="mobile"/>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="mobile" class="col-sm-2 control-label">手机号码</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="mobile" id="mobile"/>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">超级管理员</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" name="is_superuser"
-                                                    style="width: 100%;">
-                                                <option value="1">是</option>
-                                                <option value="0" selected>否</option>
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="is_superuser" class="col-sm-2 control-label">超级管理员</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" name="is_superuser" id="is_superuser"
+                                                style="width: 100%;">
+                                            <option value="1">是</option>
+                                            <option value="0" selected>否</option>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">是否激活</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" name="is_active" style="width: 100%;">
-                                                <option value="1" selected>是</option>
-                                                <option value="0">否</option>
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="is_active" class="col-sm-2 control-label">是否激活</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" name="is_active" id="is_active"
+                                                style="width: 100%;">
+                                            <option value="1" selected>是</option>
+                                            <option value="0">否</option>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">所属组</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" multiple="multiple" name="groups"
-                                                    style="width: 100%;">
-                                                {% for group in groups %}
-                                                    <option value="{{ group.id }}">{{ group }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="groups" class="col-sm-2 control-label">所属组</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" multiple="multiple" name="groups"
+                                                id="groups"
+                                                style="width: 100%;">
+                                            {% for group in groups %}
+                                                <option value="{{ group.id }}">{{ group.name }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label class="col-sm-2 control-label">用户权限</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" multiple="multiple"
-                                                    name="user_permissions"
-                                                    style="width: 100%;">
-                                                {% for permission in permissions %}
-                                                    <option value="{{ permission.id }}">{{ permission }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="user_permissions" class="col-sm-2 control-label">用户权限</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" multiple="multiple"
+                                                name="user_permissions" id="user_permissions"
+                                                style="width: 100%;">
+                                            {% for permission in permissions %}
+                                                <option value="{{ permission.id }}">{{ permission }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
+                                </div>
 
+                                <div class="space-24"></div>
 
-                                    <div class="space-24"></div>
-
-                                </fieldset>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="createUser()">
-                                添加
-                            </button>
-                        </div>
-                    {% else %}
-                        <div class="modal-body">
-                            抱歉！您没有新增用户的权限！如有疑问，请联系管理员！
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
-                        </div>
-                    {% endif %}
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                id="user_ops"></button>
+                    </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal -->
         </div>
@@ -144,12 +134,9 @@
             <!-- /.box -->
             <div class="box">
                 <div class="box-body">
-                    <table id="example1" class="table table-bordered table-striped">
+                    <table id="user" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th><label>
-                                <input type="checkbox" class="minimal-red" id="checkAll">
-                            </label></th>
                             <th>ID</th>
                             <th>用户名称</th>
                             <th>超级管理员</th>
@@ -162,10 +149,7 @@
                         <tbody>
                         {% for user in user_list %}
 
-                            <tr id="user-{{ user.id }}">
-                                <td><label>
-                                    <input type="checkbox" class="minimal" value="{{ user.id }}">
-                                </label></td>
+                            <tr>
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.username }}</td>
                                 <td>
@@ -189,132 +173,17 @@
                                 </td>
                                 <td>{{ user.mobile|default:'' }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal"
-                                            data-target="#updateUserModal-{{ user.id }}">详细/更新
+                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-id="{{ user.id }}" data-target="#UserModal">详细/更新
                                     </button>
-                                    <button type="button" class="btn btn-warning btn-xs"
-                                            onclick="resetPassword({{ user.id }})">重置密码
+                                    <button type="button" class="btn btn-warning btn-xs change_pwd"
+                                            data-id="{{ user.id }}">重置密码
                                     </button>
-                                    <button type="button" class="btn btn-danger btn-xs"
-                                            onclick="deleteUser({{ user.id }})">删除
+                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ user.id }}">
+                                        删除
                                     </button>
                                 </td>
                             </tr>
-
-
-                            <!-- updateUserModal  -->
-                            <div class="modal fade" id="updateUserModal-{{ user.id }}" tabindex="-1" role="dialog"
-                                 aria-labelledby="myUpdateUserModalLabel"
-                                 aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                                                &times;
-                                            </button>
-                                            <h4 class="modal-title" id="myUpdateUserModalLabel">
-                                                用户信息
-                                            </h4>
-                                        </div>
-                                        {% if perms.users.change_userprofile %}
-                                            <div class="modal-body">
-                                                <form id="update-user" class="main form-horizontal">
-                                                    <fieldset>
-                                                        <div class="form-group">
-                                                            <label for="username">用户名称</label>
-                                                            <input id="username" class="form-control" type="text"
-                                                                   value="{{ user.username }}">
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label for="mobile">手机号码</label>
-                                                            <input id="mobile" class="form-control" type="number"
-                                                                   value="{{ user.mobile }}">
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label for="is_superuser">超级管理员</label>
-                                                            <select class="form-control select2" id="is_superuser"
-                                                                    style="width: 100%;">
-                                                                {% if user.is_superuser %}
-                                                                    <option selected="selected" value="1">是</option>
-                                                                    <option value="0">否</option>
-                                                                {% else %}
-                                                                    <option value="1">是</option>
-                                                                    <option selected="selected" value="0">否</option>
-                                                                {% endif %}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label for="is_active">是否激活</label>
-                                                            <select class="form-control select2" id="is_active"
-                                                                    style="width: 100%;">
-                                                                {% if user.is_active %}
-                                                                    <option selected="selected" value="1">是</option>
-                                                                    <option value="0">否</option>
-                                                                {% else %}
-                                                                    <option value="1">是</option>
-                                                                    <option selected="selected" value="0">否</option>
-                                                                {% endif %}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label for="groups">所属组</label>
-                                                            <select class="form-control select2" multiple="multiple"
-                                                                    id="groups" style="width: 100%;">
-                                                                {% for group in groups %}
-                                                                    {% if group in user.groups.all %}
-                                                                        <option value="{{ group.id }}"
-                                                                                selected>{{ group }}</option>
-                                                                    {% else %}
-                                                                        <option value="{{ group.id }}">{{ group }}</option>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label for="user_permissions">用户权限</label>
-                                                            <select class="form-control select2" multiple="multiple"
-                                                                    id="user_permissions"
-                                                                    style="width: 100%;">
-                                                                {% for permission in permissions %}
-                                                                    {% if permission in user.user_permissions.all %}
-                                                                        <option value="{{ permission.id }}"
-                                                                                selected>{{ permission }}</option>
-                                                                    {% else %}
-                                                                        <option value="{{ permission.id }}">{{ permission }}</option>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="space-24"></div>
-
-                                                    </fieldset>
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
-                                                </button>
-                                                <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                                        onclick="updateUser({{ user.id }})">确认修改
-                                                </button>
-                                            </div>
-                                        {% else %}
-                                            <div class="modal-body">
-                                                抱歉！您没有新增用户的权限！如有疑问，请联系管理员！
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">确认
-                                                </button>
-                                            </div>
-                                        {% endif %}
-                                    </div><!-- /.modal-content -->
-                                </div><!-- /.modal -->
-                            </div>
 
                         {% endfor %}
 
@@ -337,19 +206,16 @@
     <!-- DataTables -->
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
-    <!-- iCheck 1.0.1 -->
-    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
-
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 
     <script>
         $(function () {
-            $('#example1').DataTable({
+            user_table = $('#user').DataTable({
                 columnDefs: [{
-                    'targets': [0, -1],
+                    'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[1, "asc"]]
+                "order": [[0, "asc"]]
             });
         });
 
@@ -360,47 +226,133 @@
             })
         });
 
-        // iCheck for checkbox inputs
-        $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
-            checkboxClass: 'icheckbox_minimal-blue',
+
+        let user_tbody = $('#user tbody');
+        let user_ops = $('#user_ops');
+
+        // 新增用户
+        $('#add-user').on('click', function () {
+            {% if perms.users.add_userprofile %}
+                $(".select2").val('').trigger('change');
+                $('.modal-title').text('新增用户');
+                user_ops.text('添加');
+
+                user_ops.unbind('click').on('click', function () {
+                    let groups = $('#groups option:selected').text();
+                    let data = $('#user_detail').serialize();
+                    $.ajax({
+                        url: '{% url 'create_user' %}',
+                        type: 'POST',
+                        data: data,
+                        success: function (res) {
+                            let user_info = res.data;
+                            let is_superuser = user_info.is_superuser === "1" ? '<span class="label label-success">是</span>' : '<span class="label label-danger">否</span>';
+                            let is_active = user_info.is_active === "1" ? '<span class="label label-success">已激活</span>' : '<span class="label label-danger">未激活</span>';
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: res.msg,
+                            });
+                            user_table.row.add([
+                                user_info.id,
+                                user_info.username,
+                                is_superuser,
+                                groups,
+                                is_active,
+                                user_info.mobile,
+                                `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${user_info.id}" data-target="#UserModal">详细/更新</button> <button type="button" class="btn btn-warning btn-xs change_pwd" data-id="${user_info.id}">重置密码</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${user_info.id}">删除</button>`
+                            ]).draw();
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    })
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有新增用户的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
         });
 
-        // 实现全选
-        $(function () {
-            let checkAll = $('#checkAll');
-            let checkboxes = $('input[type="checkbox"]');
-            checkAll.on('ifChecked ifUnchecked', function (event) {
-                if (event.type === 'ifChecked') {
-                    checkboxes.iCheck('check');
-                } else {
-                    checkboxes.iCheck('uncheck');
-                }
-            });
-            checkboxes.on('ifChanged', function () {
-                if (checkboxes.filter(':checked').length === checkboxes.length) {
-                    checkAll.prop('checked', 'checked');
-                } else {
-                    checkAll.removeProp('checked');
-                }
-                checkAll.iCheck('update');
-            });
+        // 修改用户
+        user_tbody.on('click', '.modify', function () {
+            {% if perms.auth.change_userprofile %}
+                let user_id = $(this).attr('data-id');
+                $('.modal-title').text('修改用户');
+                user_ops.text('确认修改');
+
+                $.get('/api/users/' + user_id + '/', function (data) {
+                    let is_superuser = data.is_superuser ? "1" : "0";
+                    let is_active = data.is_active ? "1" : "0";
+                    $('#username').val(data.username);
+                    $('#mobile').val(data.mobile);
+                    $('#is_superuser').val(is_superuser).trigger('change');
+                    $('#is_active').val(is_active).trigger('change');
+                    $('#groups').val(data.groups).trigger('change');
+                    $('#user_permissions').val(data.user_permissions).trigger('change');
+                });
+
+                user_ops.unbind('click').on('click', function () {
+                    let data = $('#user_detail').serializeJson();
+                    $.ajax({
+                        url: '/api/users/' + user_id + '/',
+                        type: 'PUT',
+                        data: JSON.stringify(data),
+                        dataType: 'json',
+                        contentType: "application/json",
+                        success: function () {
+                            $.confirm({
+                                title: 'Tips!',
+                                content: '修改完成!',
+                                type: 'green',
+                                buttons: {
+                                    ok: function () {
+                                        window.location.reload()
+                                    }
+                                }
+                            });
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    })
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有修改用户的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
         });
 
         // 删除用户
-        function deleteUser(id) {
-            {% if perms.users.delete_userprofile %}
+        user_tbody.on('click', '.delete', function () {
+            {% if perms.auth.delete_userprofile %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
                 $.confirm({
                     title: 'Tips',
-                    content: '确定要删除这个用户么？',
+                    content: '确定要删除这条记录么？',
                     type: 'red',
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/api/users/' + id,
+                                url: '/api/users/' + pk + '/',
                                 method: 'DELETE',
                                 success: function () {
-                                    let str = 'user-' + id;
-                                    document.getElementById(str).innerHTML = '';
+                                    user_table.row(tr_obj).remove().draw();
                                 },
                                 error: function (data) {
                                     $.alert({
@@ -412,7 +364,7 @@
                             })
                         },
                         Cancel: function () {
-                            // close
+                            //
                         }
                     }
                 });
@@ -423,124 +375,12 @@
                     content: '抱歉！您没有删除用户的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-
-        }
-
-        // 批量删除
-        $("#deleteChecked").click(function () {
-            {% if perms.users.delete_userprofile %}
-                let checkedID = [];
-                $('input[type="checkbox"].minimal:checked').each(function () {
-                    checkedID.push($(this).val());
-                });
-                if (checkedID.length === 0) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: '请选择要删除的用户！',
-                    })
-                } else {
-                    $.confirm({
-                        title: 'Tips',
-                        content: '确定要删除这些用户么？',
-                        type: 'red',
-                        buttons: {
-                            Ok: function () {
-                                for (let i = 0; i < checkedID.length; i++) {
-                                    $.ajax({
-                                        url: '/api/users/' + checkedID[i],
-                                        method: 'DELETE',
-                                        success: function () {
-                                            let str = 'user-' + checkedID[i];
-                                            document.getElementById(str).innerHTML = '';
-                                        },
-                                        error: function (data) {
-                                            $.alert({
-                                                title: 'Tips',
-                                                type: 'red',
-                                                content: '删除失败！' + data.responseText,
-                                            })
-                                        }
-                                    })
-                                }
-                            },
-                            Cancel: function () {
-                                // close
-                            }
-                        }
-                    })
-                }
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有删除用户的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
-
         });
 
-        // 新增用户
-        function createUser() {
-            let data = $('#register').serialize();
-            $.ajax({
-                url: '{% url 'create_user' %}',
-                method: 'POST',
-                data: data,
-                success: function (response) {
-                    $.confirm({
-                        title: 'Tips',
-                        type: 'green',
-                        content: response['msg'],
-                        buttons: {
-                            'OK': function () {
-                                location.reload();
-                            }
-                        }
-                    });
-                },
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response['msg'],
-                    });
-                }
-            })
-        }
-
-        // 修改用户
-        function updateUser(id) {
-            let data = {
-                username: $('#updateUserModal-' + id + ' #username').val(),
-                mobile: $('#updateUserModal-' + id + ' #mobile').val(),
-                is_superuser: $('#updateUserModal-' + id + ' #is_superuser').val(),
-                is_active: $('#updateUserModal-' + id + ' #is_active').val(),
-                groups: $('#updateUserModal-' + id + ' #groups').val(),
-                user_permissions: $('#updateUserModal-' + id + ' #user_permissions').val()
-            };
-            $.ajax({
-                url: "/api/users/" + id + "/",
-                type: "PUT",
-                data: JSON.stringify(data),
-                dataType: 'json',
-                contentType: "application/json",
-                success: function () {
-                    window.location.reload();
-                },
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response.responseText,
-                    })
-                }
-            });
-        }
-
         // 重置密码
-        function resetPassword(id) {
-            {% if perms.users.change_userprofile %}
+        user_tbody.on('click', '.change_pwd', function () {
+            {% if perms.auth.delete_userprofile %}
+                let pk = $(this).attr('data-id');
                 $.confirm({
                     title: 'Tips',
                     content: '确定要为这个用户重置密码么？',
@@ -548,20 +388,20 @@
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/users/reset_password/' + id,
+                                url: '/users/reset_password/' + pk + '/',
                                 method: 'POST',
                                 success: function (res) {
                                     $.alert({
                                         title: 'Tips',
                                         type: 'green',
-                                        content: res['msg'],
+                                        content: res.msg,
                                     })
                                 },
                                 error: function (res) {
                                     $.alert({
                                         title: 'Tips',
                                         type: 'red',
-                                        content: res['msg'],
+                                        content: res.msg,
                                     })
                                 }
                             })
@@ -575,10 +415,35 @@
                 $.alert({
                     title: 'Tips',
                     type: 'red',
-                    content: '抱歉！您没有更改用户的权限！如有疑问，请联系管理员！',
+                    content: '抱歉！您没有修改用户的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-        }
+        });
+
+        // 将数据JSON化
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                let names = ['username', 'mobile', 'is_superuser', 'is_active'];
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        if (names.indexOf(this.name) !== -1) {
+                            serializeObj[this.name] = this.value;
+                        } else {
+                            serializeObj[this.name] = [this.value];
+                        }
+                    }
+                });
+                return serializeObj;
+            };
+        })(jQuery);
 
     </script>
 

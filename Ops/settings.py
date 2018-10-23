@@ -39,15 +39,12 @@ CHANNEL_LAYERS = {
 }
 
 # celery配置
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/3'
+CELERY_RESULT_BACKEND = 'django-db'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24
 CELERYD_MAX_TASKS_PER_CHILD = 40
 CELERY_TRACK_STARTED = True
-CELERY_ENABLE_UTC = False
-CELERY_TIMEZONE = 'Asia/Shanghai'
 
 CELERY_ROUTES = {
     'users.tasks.*': {'queue': 'default', 'routing_key': 'default'},
@@ -79,13 +76,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'scanhosts.apps.ScanhostsConfig',
     'rest_framework',
+    'django_celery_beat',
+    'django_celery_results',
     'api.apps.ApiConfig',
     'channels',
     'assets.apps.AssetsConfig',
     'users.apps.UsersConfig',
     'task.apps.TaskConfig',
     'fort.apps.FortConfig',
-    'projs.apps.ProjsConfig'
+    'projs.apps.ProjsConfig',
+    'plan.apps.PlanConfig'
 ]
 
 MIDDLEWARE = [
@@ -200,5 +200,5 @@ ZABBIX_INFO = {
     'graph_url': 'http://172.16.1.176/zabbix/chart2.php',
     'login_url': 'http://172.16.1.176/zabbix/index.php',
     'username': 'admin',
-    'password': '123.juREN'
+    'password': '123456'
 }
