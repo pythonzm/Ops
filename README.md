@@ -10,6 +10,9 @@
 ```
 git clone https://github.com/pythonzm/Ops.git
 pip install -r requirements.txt
+
+// 因为django-celery-results的pip包与github上不一致，所以使用下面方法安装
+pip install https://github.com/celery/django-celery-results/zipball/master#egg=django-celery-results
 ```
 三、安装mysql
 > 建议MySQL5.6，安装过程略
@@ -59,7 +62,9 @@ cp conf/celeryd.conf /etc/default/celeryd
 ### 将配置文件里的内容按照实际情况更改
 
 cp conf/celeryd.server /etc/init.d/celeryd
+cp conf/celerybeat.server /etc/init.d/celerybeat
 /etc/init.d/celeryd start
+/etc/init.d/celerybeat start
 ```
 
 七、配置获取主机内存脚本
@@ -67,7 +72,7 @@ cp conf/celeryd.server /etc/init.d/celeryd
 ```
 // 编辑ansible配置文件
 [defaults] 
-library        = /usr/share/ansible/my_modules/
+library = /usr/share/ansible/my_modules/
 
 cp conf/get_mem.py /usr/share/ansible/my_modules/
 ```
