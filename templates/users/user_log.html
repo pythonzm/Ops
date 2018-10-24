@@ -118,10 +118,9 @@
 
         //删除日志
         $('#example1 tbody').on('click', 'button', function () {
-            let pk = $(this).attr('data-id');
-            let tr_obj = $(this).parents('tr');
-
-            {% if perms.assets.delete_assetslog %}
+            {% if perms.users.delete_userlog %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
                 $.confirm({
                     title: 'Tips',
                     content: '确定要删除这条记录么？',
@@ -200,7 +199,7 @@
                                 result['remote_ip'],
                                 result['content'],
                                 c_time,
-                                '<button type="button" class="btn btn-default" data-id="'+ result['id'] + '"><i class="glyphicon glyphicon-trash"></i></button>'
+                                '<button type="button" class="btn btn-default" data-id="' + result['id'] + '"><i class="glyphicon glyphicon-trash"></i></button>'
                             ]).draw();
                             counter++;
                         }

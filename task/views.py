@@ -40,7 +40,7 @@ def gen_resource(host_ids, group_ids=None):
     return resource
 
 
-@permission_required('Ops.add_ansiblemodulelog', raise_exception=True)
+@permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def run_module(request):
     if request.method == 'POST':
         redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
@@ -95,7 +95,7 @@ def parse_group(request):
         return JsonResponse({'hosts': hosts})
 
 
-@permission_required('Ops.add_ansiblemodulelog', raise_exception=True)
+@permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def run_log(request):
     if request.method == 'POST':
         ansible_logs = None
@@ -129,7 +129,7 @@ def run_log(request):
     return render(request, 'task/run_log.html', locals())
 
 
-@permission_required('Ops.add_ansibleinventory', raise_exception=True)
+@permission_required('task.add_ansibleinventory', raise_exception=True)
 def gen_inventory(request):
     inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
     hosts = ServerAssets.objects.select_related('assets')

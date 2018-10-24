@@ -93,7 +93,7 @@ def del_user_plan(request):
         return JsonResponse({"code": 200, "data": None, "msg": "删除失败！，原因：{}".format(e)})
 
 
-@permission_required('Ops.add_userprofile', raise_exception=True)
+@permission_required('users.add_userprofile', raise_exception=True)
 def get_user_list(request):
     user_list = UserProfile.objects.all().select_related()
     groups = Group.objects.all().select_related()
@@ -149,7 +149,7 @@ def reset_password(request, pk):
             return JsonResponse({"code": 500, "data": None, "msg": "密码重置失败，原因：{}".format(e)})
 
 
-@permission_required('Ops.add_group', raise_exception=True)
+@permission_required('auth.add_group', raise_exception=True)
 def get_group_list(request):
     groups = Group.objects.all().select_related()
     users = UserProfile.objects.all().select_related()
@@ -157,7 +157,7 @@ def get_group_list(request):
     return render(request, 'users/group_list.html', locals())
 
 
-@permission_required('Ops.add_userlog', raise_exception=True)
+@permission_required('users.add_userlog', raise_exception=True)
 def get_user_log(request):
     if request.method == 'GET':
         user_logs = UserLog.objects.all()

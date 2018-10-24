@@ -58,23 +58,32 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">上传文件</label>
-                            <div class="col-sm-6">
-                                <input type="file" name="import_file" placeholder="上传excel文件" id="import_file"
-                                       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                                       required/>
+                    {% if perms.assets.add_assets %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">上传文件</label>
+                                <div class="col-sm-6">
+                                    <input type="file" name="import_file" placeholder="上传excel文件" id="import_file"
+                                           accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                           required/>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                        onclick="import_assets()">导入
+                                </button>
                             </div>
                         </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                    onclick="import_assets()">导入
-                            </button>
+                    {% else %}
+                        <div class="modal-body">
+                            抱歉！您没有此操作的权限！如有疑问，请联系管理员！
                         </div>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                        </div>
+                    {% endif %}
                 </div>
                 <!-- /.modal-content -->
             </div>
@@ -182,29 +191,31 @@
                                     {% elif asset.asset_type == 'software' %}
                                         <a href="{% url 'update_asset' asset_type='software' pk=asset.id %}">
                                     {% endif %}
-                                    <button type="button" class="btn btn-success btn-xs">更新</button></a>
-                                    {% if asset.asset_type == 'server' %}
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-primary btn-xs">收集</button>
-                                            <button type="button" class="btn btn-primary btn-xs dropdown-toggle"
-                                                    data-toggle="dropdown" aria-expanded="false">
-                                                <span class="caret"></span>
-                                                <span class="sr-only">Toggle Dropdown</span>
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a href="javascript:void(0)"
-                                                       onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
-                                                </li>
-                                                <li><a href="javascript:void(0)"
-                                                       onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        {% if request.user.is_superuser %}
-                                            <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
-                                                <button type="button" class="btn btn-info btn-xs"><i
-                                                        class="fa fa-fw fa-terminal"></i></button>
-                                            </a>
+                                    {% if perms.assets.change_assets %}
+                                        <button type="button" class="btn btn-success btn-xs">更新</button></a>
+                                        {% if asset.asset_type == 'server' %}
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-primary btn-xs">收集</button>
+                                                <button type="button" class="btn btn-primary btn-xs dropdown-toggle"
+                                                        data-toggle="dropdown" aria-expanded="false">
+                                                    <span class="caret"></span>
+                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a href="javascript:void(0)"
+                                                           onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
+                                                    </li>
+                                                    <li><a href="javascript:void(0)"
+                                                           onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            {% if request.user.is_superuser %}
+                                                <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
+                                                    <button type="button" class="btn btn-info btn-xs"><i
+                                                            class="fa fa-fw fa-terminal"></i></button>
+                                                </a>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                     <button type="button" class="btn btn-danger btn-xs"
@@ -498,41 +509,33 @@
         function import_assets() {
             let formData = new FormData();
             formData.append('file', $('#import_file')[0].files[0]);
-            {% if perms.assets.change_assets %}
-                $.ajax({
-                    url: '{% url 'import_assets' %}',
-                    type: 'POST',
-                    data: formData,
-                    // 告诉jQuery不要去处理发送的数据
-                    processData: false,
-                    // 告诉jQuery不要去设置Content-Type请求头
-                    contentType: false,
-                    success: function (responseStr) {
-                        $.confirm({
-                            title: 'Tips!',
-                            content: responseStr.msg,
-                            buttons: {
-                                ok: function () {
-                                    window.location.reload();
-                                },
-                            }
-                        });
-                    },
-                    error: function (responseStr) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: responseStr.responseText,
-                        });
-                    }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有更新资产的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+            $.ajax({
+                url: '{% url 'import_assets' %}',
+                type: 'POST',
+                data: formData,
+                // 告诉jQuery不要去处理发送的数据
+                processData: false,
+                // 告诉jQuery不要去设置Content-Type请求头
+                contentType: false,
+                success: function (responseStr) {
+                    $.confirm({
+                        title: 'Tips!',
+                        content: responseStr.msg,
+                        buttons: {
+                            ok: function () {
+                                window.location.reload();
+                            },
+                        }
+                    });
+                },
+                error: function (responseStr) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: responseStr.responseText,
+                    });
+                }
+            });
         }
 
     </script>

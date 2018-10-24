@@ -98,7 +98,7 @@
 
                             </h4>
                         </div>
-                        {% if perms.projs.add_project %}
+                        {% if perms.projs.add_project and perms.projs.change_project %}
                             <div class="modal-body">
                                 <form id="proj_info" class="main form-horizontal">
                                     <fieldset>
@@ -192,7 +192,7 @@
                             </div>
                         {% else %}
                             <div class="modal-body">
-                                抱歉！您没有新增项目的权限！如有疑问，请联系管理员！
+                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
@@ -333,10 +333,9 @@
 
         // 删除项目
         proj_tbody.on('click', '.delete', function () {
-            let pk = $(this).attr('data-id');
-            let tr_obj = $(this).parents('tr');
-
             {% if perms.projs.delete_project %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
                 $.confirm({
                     title: 'Tips',
                     content: '确定要删除这条记录么？',

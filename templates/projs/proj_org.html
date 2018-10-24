@@ -114,7 +114,7 @@
 
                             </h4>
                         </div>
-                        {% if perms.projs.add_service %}
+                        {% if perms.projs.add_service and perms.projs.change_service %}
                             <div class="modal-body">
                                 <form id="service_info" class="main form-horizontal">
                                     <fieldset>
@@ -298,9 +298,8 @@
 
         // 删除项目
         service_tbody.on('click', '.delete', function () {
-            let pk = $(this).attr('data-id');
-
             {% if perms.projs.delete_service %}
+                let pk = $(this).attr('data-id');
                 $.confirm({
                     title: 'Tips',
                     content: '确定要删除这条记录么？',

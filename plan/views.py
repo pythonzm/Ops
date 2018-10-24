@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import permission_required
 from plan.tasks import *
 
 
-@permission_required('Ops.add_periodictask', raise_exception=True)
+@permission_required('plan.add_periodictask', raise_exception=True)
 def schedule_list(request):
     crontab_schedules = CrontabSchedule.objects.all()
     interval_schedules = IntervalSchedule.objects.all()
@@ -54,7 +54,7 @@ def del_schedule(request, pk):
                 return JsonResponse({'code': 500, 'msg': '删除interval_schedule失败，{}'.format(e)})
 
 
-@permission_required('Ops.add_periodictask', raise_exception=True)
+@permission_required('plan.add_periodictask', raise_exception=True)
 def task_list(request):
     periodic_tasks = [periodic_task for periodic_task in PeriodicTask.objects.all() if
                       not periodic_task.task.startswith('celery.')]
@@ -65,7 +65,7 @@ def task_list(request):
     return render(request, 'plan/task_list.html', locals())
 
 
-@permission_required('Ops.add_taskresult', raise_exception=True)
+@permission_required('plan.add_taskresult', raise_exception=True)
 def task_result(request):
     task_results = TaskResult.objects.all()
     return render(request, 'plan/task_result.html', locals())

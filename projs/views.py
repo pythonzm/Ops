@@ -5,7 +5,7 @@ from assets.models import Assets
 from django.contrib.auth.decorators import permission_required
 
 
-@permission_required('Ops.add_project', raise_exception=True)
+@permission_required('projs.add_project', raise_exception=True)
 def proj_list(request):
     projects = Project.objects.select_related('project_admin').all()
     project_envs = Project.project_envs
@@ -14,7 +14,7 @@ def proj_list(request):
     return render(request, 'projs/proj_list.html', locals())
 
 
-@permission_required('Ops.add_service', raise_exception=True)
+@permission_required('projs.add_service', raise_exception=True)
 def proj_org(request, pk):
     project_obj = Project.objects.select_related('project_admin').get(id=pk)
     services = Service.objects.select_related('project').filter(project=project_obj)
@@ -22,7 +22,7 @@ def proj_org(request, pk):
     return render(request, 'projs/proj_org.html', locals())
 
 
-@permission_required('Ops.add_service', raise_exception=True)
+@permission_required('projs.add_service', raise_exception=True)
 def org_chart(request, pk):
     project_obj = Project.objects.select_related('project_admin').get(id=pk)
     services = Service.objects.select_related('project').filter(project=project_obj)

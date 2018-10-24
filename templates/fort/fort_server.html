@@ -309,46 +309,38 @@
 
         // 添加主机
         $('#add-fort-modal').click(function () {
-            {% if perms.fort.add_fortserver %}
-                $(".select2").val('').trigger('change');
+            $(".select2").val('').trigger('change');
 
-                $('#add-fort').on('click', function () {
-                    let server_text = $('#server option:selected').text();
-                    let data = {
-                        server: $('#server').val(),
-                        server_status: $('#server_status').val()
-                    };
-                    $.ajax({
-                        url: '/api/fort/',
-                        type: 'POST',
-                        data: JSON.stringify(data),
-                        dataType: 'json',
-                        contentType: "application/json",
-                        success: function (res) {
-                            let server_status = res.server_status === 1 ? '<span class="badge bg-green>正常</span>' : '<span class="badge bg-red">禁用</span>';
-                            fort_server_table.row.add([
-                                server_text,
-                                `<button type="button" class="btn btn-info btn-xs add-fort-user" data-toggle="modal" data-target="#FortUserModal" data-server-id="${res.server}"><i class="fa fa-plus"></i></button>`,
-                                server_status,
-                                `<button type="button" class="btn btn-danger btn-xs disable_server" data-id="${res.id}">禁用</button> <button type="button" class="btn btn-info btn-xs enable_server" data-id="${res.id}">解禁</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
-                            ]).draw();
-                        },
-                        error: function (response) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: response.responseText,
-                            })
-                        }
-                    });
+            $('#add-fort').on('click', function () {
+                let server_text = $('#server option:selected').text();
+                let data = {
+                    server: $('#server').val(),
+                    server_status: $('#server_status').val()
+                };
+                $.ajax({
+                    url: '/api/fort/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        let server_status = res.server_status === 1 ? '<span class="badge bg-green>正常</span>' : '<span class="badge bg-red">禁用</span>';
+                        fort_server_table.row.add([
+                            server_text,
+                            `<button type="button" class="btn btn-info btn-xs add-fort-user" data-toggle="modal" data-target="#FortUserModal" data-server-id="${res.server}"><i class="fa fa-plus"></i></button>`,
+                            server_status,
+                            `<button type="button" class="btn btn-danger btn-xs disable_server" data-id="${res.id}">禁用</button> <button type="button" class="btn btn-info btn-xs enable_server" data-id="${res.id}">解禁</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                        ]).draw();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
                 });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有添加主机的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+            });
         });
 
         // 删除主机
@@ -393,103 +385,178 @@
 
         // 禁用主机
         fort_server_tbody.on('click', '.disable_server', function () {
-            {% if perms.fort.change_fortserver %}
-                let fort_server_id = $(this).attr('data-id');
-                let fort_server_td_obj = $(this).parents('tr').children();
-                $.ajax({
-                    url: '/api/fort/' + fort_server_id + '/',
-                    type: 'PATCH',
-                    data: JSON.stringify({server_status: 0}),
-                    dataType: 'json',
-                    contentType: "application/json",
-                    success: function () {
-                        fort_server_td_obj[2].innerHTML = '<span class="badge bg-red">禁用</span>'
-                    },
-                    error: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.responseText,
-                        })
-                    }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有更新主机的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+            let fort_server_id = $(this).attr('data-id');
+            let fort_server_td_obj = $(this).parents('tr').children();
+            $.ajax({
+                url: '/api/fort/' + fort_server_id + '/',
+                type: 'PATCH',
+                data: JSON.stringify({server_status: 0}),
+                dataType: 'json',
+                contentType: "application/json",
+                success: function () {
+                    fort_server_td_obj[2].innerHTML = '<span class="badge bg-red">禁用</span>'
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            });
         });
 
         // 解禁主机
         fort_server_tbody.on('click', '.enable_server', function () {
-            {% if perms.fort.change_fortserver %}
-                let fort_server_id = $(this).attr('data-id');
-                let fort_server_td_obj = $(this).parents('tr').children();
-                $.ajax({
-                    url: '/api/fort/' + fort_server_id + '/',
-                    type: 'PATCH',
-                    data: JSON.stringify({server_status: 1}),
-                    dataType: 'json',
-                    contentType: "application/json",
-                    success: function () {
-                        fort_server_td_obj[2].innerHTML = '<span class="badge bg-green">正常</span>'
-                    },
-                    error: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.responseText,
-                        })
-                    }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有更新主机的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+
+            let fort_server_id = $(this).attr('data-id');
+            let fort_server_td_obj = $(this).parents('tr').children();
+            $.ajax({
+                url: '/api/fort/' + fort_server_id + '/',
+                type: 'PATCH',
+                data: JSON.stringify({server_status: 1}),
+                dataType: 'json',
+                contentType: "application/json",
+                success: function () {
+                    fort_server_td_obj[2].innerHTML = '<span class="badge bg-green">正常</span>'
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            });
         });
 
         let fort_user_ops = $('#fort_user_ops');
         // 添加用户
         fort_server_tbody.on('click', '.add-fort-user', function () {
-            {% if perms.fort.add_fortserveruser %}
-                document.getElementById('fort_user_info').reset();
-                $(".select2").val('').trigger('change');
-                $('#fort_username').removeAttr("readonly");
-                $('#form-password').css('display', '');
-                $('#delete_fort_user').remove();
+            document.getElementById('fort_user_info').reset();
+            $(".select2").val('').trigger('change');
+            $('#fort_username').removeAttr("readonly");
+            $('#form-password').css('display', '');
+            $('#delete_fort_user').remove();
 
-                let server_id = $(this).attr('data-server-id');
-                let fort_server = $(this).attr('data-fort-server');
-                $('.modal-title').text('新增用户');
-                fort_user_ops.text('添加');
+            let server_id = $(this).attr('data-server-id');
+            let fort_server = $(this).attr('data-fort-server');
+            $('.modal-title').text('新增用户');
+            fort_user_ops.text('添加');
 
-                fort_user_ops.unbind('click').on('click', function () {
+            fort_user_ops.unbind('click').on('click', function () {
+                let username = $('#fort_username').val();
+                let password = $('#fort_password').val();
+                let fort_black_commands = $('#fort_black_commands').val();
+                let black_commands = gen_sudo_conf(fort_black_commands);
+                let data = {
+                    fort_server: fort_server,
+                    fort_username: username,
+                    fort_password: password,
+                    fort_user_status: $('#fort_user_status').val(),
+                    fort_black_commands: fort_black_commands,
+                    fort_user_memo: $('#fort_user_memo').val(),
+                    fort_belong_user: $('#fort_belong_user').val(),
+                    fort_belong_group: $('#fort_belong_group').val(),
+                };
+
+                let ansible_data = {
+                    hostGroup: 'custom',
+                    ans_group_hosts: server_id,
+                    ansibleModule: 'shell',
+                    ansibleModuleArgs: `useradd ${username} && echo "${password}" | passwd --stdin ${username} && echo '${username}  ALL\\=(ALL)       NOPASSWD: ALL,${black_commands}' > /etc/sudoers.d/${username}`,
+                };
+                $.ajax({
+                    url: '{% url 'run_module' %}',
+                    type: 'POST',
+                    data: ansible_data,
+                    success: function (res) {
+                        if (res.msg[0].indexOf('success') !== -1) {
+                            $.ajax({
+                                url: '/api/fort_user/',
+                                type: 'POST',
+                                data: JSON.stringify(data),
+                                dataType: 'json',
+                                contentType: "application/json",
+                                success: function () {
+                                    window.location.reload();
+                                },
+                                error: function (response) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: response.responseText,
+                                    })
+                                }
+                            });
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: '添加用户失败！' + res.responseText,
+                            })
+                        }
+
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '服务器添加用户失败！' + response.responseText,
+                        })
+                    }
+                });
+            });
+        });
+
+        // 更新/删除用户
+        fort_server_tbody.on('click', '.update-fort-user', function () {
+            let fort_user_id = $(this).attr('data-user-id');
+            let server_id = $(this).attr('data-server-id');
+            $('.modal-title').text('修改用户');
+            fort_user_ops.text('保存');
+            if (!$('#delete_fort_user')[0]) {
+                fort_user_ops.after('<button type="button" class="btn btn-danger" data-dismiss="modal" id="delete_fort_user">删除</button>');
+            }
+            $('#fort_username').attr("readonly", "readonly");
+            $('#form-password').css('display', 'none');
+
+            $.get('/api/fort_user/' + fort_user_id + '/', function (data) {
+                $('#fort_username').val(data.fort_username);
+                $('#fort_user_status').val(data.fort_user_status).trigger('change');
+                $('#fort_belong_user').val(data.fort_belong_user).trigger('change');
+                $('#fort_belong_group').val(data.fort_belong_group).trigger('change');
+                $('#fort_black_commands').val(data.fort_black_commands);
+                $('#fort_user_memo').val(data.fort_user_memo);
+            });
+
+            $('#fort_black_commands').change(function () {
+                $('#fort_black_commands').data('changed', true)
+            });
+
+            // 更新用户信息
+            fort_user_ops.unbind('click').on('click', function () {
+                let fort_black_commands = $('#fort_black_commands');
+
+                let data = {
+                    fort_user_status: $('#fort_user_status').val(),
+                    fort_belong_user: $('#fort_belong_user').val(),
+                    fort_belong_group: $('#fort_belong_group').val(),
+                    fort_black_commands: fort_black_commands.val(),
+                    fort_user_memo: $('#fort_user_memo').val()
+                };
+
+                if (fort_black_commands.data('changed')) {
                     let username = $('#fort_username').val();
-                    let password = $('#fort_password').val();
                     let fort_black_commands = $('#fort_black_commands').val();
                     let black_commands = gen_sudo_conf(fort_black_commands);
-                    let data = {
-                        fort_server: fort_server,
-                        fort_username: username,
-                        fort_password: password,
-                        fort_user_status: $('#fort_user_status').val(),
-                        fort_black_commands: fort_black_commands,
-                        fort_user_memo: $('#fort_user_memo').val(),
-                        fort_belong_user: $('#fort_belong_user').val(),
-                        fort_belong_group: $('#fort_belong_group').val(),
-                    };
-
                     let ansible_data = {
                         hostGroup: 'custom',
                         ans_group_hosts: server_id,
                         ansibleModule: 'shell',
-                        ansibleModuleArgs: `useradd ${username} && echo "${password}" | passwd --stdin ${username} && echo '${username}  ALL\\=(ALL)       NOPASSWD: ALL,${black_commands}' > /etc/sudoers.d/${username}`,
+                        ansibleModuleArgs: `echo '${username}  ALL\\=(ALL)       NOPASSWD: ALL,${black_commands}' > /etc/sudoers.d/${username}`,
                     };
+
                     $.ajax({
                         url: '{% url 'run_module' %}',
                         type: 'POST',
@@ -497,8 +564,8 @@
                         success: function (res) {
                             if (res.msg[0].indexOf('success') !== -1) {
                                 $.ajax({
-                                    url: '/api/fort_user/',
-                                    type: 'POST',
+                                    url: '/api/fort_user/' + fort_user_id + '/',
+                                    type: 'PATCH',
                                     data: JSON.stringify(data),
                                     dataType: 'json',
                                     contentType: "application/json",
@@ -517,7 +584,7 @@
                                 $.alert({
                                     title: 'Tips',
                                     type: 'red',
-                                    content: '添加用户失败！' + res.responseText,
+                                    content: '服务器更新用户失败！' + res.responseText,
                                 })
                             }
 
@@ -526,195 +593,81 @@
                             $.alert({
                                 title: 'Tips',
                                 type: 'red',
-                                content: '服务器添加用户失败！' + response.responseText,
+                                content: '更新用户失败！' + response.responseText,
                             })
                         }
                     });
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有添加用户的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
-        });
-
-        // 更新/删除用户
-        fort_server_tbody.on('click', '.update-fort-user', function () {
-            {% if perms.fort.change_fortserveruser %}
-                let fort_user_id = $(this).attr('data-user-id');
-                let server_id = $(this).attr('data-server-id');
-                $('.modal-title').text('修改用户');
-                fort_user_ops.text('保存');
-                if (!$('#delete_fort_user')[0]) {
-                    fort_user_ops.after('<button type="button" class="btn btn-danger" data-dismiss="modal" id="delete_fort_user">删除</button>');
+                } else {
+                    $.ajax({
+                        url: '/api/fort_user/' + fort_user_id + '/',
+                        type: 'PATCH',
+                        data: JSON.stringify(data),
+                        dataType: 'json',
+                        contentType: "application/json",
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    });
                 }
-                $('#fort_username').attr("readonly", "readonly");
-                $('#form-password').css('display', 'none');
+            });
 
-                $.get('/api/fort_user/' + fort_user_id + '/', function (data) {
-                    $('#fort_username').val(data.fort_username);
-                    $('#fort_user_status').val(data.fort_user_status).trigger('change');
-                    $('#fort_belong_user').val(data.fort_belong_user).trigger('change');
-                    $('#fort_belong_group').val(data.fort_belong_group).trigger('change');
-                    $('#fort_black_commands').val(data.fort_black_commands);
-                    $('#fort_user_memo').val(data.fort_user_memo);
-                });
-
-                $('#fort_black_commands').change(function () {
-                    $('#fort_black_commands').data('changed', true)
-                });
-
-                // 更新用户信息
-                fort_user_ops.unbind('click').on('click', function () {
-                    let fort_black_commands = $('#fort_black_commands');
-
-                    let data = {
-                        fort_user_status: $('#fort_user_status').val(),
-                        fort_belong_user: $('#fort_belong_user').val(),
-                        fort_belong_group: $('#fort_belong_group').val(),
-                        fort_black_commands: fort_black_commands.val(),
-                        fort_user_memo: $('#fort_user_memo').val()
-                    };
-
-                    if (fort_black_commands.data('changed')) {
-                        let username = $('#fort_username').val();
-                        let fort_black_commands = $('#fort_black_commands').val();
-                        let black_commands = gen_sudo_conf(fort_black_commands);
-                        let ansible_data = {
-                            hostGroup: 'custom',
-                            ans_group_hosts: server_id,
-                            ansibleModule: 'shell',
-                            ansibleModuleArgs: `echo '${username}  ALL\\=(ALL)       NOPASSWD: ALL,${black_commands}' > /etc/sudoers.d/${username}`,
-                        };
-
-                        $.ajax({
-                            url: '{% url 'run_module' %}',
-                            type: 'POST',
-                            data: ansible_data,
-                            success: function (res) {
-                                if (res.msg[0].indexOf('success') !== -1) {
+            // 删除用户
+            $('#delete_fort_user').click(function () {
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            let username = $('#fort_username').val();
+                            let ansible_data = {
+                                hostGroup: 'custom',
+                                ans_group_hosts: server_id,
+                                ansibleModule: 'user',
+                                ansibleModuleArgs: 'name=' + username + ' state=absent remove=yes',
+                            };
+                            $.ajax({
+                                url: '{% url 'run_module' %}',
+                                type: 'POST',
+                                data: ansible_data,
+                                success: function () {
                                     $.ajax({
                                         url: '/api/fort_user/' + fort_user_id + '/',
-                                        type: 'PATCH',
-                                        data: JSON.stringify(data),
-                                        dataType: 'json',
-                                        contentType: "application/json",
+                                        method: 'DELETE',
                                         success: function () {
-                                            window.location.reload();
+                                            window.location.reload()
                                         },
-                                        error: function (response) {
+                                        error: function (data) {
                                             $.alert({
                                                 title: 'Tips',
                                                 type: 'red',
-                                                content: response.responseText,
+                                                content: '删除失败！' + data.responseText,
                                             })
                                         }
-                                    });
-                                } else {
+                                    })
+                                },
+                                error: function (response) {
                                     $.alert({
                                         title: 'Tips',
                                         type: 'red',
-                                        content: '服务器更新用户失败！' + res.responseText,
+                                        content: '服务器删除用户失败！' + response.responseText,
                                     })
                                 }
-
-                            },
-                            error: function (response) {
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'red',
-                                    content: '更新用户失败！' + response.responseText,
-                                })
-                            }
-                        });
-                    } else {
-                        $.ajax({
-                            url: '/api/fort_user/' + fort_user_id + '/',
-                            type: 'PATCH',
-                            data: JSON.stringify(data),
-                            dataType: 'json',
-                            contentType: "application/json",
-                            success: function () {
-                                window.location.reload();
-                            },
-                            error: function (response) {
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'red',
-                                    content: response.responseText,
-                                })
-                            }
-                        });
+                            });
+                        },
+                        Cancel: function () {
+                            // close
+                        }
                     }
                 });
-
-                // 删除用户
-                $('#delete_fort_user').click(function () {
-                    {% if perms.fort.delete_fortserveruser %}
-                        $.confirm({
-                            title: 'Tips',
-                            content: '确定要删除么？',
-                            type: 'red',
-                            buttons: {
-                                Ok: function () {
-                                    let username = $('#fort_username').val();
-                                    let ansible_data = {
-                                        hostGroup: 'custom',
-                                        ans_group_hosts: server_id,
-                                        ansibleModule: 'user',
-                                        ansibleModuleArgs: 'name=' + username + ' state=absent remove=yes',
-                                    };
-                                    $.ajax({
-                                        url: '{% url 'run_module' %}',
-                                        type: 'POST',
-                                        data: ansible_data,
-                                        success: function () {
-                                            $.ajax({
-                                                url: '/api/fort_user/' + fort_user_id + '/',
-                                                method: 'DELETE',
-                                                success: function () {
-                                                    window.location.reload()
-                                                },
-                                                error: function (data) {
-                                                    $.alert({
-                                                        title: 'Tips',
-                                                        type: 'red',
-                                                        content: '删除失败！' + data.responseText,
-                                                    })
-                                                }
-                                            })
-                                        },
-                                        error: function (response) {
-                                            $.alert({
-                                                title: 'Tips',
-                                                type: 'red',
-                                                content: '服务器删除用户失败！' + response.responseText,
-                                            })
-                                        }
-                                    });
-                                },
-                                Cancel: function () {
-                                    // close
-                                }
-                            }
-                        });
-                    {% else %}
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: '抱歉！您没有删除用户的权限！如有疑问，请联系管理员！',
-                        });
-                    {% endif %}
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有修改用户的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+            });
         });
 
 

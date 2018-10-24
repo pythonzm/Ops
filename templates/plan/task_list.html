@@ -100,144 +100,153 @@
 
                             </h4>
                         </div>
-                        <div class="modal-body">
-                            <form id="celery_task_detail" class="main form-horizontal">
-                                <fieldset>
-                                    <div class="form-group">
-                                        <label for="name" class="col-sm-2 control-label">任务名称</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="name" id="name" required/>
+                        {% if perms.plan.add_periodictask and perms.plan.change_periodictask %}
+                            <div class="modal-body">
+                                <form id="celery_task_detail" class="main form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="name" class="col-sm-2 control-label">任务名称</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="name" id="name" required/>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="task" class="col-sm-2 control-label">任务函数&nbsp;<span
-                                                data-toggle="tooltip"
-                                                title="若要添加其他任务函数，需要在plan应用下的tasks.py文件中添加"><i
-                                                class="fa fa-exclamation-circle"></i></span></label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" id="task" name="task"
-                                                    style="width: 100%;">
-                                                {% for celery_task in celery_tasks %}
-                                                    <option>{{ celery_task }}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <div class="form-group">
+                                            <label for="task" class="col-sm-2 control-label">任务函数&nbsp;<span
+                                                    data-toggle="tooltip"
+                                                    title="若要添加其他任务函数，需要在plan应用下的tasks.py文件中添加"><i
+                                                    class="fa fa-exclamation-circle"></i></span></label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" id="task" name="task"
+                                                        style="width: 100%;">
+                                                    {% for celery_task in celery_tasks %}
+                                                        <option>{{ celery_task }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="args" class="col-sm-2 control-label">参数(元组格式)</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="args" id="args"
-                                                   placeholder='("aa","bb") 使用双引号'/>
+                                        <div class="form-group">
+                                            <label for="args" class="col-sm-2 control-label">参数(元组格式)</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="args" id="args"
+                                                       placeholder='("aa","bb") 使用双引号'/>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="kwargs" class="col-sm-2 control-label">参数(字典格式)</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="kwargs" id="kwargs"
-                                                   placeholder='{"ip":"192.168.10.10"} 使用双引号'/>
+                                        <div class="form-group">
+                                            <label for="kwargs" class="col-sm-2 control-label">参数(字典格式)</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="kwargs" id="kwargs"
+                                                       placeholder='{"ip":"192.168.10.10"} 使用双引号'/>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="queue" class="col-sm-2 control-label">队列&nbsp;<span
-                                                data-toggle="tooltip"
-                                                title="若要添加其他任务队列，需要在celery.py定义新的队列"><i
-                                                class="fa fa-exclamation-circle"></i></span></label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" id="queue" name="queue"
-                                                    style="width: 100%;">
-                                                {% for queue in queues %}
-                                                    <option>{{ queue }}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <div class="form-group">
+                                            <label for="queue" class="col-sm-2 control-label">队列&nbsp;<span
+                                                    data-toggle="tooltip"
+                                                    title="若要添加其他任务队列，需要在celery.py定义新的队列"><i
+                                                    class="fa fa-exclamation-circle"></i></span></label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" id="queue" name="queue"
+                                                        style="width: 100%;">
+                                                    {% for queue in queues %}
+                                                        <option>{{ queue }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="expires" class="col-sm-2 control-label">过期时间&nbsp;<span
-                                                data-toggle="tooltip"
-                                                title="格式：2018-10-10 10:10:10"><i
-                                                class="fa fa-exclamation-circle"></i></span></label>
-                                        <div class="col-sm-6">
-                                            <input type="datetime-local" class="form-control" name="expires"
-                                                   id="expires">
+                                        <div class="form-group">
+                                            <label for="expires" class="col-sm-2 control-label">过期时间&nbsp;<span
+                                                    data-toggle="tooltip"
+                                                    title="格式：2018-10-10 10:10:10"><i
+                                                    class="fa fa-exclamation-circle"></i></span></label>
+                                            <div class="col-sm-6">
+                                                <input type="datetime-local" class="form-control" name="expires"
+                                                       id="expires">
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="enabled" class="col-sm-2 control-label">任务状态</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" id="enabled" name="enabled"
-                                                    style="width: 100%;">
-                                                <option value="1">启用</option>
-                                                <option value="0">禁用</option>
-                                            </select>
+                                        <div class="form-group">
+                                            <label for="enabled" class="col-sm-2 control-label">任务状态</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" id="enabled" name="enabled"
+                                                        style="width: 100%;">
+                                                    <option value="1">启用</option>
+                                                    <option value="0">禁用</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="crontab" class="col-sm-2 control-label">Crontab调度</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" id="crontab" name="crontab"
-                                                    style="width: 100%;">
-                                                <option value="">-----</option>
-                                                {% for crontab_schedule in crontab_schedules %}
-                                                    <option value="{{ crontab_schedule.id }}">{{ crontab_schedule.minute }}&nbsp;&nbsp;{{ crontab_schedule.hour }}&nbsp;&nbsp;{{ crontab_schedule.day_of_month }}&nbsp;&nbsp;{{ crontab_schedule.month_of_year }}&nbsp;&nbsp;{{ crontab_schedule.day_of_week }}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <div class="form-group">
+                                            <label for="crontab" class="col-sm-2 control-label">Crontab调度</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" id="crontab" name="crontab"
+                                                        style="width: 100%;">
+                                                    <option value="">-----</option>
+                                                    {% for crontab_schedule in crontab_schedules %}
+                                                        <option value="{{ crontab_schedule.id }}">{{ crontab_schedule.minute }}&nbsp;&nbsp;{{ crontab_schedule.hour }}&nbsp;&nbsp;{{ crontab_schedule.day_of_month }}&nbsp;&nbsp;{{ crontab_schedule.month_of_year }}&nbsp;&nbsp;{{ crontab_schedule.day_of_week }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <p class="text-red">*crontab调度与interval调度选择其中一个即可</p>
+                                        <p class="text-red">*crontab调度与interval调度选择其中一个即可</p>
 
-                                    <div class="form-group">
-                                        <label for="interval" class="col-sm-2 control-label">Interval调度</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" id="interval" name="interval"
-                                                    style="width: 100%;">
-                                                <option value="">-----</option>
-                                                {% for interval_schedule in interval_schedules %}
-                                                    <option value="{{ interval_schedule.id }}">
-                                                        间隔&nbsp;{{ interval_schedule.every }}&nbsp;
-                                                        {% if interval_schedule.period == 'days' %}
-                                                            天
-                                                        {% elif interval_schedule.period == 'hours' %}
-                                                            小时
-                                                        {% elif interval_schedule.period == 'minutes' %}
-                                                            分钟
-                                                        {% elif interval_schedule.period == 'seconds' %}
-                                                            秒
-                                                        {% elif interval_schedule.period == 'microseconds' %}
-                                                            毫秒
-                                                        {% endif %}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
+                                        <div class="form-group">
+                                            <label for="interval" class="col-sm-2 control-label">Interval调度</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" id="interval" name="interval"
+                                                        style="width: 100%;">
+                                                    <option value="">-----</option>
+                                                    {% for interval_schedule in interval_schedules %}
+                                                        <option value="{{ interval_schedule.id }}">
+                                                            间隔&nbsp;{{ interval_schedule.every }}&nbsp;
+                                                            {% if interval_schedule.period == 'days' %}
+                                                                天
+                                                            {% elif interval_schedule.period == 'hours' %}
+                                                                小时
+                                                            {% elif interval_schedule.period == 'minutes' %}
+                                                                分钟
+                                                            {% elif interval_schedule.period == 'seconds' %}
+                                                                秒
+                                                            {% elif interval_schedule.period == 'microseconds' %}
+                                                                毫秒
+                                                            {% endif %}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="description"
-                                               class="col-sm-2 control-label">任务描述</label>
-                                        <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="description"
+                                                   class="col-sm-2 control-label">任务描述</label>
+                                            <div class="col-sm-6">
                                             <textarea class="form-control" name="description"
                                                       id="description"></textarea>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="space-24"></div>
+                                        <div class="space-24"></div>
 
-                                </fieldset>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                    id="celery_task_ops"></button>
-                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                        id="celery_task_ops"></button>
+                            </div>
+                        {% else %}
+                            <div class="modal-body">
+                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                            </div>
+                        {% endif %}
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal -->
             </div>
@@ -361,10 +370,9 @@
 
         // 删除celery_task
         celery_task_tbody.on('click', '.delete', function () {
-            let pk = $(this).attr('data-id');
-            let tr_obj = $(this).parents('tr');
-
             {% if perms.plan.delete_periodictask %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
                 $.confirm({
                     title: 'Tips',
                     content: '确定要删除这条记录么？',

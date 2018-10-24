@@ -49,82 +49,91 @@
                         </h4>
                     </div>
 
-                    <div class="modal-body">
-                        <form id="user_detail" class="main form-horizontal">
-                            <fieldset>
-                                <div class="form-group">
-                                    <label for="username" class="col-sm-2 control-label">用户名称</label>
-                                    <div class="col-sm-6">
-                                        <input type="text" class="form-control" name="username" id="username"
-                                               required/>
+                    {% if perms.users.change_userprofile and perms.users.add_userprofile %}
+                        <div class="modal-body">
+                            <form id="user_detail" class="main form-horizontal">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label for="username" class="col-sm-2 control-label">用户名称</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="username" id="username"
+                                                   required/>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="mobile" class="col-sm-2 control-label">手机号码</label>
-                                    <div class="col-sm-6">
-                                        <input type="text" class="form-control" name="mobile" id="mobile"/>
+                                    <div class="form-group">
+                                        <label for="mobile" class="col-sm-2 control-label">手机号码</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="mobile" id="mobile"/>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="is_superuser" class="col-sm-2 control-label">超级管理员</label>
-                                    <div class="col-sm-6">
-                                        <select class="form-control select2" name="is_superuser" id="is_superuser"
-                                                style="width: 100%;">
-                                            <option value="1">是</option>
-                                            <option value="0" selected>否</option>
-                                        </select>
+                                    <div class="form-group">
+                                        <label for="is_superuser" class="col-sm-2 control-label">超级管理员</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control select2" name="is_superuser" id="is_superuser"
+                                                    style="width: 100%;">
+                                                <option value="1">是</option>
+                                                <option value="0" selected>否</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="is_active" class="col-sm-2 control-label">是否激活</label>
-                                    <div class="col-sm-6">
-                                        <select class="form-control select2" name="is_active" id="is_active"
-                                                style="width: 100%;">
-                                            <option value="1" selected>是</option>
-                                            <option value="0">否</option>
-                                        </select>
+                                    <div class="form-group">
+                                        <label for="is_active" class="col-sm-2 control-label">是否激活</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control select2" name="is_active" id="is_active"
+                                                    style="width: 100%;">
+                                                <option value="1" selected>是</option>
+                                                <option value="0">否</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="groups" class="col-sm-2 control-label">所属组</label>
-                                    <div class="col-sm-6">
-                                        <select class="form-control select2" multiple="multiple" name="groups"
-                                                id="groups"
-                                                style="width: 100%;">
-                                            {% for group in groups %}
-                                                <option value="{{ group.id }}">{{ group.name }}</option>
-                                            {% endfor %}
-                                        </select>
+                                    <div class="form-group">
+                                        <label for="groups" class="col-sm-2 control-label">所属组</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control select2" multiple="multiple" name="groups"
+                                                    id="groups"
+                                                    style="width: 100%;">
+                                                {% for group in groups %}
+                                                    <option value="{{ group.id }}">{{ group.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="user_permissions" class="col-sm-2 control-label">用户权限</label>
-                                    <div class="col-sm-6">
-                                        <select class="form-control select2" multiple="multiple"
-                                                name="user_permissions" id="user_permissions"
-                                                style="width: 100%;">
-                                            {% for permission in permissions %}
-                                                <option value="{{ permission.id }}">{{ permission }}</option>
-                                            {% endfor %}
-                                        </select>
+                                    <div class="form-group">
+                                        <label for="user_permissions" class="col-sm-2 control-label">用户权限</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control select2" multiple="multiple"
+                                                    name="user_permissions" id="user_permissions"
+                                                    style="width: 100%;">
+                                                {% for permission in permissions %}
+                                                    <option value="{{ permission.id }}">{{ permission }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="space-24"></div>
+                                    <div class="space-24"></div>
 
-                            </fieldset>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                id="user_ops"></button>
-                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                    id="user_ops"></button>
+                        </div>
+                    {% else %}
+                        <div class="modal-body">
+                            抱歉！您没有修改用户的权限！如有疑问，请联系管理员！
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                        </div>
+                    {% endif %}
                 </div><!-- /.modal-content -->
             </div><!-- /.modal -->
         </div>
@@ -272,18 +281,12 @@
                         }
                     })
                 });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有新增用户的权限！如有疑问，请联系管理员！',
-                });
             {% endif %}
         });
 
         // 修改用户
         user_tbody.on('click', '.modify', function () {
-            {% if perms.auth.change_userprofile %}
+            {% if perms.users.change_userprofile %}
                 let user_id = $(this).attr('data-id');
                 $('.modal-title').text('修改用户');
                 user_ops.text('确认修改');
@@ -327,12 +330,6 @@
                             })
                         }
                     })
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有修改用户的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
         });
@@ -379,7 +376,7 @@
 
         // 重置密码
         user_tbody.on('click', '.change_pwd', function () {
-            {% if perms.auth.delete_userprofile %}
+            {% if perms.auth.change_userprofile %}
                 let pk = $(this).attr('data-id');
                 $.confirm({
                     title: 'Tips',

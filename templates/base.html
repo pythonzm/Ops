@@ -260,7 +260,7 @@ desired effect
                     <li><a href="{% url 'dashboard' %}"><i class="fa fa-tachometer"></i><span>仪表盘</span></a></li>
                 {% endif %}
 
-                {% if perms.users.add_userprofile %}
+                {% if perms.users.add_userprofile or perms.auth.add_group or perms.users.add_userlog %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-users"></i>
                             <span>用户管理</span>
@@ -269,13 +269,19 @@ desired effect
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a href="{% url 'user_list' %}"><i class="fa  fa-user"></i> 用户列表</a></li>
-                            <li><a href="{% url 'group_list' %}"><i class="fa fa-users"></i> 用户组</a></li>
-                            <li><a href="{% url 'user_log' %}"><i class="fa fa-user-secret"></i> 操作记录</a></li>
+                            {% if perms.users.add_userprofile %}
+                                <li><a href="{% url 'user_list' %}"><i class="fa  fa-user"></i> 用户列表</a></li>
+                            {% endif %}
+                            {% if perms.auth.add_group %}
+                                <li><a href="{% url 'group_list' %}"><i class="fa fa-users"></i> 用户组</a></li>
+                            {% endif %}
+                            {% if perms.users.add_userlog %}
+                                <li><a href="{% url 'user_log' %}"><i class="fa fa-user-secret"></i> 操作记录</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                 {% endif %}
-                {% if perms.assets.add_assets %}
+                {% if perms.assets.add_assets or perms.assets.add_assetslog %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-institution"></i> <span>资产管理</span>
                             <span class="pull-right-container">
@@ -283,14 +289,17 @@ desired effect
                         </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a href="{% url 'assets_charts' %}"><i class="fa  fa-pie-chart"></i>资产概览</a></li>
-                            <li><a href="{% url 'add_base_asset' %}"><i class="fa fa-wrench"></i>基础配置</a></li>
-                            <li><a href="{% url 'add_asset' %}"><i class="fa fa-plus-square"></i>新增资产</a></li>
-                            <li><a href="{% url 'assets_list' %}"><i class="fa fa-list"></i>资产列表</a></li>
-                            {% if perms.assets.delete_assetslog %}
+                            {% if perms.assets.add_assets %}
+                                <li><a href="{% url 'assets_charts' %}"><i class="fa  fa-pie-chart"></i>资产概览</a></li>
+                                <li><a href="{% url 'add_base_asset' %}"><i class="fa fa-wrench"></i>基础配置</a></li>
+                                <li><a href="{% url 'add_asset' %}"><i class="fa fa-plus-square"></i>新增资产</a></li>
+                                <li><a href="{% url 'assets_list' %}"><i class="fa fa-list"></i>资产列表</a></li>
+                            {% endif %}
+
+                            {% if perms.assets.add_assetslog %}
                                 <li><a href="{% url 'assets_log' %}"><i class="fa fa-user-secret"></i>操作记录</a></li>
                             {% endif %}
-                            {% if perms.assets.change_sshrecord %}
+                            {% if user.is_superuser %}
                                 <li><a href="{% url 'login_ssh_record' %}"><i class="fa fa-user-secret"></i>
                                     WebSSH日志</a>
                                 </li>
@@ -298,7 +307,7 @@ desired effect
                         </ul>
                     </li>
                 {% endif %}
-                {% if perms.task.add_ansiblemodulelog %}
+                {% if perms.task.add_ansiblemodulelog or perms.task.add_ansibleinventory %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-navicon"></i> <span>任务管理</span>
                             <span class="pull-right-container">
@@ -306,14 +315,18 @@ desired effect
                         </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a href="{% url 'inventory' %}"><i class="fa fa-gears"></i> 动态主机组</a></li>
-                            <li><a href="{% url 'run_module' %}"><i class="fa fa-play"></i> 执行模块</a></li>
-                            <li><a href="javascript:void(0)"><i class="fa fa-play-circle"></i> 执行playbook</a></li>
-                            <li><a href="{% url 'run_log' %}"><i class="fa fa-user-secret"></i> 操作日志</a></li>
+                            {% if perms.task.add_ansibleinventory %}
+                                <li><a href="{% url 'inventory' %}"><i class="fa fa-gears"></i> 动态主机组</a></li>
+                                <li><a href="{% url 'run_module' %}"><i class="fa fa-play"></i> 执行模块</a></li>
+                                <li><a href="javascript:void(0)"><i class="fa fa-play-circle"></i> 执行playbook</a></li>
+                            {% endif %}
+                            {% if perms.task.add_ansibleinventory %}
+                                <li><a href="{% url 'run_log' %}"><i class="fa fa-user-secret"></i> 操作日志</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                 {% endif %}
-                {% if perms.fort.view_fortserver %}
+                {% if perms.fort.ssh_fortserver %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-terminal"></i> <span>连接管理</span>
                             <span class="pull-right-container">
@@ -321,7 +334,7 @@ desired effect
                         </span>
                         </a>
                         <ul class="treeview-menu">
-                            {% if perms.fort.add_fortserver %}
+                            {% if request.user.is_superuser %}
                                 <li><a href="{% url 'fort_server' %}"><i class="fa fa-street-view"></i> 主机用户配置</a></li>
                             {% endif %}
 
@@ -329,14 +342,14 @@ desired effect
                                 <li><a href="{% url 'ssh_list' %}"><i class="fa fa-location-arrow"></i> 终端连接</a></li>
                             {% endif %}
 
-                            {% if perms.fort.change_fortrecord %}
+                            {% if request.user.is_superuser %}
                                 <li><a href="{% url 'login_fort_record' %}"><i class="fa fa-user-secret"></i> 登录日志</a>
                                 </li>
                             {% endif %}
                         </ul>
                     </li>
                 {% endif %}
-                {% if perms.projs.add_project %}
+                {% if perms.projs.add_project and perms.projs.add_service %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-github-alt"></i> <span>项目管理</span>
                             <span class="pull-right-container">
@@ -360,7 +373,7 @@ desired effect
                         <ul class="treeview-menu">
                             <li><a href="{% url 'schedule_list' %}"><i class="fa fa-clock-o"></i> 调度管理</a></li>
                             <li><a href="{% url 'task_list' %}"><i class="fa fa-star"></i> 任务管理</a></li>
-                            <li><a href="{% url 'task_result' %}"><i class="fa fa-retweet"></i> 任务结果</a></li>
+                            <li><a href="{% url 'task_result' %}"><i class="fa fa-retweet"></i> 运行日志</a></li>
                         </ul>
                     </li>
                 {% endif %}

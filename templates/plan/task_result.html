@@ -42,7 +42,15 @@
 
                             <tr>
                                 <td>{{ task_result.task_name }}</td>
-                                <td>{{ task_result.status }}</td>
+                                <td>
+                                    {% if task_result.status == 'SUCCESS' %}
+                                        <span class="badge bg-green">{{ task_result.status }}</span>
+                                    {% elif task_result.status == 'FAILURE' %}
+                                        <span class="badge bg-red">{{ task_result.status }}</span>
+                                    {% elif task_result.status == 'REVOKED' %}
+                                        <span class="badge bg-yellow">{{ task_result.status }}</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ task_result.date_done|date:"Y-m-d H:i:s" }}</td>
                                 <td>{{ task_result.result }}</td>
                                 <td>{{ task_result.traceback }}</td>

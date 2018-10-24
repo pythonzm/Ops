@@ -45,7 +45,7 @@
 
                         </h4>
                     </div>
-                    {% if perms.auth.add_group %}
+                    {% if perms.auth.add_group and perms.auth.change_group %}
                         <div class="modal-body">
                             <form class="main form-horizontal" id="group_detail">
                                 <fieldset>
@@ -97,7 +97,7 @@
                         </div>
                     {% else %}
                         <div class="modal-body">
-                            抱歉！您没有新增用户组的权限！如有疑问，请联系管理员！
+                            抱歉！您没有此操作的权限！如有疑问，请联系管理员！
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
@@ -219,53 +219,54 @@
 
         // 更新组信息
         group_tbody.on('click', '.modify', function () {
-            let group_id = $(this).attr('data-id');
-            $('.modal-title').text('修改用户组');
-            group_ops.text('确认修改');
+            {% if perms.auth.delete_group %}
+                let group_id = $(this).attr('data-id');
+                $('.modal-title').text('修改用户组');
+                group_ops.text('确认修改');
 
-            $.get('/api/group/' + group_id + '/', function (data) {
-                $('#name').val(data.name);
-                $('#user_set').val(data.user_set).trigger('change');
-                $('#permissions').val(data.permissions).trigger('change');
-            });
+                $.get('/api/group/' + group_id + '/', function (data) {
+                    $('#name').val(data.name);
+                    $('#user_set').val(data.user_set).trigger('change');
+                    $('#permissions').val(data.permissions).trigger('change');
+                });
 
-            group_ops.unbind('click').on('click', function () {
-                let data = $('#group_detail').serializeJson();
-                $.ajax({
-                    url: '/api/group/' + group_id + '/',
-                    type: 'PUT',
-                    data: JSON.stringify(data),
-                    dataType: 'json',
-                    contentType: "application/json",
-                    success: function () {
-                        $.confirm({
-                            title: 'Tips!',
-                            content: '修改完成!',
-                            type: 'green',
-                            buttons: {
-                                ok: function () {
-                                    window.location.reload()
+                group_ops.unbind('click').on('click', function () {
+                    let data = $('#group_detail').serializeJson();
+                    $.ajax({
+                        url: '/api/group/' + group_id + '/',
+                        type: 'PUT',
+                        data: JSON.stringify(data),
+                        dataType: 'json',
+                        contentType: "application/json",
+                        success: function () {
+                            $.confirm({
+                                title: 'Tips!',
+                                content: '修改完成!',
+                                type: 'green',
+                                buttons: {
+                                    ok: function () {
+                                        window.location.reload()
+                                    }
                                 }
-                            }
-                        });
-                    },
-                    error: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.responseText,
-                        })
-                    }
-                })
-            });
+                            });
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    })
+                });
+            {% endif %}
         });
 
         // 删除用户组
         group_tbody.on('click', '.delete', function () {
-            let pk = $(this).attr('data-id');
-            let tr_obj = $(this).parents('tr');
-
             {% if perms.auth.delete_group %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
                 $.confirm({
                     title: 'Tips',
                     content: '确定要删除这条记录么？',
