@@ -1,5 +1,5 @@
 # ops
-基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible(只实现了执行模块)、简易堡垒机(主机分配、用户分配、配置禁用命令清单、操作录像回放功能)、项目管理（一部分）
+基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible(只实现了执行模块)、简易堡垒机(主机分配、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、项目管理（一部分）
 
 ## 安装
 一、安装python3.6
@@ -114,7 +114,7 @@ python manage.py runserver 0.0.0.0:8000
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_black_commands.png)
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_fort_user.png)
 
-### webssh终端，目前还没有实现上传下载文件
+### webssh终端，包括文件的上传下载
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/terminal.png)
 
 ### webssh操作记录回放
