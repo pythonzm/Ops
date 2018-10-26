@@ -33,7 +33,6 @@ class MyThread(threading.Thread):
                     stdout.append([time.time() - start_time, 'o', str_data])
             except Exception:
                 pass
-        self.send_msg('\r\n已成功登出，刷新页面重新登录，关闭页面断开连接')
         self.chan.ssh.close()
         self.stop()
 

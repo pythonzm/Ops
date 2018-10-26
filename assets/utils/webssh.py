@@ -16,12 +16,16 @@ class MyThread(threading.Thread):
     def __init__(self, chan):
         super(MyThread, self).__init__()
         self.chan = chan
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
 
     def run(self):
         start_time = time.time()
         stdout = []
         current_time = time.strftime(settings.TIME_FORMAT)
-        while not self.chan.chan.exit_status_ready():
+        while not self._stop_event.is_set():
             try:
                 data = self.chan.chan.recv(1024)
                 if data:
@@ -30,8 +34,8 @@ class MyThread(threading.Thread):
                     stdout.append([time.time() - start_time, 'o', str_data])
             except Exception:
                 pass
-        self.send_msg('\r\n已成功登出，刷新页面重新登录，关闭页面断开连接')
         self.chan.ssh.close()
+        self.stop()
 
         record_path = os.path.join(settings.MEDIA_ROOT, 'ssh_records', self.chan.scope['user'].username,
                                    time.strftime('%Y-%m-%d'))
@@ -111,4 +115,3 @@ class SSHConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(self.channel_name, self.channel_name)
-

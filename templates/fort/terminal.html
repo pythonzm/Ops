@@ -5,17 +5,34 @@
     <meta charset="UTF-8">
     <title>{{ fort_username }}@{{ server_ip }}</title>
 
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+    <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
     <link href="{% static 'css/xterm.css' %}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
 </head>
 <body>
-<p style="background-color: #dd4b39 !important;color: #fff !important;">关闭窗口之前请先执行<span
-        style="background-color: #ffff00;color: #000000;">exit</span>命令，最终确保服务器返回了已成功登出。当前使用账号为：<span
-        style="background-color: #ffff00;color: #000000;">{{ fort_username }}@{{ server_ip }}</span>
-</p>
+<nav class="navbar navbar-light" style="background-color: #e3f2fd; margin-bottom: 0">
+    <a class="navbar-brand">当前使用账号为： {{ fort_username }}@{{ server_ip }} </a>
+    <form class="form-inline" enctype="multipart/form-data">
+        <div class="input-group" style="margin-top: 10px;margin-left: 200px;">
+            <input type="file" id="upload_file" class="file" name="upload_file" multiple required>
+        </div>
+
+        <input class="form-control mr-sm-2" type="search" id="download_file" name="download_file"
+               placeholder="请输入要下载文件的全路径" aria-label="Search" style="width: 20%;margin-top: 10px;margin-left: 20px;">
+        <button class="btn btn-outline-success my-2 my-sm-0 download_file" type="button" style="margin-top: 10px;">下载
+        </button>
+    </form>
+</nav>
+
 <div id="terms"></div>
 </body>
 
+<script src="{% static 'AdminLTE/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
 <script src="{% static 'js/xterm.js' %}"></script>
+<script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 <script>
     const socket = new WebSocket('ws://' + window.location.host + '/ws/fortssh/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/');
 
@@ -46,9 +63,52 @@
         };
     };
 
-    window.onbeforeunload = function () {
-        return '请确认是否输入了exit命令';
-    };
+    $("#upload_file").fileinput({
+        language: 'zh',
+        showUpload: true,
+        dropZoneEnabled: false,
+        msgPlaceholder: '上传文件...',
+        showPreview: false,
+        showCaption: true,
+        maxFileSize: 10240,
+        maxFileCount: 10,
+        uploadUrl: '/fort/terminal/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/',
+        mergeAjaxCallbacks: true,
+        ajaxSettings: {
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'green',
+                    content: response.msg,
+                })
+            },
+            error: function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.msg,
+                })
+            },
+        },
+        browseLabel: '浏览文件',
+        removeLabel: '清空',
+        uploadLabel: '上传'
+    });
+
+    $('.download_file').on('click', function () {
+        let download_file = $('#download_file').val();
+
+        if (download_file.length !== 0) {
+            location.href = '/fort/terminal/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/?download_file=' + download_file
+        } else {
+            $.alert({
+                title: 'Tips',
+                type: 'red',
+                content: "文件名不能为空！",
+            })
+        }
+    })
 
 </script>
 

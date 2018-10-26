@@ -14,6 +14,7 @@ from users.models import UserProfile
 from utils.crypt_pwd import CryptPwd
 from task.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.decorators import permission_required
+from utils.sftp import SFTP
 
 
 @permission_required('assets.add_assets', raise_exception=True)
@@ -314,8 +315,64 @@ def export_assets(request):
 
 def ssh_terminal(request, pk):
     if request.user.is_superuser:
-        ssh_server_ip = ServerAssets.objects.get(id=pk).assets.asset_management_ip
-        return render(request, 'assets/ssh_terminal.html', locals())
+        server_obj = ServerAssets.objects.get(id=pk)
+        ssh_server_ip = server_obj.assets.asset_management_ip
+        sftp = SFTP(server_obj.assets.asset_management_ip, server_obj.port, server_obj.username,
+                    CryptPwd().decrypt_pwd(server_obj.password))
+        if request.method == 'GET':
+            ssh_server_ip = server_obj.assets.asset_management_ip
+            download_file = request.GET.get('download_file')
+            if download_file:
+                download_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'download',
+                                                  ssh_server_ip)
+                local_file_name = download_file.split('/')[-1]
+
+                if not os.path.exists(download_file_path):
+                    os.makedirs(download_file_path, exist_ok=True)
+
+                local_file = '{}/{}'.format(download_file_path, local_file_name)
+                download_file_size = sftp.sftp.stat(download_file).st_size
+
+                sftp.get_file(download_file, local_file)
+
+                local_file_size = None
+                while local_file_size != download_file_size:
+                    local_file_size = os.path.getsize(local_file)
+
+                response = FileResponse(open(local_file, 'rb'))
+                response['Content-Type'] = 'application/octet-stream'
+                response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=local_file_name)
+                return response
+            else:
+                return render(request, 'assets/ssh_terminal.html', locals())
+        elif request.method == 'POST':
+            try:
+                upload_file = request.FILES.get('upload_file')
+                upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
+                                                server_obj.assets.asset_management_ip)
+                if not os.path.exists(upload_file_path):
+                    os.makedirs(upload_file_path, exist_ok=True)
+
+                local_file = '{}/{}'.format(upload_file_path, upload_file.name)
+
+                if not os.path.exists(local_file):
+                    open(local_file, 'w').close()
+                local_file_size = None
+
+                while local_file_size != upload_file.size:
+                    with open(local_file, 'wb') as f:
+                        for chunk in upload_file.chunks():
+                            f.write(chunk)
+                    local_file_size = os.path.getsize(local_file)
+
+                if server_obj.username == 'root':
+                    sftp.put_file(local_file, '/root/')
+                else:
+                    sftp.put_file(local_file, '/home/{}'.format(server_obj.username))
+
+                return JsonResponse({'code': 200, 'msg': '上传成功！文件默认放在{}用户家目录下'.format(server_obj.username)})
+            except Exception as e:
+                return JsonResponse({'code': 500, 'msg': '上传失败！{}'.format(e)})
     else:
         return HttpResponseForbidden('<h1>403</h1>')
 

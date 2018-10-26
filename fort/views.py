@@ -1,17 +1,19 @@
+import datetime
+import os
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, FileResponse
 from django.shortcuts import render
 from fort.models import *
 from assets.models import ServerAssets
 from django.contrib.auth.models import Group
 from users.models import UserProfile
-import datetime
 from task.views import gen_resource
 from task.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.decorators import permission_required
+from Ops import settings
+from utils.sftp import SFTP
 
 
-@permission_required('fort.add_fortserver', raise_exception=True)
 def fort_server(request):
     if request.user.is_superuser:
         fort_servers = FortServer.objects.select_related('server')
@@ -80,9 +82,62 @@ def ssh_list(request):
 
 @permission_required('fort.ssh_fortserver', raise_exception=True)
 def terminal(request, server_id, fort_user_id):
-    server_ip = ServerAssets.objects.select_related('assets').get(id=server_id).assets.asset_management_ip
-    fort_username = FortServerUser.objects.get(id=fort_user_id).fort_username
-    return render(request, 'fort/terminal.html', locals())
+    server_obj = ServerAssets.objects.select_related('assets').get(id=server_id)
+    fort_user_obj = FortServerUser.objects.get(id=fort_user_id)
+    fort_username = fort_user_obj.fort_username
+    sftp = SFTP(server_obj.assets.asset_management_ip, server_obj.port, fort_username,
+                fort_user_obj.fort_password)
+    if request.method == 'GET':
+        server_ip = server_obj.assets.asset_management_ip
+        download_file = request.GET.get('download_file')
+        if download_file:
+            download_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'download',
+                                              server_ip)
+            local_file_name = download_file.split('/')[-1]
+
+            if not os.path.exists(download_file_path):
+                os.makedirs(download_file_path, exist_ok=True)
+
+            local_file = '{}/{}'.format(download_file_path, local_file_name)
+            download_file_size = sftp.sftp.stat(download_file).st_size
+
+            sftp.get_file(download_file, local_file)
+
+            local_file_size = None
+            while local_file_size != download_file_size:
+                local_file_size = os.path.getsize(local_file)
+
+            response = FileResponse(open(local_file, 'rb'))
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=local_file_name)
+            return response
+        else:
+            return render(request, 'fort/terminal.html', locals())
+    elif request.method == 'POST':
+        try:
+            upload_file = request.FILES.get('upload_file')
+            upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
+                                            server_obj.assets.asset_management_ip)
+            if not os.path.exists(upload_file_path):
+                os.makedirs(upload_file_path, exist_ok=True)
+
+            local_file = '{}/{}'.format(upload_file_path, upload_file.name)
+
+            if not os.path.exists(local_file):
+                open(local_file, 'w').close()
+            local_file_size = None
+
+            while local_file_size != upload_file.size:
+                with open(local_file, 'wb') as f:
+                    for chunk in upload_file.chunks():
+                        f.write(chunk)
+                local_file_size = os.path.getsize(local_file)
+
+            sftp.put_file(local_file, '/home/{}'.format(fort_username))
+
+            return JsonResponse({'code': 200, 'msg': '上传成功！文件默认放在/home/{}路径下'.format(fort_username)})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '上传失败！{}'.format(e)})
 
 
 def login_fort_record(request):

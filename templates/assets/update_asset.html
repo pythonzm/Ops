@@ -380,10 +380,18 @@
                             data: $('#update_asset').serialize(),
                             type: 'POST',
                             success: function (res) {
-                                $.alert({
-                                    title: 'Tips',
+                                $.confirm({
+                                    title: 'Tips!',
+                                    content: '修改完成!是否返回资产列表？',
                                     type: 'green',
-                                    content: res['msg'],
+                                    buttons: {
+                                        Ok: function () {
+                                            window.location.href = '/assets/assets_list/'
+                                        },
+                                        cancel: function () {
+                                            // Cancel
+                                        }
+                                    }
                                 });
                             }
                         })
