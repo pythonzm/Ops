@@ -1,5 +1,5 @@
 # ops
-基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible(只实现了执行模块)、简易堡垒机(主机分配、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、项目管理（一部分）
+基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible(只实现了执行模块)、简易堡垒机(主机分配、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、项目管理（一部分）、celery任务编排
 
 ## 安装
 一、安装python3.6
@@ -88,14 +88,14 @@ python manage.py runserver 0.0.0.0:8000
 
 以下为部分截图：
 
+### 仪表盘，曲线图是通过celery每天获取的zabbix告警数量
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/dashboard.png)
+
 ### 用户管理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_list.png)
 
 ### 添加用户以及分配用户权限(采用的django自带的权限系统)等，用户组同理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_user.png)
-
-### 个人中心，功能包括：修改头像、修改密码、修改手机号和一个简易日程安排
-![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_center.png)
 
 ### 资产概览
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_chart.png)
@@ -124,3 +124,6 @@ python manage.py runserver 0.0.0.0:8000
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_list.png)
 ### 项目架构查看
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_chart.png)
+
+### celery任务编排
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/celery.png)
