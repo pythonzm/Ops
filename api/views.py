@@ -135,3 +135,9 @@ class PeriodicTaskViewSet(viewsets.ModelViewSet):
     queryset = PeriodicTask.objects.all()
     serializer_class = PeriodicTaskSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+class WebSiteViewSet(viewsets.ModelViewSet):
+    queryset = WebSite.objects.all()
+    serializer_class = WebSiteSerializer
+    permission_classes = (permissions.IsAuthenticated,)

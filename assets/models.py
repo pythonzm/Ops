@@ -282,3 +282,24 @@ class SSHRecord(models.Model):
         db_table = 'ops_ssh_record'
         verbose_name = '登录管理用户记录表'
         verbose_name_plural = '登录管理用户记录表'
+
+
+class ZabbixAlert(models.Model):
+    alert_num = models.SmallIntegerField(verbose_name='告警数量')
+    alert_date = models.DateField(auto_now_add=True, verbose_name='告警日期')
+
+    class Meta:
+        db_table = 'ops_zabbix_alert'
+        verbose_name = '告警记录表'
+        verbose_name_plural = '告警记录表'
+
+
+class WebSite(models.Model):
+    web_name = models.CharField(max_length=32, verbose_name='网站名称')
+    web_address = models.URLField(verbose_name='网站地址')
+    web_des = models.CharField(max_length=32, verbose_name='网站描述')
+
+    class Meta:
+        db_table = 'ops_website'
+        verbose_name = '常用网站表'
+        verbose_name_plural = '常用网站表'

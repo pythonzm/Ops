@@ -24,7 +24,6 @@ urlpatterns = [
     path(r'logout/', views.logout, name='logout'),
     path(r'lock_screen/', views.lock_screen, name='lock_screen'),
     path(r'api/', include('api.urls')),
-    path(r'scan_host/', include('scanhosts.urls')),
     path(r'run/', include('task.urls')),
     path(r'users/', include('users.urls')),
     path(r'assets/', include('assets.urls')),

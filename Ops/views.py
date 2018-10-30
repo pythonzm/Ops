@@ -14,6 +14,8 @@ def dashboard(request):
         project_count = Project.objects.count()
         user_count = UserProfile.objects.count()
         fort_server_count = FortServer.objects.count()
+        zabbix_alerts = ZabbixAlert.objects.all()
+        websites = WebSite.objects.all()
         return render(request, 'dashboard.html', locals())
     else:
         return HttpResponseForbidden('<h1>403 Forbidden</h1>', content_type='text/html')

@@ -2,70 +2,12 @@
 {% load staticfiles %}
 
 {% block head %}
-    <!-- fullCalendar -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.css' %}">
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.print.min.css' %}"
-          media="print">
-    <!-- bootstrap datepicker -->
-    <link rel="stylesheet"
-          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
-    <link rel="stylesheet" href="{% static 'artDialog/dist/ui-dialog.css' %}">
-    <!-- time Picker -->
-    <link rel="stylesheet" href="{% static 'css/wickedpicker.min.css' %}">
-    <!-- Select2 -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
     <link rel="stylesheet" href="{% static 'cropper/dist/cropper.min.css' %}">
-
-    <style>
-        img {
-            max-width: 100%;
-        }
-
-        .taxt {
-            width: 440px;
-        }
-
-        .time {
-            width: 100px;
-        }
-
-        .textarea {
-            width: 300px;
-        }
-
-        .check {
-            padding: 8px;
-        }
-
-        .slidertext {
-            padding-top: 40px;
-        }
-
-        .timepicker {
-            position: relative;
-            z-index: 999;
-        }
-
-        #edit {
-            position: relative;
-            width: 300px;
-        }
-
-        #edittitle {
-            padding-bottom: 10px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-    </style>
-{% endblock %}
-
-{% block content-header %}
-    <h1>用户中心</h1>
 {% endblock %}
 
 {% block content %}
-    <div class="row" onload="msgListen()">
+    <div class="row">
         <div class="col-md-3">
 
             <!-- Profile Image -->
@@ -133,13 +75,13 @@
                             </h4>
                         </div>
                         <div class="modal-body">
-                            <form id="mobile" class="main form-horizontal">
+                            <form id="mobile_detail" class="main form-horizontal">
                                 <fieldset>
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">手机号码</label>
+                                        <label class="col-sm-2 control-label" for="mobile">手机号码</label>
                                         <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="mobile" maxlength="11"
-                                                   minlength="11" required/>
+                                            <input type="text" class="form-control" name="mobile" id="mobile"
+                                                   maxlength="11" minlength="11" required/>
                                         </div>
                                     </div>
 
@@ -160,54 +102,6 @@
 
         </div>
         <!-- /.col -->
-
-        <div id="set" style="display:none" class="taxt">
-            <div id="slider"></div>
-            <div style="text-align: center" class="slidertext">
-                <input type="text" id="amount"
-                       style="border:0; color:#f6931f; font-weight:bold; text-align: center; font-size: 16px;">
-            </div>
-        </div>
-        <div id="edit" style="display: none">
-            <p id="edittitle"></p>
-            <p id="edittime"></p>
-        </div>
-        <div id="dialog-form" style="display:none">
-            <form class="form-inline">
-                <p>
-                    <label>事务内容：</label>
-                    <input type="text" class="form-control textarea" id="titledetail">
-                </p>
-                <p>
-                    <label>开始时间：</label>
-                    <input type="text" class="time datepicker" id="startdate">
-                    <input type="text" class="time timepicker" id="starttime">
-                </p>
-                <p style="display:none" id="enddate">
-                    <label>结束时间：</label>
-                    <input type="text" class="time datepicker" id="stopdate">
-                    <input type="text" class="time timepicker" id="endtime">
-                </p>
-                <p class="checkbox check">
-                    <label class="checkbox-inline"><input type="checkbox" id="isallday">全天</label>
-                    <label class="checkbox-inline"><input type="checkbox" id="end">结束时间</label>
-                </p>
-                <p>
-                    <label>参与者：</label>
-                    <select class="form-control select2" multiple="multiple" id="users" name="addUser"
-                            style="width: 100%;">
-                        {% for add_user in users %}
-                            {% if add_user.id == user.id %}
-                                <option value="{{ add_user.id }}" selected>{{ add_user.username }}</option>
-                            {% else %}
-                                <option value="{{ add_user.id }}">{{ add_user.username }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                </p>
-                <p></p>
-            </form>
-        </div>
 
         <!-- Tabs -->
         <div class="col-md-9">
@@ -266,216 +160,14 @@
 {% endblock %}
 
 {% block js %}
-    <!-- Select2 -->
-    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <!-- jQuery UI 1.11.4 -->
     <script src="{% static 'AdminLTE/bower_components/jquery-ui/jquery-ui.min.js' %}"></script>
-    <!-- fullCalendar -->
-    <script src="{% static 'AdminLTE/bower_components/moment/moment.js' %}"></script>
-    <script src="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
-    <script src="{% static 'artDialog/dist/dialog-min.js' %}"></script>
-    <!-- bootstrap datepicker -->
-    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
-    <!-- bootstrap time picker -->
-    <script src="{% static 'js/wickedpicker.min.js' %}"></script>
     <!-- 输入验证 -->
     <script src="{% static 'parsley/dist/parsley.min.js' %}"></script>
     <!-- 修改头像 -->
     <script src="{% static 'cropper/dist/cropper.min.js' %}"></script>
     <script>
-        // 日历
-        $(function () {
-            //Initialize Select2 Elements
-            $('.select2').select2();
-            /* initialize the calendar
-             -----------------------------------------------------------------*/
-            $('#calendar').fullCalendar({
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month,agendaWeek,agendaDay'
-                },
-                buttonText: {
-                    today: 'today',
-                    month: 'month',
-                    week: 'week',
-                    day: 'day'
-                },
-                editable: true,
-                eventLimit: true,
-                events: [
-                    {% for event in events %}
-                        {
-                            title: '{{ event.title }}',
-                            start: '{{ event.start_time|date:"Y-m-d H:i:s" }}',
-                            end: '{{ event.end_time|date:"Y-m-d H:i:s" }}',
-                            backgroundColor: '{{ event.color }}',
-                            borderColor: '{{ event.color }}'
-                        },
-                    {% endfor %}
-                ],
-                dayClick: function (date, allDay, jsEvent, view) {
-                    let selDate = $.fullCalendar.formatDate(date, "YYYY-MM-DD");
-                    let d = dialog({
-                        title: "新建事件",
-                        content: "<input rows=5 class='taxt' placeholder='内容' id='eventall'></input><p></p><p>" + selDate + "</p>",
-                        width: 460,
-                        button: [{
-                            value: "完整编辑",
-                            callback: function () {
-                                $(".datepicker").datepicker({
-                                    language: "zh-CN",
-                                    format: "yyyy-mm-dd",
-                                    todayHighlight: true,
-                                    autoclose: true,
-                                    weekStart: 0
-                                });
-                                $('.timepicker').wickedpicker({
-                                    title: '',
-                                    showSeconds: true,
-                                    twentyFour: true
-                                });
-                                $("#isallday").click(function () {
-                                    if ($("#isallday").prop("checked") === true) {
-                                        $("#isallday").val("1");
-                                        $("#starttime,#endtime").val('');
-                                        $("#starttime,#endtime").hide();
-                                    } else {
-                                        $("#isallday").val("0");
-                                        $("#starttime,#endtime").show();
-                                    }
-                                });
-                                $("#end").click(function () {
-                                    if ($("#end").prop("checked") === true) {
-                                        $("#enddate").show();
-                                    } else {
-                                        $("#enddate").hide();
-                                    }
-                                });
-                                dialog({
-                                    title: "新建日程",
-                                    content: $("#dialog-form"),
-                                    okValue: "确定",
-                                    ok: function () {
-                                        let titledetail = $("#titledetail").val();
-                                        let startdate = $("#startdate").val();
-                                        let starttime = $("#starttime").val().split(" ").join("");
-                                        let enddate = $("#stopdate").val();
-                                        let endtime = $("#endtime").val().split(" ").join("");
-                                        let allDay = $("#isallday").val();
-                                        let add_users = $('#users').val();
-                                        if (titledetail) {
-                                            $.ajax({
-                                                url: '{% url 'user_center' %}',
-                                                data: {
-                                                    title: titledetail,
-                                                    sdate: startdate,
-                                                    stime: starttime ? starttime : '00:00:00',
-                                                    edate: enddate ? enddate : startdate,
-                                                    etime: endtime ? endtime : '00:00:00',
-                                                    allDay: allDay === 'on' ? 0 : allDay,
-                                                    add_users: JSON.stringify(add_users),
-                                                },
-                                                type: 'POST',
-                                                dataType: 'json',
-                                                success: function (data) {
-                                                    $("#calendar").fullCalendar("renderEvent", data['data'], true);
-                                                },
-                                                error: function () {
-                                                    alert("Failed");
-                                                }
-                                            });
-                                        }
-                                    },
-                                    cancelValue: "关闭",
-                                    cancel: function () {
-                                    }
-                                }).showModal();
-                            },
-                        }],
-                        okValue: "确定",
-                        ok: function () {
-                            let titleall = $("#eventall").val();
-                            if (titleall) {
-                                $.ajax({
-                                    url: '{% url 'user_center' %}',
-                                    data: {
-                                        title: titleall,
-                                        sdate: selDate,
-                                        stime: '00:00:00',
-                                        edate: selDate,
-                                        etime: '00:00:00',
-                                        allDay: 1
-                                    },
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    success: function (data) {
-                                        $("#calendar").fullCalendar("renderEvent", data['data'], true);
-                                    },
-                                    error: function () {
-                                        alert("Failed");
-                                    }
-                                });
-                            }
-                        },
-                        cancelValue: "取消",
-                        cancel: function () {
-                        }
-                    });
-                    d.showModal();
-                },
-                eventClick: function (event, jsEvent, view) {
-                    let editstarttime = event.allDay ? $.fullCalendar.formatDate(event.start, "YYYY-MM-DD") : $.fullCalendar.formatDate(event.start, "YYYY-MM-DD HH:mm:ss")
-                    $("#edittitle").html(event.title);
-                    let eventtitle = event.title;
-                    if (event.end) {
-                        let editendtime = $.fullCalendar.formatDate(event.end, "YYYY-MM-DD HH:mm:ss");
-                        $("#edittime").html(editstarttime + "  至  " + editendtime);
-                    } else {
-                        $("#edittime").html(editstarttime);
-                    }
-                    dialog({
-                        title: "查看日程",
-                        content: $("#edit"),
-                        button: [{
-                            value: "删除",
-                            callback: function () {
-                                $("#calendar").fullCalendar("removeEvents", function (event) {
-                                    if (event.title === eventtitle) {
-                                        $.ajax({
-                                            url: '{% url 'del_user_plan' %}',
-                                            data: {
-                                                title: eventtitle,
-                                            },
-                                            type: 'POST',
-                                            dataType: 'json',
-                                            success: function (data) {
-                                                $.alert({
-                                                    title: 'Tips',
-                                                    type: 'red',
-                                                    content: data['msg'],
-                                                })
-                                            },
-                                            error: function () {
-                                                alert("Failed");
-                                            }
-                                        });
-                                        return true;
-                                    } else {
-                                        return false;
-                                    }
-                                });
-                            }
-                        }],
-                        cancelValue: "关闭",
-                        cancel: function () {
-                        }
-                    }).showModal();
-                }
-            });
-        });
-
         // 修改密码
         function mod_password() {
             let obj = $('#mod_password');
@@ -519,7 +211,7 @@
 
         // 修改手机号码
         function updateMobile() {
-            let obj = $('#mobile');
+            let obj = $('#mobile_detail');
             let status = obj.parsley().validate();
             if (status) {
                 $.ajax({

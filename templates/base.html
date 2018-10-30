@@ -31,8 +31,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{% static 'AdminLTE/dist/css/skins/_all-skins.min.css' %}">
     <!-- Pace style -->
     <link rel="stylesheet" href="{% static 'AdminLTE/plugins/pace/pace.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/custombox.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/toastr.min.css' %}">
 
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -94,99 +92,6 @@ desired effect
             <!-- Navbar Right Menu -->
             <div class="navbar-custom-menu">
                 <ul class="nav navbar-nav">
-                    <!-- Messages: style can be found in dropdown.less-->
-                    <li class="dropdown messages-menu">
-                        <!-- Menu toggle button -->
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-envelope-o"></i>
-                            <span class="label label-success">4</span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="header">You have 4 messages</li>
-                            <li>
-                                <!-- inner menu: contains the messages -->
-                                <ul class="menu">
-                                    <li><!-- start message -->
-                                        <a href="#">
-                                            <div class="pull-left">
-                                                <!-- User Image -->
-                                                <img src="{% static 'AdminLTE/dist/img/user2-160x160.jpg' %}"
-                                                     class="img-circle"
-                                                     alt="User Image">
-                                            </div>
-                                            <!-- Message title and timestamp -->
-                                            <h4>
-                                                Support Team
-                                                <small><i class="fa fa-clock-o"></i> 5 mins</small>
-                                            </h4>
-                                            <!-- The message -->
-                                            <p>Why not buy a new awesome theme?</p>
-                                        </a>
-                                    </li>
-                                    <!-- end message -->
-                                </ul>
-                                <!-- /.menu -->
-                            </li>
-                            <li class="footer"><a href="#">See All Messages</a></li>
-                        </ul>
-                    </li>
-                    <!-- /.messages-menu -->
-
-                    <!-- Notifications Menu -->
-                    <li class="dropdown notifications-menu">
-                        <!-- Menu toggle button -->
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-bell-o"></i>
-                            <span class="label label-warning">10</span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="header">You have 10 notifications</li>
-                            <li>
-                                <!-- Inner Menu: contains the notifications -->
-                                <ul class="menu">
-                                    <li><!-- start notification -->
-                                        <a href="#">
-                                            <i class="fa fa-users text-aqua"></i> 5 new members joined today
-                                        </a>
-                                    </li>
-                                    <!-- end notification -->
-                                </ul>
-                            </li>
-                            <li class="footer"><a href="#">View all</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Tasks Menu -->
-                    <li class="dropdown tasks-menu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-flag-o"></i>
-                            <span class="label label-danger">{{ user.user_plan.count }}</span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="header">您有{{ user.user_plan.count }}个未办事项</li>
-                            <li>
-                                <!-- inner menu: contains the actual data -->
-                                <ul class="menu">
-                                    {% for plan in user.user_plan.all|slice:":3" %}
-                                        <li><!-- Task item -->
-                                            <a href="javascript:void(0)">
-                                                <h3 style="font-weight: bold;">
-                                                    {{ plan.title }}
-                                                    <small class="pull-right">
-                                                        结束时间：{{ plan.end_time|date:"Y-m-d H:i:s" }}</small>
-                                                </h3>
-                                            </a>
-                                        </li>
-                                        <!-- end task item -->
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                            <li class="footer">
-                                <a href="{% url 'user_center' %}">查看所有</a>
-                            </li>
-                        </ul>
-                    </li>
-
                     <!-- User Account Menu -->
                     <li class="dropdown user user-menu">
                         <!-- Menu Toggle Button -->
@@ -358,7 +263,6 @@ desired effect
                         </a>
                         <ul class="treeview-menu">
                             <li><a href="{% url 'proj_list' %}"><i class="fa fa-th-large"></i> 项目列表</a></li>
-                            <li><a href="{% url 'scan_history' %}"><i class="fa fa-circle-o"></i> 扫描记录</a></li>
                         </ul>
                     </li>
                 {% endif %}
@@ -377,18 +281,6 @@ desired effect
                         </ul>
                     </li>
                 {% endif %}
-
-                <li class="treeview">
-                    <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="#">Link in level 2</a></li>
-                        <li><a href="#">Link in level 2</a></li>
-                    </ul>
-                </li>
             </ul>
             <!-- /.sidebar-menu -->
         </section>
@@ -398,7 +290,7 @@ desired effect
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-        {% if request.path != '/' and request.path != '/users/user_center/' %}
+        {% if request.path != '/users/user_center/' %}
             <section class="content-header">
                 <h1></h1>
                 <ol class="breadcrumb">
@@ -468,59 +360,6 @@ desired effect
          immediately after the control sidebar -->
     <div class="control-sidebar-bg"></div>
 
-    <!-- Chat -->
-    <div id="chat-box" class="box box-primary direct-chat direct-chat-primary" style="display: none">
-        <div class="box-header with-border" style="text-align: center">
-            <h3 class="box-title" id="chatTitle"></h3>
-        </div>
-        <!-- /.box-header -->
-        <div class="box-body" id="chat-body">
-            <!-- Conversations are loaded here -->
-            <div class="direct-chat-messages" id="msg-list">
-                <div class="direct-chat-msg">
-                    <div class="direct-chat-info clearfix">
-                        <span class="direct-chat-timestamp pull-right">23 Jan 2:00 pm</span>
-                    </div>
-                    <!-- /.direct-chat-info
-                    <img class="direct-chat-img" src="plugins/adminLTE/dist/img/user2-160x160.jpg"
-                         alt="Message User Image"><!-- /.direct-chat-img -->
-                    <div class="direct-chat-text">
-                        早上好
-                    </div>
-                    <!-- /.direct-chat-text -->
-                </div>
-                <!-- /.direct-chat-msg -->
-                <!-- Message to the right -->
-                <div class="direct-chat-msg right">
-                    <div class="direct-chat-info clearfix">
-                        <span class="direct-chat-timestamp pull-left">23 Jan 2:05 pm</span>
-                    </div>
-                    <!-- /.direct-chat-info
-                    <img class="direct-chat-img" src="plugins/adminLTE/dist/img/user3-128x128.jpg"
-                         alt="Message User Image"><!-- /.direct-chat-img -->
-                    <div class="direct-chat-text">
-                        早上好!
-                    </div>
-                    <!-- /.direct-chat-text -->
-                </div>
-            </div>
-            <!--/.direct-chat-messages-->
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer">
-            <form action="#" method="post">
-                <div class="input-group">
-                    <input type="text" id="message" name="message" placeholder="输入信息 ..."
-                           class="form-control">
-                    <span class="input-group-btn">
-                            <button type="button" id="sendMessage" class="btn btn-primary btn-flat">发送</button>
-                        </span>
-                </div>
-            </form>
-        </div>
-        <!-- /.box-footer-->
-    </div>
-
     <!-- Loading-image -->
     <div id="loading-image"
          style="position: fixed;top: 0;right: 0;bottom: 0;left: 0;z-index: 1050;display: none;overflow: hidden;background: rgba(0,0,0,0.3);">
@@ -549,8 +388,6 @@ desired effect
 <script src="{% static 'AdminLTE/bower_components/fastclick/lib/fastclick.js' %}"></script>
 <!-- AdminLTE App -->
 <script src="{% static 'AdminLTE/dist/js/adminlte.min.js' %}"></script>
-<script src="{% static 'js/custombox.min.js' %}"></script>
-<script src="{% static 'js/toastr.min.js' %}"></script>
 
 <script>
 
@@ -568,62 +405,6 @@ desired effect
         $('#loading-image').hide();
     });
 
-    $(function () {
-        toastr.options = {
-            "closeButton": false,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-bottom-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
-    });
-
-    $('#user-list').on('click', 'li', function () {
-        const username = $(this).attr('data-username');
-        $('#chatTitle').text(username);
-        $('#message').val('');
-        const modal = new Custombox.modal({
-            content: {
-                effect: 'fadein',
-                target: '#chat-box',
-                width: '50%',
-            },
-        });
-        // Open
-        modal.open();
-    });
-
-    $('#sendMessage').click(function () {
-        const username = $('#chatTitle').text();
-        const msg = {
-            from_user: '{{ user.username }}',
-            to_user: username,
-            msg_body: $('#message').val(),
-            current_time: new Date()
-        };
-        $('#msg-list').append(`<div class="direct-chat-msg right">
-                    <div class="direct-chat-info clearfix">
-                        <span class="direct-chat-timestamp pull-left">${msg.current_time}</span>
-                    </div>
-                    <img class="direct-chat-img" src="${'{{ MEDIA_URL }}{{ user.image }}'}"
-                         alt="Message User Image">
-                    <div class="direct-chat-text">
-                        ${msg.msg_body}
-                    </div>
-                </div`)
-    });
-
-
     <!-- 固定标签 -->
     let pathname = window.location.pathname;
 
@@ -638,13 +419,18 @@ desired effect
 
     <!-- 生成面包屑和h1标题 -->
     $(".treeview-menu li a").each(function () {
-        let href = $(this).attr("href");
-        if (pathname === href) {
-            let current_name = $(this).text();
-            let pre_name = $(this).parent('li').parent('ul').prev('a').text();
-            $('.content-header h1').text(current_name);
-            $('.content-header ol li:eq(1)').text(pre_name);
-            $('.content-header ol li:last').text(current_name);
+        if (pathname === '/') {
+            $('.content-header h1').text('仪表盘');
+            $('.content-header ol').remove();
+        } else {
+            let href = $(this).attr("href");
+            if (pathname === href) {
+                let current_name = $(this).text();
+                let pre_name = $(this).parent('li').parent('ul').prev('a').text();
+                $('.content-header h1').text(current_name);
+                $('.content-header ol li:eq(1)').text(pre_name);
+                $('.content-header ol li:last').text(current_name);
+            }
         }
     });
 </script>

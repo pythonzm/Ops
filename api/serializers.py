@@ -227,3 +227,9 @@ class PeriodicTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodicTask
         fields = '__all__'
+
+
+class WebSiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WebSite
+        fields = '__all__'

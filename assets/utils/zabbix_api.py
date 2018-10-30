@@ -100,6 +100,14 @@ class ZabbixApi(object):
         res = self.request(method, params)
         return res
 
+    def get_alerts(self):
+        method = "alert.get"
+        params = {
+            "countOutput": "1",
+        },
+        res = self.request(method, params)
+        return res
+
     def get_graph(self, host_id):
         method = "graph.get"
         params = {

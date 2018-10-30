@@ -45,7 +45,6 @@
                         <tr>
                             <th>任务名称</th>
                             <th>任务函数</th>
-                            <th>最后执行时间</th>
                             <th>过期时间</th>
                             <th>任务状态</th>
                             <th>任务描述</th>
@@ -57,7 +56,6 @@
                             <tr>
                                 <td>{{ periodic_task.name }}</td>
                                 <td>{{ periodic_task.task }}</td>
-                                <td>{{ periodic_task.last_run_at|date:"Y-m-d H:i:s"|default:"" }}</td>
                                 <td>{{ periodic_task.expires|date:"Y-m-d H:i:s"|default:"永不过期" }}</td>
                                 <td>
                                     {% if periodic_task.enabled %}
@@ -127,10 +125,10 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="args" class="col-sm-2 control-label">参数(元组格式)</label>
+                                            <label for="args" class="col-sm-2 control-label">参数(列表格式)</label>
                                             <div class="col-sm-6">
                                                 <input type="text" class="form-control" name="args" id="args"
-                                                       placeholder='("aa","bb") 使用双引号'/>
+                                                       placeholder='["aa","bb"] 使用双引号'/>
                                             </div>
                                         </div>
 
@@ -294,34 +292,44 @@
             celery_task_ops.text('添加');
 
             celery_task_ops.unbind('click').on('click', function () {
-                let data = $('#celery_task_detail').serializeJson();
-                $.ajax({
-                    url: '/api/periodic_task/',
-                    type: 'POST',
-                    data: JSON.stringify(data),
-                    dataType: 'json',
-                    contentType: "application/json",
-                    success: function (res) {
-                        let expires = res.expires === null ? '永不过期' : $.format.date(res.expires, "yyyy-MM-dd HH:mm:ss");
-                        let enabled = res.enabled === true ? '<span class="badge bg-green">启用</span>' : '<span class="badge bg-red">禁用</span>';
-                        celery_task_table.row.add([
-                            res.name,
-                            res.task,
-                            res.last_run_at,
-                            expires,
-                            enabled,
-                            res.description,
-                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#CeleryTaskModal">详细/修改</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
-                        ]).draw();
-                    },
-                    error: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.responseText,
-                        })
-                    }
-                })
+                if ($('#interval').val().length !== 0 && $('#crontab').val().length !== 0) {
+                    celery_task_ops.removeAttr('data-dismiss');
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: 'interval与crontab不能同时选择！',
+                    })
+                } else {
+                    celery_task_ops.attr('data-dismiss', 'modal');
+                    let data = $('#celery_task_detail').serializeJson();
+                    $.ajax({
+                        url: '/api/periodic_task/',
+                        type: 'POST',
+                        data: JSON.stringify(data),
+                        dataType: 'json',
+                        contentType: "application/json",
+                        success: function (res) {
+                            let expires = res.expires === null ? '永不过期' : $.format.date(res.expires, "yyyy-MM-dd HH:mm:ss");
+                            let enabled = res.enabled === true ? '<span class="badge bg-green">启用</span>' : '<span class="badge bg-red">禁用</span>';
+                            celery_task_table.row.add([
+                                res.name,
+                                res.task,
+                                res.last_run_at,
+                                expires,
+                                enabled,
+                                res.description,
+                                `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#CeleryTaskModal">详细/修改</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
+                            ]).draw();
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    })
+                }
             })
         });
 
@@ -347,24 +355,34 @@
             });
 
             celery_task_ops.unbind('click').on('click', function () {
-                let data = $('#celery_task_detail').serializeJson();
-                $.ajax({
-                    url: '/api/periodic_task/' + celery_task_id + '/',
-                    type: 'PUT',
-                    data: JSON.stringify(data),
-                    dataType: 'json',
-                    contentType: "application/json",
-                    success: function () {
-                        window.location.reload()
-                    },
-                    error: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.responseText,
-                        })
-                    }
-                })
+                if ($('#interval').val().length !== 0 && $('#crontab').val().length !== 0) {
+                    celery_task_ops.removeAttr('data-dismiss');
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: 'interval与crontab不能同时选择！',
+                    })
+                } else {
+                    celery_task_ops.attr('data-dismiss', 'modal');
+                    let data = $('#celery_task_detail').serializeJson();
+                    $.ajax({
+                        url: '/api/periodic_task/' + celery_task_id + '/',
+                        type: 'PUT',
+                        data: JSON.stringify(data),
+                        dataType: 'json',
+                        contentType: "application/json",
+                        success: function () {
+                            window.location.reload()
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    })
+                }
             });
         });
 

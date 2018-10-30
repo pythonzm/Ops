@@ -74,7 +74,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'scanhosts.apps.ScanhostsConfig',
     'rest_framework',
     'django_celery_beat',
     'django_celery_results',
@@ -190,7 +189,7 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-LOGIN_URL = '/login'
+LOGIN_URL = '/login/'
 
 TIME_FORMAT = '%Y-%m-%d %X'
 
@@ -200,5 +199,5 @@ ZABBIX_INFO = {
     'graph_url': 'http://172.16.1.176/zabbix/chart2.php',
     'login_url': 'http://172.16.1.176/zabbix/index.php',
     'username': 'admin',
-    'password': '123456'
+    'password': '123.juREN'
 }

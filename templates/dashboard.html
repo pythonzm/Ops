@@ -2,14 +2,12 @@
 {% load staticfiles %}
 
 {% block head %}
-    <!-- fullCalendar -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.css' %}">
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.print.min.css' %}"
-          media="print">
-{% endblock %}
-
-{% block content-header %}
-    <h1>仪表盘</h1>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    <style>
+        .form-horizontal .form-group {
+            margin-right: -200px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -40,7 +38,8 @@
                 <div class="icon">
                     <i class="fa fa-github"></i>
                 </div>
-                <a href="{% url 'proj_list' %}" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="{% url 'proj_list' %}" class="small-box-footer">查看所有 <i
+                        class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -76,4 +75,336 @@
         </div>
         <!-- ./col -->
     </div>
+
+    <!-- 告警线图 -->
+    <div class="pad">
+        <div id="alert" style="height: 325px;"></div>
+    </div>
+
+    <!-- 常用网站 -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><strong>常用网址导航</strong></h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-default" data-toggle="modal" id="add-website"
+                                data-target="#WebSiteModal"> 添加网站
+                        </button>
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div class="row" id="website">
+
+                        {% for website in websites %}
+                            <div class="col-md-3">
+                                <div class="box box-warning box-solid web-box">
+                                    <div class="box-header with-border" style="text-align: center">
+                                        <a href="{{ website.web_address }}" target="_blank"><h3
+                                                class="box-title">{{ website.web_name }}</h3></a>
+
+                                        <div class="box-tools pull-right">
+                                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                                    class="fa fa-minus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-box-tool modify" data-toggle="modal"
+                                                    data-target="#WebSiteModal"
+                                                    data-id="{{ website.id }}"><i class="fa fa-wrench"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-box-tool delete"
+                                                    data-id="{{ website.id }}"><i class="fa fa-times"></i></button>
+                                        </div>
+                                        <!-- /.box-tools -->
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        {{ website.web_des }}
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- /.box -->
+                            </div>
+                            <!-- /.col -->
+                        {% endfor %}
+
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- ./box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+
+    <!-- WebSiteModal  -->
+    <div class="modal fade" id="WebSiteModal" tabindex="-1" role="dialog"
+         aria-labelledby="WebSiteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="WebSiteModalLabel">
+
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form id="web_info" class="main form-horizontal">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="web_name" class="col-sm-2 control-label">网站名称</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="web_name" id="web_name"
+                                           required/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="web_address" class="col-sm-2 control-label">网站地址</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="web_address" id="web_address"
+                                           required/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="web_des" class="col-sm-2 control-label">网站描述</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="web_des" id="web_des"
+                                           required/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="web_ops"></button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <!-- ChartJS -->
+    <script src="{% static 'js/echarts.common.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script>
+        // 告警线图
+        function genData() {
+            let x_data = [];
+            let y_data = [];
+
+            {% for zabbix_alert in zabbix_alerts %}
+                x_data.push('{{ zabbix_alert.alert_date|date:"Y-m-d" }}');
+                y_data.push('{{ zabbix_alert.alert_num }}');
+            {% endfor %}
+
+            return {
+                x_data: x_data,
+                y_data: y_data,
+            };
+        }
+
+        let AlertChart = echarts.init(document.getElementById('alert'));
+        let data = genData();
+        console.log('{{ zabbix_alerts }}')
+        console.log(data.x_data)
+
+        option_alert = {
+            title: {
+                text: '历史告警线图'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: data.x_data.slice(-7, )
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '当天告警数量',
+                    type: 'line',
+                    data: data.y_data.slice(-7, )
+                },
+            ]
+        };
+        AlertChart.setOption(option_alert);
+
+
+        let web_ops = $('#web_ops');
+        let web_wrap = $('#website');
+        // 添加常用网站
+        $('#add-website').on('click', function () {
+            document.getElementById('web_info').reset();
+            $('.modal-title').text('新增网站');
+            web_ops.text('添加');
+
+            web_ops.unbind('click').on('click', function () {
+                let data = $('#web_info').serializeJson();
+                $.ajax({
+                    url: '/api/website/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        web_wrap.append(
+                            `<div class="col-md-3">
+                                <div class="box box-warning box-solid web-box">
+                                    <div class="box-header with-border" style="text-align: center">
+                                        <a href="${res.web_address}" target="_blank"><h3
+                                                class="box-title">${res.web_name}</h3></a>
+
+                                        <div class="box-tools pull-right">
+                                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                                    class="fa fa-minus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-box-tool modify" data-toggle="modal"
+                                                    data-target="#WebSiteModal"
+                                                    data-id="${res.id}"><i class="fa fa-wrench"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-box-tool delete"
+                                                    data-id="${res.id}"><i class="fa fa-times"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="box-body">
+                                        ${res.web_des}
+                                    </div>
+                                </div>
+                            </div>`)
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新常用网站
+        web_wrap.on('click', '.modify', function () {
+            let web_id = $(this).attr('data-id');
+            let web_box = $(this).parents('.web-box');
+            let web_address = web_box.find('a').attr('href');
+            let web_name = web_box.find('a').text();
+            let web_des = web_box.find('.box-body').text().trim();
+
+            $('.modal-title').text('修改网站信息');
+            web_ops.text('确认修改');
+
+            $('#web_name').val(web_name);
+            $('#web_address').val(web_address);
+            $('#web_des').val(web_des);
+
+            web_ops.unbind('click').on('click', function () {
+                let data = $('#web_info').serializeJson();
+                $.ajax({
+                    url: '/api/website/' + web_id + '/',
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function (res) {
+                        web_box.find('a').text(res.web_name);
+                        web_box.find('a').attr('href', res.web_address);
+                        web_box.find('.box-body').text(res.web_des);
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+
+        });
+
+        // 删除常用网站
+        web_wrap.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let this_web = $(this).parents('.col-md-3');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/api/website/' + pk + '/',
+                            method: 'DELETE',
+                            success: function () {
+                                this_web.remove()
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+
+        });
+
+        // 将数据JSON化
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        serializeObj[this.name] = this.value;
+                    }
+                });
+                return serializeObj;
+            };
+        })(jQuery);
+    </script>
 {% endblock %}
