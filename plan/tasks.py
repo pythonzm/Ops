@@ -39,7 +39,8 @@ def get_zabbix_alert():
     today = datetime.date.today()
 
     for i in res:
-        if '不好' in i.get('subject') and datetime.date.fromtimestamp(int(i.get('clock'))) == today:
+        if '不好' in i.get('subject') and i.get('sendto') == '1' and datetime.date.fromtimestamp(
+                int(i.get('clock'))) == today:
             alerts.append(i)
 
     ZabbixAlert.objects.create(alert_num=len(alerts))

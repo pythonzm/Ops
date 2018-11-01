@@ -216,8 +216,6 @@
 
         let AlertChart = echarts.init(document.getElementById('alert'));
         let data = genData();
-        console.log('{{ zabbix_alerts }}')
-        console.log(data.x_data)
 
         option_alert = {
             title: {
@@ -240,7 +238,7 @@
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: data.x_data.slice(-7, )
+                data: data.x_data.slice(-10, )
             },
             yAxis: {
                 type: 'value'
@@ -249,7 +247,7 @@
                 {
                     name: '当天告警数量',
                     type: 'line',
-                    data: data.y_data.slice(-7, )
+                    data: data.y_data.slice(-10, )
                 },
             ]
         };

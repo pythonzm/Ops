@@ -51,7 +51,6 @@ def add_asset(request):
     asset_admins = UserProfile.objects.all()
     asset_idcs = IDC.objects.all()
     asset_cabinets = Cabinet.objects.select_related('idc')
-    auth_types = ServerAssets.auth_types
     server_assets = ServerAssets.objects.select_related('assets')
     return render(request, 'assets/add_asset.html', locals())
 
@@ -69,7 +68,6 @@ def update_asset(request, asset_type, pk):
     if request.method == 'GET':
         asset = Assets.objects.get(id=pk)
         asset_types = Assets.asset_types
-        auth_types = ServerAssets.auth_types
         asset_status_ = Assets.asset_status_
         asset_admins = UserProfile.objects.all()
         asset_providers = AssetProvider.objects.all()
@@ -91,7 +89,6 @@ def update_asset(request, asset_type, pk):
                 asset = Assets.objects.get(id=pk)
                 ServerAssets.objects.filter(id=asset.serverassets.id).update(
                     username=request.POST.get('username'),
-                    auth_type=request.POST.get('auth_type'),
                     password=CryptPwd().encrypt_pwd(request.POST.get('password')),
                     port=request.POST.get('port'),
                 )
@@ -139,13 +136,9 @@ def server_facts(request):
         pk = request.POST.get('pk')
         module = request.POST.get('module')
         server_obj = ServerAssets.objects.select_related('assets').get(id=pk)
-        if server_obj.auth_type == 0:
-            resource = [{"ip": server_obj.assets.asset_management_ip, "port": int(server_obj.port),
-                         "username": server_obj.username}]
-        else:
-            resource = [{"ip": server_obj.assets.asset_management_ip, "port": int(server_obj.port),
-                         "username": server_obj.username,
-                         "password": CryptPwd().decrypt_pwd(server_obj.password)}]
+        resource = [{"ip": server_obj.assets.asset_management_ip, "port": int(server_obj.port),
+                     "username": server_obj.username,
+                     "password": CryptPwd().decrypt_pwd(server_obj.password)}]
 
         try:
             ans = ANSRunner(resource)
@@ -233,11 +226,10 @@ def import_assets(request):
                     server_asset = {
                         'server_type': int(data[13]),
                         'username': data[14],
-                        'auth_type': int(data[15]),
-                        'password': CryptPwd().encrypt_pwd(str(data[16])) if data[16] else None,
-                        'port': int(data[17]),
-                        'hosted_on': ServerAssets.objects.select_related('assets').get(id=int(data[18])) if data[
-                            18] else None,
+                        'password': CryptPwd().encrypt_pwd(str(data[15])) if data[15] else None,
+                        'port': int(data[16]),
+                        'hosted_on': ServerAssets.objects.select_related('assets').get(id=int(data[17])) if data[
+                            17] else None,
                     }
                     ServerAssets.objects.update_or_create(assets=asset_obj, defaults=server_asset)
                 elif data[0] == 'network':

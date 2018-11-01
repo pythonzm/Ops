@@ -52,16 +52,10 @@ class ServerAssets(models.Model):
         (1, '虚拟机'),
         (2, '云主机'),
     )
-    auth_types = (
-        (0, '密钥认证'),
-        (1, '账户密码'),
-    )
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     server_type = models.SmallIntegerField(choices=server_types, default=0, verbose_name='服务器类型')
 
-    # 如果采用用户名密码认证方式，账户、密码、端口必填，采用密钥认证可不用填写
     username = models.CharField(max_length=100, blank=True, null=True, verbose_name='管理用户')
-    auth_type = models.SmallIntegerField(choices=auth_types, default=0, verbose_name='认证方式')
     password = models.CharField(max_length=100, blank=True, null=True, verbose_name='用户密码')
     port = models.DecimalField(max_digits=6, decimal_places=0, blank=True, null=True, default=22, verbose_name='SSH端口')
 

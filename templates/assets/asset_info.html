@@ -69,7 +69,6 @@
                         <tr>
                             <th>服务器类型</th>
                             <th>用户名称</th>
-                            <th>认证方式</th>
                             <th>SSH端口
                                 {% if asset.serverassets.server_type == 1 %}
                                     <th>宿主机</th>
@@ -86,7 +85,6 @@
                         <tr>
                             <td>{{ asset.serverassets.get_server_type_display }}</td>
                             <td>{{ asset.serverassets.username }}</td>
-                            <td>{{ asset.serverassets.get_auth_type_display }}</td>
                             <td>{{ asset.serverassets.port }}</td>
                             {% if asset.serverassets.server_type == 1 %}
                                 <td>{{ asset.serverassets.hosted_on.assets.asset_management_ip }}</td>

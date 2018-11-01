@@ -30,7 +30,7 @@ class ExportExcel:
             else:
                 headers.append(v)
         if self.asset_obj.asset_type == 'server':
-            headers.extend(['服务器类型', '用户名称', '认证方式', '用户密码', 'SSH端口', '宿主机'])
+            headers.extend(['服务器类型', '用户名称', '用户密码', 'SSH端口', '宿主机'])
 
         elif self.asset_obj.asset_type == 'network':
             headers.append('网络设备类型')
@@ -67,10 +67,9 @@ class ExportExcel:
         if self.asset_obj.asset_type == 'server':
             self.sheet.write(row, 13, self.asset_obj.serverassets.get_server_type_display())
             self.sheet.write(row, 14, self.asset_obj.serverassets.username)
-            self.sheet.write(row, 15, self.asset_obj.serverassets.get_auth_type_display())
-            self.sheet.write(row, 16, self.asset_obj.serverassets.password)
-            self.sheet.write(row, 17, self.asset_obj.serverassets.port)
-            self.sheet.write(row, 18,
+            self.sheet.write(row, 15, self.asset_obj.serverassets.password)
+            self.sheet.write(row, 16, self.asset_obj.serverassets.port)
+            self.sheet.write(row, 17,
                              self.asset_obj.serverassets.hosted_on.assets.asset_management_ip if self.asset_obj.serverassets.hosted_on else None)
         elif self.asset_obj.asset_type == 'network':
             self.sheet.write(row, 13, self.asset_obj.networkassets.get_network_type_display())

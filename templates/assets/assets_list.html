@@ -6,7 +6,9 @@
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
     <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/awesome-bootstrap-checkbox.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dataTables.checkboxes.css' %}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'modaal/css/modaal.min.css' %}">
@@ -95,12 +97,11 @@
             <!-- /.box -->
             <div class="box">
                 <div class="box-body">
+
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th><label>
-                                <input type="checkbox" class="minimal-red" id="checkAll">
-                            </label></th>
+                            <th></th>
                             <th>资产类型</th>
                             <th>资产编号</th>
                             <th>资产型号</th>
@@ -113,10 +114,8 @@
                         <tbody>
                         {% for asset in assets %}
 
-                            <tr id="asset-{{ asset.id }}">
-                                <td><label>
-                                    <input type="checkbox" class="minimal" value="{{ asset.id }}">
-                                </label></td>
+                            <tr>
+                                <td>{{ asset.id }}</td>
                                 <td>
                                     {% if asset.asset_type == 'server' %}
                                         <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
@@ -218,8 +217,8 @@
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
-                                    <button type="button" class="btn btn-danger btn-xs"
-                                            onclick="deleteAsset({{ asset.id }})">删除
+                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ asset.id }}">
+                                        删除
                                     </button>
                                 </td>
                             </tr>
@@ -227,6 +226,7 @@
 
                         </tbody>
                     </table>
+
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -244,30 +244,40 @@
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
     <!-- iCheck 1.0.1 -->
-    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
+    <script src="{% static 'js/dataTables.checkboxes.min.js' %}"></script>
 
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script src="{% static 'modaal/js/modaal.min.js' %}"></script>
 
     <script>
         $(function () {
-            $('#example1').DataTable({
-                columnDefs: [{
-                    'targets': [0, -1],
-                    'orderable': false
-                }],
+            table = $('#example1').DataTable({
+                columnDefs: [
+                    {
+                        'targets': -1,
+                        'orderable': false
+                    },
+                    {
+                        'targets': 0,
+                        'render': function (data, type, row, meta) {
+                            if (type === 'display') {
+                                data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+                            }
+
+                            return data;
+                        },
+                        'checkboxes': {
+                            'selectRow': true,
+                        }
+                    }
+                ],
+                'select': 'multi',
                 "order": [[2, "asc"]]
             });
         });
-
         // Initialize Select2 Elements
         $(function () {
             $('.select2').select2()
-        });
-
-        // iCheck for checkbox inputs
-        $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
-            checkboxClass: 'icheckbox_minimal-blue',
         });
 
         // 查看服务器详细
@@ -276,42 +286,32 @@
             width: 1500
         });
 
-        // 实现全选
-        $(function () {
-            let checkAll = $('#checkAll');
-            let checkboxes = $('input[type="checkbox"]');
-            checkAll.on('ifChecked ifUnchecked', function (event) {
-                if (event.type === 'ifChecked') {
-                    checkboxes.iCheck('check');
-                } else {
-                    checkboxes.iCheck('uncheck');
-                }
+        function checked() {
+            let checkedID = [];
+            let rows_selected = table.column(0).checkboxes.selected();
+            $.each(rows_selected, function (index, rowId) {
+                checkedID.push(rowId)
             });
-            checkboxes.on('ifChanged', function () {
-                if (checkboxes.filter(':checked').length === checkboxes.length) {
-                    checkAll.prop('checked', 'checked');
-                } else {
-                    checkAll.removeProp('checked');
-                }
-                checkAll.iCheck('update');
-            });
-        });
+
+            return checkedID;
+        }
 
         // 删除资产
-        function deleteAsset(id) {
+        $('#example1 tbody').on('click', '.delete', function () {
             {% if perms.assets.delete_assets %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
                 $.confirm({
                     title: 'Tips',
-                    content: '确定要删除这条资产记录么？',
+                    content: '确定要删除这条记录么？',
                     type: 'red',
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/api/assets/' + id,
+                                url: '/api/assets/' + pk + '/',
                                 method: 'DELETE',
                                 success: function () {
-                                    let str = 'asset-' + id;
-                                    document.getElementById(str).innerHTML = '';
+                                    table.row(tr_obj).remove().draw();
                                 },
                                 error: function (data) {
                                     $.alert({
@@ -323,7 +323,7 @@
                             })
                         },
                         Cancel: function () {
-                            // close
+                            //
                         }
                     }
                 });
@@ -334,16 +334,12 @@
                     content: '抱歉！您没有删除资产的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-
-        }
+        });
 
         // 批量删除
         $("#deleteChecked").click(function () {
             {% if perms.assets.delete_assets %}
-                let checkedID = [];
-                $('input[type="checkbox"].minimal:checked').each(function () {
-                    checkedID.push($(this).val());
-                });
+                let checkedID = checked();
                 if (checkedID.length === 0) {
                     $.alert({
                         title: 'Tips',
@@ -359,12 +355,8 @@
                             Ok: function () {
                                 for (let i = 0; i < checkedID.length; i++) {
                                     $.ajax({
-                                        url: '/api/assets/' + checkedID[i],
+                                        url: '/api/assets/' + checkedID[i] + '/',
                                         method: 'DELETE',
-                                        success: function () {
-                                            let str = 'asset-' + checkedID[i];
-                                            document.getElementById(str).innerHTML = '';
-                                        },
                                         error: function (data) {
                                             $.alert({
                                                 title: 'Tips',
@@ -374,6 +366,16 @@
                                         }
                                     })
                                 }
+                                $.confirm({
+                                    title: 'Tips',
+                                    content: '删除完成！',
+                                    type: 'green',
+                                    buttons: {
+                                        Ok: function () {
+                                            window.location.reload()
+                                        },
+                                    }
+                                })
                             },
                             Cancel: function () {
                                 // close
@@ -388,16 +390,12 @@
                     content: '抱歉！您没有删除资产的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-
         });
 
         // 批量导出
         $('#exportChecked').click(function () {
             {% if perms.assets.add_assets %}
-                let checkedID = [];
-                $('input[type="checkbox"].minimal:checked').each(function () {
-                    checkedID.push($(this).val());
-                });
+                let checkedID = checked();
                 if (checkedID.length === 0) {
                     $.alert({
                         title: 'Tips',
@@ -537,8 +535,6 @@
                 }
             });
         }
-
     </script>
 
 {% endblock %}
-

@@ -6,7 +6,9 @@
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
     <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/awesome-bootstrap-checkbox.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dataTables.checkboxes.css' %}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'modaal/css/modaal.min.css' %}">
@@ -29,17 +31,6 @@
 
     <div class="row">
         <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
-            <a href="{% url 'add_asset' %}">
-                <button class="btn btn-sm btn-success pull-left">
-                    <i class="fa fa-plus-square"></i>
-                    <span class="bigger-110">新增资产</span>
-                </button>
-            </a>
-            <button class="btn btn-sm btn-info pull-left" data-toggle="modal" data-target="#importAssetsModal"
-                    style="margin-left: 2px">
-                <i class="fa fa-upload"></i>
-                <span class="bigger-110">批量导入</span>
-            </button>
             <button class="btn btn-sm btn-info pull-left" id="exportChecked" style="margin-left: 2px">
                 <i class="fa fa-file-text"></i>
                 <span class="bigger-110">批量导出</span>
@@ -50,48 +41,16 @@
             </button>
         </div>
 
-        <div class="modal fade" id="importAssetsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">上传文件</label>
-                            <div class="col-sm-6">
-                                <input type="file" name="import_file" placeholder="上传excel文件" id="import_file"
-                                       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                                       required/>
-                            </div>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                    onclick="import_assets()">导入
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
-
         <!--dataTable-->
         <div class="col-xs-12">
             <!-- /.box -->
             <div class="box">
                 <div class="box-body">
+
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th><label>
-                                <input type="checkbox" class="minimal-red" id="checkAll">
-                            </label></th>
+                            <th></th>
                             <th>资产类型</th>
                             <th>资产编号</th>
                             <th>资产型号</th>
@@ -104,10 +63,8 @@
                         <tbody>
                         {% for asset in assets %}
 
-                            <tr id="asset-{{ asset.id }}">
-                                <td><label>
-                                    <input type="checkbox" class="minimal" value="{{ asset.id }}">
-                                </label></td>
+                            <tr>
+                                <td>{{ asset.id }}</td>
                                 <td>
                                     {% if asset.asset_type == 'server' %}
                                         <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
@@ -150,8 +107,11 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% for project in asset.asset_project.all %}
-                                        {{ project.project_name }}&nbsp;
+                                    {% for service in asset.service_set.all %}
+                                        <a href="{% url 'org_chart' service.project.id %}"
+                                           class="modaal-ajax">{{ service.project.project_name }}</a>
+                                        |{{ service.project.get_project_env_display }}
+                                        |{{ service.service_name }}<br>
                                     {% endfor %}
                                 </td>
                                 <td>
@@ -179,33 +139,35 @@
                                     {% elif asset.asset_type == 'software' %}
                                         <a href="{% url 'update_asset' asset_type='software' pk=asset.id %}">
                                     {% endif %}
-                                    <button type="button" class="btn btn-success btn-xs">更新</button></a>
-                                    {% if asset.asset_type == 'server' %}
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-primary btn-xs">收集</button>
-                                            <button type="button" class="btn btn-primary btn-xs dropdown-toggle"
-                                                    data-toggle="dropdown" aria-expanded="false">
-                                                <span class="caret"></span>
-                                                <span class="sr-only">Toggle Dropdown</span>
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a href="javascript:void(0)"
-                                                       onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
-                                                </li>
-                                                <li><a href="javascript:void(0)"
-                                                       onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        {% if request.user.is_superuser %}
-                                            <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
-                                                <button type="button" class="btn btn-info btn-xs"><i
-                                                        class="fa fa-fw fa-terminal"></i></button>
-                                            </a>
+                                    {% if perms.assets.change_assets %}
+                                        <button type="button" class="btn btn-success btn-xs">更新</button></a>
+                                        {% if asset.asset_type == 'server' %}
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-primary btn-xs">收集</button>
+                                                <button type="button" class="btn btn-primary btn-xs dropdown-toggle"
+                                                        data-toggle="dropdown" aria-expanded="false">
+                                                    <span class="caret"></span>
+                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a href="javascript:void(0)"
+                                                           onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
+                                                    </li>
+                                                    <li><a href="javascript:void(0)"
+                                                           onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            {% if request.user.is_superuser %}
+                                                <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
+                                                    <button type="button" class="btn btn-info btn-xs"><i
+                                                            class="fa fa-fw fa-terminal"></i></button>
+                                                </a>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
-                                    <button type="button" class="btn btn-danger btn-xs"
-                                            onclick="deleteAsset({{ asset.id }})">删除
+                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ asset.id }}">
+                                        删除
                                     </button>
                                 </td>
                             </tr>
@@ -213,6 +175,7 @@
 
                         </tbody>
                     </table>
+
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -230,31 +193,41 @@
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
     <!-- iCheck 1.0.1 -->
-    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
+    <script src="{% static 'js/dataTables.checkboxes.min.js' %}"></script>
 
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script src="{% static 'modaal/js/modaal.min.js' %}"></script>
 
     <script>
         $(function () {
-            $('#example1').DataTable({
-                columnDefs: [{
-                    'targets': [0, -1],
-                    'orderable': false
-                }],
+            table = $('#example1').DataTable({
+                columnDefs: [
+                    {
+                        'targets': -1,
+                        'orderable': false
+                    },
+                    {
+                        'targets': 0,
+                        'render': function (data, type, row, meta) {
+                            if (type === 'display') {
+                                data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+                            }
+
+                            return data;
+                        },
+                        'checkboxes': {
+                            'selectRow': true,
+                        }
+                    }
+                ],
+                'select': 'multi',
                 "order": [[2, "asc"]],
                 "oSearch": {"sSearch": "{{ key }}"}
             });
         });
-
         // Initialize Select2 Elements
         $(function () {
             $('.select2').select2()
-        });
-
-        // iCheck for checkbox inputs
-        $('input[type="checkbox"].minimal, input[type="checkbox"].minimal-red').iCheck({
-            checkboxClass: 'icheckbox_minimal-blue',
         });
 
         // 查看服务器详细
@@ -263,42 +236,32 @@
             width: 1500
         });
 
-        // 实现全选
-        $(function () {
-            let checkAll = $('#checkAll');
-            let checkboxes = $('input[type="checkbox"]');
-            checkAll.on('ifChecked ifUnchecked', function (event) {
-                if (event.type === 'ifChecked') {
-                    checkboxes.iCheck('check');
-                } else {
-                    checkboxes.iCheck('uncheck');
-                }
+        function checked() {
+            let checkedID = [];
+            let rows_selected = table.column(0).checkboxes.selected();
+            $.each(rows_selected, function (index, rowId) {
+                checkedID.push(rowId)
             });
-            checkboxes.on('ifChanged', function () {
-                if (checkboxes.filter(':checked').length === checkboxes.length) {
-                    checkAll.prop('checked', 'checked');
-                } else {
-                    checkAll.removeProp('checked');
-                }
-                checkAll.iCheck('update');
-            });
-        });
+
+            return checkedID;
+        }
 
         // 删除资产
-        function deleteAsset(id) {
+        $('#example1 tbody').on('click', '.delete', function () {
             {% if perms.assets.delete_assets %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
                 $.confirm({
                     title: 'Tips',
-                    content: '确定要删除这条资产记录么？',
+                    content: '确定要删除这条记录么？',
                     type: 'red',
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/api/assets/' + id,
+                                url: '/api/assets/' + pk + '/',
                                 method: 'DELETE',
                                 success: function () {
-                                    let str = 'asset-' + id;
-                                    document.getElementById(str).innerHTML = '';
+                                    table.row(tr_obj).remove().draw();
                                 },
                                 error: function (data) {
                                     $.alert({
@@ -310,7 +273,7 @@
                             })
                         },
                         Cancel: function () {
-                            // close
+                            //
                         }
                     }
                 });
@@ -321,16 +284,12 @@
                     content: '抱歉！您没有删除资产的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-
-        }
+        });
 
         // 批量删除
         $("#deleteChecked").click(function () {
             {% if perms.assets.delete_assets %}
-                let checkedID = [];
-                $('input[type="checkbox"].minimal:checked').each(function () {
-                    checkedID.push($(this).val());
-                });
+                let checkedID = checked();
                 if (checkedID.length === 0) {
                     $.alert({
                         title: 'Tips',
@@ -346,12 +305,8 @@
                             Ok: function () {
                                 for (let i = 0; i < checkedID.length; i++) {
                                     $.ajax({
-                                        url: '/api/assets/' + checkedID[i],
+                                        url: '/api/assets/' + checkedID[i] + '/',
                                         method: 'DELETE',
-                                        success: function () {
-                                            let str = 'asset-' + checkedID[i];
-                                            document.getElementById(str).innerHTML = '';
-                                        },
                                         error: function (data) {
                                             $.alert({
                                                 title: 'Tips',
@@ -361,6 +316,16 @@
                                         }
                                     })
                                 }
+                                $.confirm({
+                                    title: 'Tips',
+                                    content: '删除完成！',
+                                    type: 'green',
+                                    buttons: {
+                                        Ok: function () {
+                                            window.location.reload()
+                                        },
+                                    }
+                                })
                             },
                             Cancel: function () {
                                 // close
@@ -375,16 +340,12 @@
                     content: '抱歉！您没有删除资产的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
-
         });
 
         // 批量导出
         $('#exportChecked').click(function () {
             {% if perms.assets.add_assets %}
-                let checkedID = [];
-                $('input[type="checkbox"].minimal:checked').each(function () {
-                    checkedID.push($(this).val());
-                });
+                let checkedID = checked();
                 if (checkedID.length === 0) {
                     $.alert({
                         title: 'Tips',
@@ -491,49 +452,6 @@
                 });
             {% endif %}
         }
-
-        // 导入资产
-        function import_assets() {
-            let formData = new FormData();
-            formData.append('file', $('#import_file')[0].files[0]);
-            {% if perms.assets.change_assets %}
-                $.ajax({
-                    url: '{% url 'import_assets' %}',
-                    type: 'POST',
-                    data: formData,
-                    // 告诉jQuery不要去处理发送的数据
-                    processData: false,
-                    // 告诉jQuery不要去设置Content-Type请求头
-                    contentType: false,
-                    success: function (responseStr) {
-                        $.confirm({
-                            title: 'Tips!',
-                            content: responseStr.msg,
-                            buttons: {
-                                ok: function () {
-                                    window.location.reload();
-                                },
-                            }
-                        });
-                    },
-                    error: function (responseStr) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: responseStr.responseText,
-                        });
-                    }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有更新资产的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
-        }
-
     </script>
 
 {% endblock %}
-

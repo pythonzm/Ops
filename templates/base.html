@@ -290,7 +290,7 @@ desired effect
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-        {% if request.path != '/users/user_center/' %}
+        {% if request.path != '/users/user_center/' and 'assets_search' not in request.path %}
             <section class="content-header">
                 <h1></h1>
                 <ol class="breadcrumb">

@@ -250,25 +250,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="auth_type" class="col-sm-2 control-label">认证方式<span
-                            class="text-red">*</span></label>
-                    <div class="col-sm-10">
-                        <select class="form-control" name="auth_type" id="auth_type"
-                                onchange="authType()">
-                            <option value="">请选择认证方式</option>
-                            {% for auth_type in auth_types %}
-                                {% if auth_type.0 == asset.serverassets.auth_type %}
-                                    <option value="{{ auth_type.0 }}"
-                                            selected>{{ auth_type.1 }}</option>
-                                {% else %}
-                                    <option value="{{ auth_type.0 }}">{{ auth_type.1 }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group password">
                     <label for="password" class="col-sm-2 control-label">用户密码<span
                             class="text-red">*</span></label>
                     <div class="col-sm-10">
@@ -312,11 +293,8 @@
             let device_type = $('#device_type').val();
             let server_items = $('#server_items');
             let hosted_obj = $('#hosted_on');
-            let auth_type = $('#auth_type').val();
-            let pwd_obj = $('.password');
             asset_type === 'server' ? server_items.show() : server_items.hide();
             asset_type === 'server' && device_type === '虚拟机' ? hosted_obj.show() : hosted_obj.hide();
-            auth_type === '0' ? pwd_obj.hide() : pwd_obj.show();
         });
 
         function idc() {
@@ -335,12 +313,6 @@
                     }
                 }
             })
-        }
-
-        function authType() {
-            let auth_type = $('#auth_type').val();
-            let pwd_obj = $('.password');
-            auth_type === '0' ? pwd_obj.hide() : pwd_obj.show();
         }
 
         {% if perms.assets.change_assets %}
@@ -379,7 +351,7 @@
                             url: '{% url 'update_asset' asset_type=asset.asset_type pk=asset.id %}',
                             data: $('#update_asset').serialize(),
                             type: 'POST',
-                            success: function (res) {
+                            success: function () {
                                 $.confirm({
                                     title: 'Tips!',
                                     content: '修改完成!是否返回资产列表？',
