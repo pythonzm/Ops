@@ -26,6 +26,7 @@ router.register(r'fort', views.FortViewSet)
 router.register(r'fort_user', views.FortUserViewSet)
 router.register(r'periodic_task', views.PeriodicTaskViewSet)
 router.register(r'website', views.WebSiteViewSet)
+router.register(r'post', views.PostViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),

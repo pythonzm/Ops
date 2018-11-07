@@ -77,11 +77,19 @@
         ajaxSettings: {
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             success: function (response) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'green',
-                    content: response.msg,
-                })
+                if (response.code === 200) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'green',
+                        content: response.msg,
+                    })
+                } else {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.msg,
+                    })
+                }
             },
             error: function (response) {
                 $.alert({

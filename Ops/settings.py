@@ -84,8 +84,20 @@ INSTALLED_APPS = [
     'task.apps.TaskConfig',
     'fort.apps.FortConfig',
     'projs.apps.ProjsConfig',
-    'plan.apps.PlanConfig'
+    'plan.apps.PlanConfig',
+    'wiki.apps.WikiConfig',
+    'haystack.apps.HaystackConfig',
 ]
+
+# 全局搜索配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'wiki.whoosh_cn_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'wiki', 'whoosh_index'),
+    }
+}
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

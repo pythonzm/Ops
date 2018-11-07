@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'wiki/editormd.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">文章标题</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body pad">
+                    <form>
+                        <input class="form-control" type="text" name="title" id="title" value="{{ post.title }}"
+                               placeholder="最多70个字节">
+                    </form>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">文章内容</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body pad">
+                    <form>
+                        <div id="editormd">
+                            <textarea>{{ post.md_content }}</textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-block btn-info btn-flat wiki-edit">确认修改</button>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'wiki/editormd.min.js' %}"></script>
+    <script>
+        // 初始化markdown
+        $(function () {
+            editor = editormd("editormd", {
+                width: "100%",
+                height: 700,
+                codeFold: true,
+                saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+                searchReplace: true,
+                emoji: false,
+                taskList: true,
+                tocm: true,         // Using [TOCM]
+                tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+                flowChart: true,             // 开启流程图支持，默认关闭
+                sequenceDiagram: true,
+                syncScrolling: "single",
+                path: "{% static 'wiki/lib' %}" + '/',
+                //打开上传图片
+                imageUpload: true,
+                imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL: "{% url 'upload_image' %}",
+                toolbarIcons: function () {
+                    return ["undo", "redo", "clear", "|", "bold", "del", "italic", "|", "quote", "code", "code-block", "html-entities", "|", "uppercase", "lowercase", "|", "h1", "h2", "h3", "h4", "h5", "h6", "|", "list-ul", "list-ol", "hr", "|", "link", "image", "table", "datetime", "|", "preview", "watch", "|", "search", "help"]
+                },
+            });
+        });
+
+        // 新增文章
+        $('.wiki-edit').on('click', function () {
+            {% if request.user.id == post.author_id %}
+                let data = {
+                    title: $('#title').val(),
+                    html_content: editor.getHTML(),
+                    md_content: editor.getMarkdown(),
+                };
+                $.ajax({
+                    url: '/api/post/' + '{{ post.id }}' + '/',
+                    type: 'PATCH',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function () {
+                        $.confirm({
+                            title: 'Tips!',
+                            content: '修改完成!是否返回文章列表？',
+                            type: 'green',
+                            buttons: {
+                                Ok: function () {
+                                    window.location.href = '/wiki/wiki_list/'
+                                },
+                                cancel: function () {
+                                    // Cancel
+                                }
+                            }
+                        });
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: "抱歉！您没有修改此文章的权限！",
+                });
+            {% endif %}
+        });
+    </script>
+{% endblock %}

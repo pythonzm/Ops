@@ -34,7 +34,9 @@ def login(request):
         if user and user.is_active:
             auth.login(request, user)
             request.session['username'] = username
-            if remember_me is None:
+            if remember_me:
+                request.session.set_expiry(604800)
+            else:
                 request.session.set_expiry(0)
             UserProfile.objects.filter(username=username).update(
                 login_status=0

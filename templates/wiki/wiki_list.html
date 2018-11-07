@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'highlight/styles/monokai-sublime.css' %}">
+    <link rel="stylesheet" href="{% static 'wiki/wiki.css' %}">
+    <style>
+        .blog-item-meta li {
+            margin: 5px 15px;
+            display: inline;
+            list-style-type: none;
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="page-wrapper">
+        <div class="content-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="input-group input-group-sm"
+                             style="float: right;margin-right: 70px;margin-top: 5px;">
+                            <form role="search" method="get" id="searchform" action="{% url 'haystack_search' %}">
+                                <input type="text" class="form-control" name="q" placeholder="搜索" required>
+                                <span class="input-group-btn" style="display: inherit">
+                                    <button type="submit" class="btn btn-info btn-flat"><span
+                                            class="glyphicon glyphicon-search"></span></button>
+                                </span>
+                            </form>
+                        </div>
+                        {% for post in page_obj %}
+                            <article class="post" style="padding: 0;clear: right">
+                                <header class="entry-header">
+                                    <h1 class="entry-title">
+                                        <a style="text-decoration:none; color:#404040"
+                                           href="{% url 'wiki_view' post.id %}">{{ post.title }}</a>
+                                    </h1>
+                                </header>
+                                <div style="margin-left: 20px;margin-right: 20px;">
+                                    <p>
+                                        {% autoescape off %}
+                                            {{ post.html_content|truncatewords:"20" }}
+                                        {% endautoescape %}
+                                    </p>
+                                </div>
+                                <footer class="blog-item-footer" style="border-top: 1px solid #e5e5e5;">
+                                    <ul class="blog-item-meta" style="margin-top: 5px;margin-bottom: 5px">
+                                        <li><i class="fa fa-user-o"></i>By <a
+                                                href="javascript:void(0)">{{ post.author.username }}</a></li>
+                                        <li><i class="fa fa-calendar-o"></i> {{ post.modified_time|date:"Y-m-d" }}</li>
+                                        <li><i class="fa fa-eye"></i> {{ post.views }} Views</li>
+                                    </ul>
+                                </footer>
+                            </article>
+                        {% empty %}
+                            <div class="no-post">暂时还没有发布的文章！</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+
+        <nav aria-label="Page navigation" style="text-align: center">
+            <ul class="pagination" style="margin: 0">
+
+                {% if  page_obj.previous_page_number > 0 %}
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">«</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for page_num in page_list %}
+                    {% if page_num == page_obj.number %}
+                        <li class="active"><a href="?page={{ page_num }}">{{ page_num }}</a></li>
+                    {% else %}
+                        <li><a href="?page={{ page_num }}">{{ page_num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">»</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'highlight/highlight.pack.js' %}"></script>
+    <script>
+        $(function () {
+            $('pre code').each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
+        });
+    </script>
+{% endblock %}

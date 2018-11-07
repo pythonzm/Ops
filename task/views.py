@@ -79,22 +79,6 @@ def run_module(request):
     return render(request, 'task/run_module.html', locals())
 
 
-@csrf_exempt
-def parse_group(request):
-    if request.method == 'POST':
-        hosts = []
-        selected_groups = request.POST.getlist('hostGroup')
-        group_dict = ANSRunner().get_group_dict()
-        for group in selected_groups:
-            if group == 'custom':
-                hosts.extend(group_dict['all'])
-            for groupname, host in group_dict.items():
-                if groupname == group:
-                    hosts.extend(group_dict[group])
-        hosts = list(set(hosts))
-        return JsonResponse({'hosts': hosts})
-
-
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def run_log(request):
     if request.method == 'POST':

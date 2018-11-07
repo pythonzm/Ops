@@ -1,12 +1,8 @@
-import random
-import json
 import datetime
-from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import render
-
-from users.models import UserProfile, UserLog, UserPlan
+from users.models import UserProfile, UserLog
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.decorators import permission_required
 
@@ -15,8 +11,6 @@ def user_center(request):
     user = UserProfile.objects.get(username=request.user)
 
     if request.method == 'GET':
-        events = UserPlan.objects.filter(user=user)
-        users = UserProfile.objects.all()
         return render(request, 'users/user_center.html', locals())
 
     elif request.method == 'POST':
@@ -42,55 +36,6 @@ def user_center(request):
                 return JsonResponse({"code": 200, "data": None, "msg": "头像更新完毕！"})
             except Exception as e:
                 return JsonResponse({"code": 500, "data": None, "msg": "头像更新失败：%s" % str(e)})
-        elif request.POST.get('title'):
-            start_time = '{} {}'.format(request.POST.get('sdate'), request.POST.get('stime'))
-            start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-            end_time = '{} {}'.format(request.POST.get('edate'), request.POST.get('etime'))
-            end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-            add_users = request.POST.get('add_users')
-
-            chars = '0123456789abcdef'
-            color = '#{}'.format(''.join(random.sample(chars, 6)))
-
-            if add_users:
-                add_users = json.loads(add_users)
-                for user_id in add_users:
-                    UserPlan.objects.update_or_create(
-                        user=UserProfile.objects.get(id=user_id),
-                        title=request.POST.get('title'),
-                        start_time=start_time,
-                        end_time=end_time,
-                        all_day=request.POST.get('allDay'),
-                        color=color
-                    )
-            UserPlan.objects.update_or_create(
-                user=user,
-                title=request.POST.get('title'),
-                start_time=start_time,
-                end_time=end_time,
-                all_day=request.POST.get('allDay'),
-                color=color
-            )
-
-            data = {
-                'title': request.POST.get('title'),
-                'start': start_time,
-                'end': end_time,
-                'allDay': request.POST.get('allDay'),
-                'backgroundColor': color,
-                'borderColor': color,
-            }
-            return JsonResponse({'code': 200, 'data': data})
-
-
-def del_user_plan(request):
-    try:
-        if request.method == 'POST':
-            title = request.POST.get('title')
-            UserPlan.objects.get(Q(user=UserProfile.objects.get(username=request.user)) & Q(title=title)).delete()
-            return JsonResponse({"code": 200, "data": None, "msg": "删除成功！"})
-    except Exception as e:
-        return JsonResponse({"code": 200, "data": None, "msg": "删除失败！，原因：{}".format(e)})
 
 
 @permission_required('users.add_userprofile', raise_exception=True)
@@ -101,6 +46,7 @@ def get_user_list(request):
     return render(request, 'users/user_list.html', locals())
 
 
+@permission_required('users.add_userprofile', raise_exception=True)
 def create_user(request):
     if request.method == 'POST':
         try:
@@ -137,6 +83,7 @@ def create_user(request):
             return JsonResponse({"code": 500, "data": None, "msg": "用户添加失败，原因：{}".format(e)})
 
 
+@permission_required('users.change_userprofile', raise_exception=True)
 def reset_password(request, pk):
     if request.method == 'POST':
         try:

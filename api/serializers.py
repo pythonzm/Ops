@@ -9,6 +9,7 @@ from utils.crypt_pwd import CryptPwd
 from fort.models import *
 from projs.models import *
 from django_celery_beat.models import PeriodicTask
+from wiki.models import Post
 
 
 class ModuleLogSerializer(serializers.ModelSerializer):
@@ -232,4 +233,10 @@ class PeriodicTaskSerializer(serializers.ModelSerializer):
 class WebSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = WebSite
+        fields = '__all__'
+
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
         fields = '__all__'

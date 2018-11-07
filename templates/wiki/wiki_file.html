@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load custom_tags %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #wiki-file > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #wiki-file > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- /.box -->
+
+            <nav class="navbar navbar-light" style="background-color: #e3f2fd; margin-bottom: 0">
+                <form class="form-inline" enctype="multipart/form-data">
+                    <div class="input-group" style="margin-top: 10px">
+                        <input type="file" id="upload_wiki_file" class="file" name="upload_wiki_file" multiple required>
+                    </div>
+                </form>
+            </nav>
+
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="wiki-file" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>文件名称</th>
+                            <th>上传日期</th>
+                            <th>上传用户</th>
+                            <th>文件操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for wiki_file in wiki_files %}
+
+                            <tr>
+                                <td>{{ wiki_file.wiki_file.name|get_file_name }}</td>
+                                <td>{{ wiki_file.upload_time|date:"Y-m-d H:i:s" }}</td>
+                                <td>{{ wiki_file.upload_user.username }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-xs download"
+                                            data-id="{{ wiki_file.id }}">下载
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete"
+                                            data-id="{{ wiki_file.id }}">
+                                        删除
+                                    </button>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
+    <script>
+        $(function () {
+            wiki_file_table = $('#wiki-file').DataTable({
+                columnDefs: [{
+                    'targets': [-1,],
+                    'orderable': false
+                }],
+            });
+        });
+
+
+        let wiki_file_tbody = $('#wiki-file tbody');
+        // 上传文件
+        $("#upload_wiki_file").fileinput({
+            language: 'zh',
+            showUpload: true,
+            dropZoneEnabled: false,
+            msgPlaceholder: '上传文件...',
+            showPreview: false,
+            showCaption: true,
+            maxFileSize: 10240,
+            maxFileCount: 10,
+            uploadUrl: "{% url 'wiki_file_list' %}",
+            mergeAjaxCallbacks: true,
+            ajaxSettings: {
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (res) {
+                    let upload_time = $.format.date(res.upload_time, "yyyy-MM-dd HH:mm:ss");
+                    wiki_file_table.row.add([
+                        res.file_name,
+                        upload_time,
+                        res.upload_user,
+                        `<button type="button" class="btn btn-success btn-xs download" data-id="${res.id}">下载</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}"> 删除</button>`
+                    ]).draw();
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.msg,
+                    })
+                },
+            },
+            browseLabel: '浏览文件',
+            removeLabel: '清空',
+            uploadLabel: '上传'
+        });
+
+        // 下载文件
+        wiki_file_tbody.on('click', '.download', function () {
+            let pk = $(this).attr('data-id');
+            location.href = '/wiki/wiki_file_download/' + pk + '/'
+        });
+
+        // 删除文件
+        wiki_file_tbody.on('click', '.delete', function () {
+            {% if perms.wiki.delete_wikifile %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/wiki/wiki_file_del/' + pk + '/',
+                                method: 'DELETE',
+                                success: function (res) {
+                                    if (res.code === 200) {
+                                        wiki_file_table.row(tr_obj).remove().draw();
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'green',
+                                            content: res.msg,
+                                        })
+                                    } else {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: res.msg,
+                                        })
+                                    }
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除文件的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        })
+    </script>
+
+{% endblock %}
+

@@ -141,3 +141,9 @@ class WebSiteViewSet(viewsets.ModelViewSet):
     queryset = WebSite.objects.all()
     serializer_class = WebSiteSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = (permissions.IsAuthenticated,)

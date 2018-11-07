@@ -1,17 +1,4 @@
-INFO 2018-10-31 15:55:47 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-10-31 15:55:48 _log Authentication (password) successful!
-INFO 2018-10-31 15:55:48 _log [chan 0] Opened sftp connection (server version 3)
-INFO 2018-10-31 15:55:51 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-10-31 15:55:51 _log Authentication (publickey) failed.
-INFO 2018-10-31 15:55:51 _log Authentication (password) successful!
-INFO 2018-10-31 15:57:57 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-10-31 15:57:57 _log Authentication (password) successful!
-INFO 2018-10-31 15:57:57 _log [chan 0] Opened sftp connection (server version 3)
-INFO 2018-10-31 15:57:58 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-10-31 15:57:58 _log Authentication (publickey) failed.
-INFO 2018-10-31 15:57:58 _log Authentication (password) successful!
-INFO 2018-10-31 15:59:39 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-10-31 15:59:39 _log Authentication (password) successful!
-INFO 2018-10-31 15:59:41 _log [chan 0] Opened sftp connection (server version 3)
-INFO 2018-10-31 15:59:41 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2018-10-31 15:59:41 _log Authentication (publickey) successful!
+INFO 2018-11-07 13:50:54 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-11-07 13:50:54 _log Authentication (publickey) successful!
+INFO 2018-11-07 13:50:58 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2018-11-07 13:51:00 _log [chan 2] sftp session closed.

@@ -25,3 +25,8 @@ def intranet_ip(ip):
         return '<span class="label label-default">内</span>:{}'.format(ip)
     else:
         return '<span class="label label-info">外</span>:{}'.format(ip)
+
+
+@register.filter
+def get_file_name(name):
+    return name.split('/')[-1]

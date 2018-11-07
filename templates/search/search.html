@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load highlight %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'wiki/wiki.css' %}">
+    <style>
+        .blog-item-meta li {
+            margin: 5px 15px;
+            display: inline;
+            list-style-type: none;
+            white-space: nowrap;
+        }
+
+        .custom-css {
+            color: #FF0000;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="page-wrapper">
+        <div class="content-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="input-group input-group-sm"
+                             style="float: right;margin-right: 100px;margin-top: 5px;">
+                            <form role="search" method="get" id="searchform" action="{% url 'haystack_search' %}">
+                                <input type="text" class="form-control" name="q" placeholder="搜索" required>
+                                <span class="input-group-btn" style="display: inherit">
+                                    <button type="submit" class="btn btn-info btn-flat"><span
+                                            class="glyphicon glyphicon-search"></span></button>
+                                </span>
+                            </form>
+                        </div>
+                        {% if query %}
+                            {% for result in page.object_list %}
+                                <article class="post" style="padding: 0;clear: right">
+                                    <header class="entry-header">
+                                        <h1 class="entry-title">
+                                            <a style="text-decoration:none; color:#404040"
+                                               href="{% url 'wiki_view' result.object.id %}">{% highlight result.object.title with query html_tag "span" css_class "custom-css"  %}</a>
+                                        </h1>
+                                    </header>
+                                    <div style="margin-left: 35px">
+                                        <p>
+                                            {% autoescape off %}
+                                                {% highlight result.object.html_content with query html_tag "span" css_class "custom-css" %}
+                                            {% endautoescape %}
+                                        </p>
+                                    </div>
+                                    <footer class="blog-item-footer" style="border-top: 1px solid #e5e5e5;">
+                                        <ul class="blog-item-meta" style="margin-top: 5px;margin-bottom: 5px">
+                                            <li><i class="fa fa-user-o"></i>By <a
+                                                    href="javascript:void(0)">{{ result.object.author.username }}</a>
+                                            </li>
+                                            <li>
+                                                <i class="fa fa-calendar-o"></i> {{ result.object.modified_time|date:"Y-m-d" }}
+                                            </li>
+                                            <li><i class="fa fa-eye"></i> {{ result.object.views }} Views</li>
+                                        </ul>
+                                    </footer>
+                                </article>
+                            {% empty %}
+                                <div class="no-post" style="padding: 0;clear: right">没有搜索到你想要的结果！</div>
+                            {% endfor %}
+                        {% else %}
+                            请输入搜索关键词，例如 django
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+
+        {% if query %}
+            <nav aria-label="Page navigation" style="text-align: center">
+                <ul class="pagination" style="margin: 0">
+                    {% if page.has_previous or page.has_next %}
+                        <div>
+                            {% if page.has_previous %}
+                                <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo;
+                            上一页{% if page.has_previous %}</a>{% endif %}
+                            |
+                            {% if page.has_next %}
+                                <a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}
+                            下一页 &raquo;{% if page.has_next %}</a>{% endif %}
+                        </div>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+{% endblock %}

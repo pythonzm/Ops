@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'highlight/styles/monokai-sublime.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    <style>
+        .col-md-3 {
+            position: fixed;
+            right: 0;
+            width: 300px;
+            margin-left: 15px;
+        }
+
+        .blog-item-meta li {
+            margin: 5px 15px;
+            display: inline;
+            list-style-type: none;
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="row" style="margin-left: 15px; margin-right: 15px;">
+
+        <div class="col-md-9">
+            <div class="box box-primary">
+                <article class="card mb-4">
+                    <header class="card-header text-center">
+                        <h1 class="card-title">{{ post.title }}</h1>
+                        {% if request.user.id == post.author_id %}
+                            <div class="card-meta">
+                                <a href="{% url 'wiki_edit' post.id %}">编辑&nbsp;&nbsp;</a>
+                                <a href="javascript:void(0)" id="wiki-del" data-id="{{ post.id }}">&nbsp;&nbsp;删除</a>
+                            </div>
+                        {% else %}
+                            <ul class="blog-item-meta" style="margin-top: 5px;margin-bottom: 5px">
+                                <li><i class="fa fa-user-o"></i>By <a
+                                        href="javascript:void(0)">{{ post.author.username }}</a></li>
+                                <li><i class="fa fa-calendar-o"></i> {{ post.modified_time|date:"Y-m-d" }}</li>
+                                <li><i class="fa fa-eye"></i> {{ post.views }} Views</li>
+                            </ul>
+                        {% endif %}
+                    </header>
+
+                    <div class="card-body" style="margin-left: 15px;margin-right: 15px;">
+                        {{ post.html_content|safe }}
+                    </div>
+                </article><!-- /.card -->
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <h4>文章目录</h4>
+
+            <div class="box box-solid">
+                {{ toc|safe }}
+            </div>
+            <!-- /. box -->
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'highlight/highlight.pack.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            $('pre code').each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
+        });
+
+        $('#wiki-del').on('click', function () {
+            {% if request.user.id == post.author_id %}
+                let pk = $(this).attr('data-id');
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/post/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'green',
+                                        content: '删除成功！',
+                                    });
+                                    location.href = '/wiki/wiki_list'
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除此文章的权限！',
+                });
+            {% endif %}
+        })
+    </script>
+{% endblock %}

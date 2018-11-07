@@ -178,15 +178,19 @@
                 type: "POST",
                 data: data,
                 success: function (res) {
-                    res = res['msg'];
-                    for (let i = 0; i < res.length; i++) {
-                        if (res[i].indexOf('success') !== -1) {
-                            obj.append('<code style="color: green">' + res[i] + '</code><br>')
-                        } else {
-                            obj.append('<code style="color: red">' + res[i] + '</code><br>')
+                    if (res.code === 200) {
+                        res = res['msg'];
+                        for (let i = 0; i < res.length; i++) {
+                            if (res[i].indexOf('success') !== -1) {
+                                obj.append('<code style="color: green">' + res[i] + '</code><br>')
+                            } else {
+                                obj.append('<code style="color: red">' + res[i] + '</code><br>')
+                            }
                         }
+                        obj.append('<code>执行完毕....</code>')
+                    } else {
+                        obj.append(`<code>${res.msg}</code>`)
                     }
-                    obj.append('<code>执行完毕....</code>')
                 },
                 error: function (res) {
                     alert('执行失败：' + res.responseText)
