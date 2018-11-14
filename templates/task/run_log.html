@@ -36,7 +36,7 @@
     <div class="row">
         <!-- Custom Tabs -->
         <div class="nav-tabs-custom">
-            <ul class="nav nav-tabs">
+            <ul class="nav nav-tabs run-log">
                 <li class="active"><a href="#tab_1" data-toggle="tab">查看模块操作日志</a></li>
                 <li><a href="#tab_2" data-toggle="tab">查看playbook操作日志</a></li>
             </ul>
@@ -46,7 +46,7 @@
                     <div class="col-sm-2">
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="text" id="moduleLogStartTime" class="form-control pull-right"
+                                <input type="text" id="LogStartTime" class="form-control pull-right"
                                        data-date-format="yyyy-mm-dd" placeholder="开始时间">
                                 <span class="input-group-addon">
 										                    <span class="glyphicon glyphicon-calendar"></span>
@@ -57,9 +57,9 @@
                     <div class="col-sm-2">
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="text" id="moduleLogEndTime" class="form-control pull-right"
+                                <input type="text" id="LogEndTime" class="form-control pull-right"
                                        data-date-format="yyyy-mm-dd" placeholder="结束时间">
-                                <span class="input-group-addon" onclick="searchModuleLog()">
+                                <span class="input-group-addon" onclick="searchLog()">
 										                    <span class="glyphicon glyphicon-search"
                                                                   style="cursor: pointer"></span></span>
                             </div>
@@ -96,7 +96,7 @@
                                             <td>{{ info.ans_datetime|date:"Y-m-d H:i:s" }}</td>
                                             <td>
                                                 <button type="button" class="result btn btn-default"
-                                                        onclick="getModuleResult({{ info.ans_result }})"
+                                                        onclick="getResult({{ info.ans_result }})"
                                                         data-toggle="modal"
                                                         data-target="#modal-default"><i
                                                         class="fa fa-fw fa-eye"></i>
@@ -115,27 +115,6 @@
                         </div>
                         <!-- /.box -->
                     </div>
-                    <div class="modal fade" id="modal-default">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title">执行结果</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <pre style="background-color: black">
-
-                                    </pre>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                                </div>
-                            </div>
-                            <!-- /.modal-content -->
-                        </div>
-                        <!-- /.modal-dialog -->
-                    </div>
                 </div>
                 <!-- /.tab-pane -->
                 <div class="tab-pane" id="tab_2">
@@ -148,44 +127,31 @@
                                 <table id="playbookLog" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
-                                        <th><label>
-                                            <input type="checkbox" class="minimal-red" id="checkAll">
-                                        </label></th>
-                                        <th>{{ fields.internal_ip }}</th>
-                                        <th>{{ fields.public_ip }}</th>
-                                        <th>{{ fields.hostname }}</th>
-                                        <th>{{ fields.host_type }}</th>
-                                        <th>{{ fields.sn }}</th>
-                                        <th>{{ fields.scan_datetime }}</th>
+                                        <th>操作用户</th>
+                                        <th>操作用户IP</th>
+                                        <th>剧本名称</th>
+                                        <th>执行时间</th>
                                         <th>操作</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for hostinfo in hostinfos %}
+                                    {% for info in playbook_log_info %}
 
-                                        <tr id="playbookLog-{{ info.id }}">
-                                            <td><label>
-                                                <input type="checkbox" class="minimal" value="{{ info.id }}">
-                                            </label></td>
-                                            <td>{{ hostinfo.internal_ip }}</td>
-                                            <td>{{ hostinfo.public_ip }}</td>
-                                            <td>{{ hostinfo.hostname }}</td>
-                                            <td>{{ hostinfo.host_type }}</td>
-                                            <td>{{ hostinfo.sn }}</td>
-                                            <td>{{ hostinfo.scan_datetime|date:"Y-m-d H:i:s" }}</td>
+                                        <tr>
+                                            <td>{{ info.playbook_user.username }}</td>
+                                            <td>{{ info.playbook_remote_ip }}</td>
+                                            <td>{{ info.playbook_name }}</td>
+                                            <td>{{ info.playbook_datetime|date:"Y-m-d H:i:s" }}</td>
                                             <td>
-                                                <a href="/scan_host/detail/{{ hostinfo.id }}"
-                                                   style="text-decoration:none;">
-                                                    <button type="button" class="btn btn-default"><abbr
-                                                            title="查看详细信息"><i
-                                                            class="glyphicon glyphicon-info-sign"></i></abbr>
-                                                    </button>
-                                                </a>
-                                                {% if perms.can_delete_ansible_module_log %}
-                                                    <button type="button" class="btn btn-default"
-                                                            onclick="deleteModuleResult({{ info.id }})"><i
-                                                            class="glyphicon glyphicon-trash"></i></button>
-                                                {% endif %}
+                                                <button type="button" class="result btn btn-default"
+                                                        onclick="getResult({{ info.playbook_result }})"
+                                                        data-toggle="modal"
+                                                        data-target="#modal-default"><i
+                                                        class="fa fa-fw fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="delete btn btn-default"
+                                                        data-id="{{ info.id }}"><i
+                                                        class="glyphicon glyphicon-trash"></i></button>
                                             </td>
                                         </tr>
 
@@ -200,6 +166,27 @@
                     </div>
                 </div>
                 <!-- /.tab-pane -->
+                <div class="modal fade" id="modal-default">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">执行结果</h4>
+                            </div>
+                            <div class="modal-body">
+                                    <pre style="background-color: black">
+
+                                    </pre>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
             </div>
             <!-- /.tab-content -->
         </div>
@@ -234,34 +221,36 @@
                     'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[5, "desc"]]
+                "order": [[0, "desc"]]
             });
         });
 
         //Date picker
-        $('#moduleLogStartTime, #moduleLogEndTime').datepicker({
+        $('#LogStartTime, #LogEndTime').datepicker({
             autoclose: true
         });
 
         // 获取执行结果
-        function getModuleResult(result) {
+        function getResult(result) {
             let obj = $('pre');
             obj.html('');
             for (let i = 0; i < result.length; i++) {
                 if (result[i].indexOf('success') !== -1) {
                     obj.append('<code style="color: green">' + result[i] + '</code><br>')
-                } else {
+                } else if (result[i].indexOf('failed') !== -1) {
                     obj.append('<code style="color: red">' + result[i] + '</code><br>')
+                } else {
+                    obj.append('<code style="color: yellow">' + result[i] + '</code><br>')
                 }
             }
         }
 
-        //删除日志
+        //删除module日志
         $('#moduleLog tbody').on('click', 'button.delete', function () {
             let pk = $(this).attr('data-id');
             let tr_obj = $(this).parents('tr');
 
-            {% if perms.assets.delete_assetslog %}
+            {% if request.user.is_superuser %}
                 $.confirm({
                     title: 'Tips',
                     content: '确定要删除这条记录么？',
@@ -269,10 +258,18 @@
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/api/run_log/' + pk + '/',
+                                url: '/run/module_log_del/' + pk + '/',
                                 method: 'DELETE',
-                                success: function () {
-                                    module_table.row(tr_obj).remove().draw();
+                                success: function (res) {
+                                    if (res.code === 200) {
+                                        module_table.row(tr_obj).remove().draw();
+                                    } else {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: res.msg,
+                                        })
+                                    }
                                 },
                                 error: function (data) {
                                     $.alert({
@@ -297,10 +294,59 @@
             {% endif %}
         });
 
-        // 按日期搜索
-        function searchModuleLog() {
-            let startTime = $('#moduleLogStartTime').val();
-            let endTime = $('#moduleLogEndTime').val();
+        //删除playbook日志
+        $('#playbookLog tbody').on('click', 'button.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+
+            {% if request.user.is_superuser %}
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/run/playbook_log_del/' + pk + '/',
+                                method: 'DELETE',
+                                success: function (res) {
+                                    if (res.code === 200) {
+                                        playbook_table.row(tr_obj).remove().draw();
+                                    } else {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: res.msg,
+                                        })
+                                    }
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除操作日志的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+        // 按日期搜索日志
+        function searchLog() {
+            let startTime = $('#LogStartTime').val();
+            let endTime = $('#LogEndTime').val();
             if (startTime.length === 0 || endTime.length === 0) {
                 $.alert({
                     title: 'Tips',
@@ -309,55 +355,105 @@
                 });
                 return false;
             }
-            $.ajax({
-                dataType: "JSON",
-                url: '{% url 'run_log' %}',
-                type: "POST",  //提交类似
-                data: {
-                    "startTime": startTime,
-                    "endTime": endTime,
-                    "logType": "module",
-                },
-                success: function (response) {
-                    if (response.records.length === 0) {
+            if ($('.run-log li:first').hasClass('active')) {
+                $.ajax({
+                    dataType: "JSON",
+                    url: '{% url 'run_log' %}',
+                    type: "POST",  //提交类似
+                    data: {
+                        "startTime": startTime,
+                        "endTime": endTime,
+                        "logType": "module",
+                    },
+                    success: function (response) {
+                        if (response.records.length === 0) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: '该时间段内没有执行任何模块！'
+                            });
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: '查询完成！'
+                            });
+                            module_table.clear().draw();
+                            for (let i = 0; i < response.records.length; i++) {
+                                let result = response.records[i];
+                                let id = result['id'];
+                                let ans_datetime = $.format.date(result['ans_datetime'], "yyyy-MM-dd HH:mm:ss");
+                                let counter = 1;
+                                module_table.row.add([
+                                    result['ans_user'],
+                                    result['ans_remote_ip'],
+                                    result['ans_module'],
+                                    result['ans_args'],
+                                    result['ans_server'],
+                                    ans_datetime,
+                                    `<button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
+                                ]).draw();
+                                counter++;
+                            }
+                        }
+                    },
+                    error: function (response) {
                         $.alert({
                             title: 'Tips',
                             type: 'red',
-                            content: '该时间段内没有执行任何模块！'
+                            content: response.responseText
                         });
-                    } else {
+                    }
+                })
+            } else {
+                $.ajax({
+                    dataType: "JSON",
+                    url: '{% url 'run_log' %}',
+                    type: "POST",  //提交类似
+                    data: {
+                        "startTime": startTime,
+                        "endTime": endTime,
+                        "logType": "playbook",
+                    },
+                    success: function (response) {
+                        if (response.records.length === 0) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: '该时间段内没有执行任何模块！'
+                            });
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: '查询完成！'
+                            });
+                            playbook_table.clear().draw();
+                            for (let i = 0; i < response.records.length; i++) {
+                                let result = response.records[i];
+                                let id = result['id'];
+                                let playbook_datetime = $.format.date(result['playbook_datetime'], "yyyy-MM-dd HH:mm:ss");
+                                let counter = 1;
+                                playbook_table.row.add([
+                                    result['playbook_user'],
+                                    result['playbook_remote_ip'],
+                                    result['playbook_name'],
+                                    playbook_datetime,
+                                    `<button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
+                                ]).draw();
+                                counter++;
+                            }
+                        }
+                    },
+                    error: function (response) {
                         $.alert({
                             title: 'Tips',
-                            type: 'green',
-                            content: '查询完成！'
+                            type: 'red',
+                            content: response.responseText
                         });
-                        module_table.clear().draw();
-                        for (let i = 0; i < response.records.length; i++) {
-                            let result = response.records[i];
-                            let id = result['id'];
-                            let ans_datetime = $.format.date(result['ans_datetime'], "yyyy-MM-dd HH:mm:ss");
-                            let counter = 1;
-                            module_table.row.add([
-                                result['ans_user'],
-                                result['ans_remote_ip'],
-                                result['ans_module'],
-                                result['ans_args'],
-                                result['ans_server'],
-                                ans_datetime,
-                                `<button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
-                            ]).draw();
-                            counter++;
-                        }
                     }
-                },
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response.responseText
-                    });
-                }
-            })
+                })
+            }
         }
     </script>
 

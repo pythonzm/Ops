@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
 from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from users.tasks import users_record
 from assets.tasks import assets_record
-from task.tasks import module_record
+from task.tasks import module_record, playbook_record
 from users.models import UserProfile
 from django.contrib.auth.models import Group
 from assets.models import Assets, ServerAssets
@@ -89,6 +88,18 @@ class RecordMiddleware(MiddlewareMixin):
                                 post_data['ansibleModule'] != ['custom'] else ''.join(post_data['customModule']),
                                 ans_args=''.join(post_data['ansibleModuleArgs']),
                                 ans_server=ans_server, ans_result=res)
+        elif request.method == 'POST' and (
+                'playbook_run' in request.path or 'run_playbook_online' in request.path) and response.status_code == 200:
+            playbook_name = dict(request._post).get('playbook_name')[0]
+            response_data = str(response.__dict__.get('_container')[0], encoding="utf-8")
+            res = eval(response_data)['msg']
+
+            playbook_record.delay(
+                playbook_user=request.user,
+                playbook_remote_ip=request.META['REMOTE_ADDR'],
+                playbook_name=playbook_name,
+                playbook_result=res
+            )
         elif request.method == 'GET' and response.status_code == 200:
             user_infos = []
             users = UserProfile.objects.all()

@@ -1,0 +1,495 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
+
+    <style>
+        /* dataTables列内容居中 */
+        #playbook > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #playbook > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        .form-horizontal .form-group {
+            margin-right: -200px;
+        }
+
+        #content {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
+            <a href="{% url 'run_playbook_online' %}">
+                <button class="btn btn-sm btn-success pull-left">
+                    <i class="fa fa-edit"></i>
+                    <span class="bigger-110">在线编辑playbook</span>
+                </button>
+            </a>
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" style="margin-left: 2px"
+                    data-target="#PlaybookUploadModal">
+                <i class="fa fa-upload"></i>
+                <span class="bigger-110">上传playbook</span>
+            </button>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- dataTable -->
+                <div class="box-body">
+                    <table id="playbook" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>剧本名称</th>
+                            <th>剧本描述</th>
+                            <th>添加日期</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for playbook in playbooks %}
+                            <tr>
+                                <td>{{ playbook.playbook_name }}</td>
+                                <td>{{ playbook.playbook_desc|default:"" }}</td>
+                                <td>{{ playbook.playbook_time|date:"Y-m-d H:i:s" }}</td>
+                                <td>
+                                    <a href="{% url 'playbook_info' playbook.id %}">
+                                        <button type="button" class="btn btn-success btn-xs modify">详细/修改
+                                        </button>
+                                    </a>
+                                    <button type="button" class="btn btn-primary btn-xs run" data-toggle="modal"
+                                            data-target="#PlaybookRunModal" data-id="{{ playbook.id }}">
+                                        执行
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete"
+                                            data-id="{{ playbook.id }}">
+                                        删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <div class="box-footer" style="display: none">
+                <pre style="background-color: black"></pre>
+            </div>
+
+            <!-- PlaybookUploadModal  -->
+            <div class="modal fade" id="PlaybookUploadModal" tabindex="-1" role="dialog"
+                 aria-labelledby="PlaybookUploadModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="PlaybookUploadModalLabel">
+                                上传剧本文件
+                            </h4>
+                        </div>
+                        {% if perms.task.add_ansibleplaybook %}
+                            <div class="modal-body">
+                                <form id="playbook_detail" class="main form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="playbook_inventory"
+                                                   class="col-sm-2 control-label">选择主机组&nbsp;<span
+                                                    data-toggle="tooltip"
+                                                    title="用于动态生成inventory"><i
+                                                    class="fa fa-exclamation-circle"></i></span></label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" multiple="multiple"
+                                                        style="width: 100%;" id="playbook_inventory"
+                                                        name="playbook_inventory" data-placeholder="可选择多个">
+                                                    {% for ans_group in inventory %}
+                                                        <option value="{{ ans_group.id }}">{{ ans_group.ans_group_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="host_list" class="col-sm-2 control-label">确认主机&nbsp;<span
+                                                    data-toggle="tooltip"
+                                                    title="无法直接修改主机！"><i
+                                                    class="fa fa-exclamation-circle"></i></span></label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" multiple="multiple"
+                                                        style="width: 100%;" id="host_list"
+                                                        name="host_list">
+
+                                                </select>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="playbook_desc" class="col-sm-2 control-label">剧本描述</label>
+                                            <div class="col-sm-6">
+                                                <textarea class="form-control" name="playbook_desc" rows="5"
+                                                          id="playbook_desc"></textarea>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="playbook_file" class="col-sm-2 control-label">剧本文件</label>
+                                            <div class="col-sm-6">
+                                                <input type="file" id="playbook_file" class="file" name="playbook_file"
+                                                       required>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" id="playbook_ops">上传</button>
+                            </div>
+                        {% else %}
+                            <div class="modal-body">
+                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                            </div>
+                        {% endif %}
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+
+            <!-- PlaybookRunModal  -->
+            <div class="modal fade" id="PlaybookRunModal" tabindex="-1" role="dialog"
+                 aria-labelledby="PlaybookRunModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="PlaybookRunModalLabel">
+                                执行playbook
+                            </h4>
+                        </div>
+                        {% if perms.task.add_ansibleplaybook %}
+                            <div class="modal-body">
+                                <form id="playbook_info" class="main form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inventory"
+                                                   class="col-sm-2 control-label">inventory</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" multiple="multiple" disabled
+                                                        style="width: 100%;" id="inventory" name="inventory">
+
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="content" class="col-sm-2 control-label">剧本内容</label>
+                                            <div class="col-sm-6">
+                                                <div id="content"></div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="playbook_run">
+                                    确认执行
+                                </button>
+                            </div>
+                        {% else %}
+                            <div class="modal-body">
+                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                            </div>
+                        {% endif %}
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
+    <script src="{% static 'ace/js/ace.js' %}"></script>
+    <script src="{% static 'ace/js/mode-yaml.js' %}"></script>
+    <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            playbook_table = $('#playbook').DataTable({
+                columnDefs: [{
+                    'targets': [-1,],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
+            });
+
+            // Initialize Select2 Elements
+            $('.select2').select2();
+
+            $("[data-toggle='tooltip']").tooltip();
+        });
+
+        $("#playbook_file").fileinput({
+            language: 'zh',
+            showUpload: false,
+            dropZoneEnabled: false,
+            msgPlaceholder: '只能上传后缀是.yml的文件',
+            allowedFileExtensions: ["yml"],
+            showPreview: false,
+            showCaption: true,
+            maxFileSize: 10240,
+            uploadUrl: "{% url 'playbook_upload' %}",
+            mergeAjaxCallbacks: true,
+            ajaxSettings: {
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.msg,
+                    })
+                },
+            },
+            browseLabel: '浏览文件',
+            removeLabel: '删除',
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $.ajax({
+                url: "{% url 'playbook_upload' %}",
+                type: 'POST',
+                traditional: true,
+                dataType: 'json',
+                data: {
+                    playbook_inventory: $('#playbook_inventory').val(),
+                    playbook_name: data.files[0].name,
+                    playbook_desc: $('#playbook_desc').val()
+                },
+                success: function (res) {
+                    if (res.code === 200) {
+                        $.confirm({
+                            title: 'Tips',
+                            content: res.msg,
+                            type: 'green',
+                            buttons: {
+                                Ok: function () {
+                                    window.location.reload()
+                                },
+                            }
+                        });
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        $(function () {
+            editor = ace.edit("content");
+            editor.setTheme("ace/theme/monokai");
+            let YamlMode = ace.require("ace/mode/yaml").Mode;
+            editor.session.setMode(new YamlMode());
+            editor.setShowPrintMargin(false);
+            editor.setReadOnly(true);
+        });
+
+
+        <!-- playbook操作 -->
+        let playbook_tbody = $('#playbook tbody');
+        let playbook_ops = $('#playbook_ops');
+
+        // 上传playbook
+        playbook_ops.on('click', function () {
+            let playbook_file = $("#playbook_file").val();
+            if ($('#playbook_inventory').val().length === 0 || playbook_file.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请注意必选项！',
+                })
+            } else {
+                let playbook_name = playbook_file.slice(playbook_file.lastIndexOf('\\') + 1,);
+                $.get('/run/chk_playbook_name/?playbook_name=' + playbook_name, function (res) {
+                    if (res.code === 500) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: res.msg,
+                        });
+                    } else {
+                        $("#playbook_file").fileinput('upload');
+                    }
+                })
+            }
+        });
+
+        // 执行playbook
+        playbook_tbody.on('click', '.run', function () {
+            let playbook_id = $(this).attr('data-id');
+            let playbook_name = $(this).parents('tr').children()[0].innerText;
+
+            $.get('/run/playbook_run/' + playbook_id + '/', function (data) {
+                let inventory = $('#inventory');
+                inventory.val('').trigger('change');
+                for (let i = 0; i < data.inventory.length; i++) {
+                    inventory.append(`<option selected>${data.inventory[i]}</option>`);
+                }
+                editor.setValue(data.content, -1)
+            });
+
+            $('#playbook_run').unbind('click').on('click', function () {
+                let obj = $('pre');
+                obj.html('开始执行....\n');
+                $.ajax({
+                    url: '/run/playbook_run/' + playbook_id + '/',
+                    type: 'POST',
+                    data: {playbook_name: playbook_name}, // 用于task记录playbook_name
+                    dataType: 'json',
+                    success: function (res) {
+                        $('.box-footer').css('display', 'block');
+                        if (res.code === 200) {
+                            res = res.msg;
+                            for (let i = 0; i < res.length; i++) {
+                                if (res[i].indexOf('success') !== -1) {
+                                    obj.append(`<code style="color: green">${res[i]}</code><br>`)
+                                } else if (res[i].indexOf('failed') !== -1) {
+                                    obj.append(`<code style="color: red">${res[i]}</code><br>`)
+                                } else {
+                                    obj.append(`<code style="color: yellow">${res[i]}</code><br>`)
+                                }
+                            }
+                            obj.append('<code>执行完毕....</code>')
+                        } else {
+                            obj.append(`<code>${res.msg}</code>`)
+                        }
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除playbook
+        playbook_tbody.on('click', '.delete', function () {
+            {% if perms.task.delete_ansibleplaybook %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/run/playbook_del/' + pk + '/',
+                                method: 'DELETE',
+                                success: function (res) {
+                                    if (res.code === 200) {
+                                        playbook_table.row(tr_obj).remove().draw();
+                                    } else {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: res.msg,
+                                        })
+                                    }
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除任务的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+
+        // 获取主机组内的主机
+        $('#playbook_inventory').on('change', function () {
+            let playbook_inventory = $(this).val();
+
+            if (playbook_inventory.length !== 0) {
+                let host_list = $('#host_list');
+                $.ajax({
+                    url: '{% url 'get_inventory_hosts' %}',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (res) {
+                        host_list.val('').trigger('change');
+                        for (let i = 0; i < res.host_ips.length; i++) {
+                            host_list.append("<option selected>" + res.host_ips[i] + "</option>");
+                            host_list.attr('disabled', true)
+                        }
+                    }
+                })
+            } else {
+                $('#host_list').val('').trigger('change');
+            }
+        });
+    </script>
+
+{% endblock %}
+
+>

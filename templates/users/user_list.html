@@ -344,11 +344,12 @@
                     content: '确定要删除这条记录么？',
                     type: 'red',
                     buttons: {
-                        Ok: function () {
+                        Ok: function (res) {
                             $.ajax({
                                 url: '/api/users/' + pk + '/',
                                 method: 'DELETE',
                                 success: function () {
+                                    console.log(res)
                                     user_table.row(tr_obj).remove().draw();
                                 },
                                 error: function (data) {

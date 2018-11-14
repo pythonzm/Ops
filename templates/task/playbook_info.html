@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <style>
+        #playbook-editor {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="box box-default">
+        <div class="box-body">
+            <form role="form" id="runPlaybook">
+                <div class="col-md-6">
+
+                    <div class="form-group">
+                        <label for="playbook_name">剧本名称</label>
+                        <input type="text" class="form-control" id="playbook_name" name="playbook_name"
+                               value="{{ playbook.playbook_name }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="playbook_inventory">选择主机组&nbsp;<span
+                                data-toggle="tooltip"
+                                title="用于动态生成inventory"><i class="fa fa-exclamation-circle"></i></span></label>
+                        <select class="form-control select2" multiple="multiple" style="width: 100%;"
+                                id="playbook_inventory" name="playbook_inventory">
+                            {% for ans_group in inventory %}
+                                {% if ans_group in playbook_inventory %}
+                                    <option value="{{ ans_group.id }}" selected>{{ ans_group.ans_group_name }}</option>
+                                {% else %}
+                                    <option value="{{ ans_group.id }}">{{ ans_group.ans_group_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="host_list">确认主机&nbsp;<span
+                                data-toggle="tooltip"
+                                title="无法直接修改主机！"><i class="fa fa-exclamation-circle"></i></span></label>
+                        <select class="form-control select2" multiple="multiple" style="width: 100%;" id="host_list"
+                                name="host_list">
+                            {% for inventory_host in inventory_hosts %}
+                                <option value="{{ inventory_host.id }}"
+                                        selected>{{ inventory_host.assets.asset_management_ip }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="playbook_desc">剧本描述</label>
+                        <textarea class="form-control" name="playbook_desc" rows="5"
+                                  id="playbook_desc">{{ playbook.playbook_desc }}</textarea>
+                    </div>
+                    <!-- /.form-group -->
+                    <div class="box-footer">
+                        <button type="button" class="btn btn-default" onclick="history.go(-1)">返回</button>
+                        <button type="button" class="btn btn-info pull-right" id="modify-playbook">确认修改</button>
+                    </div>
+                </div>
+                <!-- /.col -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="playbook_desc">剧本内容&nbsp;<span
+                                data-toggle="tooltip"
+                                title="注意指定的hosts必须属于动态生成的inventory中的主机;如果主机组名称是纯数字，需要使用引号括起来，比如组名是115，则需要写成 '115'"><i
+                                class="fa fa-exclamation-circle"></i></span></label>
+                        <div id="playbook-editor">{{ playbook.playbook_content }}</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.box-body -->
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'ace/js/ace.js' %}"></script>
+    <script src="{% static 'ace/js/mode-yaml.js' %}"></script>
+    <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('.select2').select2({
+                allowClear: true
+            });
+
+            $("[data-toggle='tooltip']").tooltip();
+        });
+
+        $(function () {
+            editor = ace.edit("playbook-editor");
+            editor.setTheme("ace/theme/monokai");
+            let YamlMode = ace.require("ace/mode/yaml").Mode;
+            editor.session.setMode(new YamlMode());
+            editor.setShowPrintMargin(false);
+        });
+
+        // 检查playbook_name的可用性
+        $('#playbook_name').on('blur', function () {
+            let playbook_name = $(this).val();
+            if (playbook_name.length !== 0) {
+                if (!playbook_name.endsWith('.yml')) {
+                    $.confirm({
+                        title: 'Tips',
+                        content: "文件名必须以.yml结尾",
+                        type: 'red',
+                        buttons: {
+                            OK: function () {
+                                $('#playbook_name').focus()
+                            },
+                        }
+                    });
+                } else {
+                    $.get('/run/chk_playbook_name/?playbook_name=' + playbook_name, function (res) {
+                        if (res.code === 500) {
+                            $.confirm({
+                                title: 'Tips',
+                                content: res.msg,
+                                type: 'red',
+                                buttons: {
+                                    OK: function () {
+                                        $('#playbook_name').focus()
+                                    },
+                                }
+                            });
+                        } else {
+                            // pass
+                        }
+                    })
+                }
+            } else {
+                // pass
+            }
+
+        });
+
+        // 获取主机组内的主机
+        $('#playbook_inventory').on('change', function () {
+            let playbook_inventory = $(this).val();
+
+            if (playbook_inventory.length !== 0) {
+                let host_list = $('#host_list');
+                $.ajax({
+                    url: '{% url 'get_inventory_hosts' %}',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (res) {
+                        host_list.val('').trigger('change');
+                        for (let i = 0; i < res.host_ips.length; i++) {
+                            host_list.append("<option selected>" + res.host_ips[i] + "</option>");
+                            host_list.attr('disabled', true)
+                        }
+                    }
+                })
+            } else {
+                $('#host_list').val('').trigger('change');
+            }
+        });
+
+        // 修改playbook
+        $('#modify-playbook').on('click', function () {
+            let data = {
+                playbook_name: $('#playbook_name').val(),
+                playbook_inventory: $('#playbook_inventory').val(),
+                playbook_desc: $('#playbook_desc').val(),
+                playbook_content: editor.getSession().getValue()
+            };
+            $.ajax({
+                url: "{% url 'playbook_info' pk %}",
+                type: 'POST',
+                traditional: true,
+                dataType: 'json',
+                data: data,
+                success: function (res) {
+                    if (res.code === 200) {
+                        $.confirm({
+                            title: 'Tips',
+                            content: res.msg + '是否返回剧本列表?',
+                            type: 'green',
+                            buttons: {
+                                OK: function () {
+                                    window.location.href = "{% url 'playbook_list' %}"
+                                },
+                                NO: function () {
+                                    window.location.reload()
+                                }
+                            }
+                        });
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: res.msg,
+                        })
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+    </script>
+{% endblock %}

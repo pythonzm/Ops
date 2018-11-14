@@ -174,15 +174,16 @@ class ANSRunner(object):
                                          'sftp_extra_args', 'strategy',
                                          'scp_extra_args', 'become', 'become_method', 'become_user', 'ask_value_pass',
                                          'verbosity',
-                                         'check', 'listhosts', 'listtasks', 'listtags', 'syntax', 'diff'])
-        self.options = Options(connection='smart', module_path=None, forks=100, timeout=10,
+                                         'check', 'listhosts', 'listtasks', 'listtags', 'syntax', 'diff',
+                                         'gathering'])
+        self.options = Options(connection='smart', module_path=None, forks=50, timeout=10,
                                remote_user=None, ask_pass=False, private_key_file=None,
                                ssh_common_args=None,
                                ssh_extra_args=None,
                                sftp_extra_args=None, strategy='free', scp_extra_args=None, become=None,
                                become_method=None,
                                become_user=None, ask_value_pass=False, verbosity=None, check=False, listhosts=False,
-                               listtasks=False, listtags=False, syntax=False, diff=True)
+                               listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart')
         self.loader = DataLoader()
         self.inventory = MyInventory(resource=resource, loader=self.loader, sources=sources)
         self.variable_manager = VariableManager(loader=self.loader, inventory=self.inventory)
@@ -277,21 +278,25 @@ class ANSRunner(object):
         return results_raw
 
     def get_playbook_result(self):
-        results_raw = {'skipped': {}, 'failed': {}, 'ok': {}, "status": {}, 'unreachable': {}, "changed": {}}
+        results_raw = []
         for host, result in self.callback.task_ok.items():
-            results_raw['ok'][host] = result
+            data = 'TASK [{}] **********************\n{}: success\n'.format(result.task_name, host)
+            results_raw.append(data)
 
         for host, result in self.callback.task_failed.items():
-            results_raw['failed'][host] = result
+            data = 'TASK [{}] **********************\n{}: failed\n'.format(result.task_name, host)
+            results_raw.append(data)
 
-        for host, result in self.callback.task_status.items():
-            results_raw['status'][host] = result
+        # for host, result in self.callback.task_status.items():
+        #     results_raw['status'][host] = result
 
         for host, result in self.callback.task_skipped.items():
-            results_raw['skipped'][host] = result
+            data = 'TASK [{}] **********************\n{}: skipped\n'.format(result.task_name, host)
+            results_raw.append(data)
 
         for host, result in self.callback.task_unreachable.items():
-            results_raw['unreachable'][host] = result
+            data = 'TASK [{}] **********************\n{}: unreachable\n'.format(result.task_name, host)
+            results_raw.append(data)
 
         return results_raw
 

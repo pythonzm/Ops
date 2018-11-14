@@ -223,9 +223,20 @@ desired effect
                             {% if perms.task.add_ansibleinventory %}
                                 <li><a href="{% url 'inventory' %}"><i class="fa fa-gears"></i> 动态主机组</a></li>
                                 <li><a href="{% url 'run_module' %}"><i class="fa fa-play"></i> 执行模块</a></li>
-                                <li><a href="javascript:void(0)"><i class="fa fa-play-circle"></i> 执行playbook</a></li>
+                                <li class="treeview">
+                                <a href="#"><i class="fa fa-play-circle"></i> 执行playbook
+                                    <span class="pull-right-container">
+                                            <i class="fa fa-angle-left pull-right"></i>
+                                        </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <li><a href="{% url 'run_playbook_online' %}"><i class="fa fa-edit"></i> 在线编辑</a>
+                                    </li>
+                                    <li><a href="{% url 'playbook_list' %}"><i class="fa fa-book"></i> 剧本列表</a>
+                                    </li>
+                                </ul>
                             {% endif %}
-                            {% if perms.task.add_ansibleinventory %}
+                            {% if request.user.is_superuser %}
                                 <li><a href="{% url 'run_log' %}"><i class="fa fa-user-secret"></i> 操作日志</a></li>
                             {% endif %}
                         </ul>
@@ -437,7 +448,7 @@ desired effect
         if (pathname === '/') {
             $('.content-header h1').text('仪表盘');
             $('.content-header ol').remove();
-        } else if (pathname.indexOf('wiki_view') !== -1 || pathname.indexOf('wiki_edit') !== -1 || pathname.indexOf('wiki_search') !== -1) {
+        } else if (pathname.indexOf('wiki_view') !== -1 || pathname.indexOf('wiki_edit') !== -1 || pathname.indexOf('wiki_search') !== -1 || pathname.indexOf('playbook_info') !== -1) {
             $('.content-header ol').remove();
         } else {
             let href = $(this).attr("href");

@@ -11,12 +11,6 @@ class InventoryViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class RunModuleLogViewSet(viewsets.ModelViewSet):
-    queryset = AnsibleModuleLog.objects.all().order_by('id')
-    serializer_class = ModuleLogSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-
 class AssetsViewSet(viewsets.ModelViewSet):
     queryset = Assets.objects.all().order_by('id')
     serializer_class = AssetsSerializer

@@ -84,41 +84,32 @@
 
         function groupSelect() {
             let hosts_obj = $('#ans_group_hosts');
-            let hostGroups = $('#hostGroup').val();
-            let host_id_list = [];
+            let hostGroups = $('#hostGroup');
             hosts_obj.html('');
-            if (hostGroups[0] === 'custom') {
+            if (hostGroups.val() === ['custom']) {
                 {% for host in hosts %}
                     hosts_obj.append(
                         '<option value={{ host.id }}>{{ host.assets.asset_management_ip }}</option>'
                     );
                 {% endfor %}
-            } else if (hostGroups[0] === 'all') {
+            } else if (hostGroups.val() === ['all']) {
                 {% for host in hosts %}
                     hosts_obj.append(
                         '<option value={{ host.id }} selected>{{ host.assets.asset_management_ip }}</option>'
                     );
                 {% endfor %}
             } else {
-                for (let i = 0; i < hostGroups.length; i++) {
-                    $.ajax({
-                        url: '/api/inventory/' + hostGroups[i] + '/',
-                        type: 'GET',
-                        async: false,
-                        success: function (res) {
-                            let obj = res.ans_group_hosts;
-                            host_id_list = host_id_list.concat(obj);
-
+                $.ajax({
+                    url: '{% url 'get_inventory_hosts' %}',
+                    type: 'POST',
+                    data: hostGroups.serialize(),
+                    success: function (res) {
+                        hosts_obj.val('').trigger('change');
+                        for (let i = 0; i < res.host_ids.length; i++) {
+                            hosts_obj.append(`<option value=${res.host_ids[i]} selected>${res.host_ips[i]}</option>`);
                         }
-                    })
-                }
-                for (let j of Array.from(new Set(host_id_list))) {
-                    $.get('/api/server_assets/' + j + '/', function (response) {
-                        hosts_obj.append(
-                            '<option value="' + response.id + '" selected>' + response.assets.asset_management_ip + '</option>'
-                        );
-                    })
-                }
+                    }
+                })
             }
         }
 

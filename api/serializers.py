@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from task.models import *
+from task.models import AnsibleInventory
 from rest_framework import serializers
 from assets.models import *
 from users.models import UserProfile, UserLog
@@ -10,12 +10,6 @@ from fort.models import *
 from projs.models import *
 from django_celery_beat.models import PeriodicTask
 from wiki.models import Post
-
-
-class ModuleLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnsibleModuleLog
-        fields = '__all__'
 
 
 class AssetsSerializer(serializers.ModelSerializer):

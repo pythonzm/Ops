@@ -1,42 +1,15 @@
-ERROR 2018-08-10 18:39:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:22 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:23 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:24 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:25 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:25 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:25 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:39:26 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:06 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:16 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:17 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:17 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:17 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:18 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:19 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:21 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
-ERROR 2018-08-10 18:41:22 lpush 添加数据失败：WRONGTYPE Operation against a key holding the wrong kind of value
+ERROR 2018-11-13 14:03:44 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: Unable to retrieve file contents
+Could not find or access '/testops/Ops/playbook/2018/11/13/a.yml'
+ERROR 2018-11-13 14:09:51 run_playbook 执行playbook/2018/11/13/b.yml失败，原因: Unable to retrieve file contents
+Could not find or access '/testops/Ops/playbook/2018/11/13/b.yml'
+ERROR 2018-11-14 11:01:23 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:02:34 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:02:58 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:02:58 run_playbook 执行playbook/2018/11/13/c.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:02:58 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:03:23 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:03:32 run_playbook 执行playbook/2018/11/13/c.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:03:32 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:04:32 run_playbook 执行playbook/2018/11/13/a.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:04:50 run_playbook 执行playbook/2018/11/13/c.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
+ERROR 2018-11-14 11:07:12 run_playbook 执行playbook/2018/11/14/g.yml失败，原因: expected str, bytes or os.PathLike object, not FieldFile
