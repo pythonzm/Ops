@@ -1,5 +1,5 @@
 # ops
-基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible(只实现了执行模块)、简易堡垒机(主机分配、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、项目管理（一部分）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
+基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible(目前完成执行模块和单一playbook)、简易堡垒机(主机分配、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、项目管理（一部分）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
 
 ## 安装
 一、安装python3.6
@@ -10,6 +10,9 @@
 ```
 git clone https://github.com/pythonzm/Ops.git
 pip install -r requirements.txt
+
+// 可选： 因为playbook第一次执行都会执行gather facts任务，若想取消该任务，编辑ansible配置文件修改：gathering = explicit
+  
 
 // 因为django-celery-results的pip包与github上不一致，所以使用下面方法安装
 pip install https://github.com/celery/django-celery-results/zipball/master#egg=django-celery-results
@@ -108,6 +111,9 @@ python manage.py runserver 0.0.0.0:8000
 
 ### ansible执行模块
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/ansible_module.png)
+
+### ansible执行playbook
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/playbook_online.png)
 
 ### webssh分配主机及用户、用户组
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/webssh_manage.png)
