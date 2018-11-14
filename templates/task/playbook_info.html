@@ -45,7 +45,7 @@
                                 data-toggle="tooltip"
                                 title="无法直接修改主机！"><i class="fa fa-exclamation-circle"></i></span></label>
                         <select class="form-control select2" multiple="multiple" style="width: 100%;" id="host_list"
-                                name="host_list">
+                                name="host_list" disabled>
                             {% for inventory_host in inventory_hosts %}
                                 <option value="{{ inventory_host.id }}"
                                         selected>{{ inventory_host.assets.asset_management_ip }}</option>
