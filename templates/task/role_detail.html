@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'ztree/css/metroStyle/metroStyle.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    <style>
+        #playbook-editor {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-body">
+                    <div class="col-md-4">
+                        <ul id="roleTree" class="ztree"></ul>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="box-header relative_path" style="padding: 3px;">
+
+                        </div>
+                        <div id="playbook-editor"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block js %}
+    <script src="{% static 'ztree/js/jquery.ztree.core.min.js' %}"></script>
+    <script src="{% static 'ace/js/ace.js' %}"></script>
+    <script src="{% static 'ace/js/mode-yaml.js' %}"></script>
+    <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script>
+        let setting = {
+            async: {
+                enable: true,
+                url: "{% url 'role_detail' pk %}",
+                autoParam: ["name", "p_name"],
+            },
+            callback: {
+                onClick: onClick
+            },
+        };
+
+        function onClick(event, treeId, treeNode, clickFlag) {
+            if (!treeNode.isParent) {
+                $.ajax({
+                    url: "{% url 'get_file_content' %}",
+                    type: 'POST',
+                    data: {p_name: treeNode.p_name, name: treeNode.name},
+                    success: function (res) {
+                        if (res.code === 200) {
+                            let relative_path = $('.relative_path');
+                            relative_path.html('');
+                            relative_path.append(`<p class="text-green" style="text-align: center;margin-bottom: 0;float: left;">当前文件是：${res.relative_path}</p>------<button type="button" class="btn btn-primary btn-xs editor"> 启用编辑</button> <button type="button" class="btn btn-warning btn-xs save"> 确认修改</button>`);
+
+                            let editor = ace.edit("playbook-editor");
+                            editor.setTheme("ace/theme/monokai");
+                            let YamlMode = ace.require("ace/mode/yaml").Mode;
+                            editor.session.setMode(new YamlMode());
+                            editor.setShowPrintMargin(false);
+                            editor.setReadOnly(true);
+
+                            editor.setValue(res.content, -1);
+
+                            $('.editor').on('click', function () {
+                                editor.setReadOnly(false);
+                            });
+
+                            $('.save').on('click', function () {
+                                $.ajax({
+                                    url: "{% url 'role_edit' %}",
+                                    type: 'POST',
+                                    data: {content: editor.getSession().getValue(), relative_path: res.relative_path},
+                                    success: function (res) {
+                                        if (res.code === 200) {
+                                            $.confirm({
+                                                title: 'Tips',
+                                                content: res.msg,
+                                                type: 'green',
+                                                buttons: {
+                                                    Ok: function () {
+                                                        editor.setReadOnly(true);
+                                                    },
+                                                }
+                                            });
+                                        } else {
+                                            $.alert({
+                                                title: 'Tips',
+                                                type: 'red',
+                                                content: res.msg,
+                                            })
+                                        }
+                                    }
+                                })
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            zTreeObj = $.fn.zTree.init($("#roleTree"), setting);
+        });
+    </script>
+{% endblock %}

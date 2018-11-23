@@ -31,7 +31,6 @@ class AnsibleInventory(models.Model):
 
 class AnsiblePlaybook(models.Model):
     playbook_name = models.CharField(max_length=100, verbose_name='剧本名称', unique=True)
-    playbook_inventory = models.ManyToManyField('AnsibleInventory', verbose_name='目标主机组')
     playbook_file = models.FileField(upload_to='playbook/%Y/%m/%d/')
     playbook_content = models.TextField(verbose_name='剧本内容')
     playbook_user = models.ForeignKey('users.UserProfile', verbose_name='添加人员', on_delete=models.CASCADE)
@@ -55,3 +54,16 @@ class AnsiblePlaybookLog(models.Model):
         db_table = 'ops_ansible_playbook_log'
         verbose_name = 'Playbook执行记录表'
         verbose_name_plural = 'Playbook执行记录表'
+
+
+class AnsibleRole(models.Model):
+    playbook_name = models.CharField(max_length=100, verbose_name='剧本名称', unique=True)
+    role_file = models.FileField(upload_to='roles/')
+    role_user = models.ForeignKey('users.UserProfile', verbose_name='添加人员', on_delete=models.CASCADE)
+    role_time = models.DateTimeField(auto_now_add=True, verbose_name='添加日期')
+    role_desc = models.TextField(verbose_name='剧本描述', null=True, blank=True)
+
+    class Meta:
+        db_table = 'ops_ansible_role'
+        verbose_name = 'AnsibleRole信息表'
+        verbose_name_plural = 'AnsibleRole信息表'

@@ -1,8 +1,11 @@
 import datetime
 import os
+import json
+import zipfile
+import shutil
 from django.shortcuts import render
 from task.utils.ansible_api_v2 import ANSRunner
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from task.models import *
 from assets.models import ServerAssets
 from utils.db.redis_ops import RedisOps
@@ -80,58 +83,48 @@ def run_module(request):
 
 
 @permission_required('task.add_ansibleplaybook', raise_exception=True)
-def run_playbook_online(request):
+def playbook_add(request):
     if request.method == 'POST':
-        group_ids = request.POST.getlist('playbook_inventory')
         playbook_name = request.POST.get('playbook_name')
         playbook_content = request.POST.get('playbook_content')
         today = datetime.date.today()
 
         upload_path = 'playbook/{}/{}/{}'.format(str(today.year), str(today.month), str(today.day))
 
-        file_path = os.path.join(settings.MEDIA_ROOT, upload_path)
-
         file = upload_path + '/' + playbook_name
 
-        playbook = AnsiblePlaybook.objects.create(
-            playbook_name=playbook_name,
-            playbook_file=file,
-            playbook_user=request.user,
-            playbook_desc=request.POST.get('playbook_desc'),
-            playbook_content=playbook_content
-        )
-
-        playbook.playbook_inventory.set(group_ids, clear=True)
-
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-
-        with open('{}/{}'.format(file_path, playbook_name), 'w') as f:
-            f.write(playbook_content)
-
         try:
-            res = get_playbook_res(group_ids, os.path.join(file_path, playbook_name))
-            return JsonResponse({'code': 200, 'msg': res})
-        except Exception as e:
-            return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
+            playbook = AnsiblePlaybook.objects.create(
+                playbook_name=playbook_name,
+                playbook_file=file,
+                playbook_user=request.user,
+                playbook_desc=request.POST.get('playbook_desc'),
+                playbook_content=playbook_content
+            )
 
-    elif request.method == 'GET':
-        inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
-        return render(request, 'task/run_playbook_online.html', locals())
+            file_path = os.path.join(settings.MEDIA_ROOT, upload_path)
+            if not os.path.exists(file_path):
+                os.makedirs(file_path)
+
+            with open('{}/{}'.format(file_path, playbook_name), 'w') as f:
+                f.write(playbook_content)
+
+            return JsonResponse(
+                {'code': 200, 'msg': '添加完成！', 'id': playbook.id, 'playbook_time': playbook.playbook_time})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '添加失败！'.format(e)})
 
 
 @permission_required('task.add_ansibleplaybook', raise_exception=True)
 def playbook_upload(request):
     if request.method == 'POST':
-        playbook_inventory = request.POST.getlist('playbook_inventory')
         playbook_file = request.FILES.get('playbook_file')
-
+        playbook_name = request.POST.get('playbook_name')
         if playbook_file:
             playbook = AnsiblePlaybook.objects.create(
                 playbook_name=playbook_file.name,
                 playbook_file=playbook_file,
                 playbook_user=request.user,
-                playbook_desc=request.POST.get('playbook_desc')
             )
 
             playbook_content = ''
@@ -141,42 +134,38 @@ def playbook_upload(request):
 
             playbook.playbook_content = playbook_content
             playbook.save()
-        elif playbook_inventory:
-            playbook_name = request.POST.get('playbook_name')
+            return JsonResponse(
+                {'code': 200, 'msg': '添加文件完成！'})
+        elif playbook_name:
             playbook_desc = request.POST.get('playbook_desc')
             playbook_obj = AnsiblePlaybook.objects.select_related('playbook_user').get(playbook_name=playbook_name)
             playbook_obj.playbook_desc = playbook_desc
-            playbook_obj.playbook_inventory.set(playbook_inventory, clear=True)
             playbook_obj.save()
-        return JsonResponse({'code': 200, 'msg': '上传成功！'})
+            return JsonResponse(
+                {'code': 200, 'msg': '上传文件完成！', 'playbook_time': playbook_obj.playbook_time, 'id': playbook_obj.id})
 
 
 @permission_required('task.add_ansibleplaybook', raise_exception=True)
 def playbook_list(request):
-    playbooks = AnsiblePlaybook.objects.select_related('playbook_user').prefetch_related('playbook_inventory').all()
+    playbooks = AnsiblePlaybook.objects.select_related('playbook_user').all()
     inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
     return render(request, 'task/playbook_list.html', locals())
 
 
 @permission_required('task.change_ansibleplaybook', raise_exception=True)
 def playbook_info(request, pk):
-    playbook = AnsiblePlaybook.objects.select_related('playbook_user').prefetch_related('playbook_inventory').get(id=pk)
+    playbook = AnsiblePlaybook.objects.select_related('playbook_user').get(id=pk)
     if request.method == 'GET':
-        inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
-
-        playbook_inventory = playbook.playbook_inventory.all()
-        group_ids = [ans_group.id for ans_group in playbook_inventory]
-        inventory_hosts = []
-        for group_id in group_ids:
-            ans_hosts = AnsibleInventory.objects.prefetch_related('ans_group_hosts').get(
-                id=group_id).ans_group_hosts.all()
-            inventory_hosts.extend([ans_host for ans_host in ans_hosts])
-        inventory_hosts = list(set(inventory_hosts))
-        return render(request, 'task/playbook_info.html', locals())
+        playbook_data = {
+            'playbook_name': playbook.playbook_name,
+            'playbook_desc': playbook.playbook_desc,
+            'playbook_content': playbook.playbook_content
+        }
+        return JsonResponse({'code': 200, 'data': playbook_data})
     elif request.method == 'POST':
         try:
             playbook_content = request.POST.get('playbook_content')
-            file = AnsiblePlaybook.objects.get(id=pk).playbook_file.path
+            file = playbook.playbook_file.path
 
             with open(file, 'w') as f:
                 f.write(playbook_content)
@@ -186,7 +175,6 @@ def playbook_info(request, pk):
                 playbook_content=playbook_content,
                 playbook_desc=request.POST.get('playbook_desc')
             )
-            playbook.playbook_inventory.set(request.POST.getlist('playbook_inventory'), clear=True)
 
             return JsonResponse({'code': 200, 'msg': '更新完成！'})
         except Exception as e:
@@ -195,16 +183,13 @@ def playbook_info(request, pk):
 
 @permission_required('task.add_ansibleplaybook', raise_exception=True)
 def playbook_run(request, pk):
-    playbook = AnsiblePlaybook.objects.select_related('playbook_user').prefetch_related('playbook_inventory').get(
-        id=pk)
-    playbook_inventory = playbook.playbook_inventory.all()
-    group_ids = [ans_group.id for ans_group in playbook_inventory]
+    playbook = AnsiblePlaybook.objects.select_related('playbook_user').get(id=pk)
 
     if request.method == 'GET':
-        group_names = [ans_group.ans_group_name for ans_group in playbook_inventory]
         content = playbook.playbook_content
-        return JsonResponse({'code': 200, 'inventory': group_names, 'content': content})
+        return JsonResponse({'code': 200, 'content': content})
     elif request.method == 'POST':
+        group_ids = request.POST.getlist('group_ids')
         try:
             res = get_playbook_res(group_ids, playbook.playbook_file.path)
             return JsonResponse({'code': 200, 'msg': res})
@@ -227,33 +212,11 @@ def playbook_del(request, pk):
 def check_playbook_name(request):
     playbook_name = request.GET.get('playbook_name')
     playbook = AnsiblePlaybook.objects.filter(playbook_name=playbook_name).exists()
-    if playbook:
+    role = AnsibleRole.objects.filter(playbook_name=playbook_name).exists()
+    if playbook or role:
         return JsonResponse({'code': 500, 'msg': '同名文件已存在！'})
     else:
         return JsonResponse({'code': 200})
-
-
-def get_inventory_hosts(request):
-    if request.method == 'POST':
-        group_ids = []
-        if request.POST.getlist('playbook_inventory'):
-            group_ids = request.POST.getlist('playbook_inventory')
-        elif request.POST.getlist('hostGroup'):
-            group_ids = request.POST.getlist('hostGroup')
-
-        hosts = []
-        host_ids = []
-        for group_id in group_ids:
-            host_list = AnsibleInventory.objects.prefetch_related('ans_group_hosts').get(
-                id=group_id).ans_group_hosts.all()
-            host_id_list = [host.id for host in host_list]
-            host_ips = [host.assets.asset_management_ip for host in host_list]
-            hosts.extend(host_ips)
-            host_ids.extend(host_id_list)
-
-        hosts = list(set(hosts))
-        host_ids = list(set(host_ids))
-        return JsonResponse({'code': 200, 'host_ips': hosts, 'host_ids': host_ids})
 
 
 def get_playbook_res(group_ids, playbook_file):
@@ -348,3 +311,133 @@ def gen_inventory(request):
     inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
     hosts = ServerAssets.objects.select_related('assets')
     return render(request, 'task/inventory.html', locals())
+
+
+def role_detail(request, pk):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        p_name = request.POST.get('p_name')
+        if name and p_name:
+            nodes = []
+            path_names = os.listdir(os.path.join(p_name, name))
+            path_names.sort()
+            for path_name in path_names:
+                if not path_name.endswith('retry'):
+                    node = {'name': path_name, 'p_name': p_name + '/' + name}
+                    if os.path.isdir(os.path.join(p_name, name, path_name)):
+                        node['isParent'] = True
+                    else:
+                        node['isParent'] = False
+                    nodes.append(node)
+            return HttpResponse(json.dumps(nodes))
+        else:
+            playbook_name = AnsibleRole.objects.get(id=pk).playbook_name
+            node = {'name': playbook_name, 'isParent': True, 'p_name': settings.ANSIBLE_ROLE_PATH}
+            return HttpResponse(json.dumps(node))
+    else:
+        if request.user.is_superuser:
+            return render(request, 'task/role_detail.html', locals())
+        else:
+            return HttpResponseForbidden('<h1>403</h1>')
+
+
+@permission_required('task.add_ansiblerole', raise_exception=True)
+def role_add(request):
+    if request.method == 'GET':
+        playbook_name = request.GET.get('playbook_name')
+        names = request.GET.get('role_names')
+        role_names = [name.strip() for name in names.split(',')]
+        return render(request, 'task/role_add.html', locals())
+
+
+@permission_required('task.add_ansiblerole', raise_exception=True)
+def get_file_content(request):
+    if request.method == 'POST':
+        p_name = request.POST.get('p_name')
+        name = request.POST.get('name')
+        file = os.path.join(p_name, name)
+        content = ''
+        with open(file, 'r') as f:
+            for line in f.readlines():
+                content = content + line
+
+        relative_path = p_name.split('{}/{}/'.format(settings.MEDIA_ROOT, 'roles'))[-1] + '/' + name
+        return JsonResponse({'code': 200, 'content': content, 'relative_path': relative_path})
+
+
+@permission_required('task.addansiblerole', raise_exception=True)
+def role_list(request):
+    if request.method == 'GET':
+        inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
+        roles = AnsibleRole.objects.select_related('role_user').all()
+        return render(request, 'task/role_list.html', locals())
+    elif request.method == 'POST':
+        role_file = request.FILES.get('playbook_file')
+        playbook_name = request.POST.get('playbook_name')
+        if role_file:
+            AnsibleRole.objects.create(
+                playbook_name=role_file.name.split('.zip')[0],
+                role_file=role_file,
+                role_user=request.user,
+            )
+        elif playbook_name:
+            role_obj = AnsibleRole.objects.select_related('role_user').get(playbook_name=playbook_name.split('.zip')[0])
+            role_obj.role_desc = request.POST.get('playbook_desc')
+            role_obj.save()
+
+            z = zipfile.ZipFile(role_obj.role_file.path, 'r')
+
+            try:
+                z.extractall(path=settings.ANSIBLE_ROLE_PATH)
+            finally:
+                z.close()
+                os.remove(role_obj.role_file.path)
+
+        return JsonResponse({'code': 200, 'msg': '上传成功！'})
+
+
+@permission_required('task.change_ansiblerole', raise_exception=True)
+def role_edit(request):
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        relative_path = request.POST.get('relative_path')
+
+        try:
+            with open(os.path.join(settings.ANSIBLE_ROLE_PATH, relative_path), 'w') as f:
+                f.write(content)
+            return JsonResponse({'code': 200, 'msg': '修改完成！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '修改失败！：{}'.format(e)})
+
+
+@permission_required('task.add_ansibleplaybook', raise_exception=True)
+def role_run(request, pk):
+    role = AnsibleRole.objects.select_related('role_user').get(id=pk)
+    main_file = os.path.join(settings.ANSIBLE_ROLE_PATH, role.playbook_name, 'site.yml')
+
+    if request.method == 'GET':
+        content = ''
+        with open(main_file, 'r') as f:
+            for line in f.readlines():
+                content = content + line
+        return JsonResponse({'code': 200, 'content': content, 'playbook_name': role.playbook_name})
+    elif request.method == 'POST':
+        group_ids = request.POST.getlist('group_ids')
+        try:
+            res = get_playbook_res(group_ids, main_file)
+            return JsonResponse({'code': 200, 'msg': res})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
+
+
+@permission_required('task.delete_ansiblerole', raise_exception=True)
+def role_del(request, pk):
+    if request.method == 'DELETE':
+        role = AnsibleRole.objects.get(id=pk)
+        try:
+            shutil.rmtree(os.path.join(settings.ANSIBLE_ROLE_PATH, role.playbook_name))
+            return JsonResponse({'code': 200, 'msg': '删除成功！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '删除失败！{}'.format(e)})
+        finally:
+            role.delete()

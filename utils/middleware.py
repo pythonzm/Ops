@@ -89,7 +89,7 @@ class RecordMiddleware(MiddlewareMixin):
                                 ans_args=''.join(post_data['ansibleModuleArgs']),
                                 ans_server=ans_server, ans_result=res)
         elif request.method == 'POST' and (
-                'playbook_run' in request.path or 'run_playbook_online' in request.path) and response.status_code == 200:
+                'playbook_run' in request.path or 'role_run' in request.path) and response.status_code == 200:
             playbook_name = dict(request._post).get('playbook_name')[0]
             response_data = str(response.__dict__.get('_container')[0], encoding="utf-8")
             res = eval(response_data)['msg']

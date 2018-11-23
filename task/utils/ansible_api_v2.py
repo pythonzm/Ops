@@ -13,8 +13,8 @@
 import os
 import json
 import re
-
-from ansible import constants
+from utils.db.redis_ops import RedisOps
+from ansible import constants as C
 from collections import namedtuple
 from ansible.parsing.dataloader import DataLoader
 from ansible.playbook.play import Play
@@ -24,6 +24,8 @@ from ansible.plugins.callback import CallbackBase
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from conf.logger import ansible_logger
+
+r = RedisOps('10.1.19.10', 6379, 6)
 
 
 class ModelResultsCollector(CallbackBase):
@@ -54,35 +56,29 @@ class PlayBookResultsCollector(CallbackBase):
 
     def __init__(self, *args, **kwargs):
         super(PlayBookResultsCollector, self).__init__(*args, **kwargs)
-        self.task_ok = {}
-        self.task_skipped = {}
-        self.task_failed = {}
+        self.task_skipped = []
+        self.task_failed = []
         self.task_status = {}
-        self.task_unreachable = {}
+        self.task_unreachable = []
+        self.task_ok = []
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
-        self.task_ok[result._host.get_name()] = result
+        self.task_ok.append({result._host.name: result})
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
-        self.task_failed[result._host.get_name()] = result
+        self.task_failed.append({result._host.name: result})
 
     def v2_runner_on_unreachable(self, result):
-        self.task_unreachable[result._host.get_name()] = result
+        self.task_unreachable.append({result._host.name: result})
 
     def v2_runner_on_skipped(self, result):
-        self.task_ok[result._host.get_name()] = result
+        self.task_skipped.append({result._host.name: result})
 
     def v2_playbook_on_stats(self, stats):
         hosts = sorted(stats.processed.keys())
         for h in hosts:
-            t = stats.summarize(h)
-            self.task_status[h] = {
-                "ok": t['ok'],
-                "changed": t['changed'],
-                "unreachable": t['unreachable'],
-                "skipped": t['skipped'],
-                "failed": t['failures']
-            }
+            s = stats.summarize(h)
+            self.task_status[h] = s
 
 
 class MyInventory(InventoryManager):
@@ -217,7 +213,7 @@ class ANSRunner(object):
                 stdout_callback=self.callback,
             )
 
-            constants.HOST_KEY_CHECKING = False  # 关闭第一次使用ansible连接客户端是输入命令
+            C.HOST_KEY_CHECKING = False  # 关闭第一次使用ansible连接客户端是输入命令
             tqm.run(play)
         except Exception as e:
             ansible_logger.error('执行{}失败，原因: {}'.format(module_name, e))
@@ -239,7 +235,7 @@ class ANSRunner(object):
                 options=self.options, passwords=self.passwords,
             )
             executor._tqm._stdout_callback = self.callback
-            constants.HOST_KEY_CHECKING = False  # 关闭第一次使用ansible连接客户端是输入命令
+            C.HOST_KEY_CHECKING = False  # 关闭第一次使用ansible连接客户端是输入命令
             executor.run()
         except Exception as e:
             ansible_logger.error('执行{}失败，原因: {}'.format(playbook_path, e))
@@ -279,25 +275,43 @@ class ANSRunner(object):
 
     def get_playbook_result(self):
         results_raw = []
-        for host, result in self.callback.task_ok.items():
-            data = 'TASK [{}] **********************\n{}: success\n'.format(result.task_name, host)
-            results_raw.append(data)
+        for task_obj in self.callback.task_ok:
+            for host, result in task_obj.items():
+                for remove_key in (
+                        'invocation', '_ansible_parsed', '_ansible_no_log', '_ansible_verbose_always', 'failed',
+                        'stdout', 'diff', 'results', 'status', 'warnings', 'stdout_lines'):
+                    if remove_key in result._result:
+                        del result._result[remove_key]
+                if result._result.get('changed'):
+                    data = '<code style="color: #FFFF00">TASK [{}] {}\n{}: changed\n{}\n</code><br>'.format(
+                        result.task_name, '*' * 100, host, result._result)
+                else:
+                    data = '<code style="color: #008000">TASK [{}] {}\n{}: success\n{}\n</code><br>'.format(
+                        result.task_name, '*' * 100, host, result._result)
+                results_raw.append(data)
 
-        for host, result in self.callback.task_failed.items():
-            data = 'TASK [{}] **********************\n{}: failed\n'.format(result.task_name, host)
-            results_raw.append(data)
+        for task_obj in self.callback.task_failed:
+            for host, result in task_obj.items():
+                data = '<code style="color: #FF0000">TASK [{}] {}\n{}: failed\n{}\n</code><br>'.format(
+                    result.task_name, '*' * 100, host, self.callback._dump_results(result._result))
+                results_raw.append(data)
 
-        # for host, result in self.callback.task_status.items():
-        #     results_raw['status'][host] = result
+        for task_obj in self.callback.task_skipped:
+            for host, result in task_obj.items():
+                data = '<code style="color: #FFFF00">TASK [{}] {}\n{}: skipped\n{}\n</code><br>'.format(
+                    result.task_name, '*' * 100, host, self.callback._dump_results(result._result))
+                results_raw.append(data)
 
-        for host, result in self.callback.task_skipped.items():
-            data = 'TASK [{}] **********************\n{}: skipped\n'.format(result.task_name, host)
-            results_raw.append(data)
+        for task_obj in self.callback.task_unreachable:
+            for host, result in task_obj.items():
+                data = '<code style="color: #FF0000">TASK [{}] {}\n{}: unreachable\n{}\n</code><br>'.format(
+                    result.task_name, '*' * 100, host, self.callback._dump_results(result._result))
+                results_raw.append(data)
 
-        for host, result in self.callback.task_unreachable.items():
-            data = 'TASK [{}] **********************\n{}: unreachable\n'.format(result.task_name, host)
-            results_raw.append(data)
-
+        task_status = 'PLAY RECAP {}\n'.format('*' * 100)
+        for host, status in self.callback.task_status.items():
+            task_status = task_status + '{} :{}\n'.format(host, status)
+        results_raw.append(task_status)
         return results_raw
 
     @staticmethod
@@ -342,11 +356,3 @@ class ANSRunner(object):
         result = json.loads(data[data.index('{'): data.rindex('}') + 1])
         facts = result['ansible_facts']
         return facts['mem_info']
-
-    def get_group_dict(self):
-        group_dict = self.inventory.get_groups_dict()
-        return group_dict
-
-    def get_group_names(self):
-        group_names = self.inventory.list_groups()
-        return group_names

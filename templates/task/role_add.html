@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'ztree/css/metroStyle/metroStyle.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    <style>
+        #playbook-editor {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-body">
+                    <div class="col-md-4">
+                        <ul id="roleTree" class="ztree"></ul>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="box-header relative_path" style="padding: 3px;">
+
+                        </div>
+                        <div id="playbook-editor"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block js %}
+    <script src="{% static 'ztree/js/jquery.ztree.core.min.js' %}"></script>
+    <script src="{% static 'ztree/js/jquery.ztree.excheck.min.js' %}"></script>
+    <script src="{% static 'ztree/js/jquery.ztree.exedit.min.js' %}"></script>
+    <script src="{% static 'ace/js/ace.js' %}"></script>
+    <script src="{% static 'ace/js/mode-yaml.js' %}"></script>
+    <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script>
+        let setting = {
+            view: {
+                selectedMulti: false
+            },
+            edit: {
+                enable: true,
+                showRemoveBtn: false,
+                showRenameBtn: false
+            },
+            data: {
+                keep: {
+                    parent: true,
+                    leaf: true
+                },
+                simpleData: {
+                    enable: true
+                }
+            },
+            callback: {
+                beforeDrag: beforeDrag,
+                beforeRemove: beforeRemove,
+            },
+        };
+
+        let nodes = [
+            {id: 1, pId: 0, name: "{{ playbook_name }}", open: true},
+            {id: 11, pId: 1, name: "roles", open: true, isParent: true},
+            {id: 12, pId: 1, name: "site.yml"},
+        ];
+
+        let role_id = 111;
+        {% for role_name in role_names %}
+            nodes.push({id: role_id, pId: 11, name: '{{ role_name }}', isParent: true});
+            role_id++;
+        {% endfor %}
+
+        function beforeDrag(treeId, treeNodes) {
+            return false;
+        }
+
+        function beforeRemove(treeId, treeNode) {
+            $.confirm({
+                title: 'Tips',
+                content: `确定要删除${treeNode.p_name}/${treeNode.name}么？`,
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        //
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            zTreeObj = $.fn.zTree.init($("#roleTree"), setting, nodes);
+        });
+    </script>
+{% endblock %}

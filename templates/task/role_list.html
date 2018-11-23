@@ -10,12 +10,12 @@
 
     <style>
         /* dataTables列内容居中 */
-        #playbook > tbody > tr > td {
+        #role > tbody > tr > td {
             text-align: center;
         }
 
         /* dataTables表头居中 */
-        #playbook > thead:first-child > tr:first-child > th {
+        #role > thead:first-child > tr:first-child > th {
             text-align: center;
         }
 
@@ -32,7 +32,7 @@
             width: 100%;
         }
 
-        #run-content, #edit-content {
+        #content {
             width: 100%;
             height: 400px;
         }
@@ -44,13 +44,11 @@
 
     <div class="row">
         <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
-
             <button class="btn btn-sm btn-success pull-left" data-toggle="modal" style="margin-left: 2px"
-                    data-target="#PlaybookEditModal" id="add-playbook">
+                    data-target="#RoleAddModal">
                 <i class="fa fa-edit"></i>
-                <span class="bigger-110">在线新增playbook</span>
+                <span class="bigger-110">在线添加剧本</span>
             </button>
-
             <button class="btn btn-sm btn-success pull-left" data-toggle="modal" style="margin-left: 2px"
                     data-target="#PlaybookUploadModal">
                 <i class="fa fa-upload"></i>
@@ -62,7 +60,7 @@
             <div class="box">
                 <!-- dataTable -->
                 <div class="box-body">
-                    <table id="playbook" class="table table-bordered table-striped">
+                    <table id="role" class="table table-bordered table-striped">
                         <thead>
                         <tr>
                             <th>剧本名称</th>
@@ -72,23 +70,22 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for playbook in playbooks %}
+                        {% for role in roles %}
                             <tr>
-                                <td>{{ playbook.playbook_name }}</td>
-                                <td>{{ playbook.playbook_desc|default:"" }}</td>
-                                <td>{{ playbook.playbook_time|date:"Y-m-d H:i:s" }}</td>
+                                <td>{{ role.playbook_name }}</td>
+                                <td>{{ role.role_desc|default:"" }}</td>
+                                <td>{{ role.role_time|date:"Y-m-d H:i:s" }}</td>
                                 <td>
-
-                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
-                                            data-target="#PlaybookEditModal" data-id="{{ playbook.id }}">详细/修改
-                                    </button>
-
+                                    <a href="{% url 'role_detail' role.id %}">
+                                        <button type="button" class="btn btn-success btn-xs">详细/修改
+                                        </button>
+                                    </a>
                                     <button type="button" class="btn btn-primary btn-xs run" data-toggle="modal"
-                                            data-target="#PlaybookRunModal" data-id="{{ playbook.id }}">
+                                            data-target="#PlaybookRunModal" data-id="{{ role.id }}">
                                         执行
                                     </button>
                                     <button type="button" class="btn btn-danger btn-xs delete"
-                                            data-id="{{ playbook.id }}">
+                                            data-id="{{ role.id }}">
                                         删除
                                     </button>
                                 </td>
@@ -105,6 +102,67 @@
                 <pre style="background-color: black"></pre>
             </div>
 
+
+            <!-- RoleAddModal  -->
+            <div class="modal fade" id="RoleAddModal" tabindex="-1" role="dialog"
+                 aria-labelledby="RoleAddModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="RoleAddModalLabel">
+                                添加剧本
+                            </h4>
+                        </div>
+                        {% if perms.task.add_ansiblerole %}
+                            <div class="modal-body">
+                                <form id="playbook_form" class="main form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="playbook_name" class="col-sm-2 control-label">剧本名称</label>
+                                            <div class="col-sm-6">
+                                                <input class="form-control" name="playbook_name" id="playbook_name"
+                                                       required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="role_name" class="col-sm-2 control-label">role名称</label>
+                                            <div class="col-sm-6">
+                                                <input class="form-control" name="role_name" placeholder="多个名称以逗号隔开"
+                                                       id="role_name" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="playbook_desc" class="col-sm-2 control-label">剧本描述</label>
+                                            <div class="col-sm-6">
+                                                <textarea class="form-control" name="playbook_desc" rows="5"
+                                                          id="playbook_desc"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" id="role_add">确认添加</button>
+                            </div>
+                        {% else %}
+                            <div class="modal-body">
+                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                            </div>
+                        {% endif %}
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+
             <!-- PlaybookUploadModal  -->
             <div class="modal fade" id="PlaybookUploadModal" tabindex="-1" role="dialog"
                  aria-labelledby="PlaybookUploadModalLabel"
@@ -116,7 +174,7 @@
                                 &times;
                             </button>
                             <h4 class="modal-title" id="PlaybookUploadModalLabel">
-                                上传剧本文件
+                                上传剧本
                             </h4>
                         </div>
                         {% if perms.task.add_ansibleplaybook %}
@@ -144,7 +202,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                                <button type="button" class="btn btn-primary" id="playbook_upload">上传</button>
+                                <button type="button" class="btn btn-primary" id="playbook_ops">上传</button>
                             </div>
                         {% else %}
                             <div class="modal-body">
@@ -157,70 +215,6 @@
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal -->
             </div>
-
-            <!-- PlaybookEditModal  -->
-            <div class="modal fade bd-example-modal-lg" id="PlaybookEditModal" tabindex="-1" role="dialog"
-                 aria-labelledby="PlaybookEditModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                                &times;
-                            </button>
-                            <h4 class="modal-title" id="PlaybookEditModalLabel">
-
-                            </h4>
-                        </div>
-                        {% if perms.task.add_ansibleplaybook and perms.task.change_ansibleplaybook %}
-                            <div class="modal-body">
-                                <form id="playbook_edit" class="main form-horizontal">
-                                    <fieldset>
-                                        <div class="form-group">
-                                            <label for="playbook_name" class="col-sm-2 control-label">剧本名称</label>
-                                            <div class="col-sm-6">
-                                                <input class="form-control" name="playbook_name" placeholder="必须以.yml结尾"
-                                                       id="playbook_name" required>
-                                            </div>
-
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="playbook_desc" class="col-sm-2 control-label">剧本描述</label>
-                                            <div class="col-sm-6">
-                                                <textarea class="form-control" name="playbook_desc" rows="5"
-                                                          id="playbook_desc"></textarea>
-                                            </div>
-
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="edit-content" class="col-sm-2 control-label">剧本内容</label>
-                                            <div class="col-sm-6">
-                                                <div id="edit-content"></div>
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                                <button type="button" class="btn btn-primary" id="playbook_ops">
-
-                                </button>
-                            </div>
-                        {% else %}
-                            <div class="modal-body">
-                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
-                            </div>
-                        {% endif %}
-                    </div><!-- /.modal-content -->
-                </div><!-- /.modal -->
-            </div>
-
 
             <!-- PlaybookRunModal  -->
             <div class="modal fade bd-example-modal-lg" id="PlaybookRunModal" tabindex="-1" role="dialog"
@@ -254,9 +248,9 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="run-content" class="col-sm-2 control-label">剧本内容</label>
+                                            <label for="content" class="col-sm-2 control-label">剧本内容</label>
                                             <div class="col-sm-6">
-                                                <div id="run-content"></div>
+                                                <div id="content"></div>
                                             </div>
                                         </div>
                                     </fieldset>
@@ -297,11 +291,10 @@
     <script src="{% static 'ace/js/mode-yaml.js' %}"></script>
     <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
-    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
 
     <script>
         $(function () {
-            playbook_table = $('#playbook').DataTable({
+            role_table = $('#role').DataTable({
                 columnDefs: [{
                     'targets': [-1,],
                     'orderable': false
@@ -315,25 +308,25 @@
             });
 
             $("[data-toggle='tooltip']").tooltip();
-
-            edit_content = ace.edit("edit-content");
-            edit_content.setTheme("ace/theme/monokai");
-            let YamlMode = ace.require("ace/mode/yaml").Mode;
-            edit_content.session.setMode(new YamlMode());
-            edit_content.setShowPrintMargin(false);
         });
 
-        // 初始化fileinput
+        $('#role_add').on('click', function () {
+            let playbook_name = $('#playbook_form #playbook_name').val();
+            let role_names = $('#role_name').val();
+            window.location.href = `/run/role_add/?playbook_name=${playbook_name}&role_names=${role_names}`
+        });
+
+
         $("#playbook_file").fileinput({
             language: 'zh',
             showUpload: false,
             dropZoneEnabled: false,
-            msgPlaceholder: '只能上传后缀是.yml的文件',
-            allowedFileExtensions: ["yml"],
+            msgPlaceholder: '只能上传zip格式的压缩文件',
+            allowedFileExtensions: ["zip"],
             showPreview: false,
             showCaption: true,
             maxFileSize: 10240,
-            uploadUrl: "{% url 'playbook_upload' %}",
+            uploadUrl: "{% url 'role_list' %}",
             mergeAjaxCallbacks: true,
             ajaxSettings: {
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -348,35 +341,27 @@
             browseLabel: '浏览文件',
             removeLabel: '删除',
         }).on('fileuploaded', function (event, data, previewId, index) {
-            let playbook_data = {
-                playbook_name: data.files[0].name,
-                playbook_desc: $('#playbook_desc').val()
-            };
             $.ajax({
-                url: "{% url 'playbook_upload' %}",
+                url: "{% url 'role_list' %}",
                 type: 'POST',
-                data: playbook_data,
+                traditional: true,
                 dataType: 'json',
+                data: {
+                    playbook_name: data.files[0].name,
+                    playbook_desc: $('#playbook_desc').val()
+                },
                 success: function (res) {
                     if (res.code === 200) {
-                        let c_time = $.format.date(res.playbook_time, "yyyy-MM-dd HH:mm:ss");
-                        playbook_table.row.add([
-                            playbook_data.playbook_name,
-                            playbook_data.playbook_desc,
-                            c_time,
-                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-target="#PlaybookEditModal" data-id="${res.id}"> 详细/修改</button> <button type="button" class="btn btn-primary btn-xs run" data-toggle="modal" data-target="#PlaybookRunModal" data-id="${res.id}"> 执行</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}"> 删除</button>`
-                        ]).draw();
-                        $.alert({
+                        $.confirm({
                             title: 'Tips',
+                            content: res.msg,
                             type: 'green',
-                            content: res.msg,
-                        })
-                    } else {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: res.msg,
-                        })
+                            buttons: {
+                                Ok: function () {
+                                    window.location.reload()
+                                },
+                            }
+                        });
                     }
                 },
                 error: function (response) {
@@ -389,22 +374,17 @@
             })
         });
 
-        <!-- playbook操作 -->
-        let playbook_tbody = $('#playbook tbody');
-        let playbook_ops = $('#playbook_ops');
-
         // 上传playbook
-        $('#playbook_upload').on('click', function () {
+        $('#playbook_ops').on('click', function () {
             let playbook_file = $("#playbook_file").val();
             if (playbook_file.length === 0) {
-                $(this).removeAttr('data-dismiss');
                 $.alert({
                     title: 'Tips',
                     type: 'red',
-                    content: '请正确选择文件！',
+                    content: '请注意必选项！',
                 })
             } else {
-                let playbook_name = playbook_file.slice(playbook_file.lastIndexOf('\\') + 1,);
+                let playbook_name = playbook_file.slice(playbook_file.lastIndexOf('\\') + 1,).split('.zip')[0];
                 $.get('/run/chk_playbook_name/?playbook_name=' + playbook_name, function (res) {
                     if (res.code === 500) {
                         $.alert({
@@ -413,181 +393,34 @@
                             content: res.msg,
                         });
                     } else {
-                        $('#playbook_upload').attr('data-dismiss', 'modal');
                         $("#playbook_file").fileinput('upload');
                     }
                 })
+
             }
         });
 
-        // 在线添加playbook
-        $('#add-playbook').on('click', function () {
-            $("#playbook_edit").trigger('reset');
-            $(".select2").val('').trigger('change');
-            $('.modal-title').text('新增playbook');
-            playbook_ops.text('确认添加');
 
-            // 检查playbook_name的可用性
-            $('#playbook_edit #playbook_name').on('blur', function () {
-                let playbook_name = $(this).val();
-                if (playbook_name.length !== 0) {
-                    if (!playbook_name.endsWith('.yml')) {
-                        $.confirm({
-                            title: 'Tips',
-                            content: "文件名必须以.yml结尾",
-                            type: 'red',
-                            buttons: {
-                                OK: function () {
-                                    $('#playbook_edit #playbook_name').focus()
-                                },
-                            }
-                        });
-                    } else {
-                        $.get('/run/chk_playbook_name/?playbook_name=' + playbook_name, function (res) {
-                            if (res.code === 500) {
-                                $.confirm({
-                                    title: 'Tips',
-                                    content: res.msg,
-                                    type: 'red',
-                                    buttons: {
-                                        OK: function () {
-                                            $('#playbook_edit #playbook_name').val('')
-                                        },
-                                    }
-                                });
-                            } else {
-                                // pass
-                            }
-                        })
-                    }
-                } else {
-                    // pass
+        <!-- role操作 -->
+        let role_tbody = $('#role tbody');
+
+        // 执行role
+        role_tbody.on('click', '.run', function () {
+            let role_id = $(this).attr('data-id');
+
+            $.get('/run/role_run/' + role_id + '/', function (data) {
+                if (data.code === 200) {
+                    editor = ace.edit("content");
+                    editor.setTheme("ace/theme/monokai");
+                    let YamlMode = ace.require("ace/mode/yaml").Mode;
+                    editor.session.setMode(new YamlMode());
+                    editor.setShowPrintMargin(false);
+                    editor.setReadOnly(true);
+
+                    editor.setValue(data.content, -1);
+
+                    playbook_name = data.playbook_name
                 }
-
-            });
-
-            playbook_ops.unbind('click').on('click', function () {
-                let playbook_name = $('#playbook_edit #playbook_name').val();
-                let playbook_content = edit_content.getSession().getValue();
-                if (playbook_name.length === 0 || playbook_content.length === 0) {
-                    $(this).removeAttr('data-dismiss');
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: '请注意必填项！',
-                    })
-                } else {
-                    $(this).attr('data-dismiss', 'modal');
-                    let data = {
-                        playbook_name: playbook_name,
-                        playbook_desc: $('#playbook_edit #playbook_desc').val(),
-                        playbook_content: playbook_content,
-                    };
-                    $.ajax({
-                        url: "{% url 'playbook_add' %}",
-                        type: 'POST',
-                        data: data,
-                        dataType: 'json',
-                        success: function (res) {
-                            if (res.code === 200) {
-                                let c_time = $.format.date(res.playbook_time, "yyyy-MM-dd HH:mm:ss");
-                                playbook_table.row.add([
-                                    data.playbook_name,
-                                    data.playbook_desc,
-                                    c_time,
-                                    `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-target="#PlaybookEditModal" data-id="${res.id}"> 详细/修改</button> <button type="button" class="btn btn-primary btn-xs run" data-toggle="modal" data-target="#PlaybookRunModal" data-id="${res.id}"> 执行</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}"> 删除</button>`
-                                ]).draw();
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'green',
-                                    content: res.msg,
-                                })
-                            } else {
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'red',
-                                    content: res.msg,
-                                })
-                            }
-
-                        },
-                        error: function (response) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: response.responseText,
-                            })
-                        }
-                    })
-                }
-            })
-        });
-
-        // 在线修改playbook
-        playbook_tbody.on('click', '.modify', function () {
-            playbook_ops.attr('data-dismiss', 'modal');
-            let playbook_id = $(this).attr('data-id');
-            let playbook_td_obj = $(this).parents('tr').children();
-            $('.modal-title').text('修改主机组');
-            playbook_ops.text('确认修改');
-            $.get('/run/playbook_info/' + playbook_id + '/', function (res) {
-                $('#playbook_edit #playbook_name').val(res.data.playbook_name);
-                $('#playbook_edit #playbook_desc').val(res.data.playbook_desc);
-                edit_content.setValue(res.data.playbook_content, -1)
-            });
-
-            playbook_ops.unbind('click').on('click', function () {
-                let data = {
-                    playbook_name: $('#playbook_edit #playbook_name').val(),
-                    playbook_desc: $('#playbook_edit #playbook_desc').val(),
-                    playbook_content: edit_content.getSession().getValue()
-                };
-                $.ajax({
-                    url: '/run/playbook_info/' + playbook_id + '/',
-                    type: 'POST',
-                    data: data,
-                    dataType: 'json',
-                    success: function (res) {
-                        if (res.code === 200) {
-                            playbook_td_obj[0].innerText = data.playbook_name;
-                            playbook_td_obj[1].innerText = data.playbook_desc;
-                            $.alert({
-                                title: 'Tips',
-                                type: 'green',
-                                content: res.msg,
-                            })
-                        } else {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: res.msg,
-                            })
-                        }
-                    },
-                    error: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.responseText,
-                        })
-                    }
-                })
-            });
-        });
-
-        // 执行playbook
-        playbook_tbody.on('click', '.run', function () {
-            let playbook_id = $(this).attr('data-id');
-            let playbook_name = $(this).parents('tr').children()[0].innerText;
-
-            $.get('/run/playbook_run/' + playbook_id + '/', function (data) {
-                let editor = ace.edit("run-content");
-                editor.setTheme("ace/theme/monokai");
-                let YamlMode = ace.require("ace/mode/yaml").Mode;
-                editor.session.setMode(new YamlMode());
-                editor.setShowPrintMargin(false);
-                editor.setReadOnly(true);
-                editor.setValue(data.content, -1)
             });
 
             $('#playbook_run').unbind('click').on('click', function () {
@@ -604,11 +437,11 @@
                     let obj = $('pre');
                     obj.html('开始执行....\n');
                     $.ajax({
-                        url: '/run/playbook_run/' + playbook_id + '/',
+                        url: '/run/role_run/' + role_id + '/',
                         type: 'POST',
-                        traditional: true,
-                        data: {playbook_name: playbook_name, group_ids: group_ids}, // playbook_name用于task记录playbook_name
+                        data: {group_ids: group_ids, playbook_name: playbook_name}, // 用于task记录playbook_name
                         dataType: 'json',
+                        traditional: true,
                         success: function (res) {
                             $('.box-footer').css('display', 'block');
                             if (res.code === 200) {
@@ -637,9 +470,9 @@
             });
         });
 
-        // 删除playbook
-        playbook_tbody.on('click', '.delete', function () {
-            {% if perms.task.delete_ansibleplaybook %}
+        // 删除role
+        role_tbody.on('click', '.delete', function () {
+            {% if perms.task.delete_ansiblerole %}
                 let pk = $(this).attr('data-id');
                 let tr_obj = $(this).parents('tr');
                 $.confirm({
@@ -649,11 +482,11 @@
                     buttons: {
                         Ok: function () {
                             $.ajax({
-                                url: '/run/playbook_del/' + pk + '/',
+                                url: '/run/role_del/' + pk + '/',
                                 method: 'DELETE',
                                 success: function (res) {
                                     if (res.code === 200) {
-                                        playbook_table.row(tr_obj).remove().draw();
+                                        role_table.row(tr_obj).remove().draw();
                                     } else {
                                         $.alert({
                                             title: 'Tips',

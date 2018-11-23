@@ -213,3 +213,5 @@ ZABBIX_INFO = {
     'username': 'admin',
     'password': '123.juREN'
 }
+
+ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')
