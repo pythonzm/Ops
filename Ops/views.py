@@ -64,7 +64,8 @@ def lock_screen(request):
             login_status=3
         )
         request.session['lock'] = 'lock'
-        request.session['referer_url'] = request.META.get('HTTP_REFERER')
+        if 'lock_screen' not in request.META.get('HTTP_REFERER'):
+            request.session['referer_url'] = request.META.get('HTTP_REFERER')
         return render(request, 'lockscreen.html', locals())
     elif request.method == 'POST':
         user = auth.authenticate(username=request.session['username'], password=request.POST.get('pwd'))

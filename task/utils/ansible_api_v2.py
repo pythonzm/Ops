@@ -158,7 +158,7 @@ class MyInventory(InventoryManager):
 
 class ANSRunner(object):
     """
-    执行ansible模块或者playbook的类
+    执行ansible模块或者playbook的类，这里默认采用了用户名+密码+sudo的方式
     """
 
     def __init__(self, resource=None, sources=None):
