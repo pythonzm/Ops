@@ -13,7 +13,6 @@
 import os
 import json
 import re
-from utils.db.redis_ops import RedisOps
 from ansible import constants as C
 from collections import namedtuple
 from ansible.parsing.dataloader import DataLoader
@@ -24,8 +23,6 @@ from ansible.plugins.callback import CallbackBase
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from conf.logger import ansible_logger
-
-r = RedisOps('10.1.19.10', 6379, 6)
 
 
 class ModelResultsCollector(CallbackBase):
@@ -176,9 +173,9 @@ class ANSRunner(object):
                                remote_user=None, ask_pass=False, private_key_file=None,
                                ssh_common_args=None,
                                ssh_extra_args=None,
-                               sftp_extra_args=None, strategy='free', scp_extra_args=None, become=None,
-                               become_method=None,
-                               become_user=None, ask_value_pass=False, verbosity=None, check=False, listhosts=False,
+                               sftp_extra_args=None, strategy='free', scp_extra_args=None, become='yes',
+                               become_method='sudo',
+                               become_user='root', ask_value_pass=False, verbosity=None, check=False, listhosts=False,
                                listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart')
         self.loader = DataLoader()
         self.inventory = MyInventory(resource=resource, loader=self.loader, sources=sources)
@@ -254,9 +251,10 @@ class ANSRunner(object):
             results_raw.append(data)
 
         for host, result in self.callback.host_failed.items():
-            if 'msg' in result._result:
+            if 'stderr' in result._result:
                 data = "{host} | failed | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
-                                                                          stdout=result._result.get('msg'))
+                                                                          stdout=result._result.get(
+                                                                              'stderr').encode().decode('utf-8'))
             else:
                 data = "{host} | failed >> \n{stdout}\n".format(host=host,
                                                                 stdout=json.dumps(result._result, indent=4))

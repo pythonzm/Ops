@@ -35,4 +35,5 @@ urlpatterns = [
     re_path(r'playbook_log_del/(?P<pk>[0-9]+)/', views.playbook_log_del, name='playbook_log_del'),
     re_path(r'module_log_del/(?P<pk>[0-9]+)/', views.module_log_del, name='module_log_del'),
     path(r'chk_playbook_name/', views.check_playbook_name, name='chk_playbook_name'),
+    path(r'get_inventory_hosts/', views.get_inventory_hosts, name='get_inventory_hosts')
 ]

@@ -44,6 +44,24 @@ def gen_resource(host_ids, group_ids=None):
 
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
+def get_inventory_hosts(request):
+    if request.method == 'POST':
+        group_ids = request.POST.getlist('hostGroup')
+        hosts_temp = []
+        for group_id in group_ids:
+            host_list = AnsibleInventory.objects.prefetch_related('ans_group_hosts').get(
+                id=group_id).ans_group_hosts.all()
+            host_d = [{'host_id': host.id, 'host_ip': host.assets.asset_management_ip} for host in host_list]
+            hosts_temp.extend(host_d)
+
+        hosts = []
+        for i in hosts_temp:
+            if i not in hosts:
+                hosts.append(i)
+        return JsonResponse({'code': 200, 'hosts': hosts})
+
+
+@permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def run_module(request):
     if request.method == 'POST':
         redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)

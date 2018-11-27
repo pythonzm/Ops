@@ -86,13 +86,13 @@
             let hosts_obj = $('#ans_group_hosts');
             let hostGroups = $('#hostGroup');
             hosts_obj.html('');
-            if (hostGroups.val() === ['custom']) {
+            if (hostGroups.val()[0] === 'custom') {
                 {% for host in hosts %}
                     hosts_obj.append(
                         '<option value={{ host.id }}>{{ host.assets.asset_management_ip }}</option>'
                     );
                 {% endfor %}
-            } else if (hostGroups.val() === ['all']) {
+            } else if (hostGroups.val()[0] === 'all') {
                 {% for host in hosts %}
                     hosts_obj.append(
                         '<option value={{ host.id }} selected>{{ host.assets.asset_management_ip }}</option>'
@@ -104,9 +104,10 @@
                     type: 'POST',
                     data: hostGroups.serialize(),
                     success: function (res) {
+                        let hosts = res.hosts;
                         hosts_obj.val('').trigger('change');
-                        for (let i = 0; i < res.host_ids.length; i++) {
-                            hosts_obj.append(`<option value=${res.host_ids[i]} selected>${res.host_ips[i]}</option>`);
+                        for (let i = 0; i < hosts.length; i++) {
+                            hosts_obj.append(`<option value=${hosts[i].host_id} selected>${hosts[i].host_ip}</option>`);
                         }
                     }
                 })
