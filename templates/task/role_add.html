@@ -9,6 +9,13 @@
             width: 100%;
             height: 600px;
         }
+
+        .col-md-4 button {
+            width: 80px;
+            margin-top: 5px;
+            float: right;
+            clear: right;
+        }
     </style>
 {% endblock %}
 
@@ -19,7 +26,19 @@
             <div class="box">
                 <div class="box-body">
                     <div class="col-md-4">
-                        <ul id="roleTree" class="ztree"></ul>
+                        <ul id="roleTree" class="ztree" style="float: left"></ul>
+                        <button type="button" class="btn btn-success btn-xs" id="addParent" onclick="return false;">
+                            增加父节点
+                        </button>
+                        <button type="button" class="btn btn-success btn-xs" id="addLeaf" onclick="return false;">增加子节点
+                        </button>
+                        <button type="button" class="btn btn-warning btn-xs" id="edit" onclick="return false;">编辑名称
+                        </button>
+                        <button type="button" class="btn btn-danger btn-xs" id="remove" onclick="return false;">删除节点
+                        </button>
+                        <a href="{% url 'role_list' %}">
+                            <button type="button" class="btn btn-primary btn-xs">编辑完成</button>
+                        </a>
                     </div>
                     <div class="col-md-8">
                         <div class="box-header relative_path" style="padding: 3px;">
@@ -63,45 +82,213 @@
                 }
             },
             callback: {
-                beforeDrag: beforeDrag,
                 beforeRemove: beforeRemove,
+                onClick: onClick,
+                beforeRename: beforeRename,
             },
         };
 
         let nodes = [
-            {id: 1, pId: 0, name: "{{ playbook_name }}", open: true},
-            {id: 11, pId: 1, name: "roles", open: true, isParent: true},
-            {id: 12, pId: 1, name: "site.yml"},
+            {id: 1, pId: 0, name: "{{ playbook_name }}", open: true, p_name: "{{ root_path }}"},
+            {id: 11, pId: 1, name: "roles", open: true, isParent: true, p_name: "{{ root_path }}/{{ playbook_name }}"},
+            {id: 12, pId: 1, name: "site.yml", p_name: "{{ root_path }}/{{ playbook_name }}"},
         ];
 
         let role_id = 111;
+        let dirs = ["defaults", "files", "handlers", "meta", "tasks", "templates", "vars"];
+        let role_dir_id = 1111;
         {% for role_name in role_names %}
-            nodes.push({id: role_id, pId: 11, name: '{{ role_name }}', isParent: true});
+            nodes.push({
+                id: role_id,
+                pId: 11,
+                name: '{{ role_name }}',
+                isParent: true,
+                open: true,
+                p_name: "{{ root_path }}/{{ playbook_name }}/roles"
+            });
+            for (let i = 0; i < dirs.length; i++) {
+                if (dirs[i] === "files" || dirs[i] === "templates") {
+                    nodes.push({
+                        id: role_dir_id,
+                        pId: role_id,
+                        name: dirs[i],
+                        isParent: true,
+                        open: true,
+                        p_name: "{{ root_path }}/{{ playbook_name }}/roles/{{ role_name }}"
+                    });
+                } else {
+                    nodes.push({
+                        id: role_dir_id,
+                        pId: role_id,
+                        name: dirs[i],
+                        isParent: true,
+                        open: true,
+                        p_name: "{{ root_path }}/{{ playbook_name }}/roles/{{ role_name }}",
+                        children: [{
+                            name: "main.yml",
+                            p_name: "{{ root_path }}/{{ playbook_name }}/roles/{{ role_name }}/" + dirs[i]
+                        }]
+                    });
+                }
+                role_dir_id++;
+            }
             role_id++;
         {% endfor %}
 
-        function beforeDrag(treeId, treeNodes) {
-            return false;
+        function beforeRemove(treeId, treeNode) {
+            return confirm("确认删除 节点 -- " + treeNode.name + " 吗？");
         }
 
-        function beforeRemove(treeId, treeNode) {
-            $.confirm({
-                title: 'Tips',
-                content: `确定要删除${treeNode.p_name}/${treeNode.name}么？`,
-                type: 'red',
-                buttons: {
-                    Ok: function () {
-                        //
+        function beforeRename(treeId, treeNode, newName) {
+            if (newName.length === 0) {
+                alert("节点名称不能为空.");
+                let zTree = $.fn.zTree.getZTreeObj("roleTree");
+                setTimeout(function () {
+                    zTree.editName(treeNode)
+                }, 10);
+                return false;
+            } else {
+                $.ajax({
+                    url: "{% url 'path_create' %}",
+                    type: 'POST',
+                    data: {
+                        name: treeNode.name,
+                        p_name: treeNode.p_name,
+                        isParent: treeNode.isParent,
+                        new_name: newName
                     },
-                    Cancel: function () {
-                        //
+                    error: function (res) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '添加失败！' + res.responseText,
+                        })
                     }
+                });
+                return true;
+            }
+        }
+
+        let newCount = 1;
+
+        function add(e) {
+            let zTree = $.fn.zTree.getZTreeObj("roleTree"),
+                isParent = e.data.isParent,
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+            if (treeNode) {
+                if (treeNode.isParent) {
+                    treeNode = zTree.addNodes(treeNode, {
+                        id: (100 + newCount),
+                        pId: treeNode.id,
+                        isParent: isParent,
+                        name: "new node" + (newCount++),
+                        p_name: treeNode.p_name + '/' + treeNode.name
+                    });
+                    zTree.editName(treeNode[0]);
+                } else {
+                    alert("叶子节点被锁定，无法增加子节点");
+                }
+            } else {
+                alert("请先选择一个节点");
+            }
+        }
+
+        function edit() {
+            let zTree = $.fn.zTree.getZTreeObj("roleTree"),
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+            if (nodes.length === 0) {
+                alert("请先选择一个节点");
+                return;
+            }
+            zTree.editName(treeNode);
+        }
+
+        function remove(e) {
+            let zTree = $.fn.zTree.getZTreeObj("roleTree"),
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+            if (nodes.length === 0) {
+                alert("请先选择一个节点");
+                return;
+            }
+            $.ajax({
+                url: "{% url 'path_del' %}",
+                type: 'POST',
+                data: {name: treeNode.name, p_name: treeNode.p_name},
+                success: function (res) {
+                    if (res.code === 200) {
+                        zTree.removeNode(treeNode, true);
+                    }
+                },
+                error: function (data) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: '删除失败！' + data.responseText,
+                    })
                 }
             });
         }
 
+        function onClick(event, treeId, treeNode, clickFlag) {
+            if (!treeNode.isParent) {
+                let relative_path = $('.relative_path');
+                relative_path.html('');
+                relative_path.append(`<p class="text-green" style="text-align: center;margin-bottom: 0;float: left;">当前文件是：${treeNode.p_name}/${treeNode.name}</p>------<button type="button" class="btn btn-success btn-xs save" data-toggle="tooltip" title="只有点击保存，文件才会创建"> 确认保存</button>`);
+
+                $("[data-toggle='tooltip']").tooltip();
+                let editor = ace.edit("playbook-editor");
+                editor.setTheme("ace/theme/monokai");
+                let YamlMode = ace.require("ace/mode/yaml").Mode;
+                editor.session.setMode(new YamlMode());
+                editor.setShowPrintMargin(false);
+
+                $.ajax({
+                    url: "{% url 'get_file_content' %}",
+                    type: 'POST',
+                    data: {p_name: treeNode.p_name, name: treeNode.name},
+                    success: function (res) {
+                        if (res.code === 200) {
+                            editor.setValue(res.content, -1);
+                        } else {
+                            editor.setValue("", -1);
+                        }
+                    }
+                });
+
+                $('.save').on('click', function () {
+                    $.ajax({
+                        url: "{% url 'role_edit' %}",
+                        type: 'POST',
+                        data: {content: editor.getSession().getValue(), p_name: treeNode.p_name, name: treeNode.name},
+                        success: function (res) {
+                            if (res.code === 200) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'green',
+                                    content: res.msg,
+                                })
+                            } else {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: res.msg,
+                                })
+                            }
+                        }
+                    })
+                });
+            }
+        }
+
         $(document).ready(function () {
-            zTreeObj = $.fn.zTree.init($("#roleTree"), setting, nodes);
+            $.fn.zTree.init($("#roleTree"), setting, nodes);
+            $("#addParent").bind("click", {isParent: true}, add);
+            $("#addLeaf").bind("click", {isParent: false}, add);
+            $("#edit").bind("click", edit);
+            $("#remove").bind("click", remove);
         });
     </script>
 {% endblock %}

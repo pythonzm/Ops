@@ -175,7 +175,7 @@
                                 <h4 class="modal-title">执行结果</h4>
                             </div>
                             <div class="modal-body">
-                                    <pre style="background-color: black">
+                                    <pre style="background-color: black; height: 500px">
 
                                     </pre>
                             </div>
@@ -243,6 +243,7 @@
                     obj.append('<code style="color: yellow">' + result[i] + '</code><br>')
                 }
             }
+            obj.scrollTop = obj.scrollHeight;
         }
 
         //删除module日志

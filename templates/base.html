@@ -452,7 +452,7 @@ desired effect
         if (pathname === '/') {
             $('.content-header h1').text('仪表盘');
             $('.content-header ol').remove();
-        } else if (pathname.indexOf('wiki_view') !== -1 || pathname.indexOf('wiki_edit') !== -1 || pathname.indexOf('wiki_search') !== -1 || pathname.indexOf('playbook_info') !== -1 || pathname.indexOf('role_detail') !== -1) {
+        } else if (pathname.indexOf('wiki_view') !== -1 || pathname.indexOf('wiki_edit') !== -1 || pathname.indexOf('wiki_search') !== -1 || pathname.indexOf('playbook_info') !== -1 || pathname.indexOf('role_detail') !== -1 || pathname.indexOf('role_add') !== -1) {
             $('.content-header ol').remove();
         } else {
             let href = $(this).attr("href");

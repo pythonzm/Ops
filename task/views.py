@@ -346,7 +346,16 @@ def role_add(request):
     if request.method == 'GET':
         playbook_name = request.GET.get('playbook_name')
         names = request.GET.get('role_names')
+        role_desc = request.GET.get('role_desc')
         role_names = [name.strip() for name in names.split(',')]
+        root_path = settings.ANSIBLE_ROLE_PATH
+
+        AnsibleRole.objects.select_related('role_user').create(
+            playbook_name=playbook_name,
+            role_file='{}/{}'.format('roles', playbook_name),
+            role_user=request.user,
+            role_desc=role_desc
+        )
         return render(request, 'task/role_add.html', locals())
 
 
@@ -356,13 +365,16 @@ def get_file_content(request):
         p_name = request.POST.get('p_name')
         name = request.POST.get('name')
         file = os.path.join(p_name, name)
-        content = ''
-        with open(file, 'r') as f:
-            for line in f.readlines():
-                content = content + line
+        if os.path.exists(file):
+            content = ''
+            with open(file, 'r') as f:
+                for line in f.readlines():
+                    content = content + line
 
-        relative_path = p_name.split('{}/{}/'.format(settings.MEDIA_ROOT, 'roles'))[-1] + '/' + name
-        return JsonResponse({'code': 200, 'content': content, 'relative_path': relative_path})
+            relative_path = p_name.split('{}/{}/'.format(settings.MEDIA_ROOT, 'roles'))[-1] + '/' + name
+            return JsonResponse({'code': 200, 'content': content, 'relative_path': relative_path})
+        else:
+            return JsonResponse({'code': 500, 'msg': 'No such file or dictionary!'})
 
 
 @permission_required('task.addansiblerole', raise_exception=True)
@@ -401,13 +413,22 @@ def role_edit(request):
     if request.method == 'POST':
         content = request.POST.get('content')
         relative_path = request.POST.get('relative_path')
+        p_name = request.POST.get('p_name')
+        name = request.POST.get('name')
 
         try:
-            with open(os.path.join(settings.ANSIBLE_ROLE_PATH, relative_path), 'w') as f:
-                f.write(content)
-            return JsonResponse({'code': 200, 'msg': '修改完成！'})
+            if relative_path:
+                with open(os.path.join(settings.ANSIBLE_ROLE_PATH, relative_path), 'w') as f:
+                    f.write(content)
+                return JsonResponse({'code': 200, 'msg': '修改完成！'})
+            elif p_name and name:
+                if not os.path.exists(p_name):
+                    os.makedirs(p_name)
+                with open(os.path.join(p_name, name), 'w') as f:
+                    f.write(content)
+                return JsonResponse({'code': 200, 'msg': '保存完成！'})
         except Exception as e:
-            return JsonResponse({'code': 500, 'msg': '修改失败！：{}'.format(e)})
+            return JsonResponse({'code': 500, 'msg': '操作失败！：{}'.format(e)})
 
 
 @permission_required('task.add_ansibleplaybook', raise_exception=True)
@@ -441,3 +462,43 @@ def role_del(request, pk):
             return JsonResponse({'code': 500, 'msg': '删除失败！{}'.format(e)})
         finally:
             role.delete()
+
+
+@permission_required('task.delete_ansiblerole', raise_exception=True)
+def path_del(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        p_name = request.POST.get('p_name')
+        path = os.path.join(p_name, name)
+        try:
+            if os.path.exists(path):
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                else:
+                    os.remove(path)
+            return JsonResponse({'code': 200, 'msg': '删除成功！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '删除失败！{}'.format(e)})
+
+
+@permission_required('task.add_ansiblerole', raise_exception=True)
+def path_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        p_name = request.POST.get('p_name')
+        is_parent = request.POST.get('isParent')
+        new_name = request.POST.get('new_name')
+        path = os.path.join(p_name, name)
+        new_path = os.path.join(p_name, new_name)
+        try:
+            if not os.path.exists(path) and not os.path.exists(new_path):
+                if is_parent == 'true':
+                    os.makedirs(new_path)
+                else:
+                    open(new_path, 'w').close()
+                return JsonResponse({'code': 200, 'msg': '添加成功！'})
+            elif os.path.exists(path) and not os.path.exists(new_path):
+                os.rename(path, new_path)
+                return JsonResponse({'code': 200, 'msg': '修改成功！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '操作失败！{}'.format(e)})

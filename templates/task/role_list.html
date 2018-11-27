@@ -99,7 +99,7 @@
             <!-- /.box -->
 
             <div class="box-footer" style="display: none">
-                <pre style="background-color: black"></pre>
+                <pre style="background-color: black; height: 500px"></pre>
             </div>
 
 
@@ -313,7 +313,8 @@
         $('#role_add').on('click', function () {
             let playbook_name = $('#playbook_form #playbook_name').val();
             let role_names = $('#role_name').val();
-            window.location.href = `/run/role_add/?playbook_name=${playbook_name}&role_names=${role_names}`
+            let role_desc = $('#playbook_form #playbook_desc').val();
+            window.location.href = `/run/role_add/?playbook_name=${playbook_name}&role_names=${role_names}&role_desc=${role_desc}`
         });
 
 
@@ -453,7 +454,8 @@
                                         obj.append(res[i])
                                     }
                                 }
-                                obj.append('<code>执行完毕....</code>')
+                                obj.append('<code>执行完毕....</code>');
+                                obj.scrollTop = obj.scrollHeight;
                             } else {
                                 obj.append(`<code>${res.msg}</code>`)
                             }
@@ -485,14 +487,15 @@
                                 url: '/run/role_del/' + pk + '/',
                                 method: 'DELETE',
                                 success: function (res) {
-                                    if (res.code === 200) {
-                                        role_table.row(tr_obj).remove().draw();
-                                    } else {
+                                    role_table.row(tr_obj).remove().draw();
+                                    if (res.code === 500) {
                                         $.alert({
                                             title: 'Tips',
                                             type: 'red',
                                             content: res.msg,
                                         })
+                                    } else {
+                                        // pass
                                     }
                                 },
                                 error: function (data) {

@@ -9,6 +9,13 @@
             width: 100%;
             height: 600px;
         }
+
+        .col-md-4 button {
+            width: 80px;
+            margin-top: 5px;
+            float: right;
+            clear: right;
+        }
     </style>
 {% endblock %}
 
@@ -19,7 +26,19 @@
             <div class="box">
                 <div class="box-body">
                     <div class="col-md-4">
-                        <ul id="roleTree" class="ztree"></ul>
+                        <ul id="roleTree" class="ztree" style="float: left"></ul>
+                        <button type="button" class="btn btn-success btn-xs" id="addParent" onclick="return false;">
+                            增加父节点
+                        </button>
+                        <button type="button" class="btn btn-success btn-xs" id="addLeaf" onclick="return false;">增加子节点
+                        </button>
+                        <button type="button" class="btn btn-warning btn-xs" id="edit" onclick="return false;">编辑名称
+                        </button>
+                        <button type="button" class="btn btn-danger btn-xs" id="remove" onclick="return false;">删除节点
+                        </button>
+                        <a href="{% url 'role_list' %}">
+                            <button type="button" class="btn btn-primary btn-xs">编辑完成</button>
+                        </a>
                     </div>
                     <div class="col-md-8">
                         <div class="box-header relative_path" style="padding: 3px;">
@@ -37,82 +56,222 @@
 
 {% block js %}
     <script src="{% static 'ztree/js/jquery.ztree.core.min.js' %}"></script>
+    <script src="{% static 'ztree/js/jquery.ztree.excheck.min.js' %}"></script>
+    <script src="{% static 'ztree/js/jquery.ztree.exedit.min.js' %}"></script>
     <script src="{% static 'ace/js/ace.js' %}"></script>
     <script src="{% static 'ace/js/mode-yaml.js' %}"></script>
     <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script>
         let setting = {
+            view: {
+                selectedMulti: false
+            },
+            edit: {
+                enable: true,
+                showRemoveBtn: false,
+                showRenameBtn: false
+            },
             async: {
                 enable: true,
                 url: "{% url 'role_detail' pk %}",
                 autoParam: ["name", "p_name"],
             },
+            data: {
+                keep: {
+                    parent: true,
+                    leaf: true
+                },
+                simpleData: {
+                    enable: true
+                }
+            },
             callback: {
-                onClick: onClick
+                beforeRemove: beforeRemove,
+                onClick: onClick,
+                onAsyncError: onAsyncError,
+                beforeRename: beforeRename,
             },
         };
 
+        function beforeRemove(treeId, treeNode) {
+            return confirm("确认删除 节点 -- " + treeNode.name + " 吗？");
+        }
+
+        function beforeRename(treeId, treeNode, newName) {
+            if (newName.length === 0) {
+                alert("节点名称不能为空.");
+                let zTree = $.fn.zTree.getZTreeObj("roleTree");
+                setTimeout(function () {
+                    zTree.editName(treeNode)
+                }, 10);
+                return false;
+            } else {
+                $.ajax({
+                    url: "{% url 'path_create' %}",
+                    type: 'POST',
+                    data: {
+                        name: treeNode.name,
+                        p_name: treeNode.p_name,
+                        isParent: treeNode.isParent,
+                        new_name: newName
+                    },
+                    error: function (res) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '添加失败！' + res.responseText,
+                        })
+                    }
+                });
+                return true;
+            }
+        }
+
+        let newCount = 1;
+
+        function add(e) {
+            let zTree = $.fn.zTree.getZTreeObj("roleTree"),
+                isParent = e.data.isParent,
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+            if (treeNode) {
+                if (treeNode.isParent) {
+                    treeNode = zTree.addNodes(treeNode, {
+                        id: (100 + newCount),
+                        pId: treeNode.id,
+                        isParent: isParent,
+                        name: "new node" + (newCount++),
+                        p_name: treeNode.p_name + '/' + treeNode.name
+                    });
+                    zTree.editName(treeNode[0]);
+                } else {
+                    alert("叶子节点被锁定，无法增加子节点");
+                }
+            } else {
+                alert("请先选择一个节点");
+            }
+        }
+
+        function edit() {
+            let zTree = $.fn.zTree.getZTreeObj("roleTree"),
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+            if (nodes.length === 0) {
+                alert("请先选择一个节点");
+                return;
+            }
+            zTree.editName(treeNode);
+        }
+
+        function remove(e) {
+            let zTree = $.fn.zTree.getZTreeObj("roleTree"),
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+            if (nodes.length === 0) {
+                alert("请先选择一个节点");
+                return;
+            }
+            $.ajax({
+                url: "{% url 'path_del' %}",
+                type: 'POST',
+                data: {name: treeNode.name, p_name: treeNode.p_name},
+                success: function (res) {
+                    if (res.code === 200) {
+                        zTree.removeNode(treeNode, true);
+                    }
+                },
+                error: function (data) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: '删除失败！' + data.responseText,
+                    })
+                }
+            });
+        }
+
         function onClick(event, treeId, treeNode, clickFlag) {
             if (!treeNode.isParent) {
+                let relative_path = $('.relative_path');
+                relative_path.html('');
+
+                let editor = ace.edit("playbook-editor");
+                editor.setTheme("ace/theme/monokai");
+                let YamlMode = ace.require("ace/mode/yaml").Mode;
+                editor.session.setMode(new YamlMode());
+                editor.setShowPrintMargin(false);
+                editor.setReadOnly(true);
+
                 $.ajax({
                     url: "{% url 'get_file_content' %}",
                     type: 'POST',
                     data: {p_name: treeNode.p_name, name: treeNode.name},
                     success: function (res) {
+                        relative_path.append(`<p class="text-green" style="text-align: center;margin-bottom: 0;float: left;">当前文件是：${res.relative_path}</p>------<button type="button" class="btn btn-primary btn-xs editor"> 启用编辑</button> <button type="button" class="btn btn-warning btn-xs save"> 确认修改</button>`);
+
                         if (res.code === 200) {
-                            let relative_path = $('.relative_path');
-                            relative_path.html('');
-                            relative_path.append(`<p class="text-green" style="text-align: center;margin-bottom: 0;float: left;">当前文件是：${res.relative_path}</p>------<button type="button" class="btn btn-primary btn-xs editor"> 启用编辑</button> <button type="button" class="btn btn-warning btn-xs save"> 确认修改</button>`);
-
-                            let editor = ace.edit("playbook-editor");
-                            editor.setTheme("ace/theme/monokai");
-                            let YamlMode = ace.require("ace/mode/yaml").Mode;
-                            editor.session.setMode(new YamlMode());
-                            editor.setShowPrintMargin(false);
-                            editor.setReadOnly(true);
-
                             editor.setValue(res.content, -1);
-
-                            $('.editor').on('click', function () {
-                                editor.setReadOnly(false);
-                            });
-
-                            $('.save').on('click', function () {
-                                $.ajax({
-                                    url: "{% url 'role_edit' %}",
-                                    type: 'POST',
-                                    data: {content: editor.getSession().getValue(), relative_path: res.relative_path},
-                                    success: function (res) {
-                                        if (res.code === 200) {
-                                            $.confirm({
-                                                title: 'Tips',
-                                                content: res.msg,
-                                                type: 'green',
-                                                buttons: {
-                                                    Ok: function () {
-                                                        editor.setReadOnly(true);
-                                                    },
-                                                }
-                                            });
-                                        } else {
-                                            $.alert({
-                                                title: 'Tips',
-                                                type: 'red',
-                                                content: res.msg,
-                                            })
-                                        }
-                                    }
-                                })
-                            });
+                        } else {
+                            editor.setValue("", -1);
                         }
+
+                        $('.editor').on('click', function () {
+                            editor.setReadOnly(false);
+                        });
+
+                        $('.save').on('click', function () {
+                            $.ajax({
+                                url: "{% url 'role_edit' %}",
+                                type: 'POST',
+                                data: {content: editor.getSession().getValue(), relative_path: res.relative_path},
+                                success: function (res) {
+                                    if (res.code === 200) {
+                                        $.confirm({
+                                            title: 'Tips',
+                                            content: res.msg,
+                                            type: 'green',
+                                            buttons: {
+                                                Ok: function () {
+                                                    editor.setReadOnly(true);
+                                                },
+                                            }
+                                        });
+                                    } else {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: res.msg,
+                                        })
+                                    }
+                                }
+                            })
+                        });
+
                     }
                 });
             }
         }
 
+        function onAsyncError() {
+            $.confirm({
+                title: 'Tips',
+                content: "该role文件夹在服务器上不存在，请删除数据库记录！",
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        location.href = "{% url 'role_list' %}"
+                    },
+                }
+            });
+        }
+
         $(document).ready(function () {
             zTreeObj = $.fn.zTree.init($("#roleTree"), setting);
+            $("#addParent").bind("click", {isParent: true}, add);
+            $("#addLeaf").bind("click", {isParent: false}, add);
+            $("#edit").bind("click", edit);
+            $("#remove").bind("click", remove);
         });
     </script>
 {% endblock %}
