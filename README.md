@@ -47,7 +47,7 @@ mysql>quit
 
 五、安装rabbitmq，也可参考官网：<http://www.rabbitmq.com/install-rpm.html>
 ```
-yum install erlang
+yum localinstall conf/erlang-20.1.7.1-1.el6.x86_64.rpm
 wget https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.7/rabbitmq-server-3.7.7-1.el6.noarch.rpm
 yum localinstall rabbitmq-server-3.7.7-1.el6.noarch.rpm
 ## 启动
