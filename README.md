@@ -47,7 +47,9 @@ mysql>quit
 
 五、安装rabbitmq，也可参考官网：<http://www.rabbitmq.com/install-rpm.html>
 ```
-yum localinstall conf/erlang-20.1.7.1-1.el6.x86_64.rpm
+
+wget https://github.com/rabbitmq/erlang-rpm/releases/download/v20.1.7.1/erlang-20.1.7.1-1.el6.x86_64.rpm
+yum localinstall erlang-20.1.7.1-1.el6.x86_64.rpm
 wget https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.7/rabbitmq-server-3.7.7-1.el6.noarch.rpm
 yum localinstall rabbitmq-server-3.7.7-1.el6.noarch.rpm
 ## 启动
@@ -66,18 +68,14 @@ cp conf/celeryd.conf /etc/default/celeryd
 
 cp conf/celeryd.server /etc/init.d/celeryd
 cp conf/celerybeat.server /etc/init.d/celerybeat
-/etc/init.d/celeryd start
+/etc/init.d/celeryd start  ##如果出现celeryd无法启动，则添加环境变量：export C_FORCE_ROOT="true"
 /etc/init.d/celerybeat start
 ```
 
 七、配置获取主机内存脚本
 
-```
-// 编辑ansible配置文件
-[defaults] 
-library = /usr/share/ansible/my_modules/
-
-cp conf/get_mem.py /usr/share/ansible/my_modules/
+``` 
+cp conf/get_mem.py /path/to/your ansible library_path  ##可以使用ansbile --version命令查看路径
 ```
 
 八、启动服务
