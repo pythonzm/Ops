@@ -1,4 +1,5 @@
 import datetime
+import uuid
 import os
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponseForbidden, FileResponse
@@ -112,6 +113,7 @@ def terminal(request, server_id, fort_user_id):
             response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=local_file_name)
             return response
         else:
+            group_name = str(uuid.uuid4())
             return render(request, 'fort/terminal.html', locals())
     elif request.method == 'POST':
         try:

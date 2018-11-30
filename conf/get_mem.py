@@ -9,7 +9,6 @@ import commands
 
 def get_mem_info():
     mem_data = []
-    data = {}
     status, output = commands.getstatusoutput("dmidecode -t 17|awk '/(Manufacturer|Size|Serial Number)/'")
 
     output_list = output[1:].rstrip().split('\n\t')
@@ -19,11 +18,8 @@ def get_mem_info():
     for index, i in enumerate(new_list):
         size = i[0].split(':')[1].lstrip()
         if not size.startswith("No"):
-            data['ram_volume'] = size
-            data['ram_slot'] = index + 1
-            data['ram_brand'] = i[1].split(':')[1].lstrip()
-            data['ram_serial'] = i[2].split(':')[1].lstrip()
-            mem_data.append(data)
+            mem_data.append({'ram_volume': size, 'ram_slot': index + 1, 'ram_brand': i[1].split(':')[1].lstrip(),
+                         'ram_serial': i[2].split(':')[1].lstrip()})
 
     return mem_data
 
@@ -36,4 +32,3 @@ print(json.dumps({
 }))
 
 sys.exit(0)
-

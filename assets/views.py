@@ -1,3 +1,4 @@
+import uuid
 import datetime
 import json
 import os
@@ -160,7 +161,7 @@ def server_facts(request):
                                                                                                network_card_mac=mac)
                         return JsonResponse({'code': 200, 'msg': '收集完成！'})
                     else:
-                        return JsonResponse({'code': 200, 'msg': data[data.index('>>') + 1:]})
+                        return JsonResponse({'code': 500, 'msg': '收集失败！{}'.format(data[data.index('>>') + 1:])})
                 elif module == 'get_mem':
                     if 'success' in data:
                         mem_infos = ans.handle_mem_data(data)
@@ -172,7 +173,7 @@ def server_facts(request):
                                                                                        ram_slot=ram_slot)
                         return JsonResponse({'code': 200, 'msg': '收集完成！'})
                     else:
-                        return JsonResponse({'code': 200, 'msg': data[data.index('>>') + 1:]})
+                        return JsonResponse({'code': 500, 'msg': '收集失败！{}'.format(data[data.index('>>') + 1:])})
         except Exception as e:
             return JsonResponse({'code': 500, 'msg': str(e)})
 
@@ -309,10 +310,8 @@ def ssh_terminal(request, pk):
     if request.user.is_superuser:
         server_obj = ServerAssets.objects.get(id=pk)
         ssh_server_ip = server_obj.assets.asset_management_ip
-        sftp = SFTP(server_obj.assets.asset_management_ip, server_obj.port, server_obj.username,
-                    CryptPwd().decrypt_pwd(server_obj.password))
+        sftp = SFTP(ssh_server_ip, server_obj.port, username='root', key_file='/root/.ssh/id_rsa')
         if request.method == 'GET':
-            ssh_server_ip = server_obj.assets.asset_management_ip
             download_file = request.GET.get('download_file')
             if download_file:
                 download_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'download',
@@ -336,6 +335,7 @@ def ssh_terminal(request, pk):
                 response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=local_file_name)
                 return response
             else:
+                group_name = str(uuid.uuid4())
                 return render(request, 'assets/ssh_terminal.html', locals())
         elif request.method == 'POST':
             try:

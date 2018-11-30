@@ -23,8 +23,8 @@ application = ProtocolTypeRouter({
         URLRouter([
             # URLRouter just takes standard Django path() or url() entries.
             path(r'ws/log/', LogConsumer),
-            re_path(r'ws/fortssh/([0-9]+)/([0-9]+)/', FortConsumer),
-            re_path(r'ws/webssh/([0-9]+)/', SSHConsumer),
+            re_path(r'ws/fortssh/([0-9]+)/([0-9]+)/(?P<group_name>.*)/', FortConsumer),
+            re_path(r'ws/webssh/([0-9]+)/(?P<group_name>.*)/', SSHConsumer),
         ]),
     ),
 })

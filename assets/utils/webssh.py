@@ -75,7 +75,7 @@ class MyThread(threading.Thread):
 
     def send_msg(self, msg):
         async_to_sync(self.chan.channel_layer.group_send)(
-            self.chan.channel_name,
+            self.chan.group_name,
             {
                 "type": "user.message",
                 "text": msg
@@ -85,6 +85,7 @@ class MyThread(threading.Thread):
 
 class SSHConsumer(WebsocketConsumer):
     def connect(self):
+        self.group_name = self.scope['url_route']['kwargs']['group_name']
         path = self.scope['path']
         server_id = path.split('/')[3]
         host = ServerAssets.objects.select_related('assets').get(id=server_id)
@@ -94,7 +95,7 @@ class SSHConsumer(WebsocketConsumer):
         password = CryptPwd().decrypt_pwd(host.password)
 
         # 创建channels group， 命名为：用户名，并使用channel_layer写入到redis
-        async_to_sync(self.channel_layer.group_add)(self.channel_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
         self.ssh = paramiko.SSHClient()
         self.ssh.load_system_host_keys()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -114,4 +115,4 @@ class SSHConsumer(WebsocketConsumer):
         self.send(text_data=event["text"])
 
     def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(self.channel_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)

@@ -34,8 +34,7 @@
 <script src="{% static 'js/xterm.js' %}"></script>
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 <script>
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/fortssh/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/');
-
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/{{ group_name }}/');
     socket.onopen = function () {
 
         const term = new Terminal({

@@ -64,16 +64,6 @@ class RecordMiddleware(MiddlewareMixin):
             if 'create_user' in request.path:
                 users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
                                    content='创建用户：{}'.format(request.POST.get('username')))
-            elif 'group' in request.path:
-                body = str(request.__dict__.get('_body'), encoding="utf-8")
-                name = eval(body)['name']
-                users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
-                                   content='创建用户组：{}'.format(name))
-            elif 'api' in request.path and '_assets/' in request.path:
-                body = str(request.__dict__.get('_body'), encoding="utf-8")
-                asset_nu = eval(body)['assets']['asset_nu']
-                assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
-                                    content='新增资产，资产编号为：{}'.format(asset_nu))
 
     @staticmethod
     def process_response(request, response):
@@ -100,6 +90,13 @@ class RecordMiddleware(MiddlewareMixin):
                 playbook_name=playbook_name,
                 playbook_result=res
             )
+        elif 'api' in request.path and '_assets/' in request.path and response.status_code == 201:
+            res = dict(response.__dict__.get('data').get('assets'))
+            assets_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                                content='新增资产，资产编号为：{}'.format(res.get('asset_nu')))
+        elif 'group' in request.path and response.status_code == 201:
+            users_record.delay(user=request.user, remote_ip=request.META['REMOTE_ADDR'],
+                               content='创建用户组：{}'.format(response.__dict__.get('data').get('name')))
         elif request.method == 'GET' and response.status_code == 200:
             user_infos = []
             users = UserProfile.objects.all()

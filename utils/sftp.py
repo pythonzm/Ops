@@ -14,9 +14,14 @@ import paramiko
 
 
 class SFTP:
-    def __init__(self, host, port, username, password):
+    def __init__(self, host, port, username, password=None, key_file=None):
         self.transport = paramiko.Transport(sock="{}:{}".format(host, port))
-        self.transport.connect(username=username, password=password)
+
+        if key_file:
+            private_key = paramiko.RSAKey.from_private_key_file(key_file)
+            self.transport.connect(username=username, pkey=private_key)
+        else:
+            self.transport.connect(username=username, password=password)
 
         self.sftp = paramiko.SFTPClient.from_transport(self.transport)
 

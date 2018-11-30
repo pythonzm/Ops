@@ -445,11 +445,19 @@
                     type: "POST",
                     data: data,
                     success: function (res) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'green',
-                            content: res.msg,
-                        })
+                        if (res.code === 200) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: res.msg,
+                            })
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
                     },
                     error: function (response) {
                         $.alert({
