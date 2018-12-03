@@ -139,11 +139,7 @@
                                 </td>
                                 <td>{{ asset.asset_nu }}</td>
                                 <td>
-                                    {% if asset.asset_model %}
-                                        {{ asset.asset_model|default:'' }}
-                                    {% else %}
-
-                                    {% endif %}
+                                    {{ asset.asset_model|default:'' }}
                                 </td>
                                 <td>
                                     {% if asset.asset_management_ip %}
@@ -192,7 +188,7 @@
                                     {% endif %}
                                     {% if perms.assets.change_assets %}
                                         <button type="button" class="btn btn-success btn-xs">更新</button></a>
-                                        {% if asset.asset_type == 'server' %}
+                                        {% if asset.asset_type == 'server' and asset.serverassets.system != 'windows' %}
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-primary btn-xs">收集</button>
                                                 <button type="button" class="btn btn-primary btn-xs dropdown-toggle"

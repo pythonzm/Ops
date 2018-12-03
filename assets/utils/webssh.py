@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 import paramiko
+import pdb
 import threading
 import time
 import os
@@ -35,7 +35,6 @@ class MyThread(threading.Thread):
             except Exception:
                 pass
         self.chan.ssh.close()
-        self.stop()
 
         record_path = os.path.join(settings.MEDIA_ROOT, 'ssh_records', self.chan.scope['user'].username,
                                    time.strftime('%Y-%m-%d'))
@@ -102,9 +101,9 @@ class SSHConsumer(WebsocketConsumer):
         self.ssh.connect(self.host_ip, host_port, username, password)
         self.chan = self.ssh.invoke_shell(term='xterm')
         self.chan.settimeout(0)
-        t1 = MyThread(self)
-        t1.setDaemon(True)
-        t1.start()
+        self.t1 = MyThread(self)
+        self.t1.setDaemon(True)
+        self.t1.start()
         # 返回给receive方法处理
         self.accept()
 
@@ -115,4 +114,5 @@ class SSHConsumer(WebsocketConsumer):
         self.send(text_data=event["text"])
 
     def disconnect(self, close_code):
+        self.t1.stop() 
         async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)

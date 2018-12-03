@@ -167,7 +167,7 @@ class SoftwareAssets(models.Model):
 
 
 class DiskAssets(models.Model):
-    asset = models.ForeignKey('Assets', related_name='disk_assets', on_delete=models.PROTECT)
+    asset = models.ForeignKey('Assets', related_name='disk_assets', on_delete=models.CASCADE)
     disk_volume = models.CharField(max_length=100, blank=True, null=True, verbose_name='硬盘容量')
     disk_status = models.CharField(max_length=100, blank=True, null=True, verbose_name='硬盘状态')
     disk_model = models.CharField(max_length=100, blank=True, null=True, verbose_name='硬盘型号')
@@ -183,7 +183,7 @@ class DiskAssets(models.Model):
 
 
 class RamAssets(models.Model):
-    asset = models.ForeignKey('Assets', related_name='ram_assets', on_delete=models.PROTECT)
+    asset = models.ForeignKey('Assets', related_name='ram_assets', on_delete=models.CASCADE)
     ram_serial = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存序列号')
     ram_volume = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存容量')
     ram_brand = models.CharField(max_length=100, blank=True, null=True, verbose_name='内存生产商')
@@ -197,7 +197,7 @@ class RamAssets(models.Model):
 
 
 class NetworkCardAssets(models.Model):
-    asset = models.ForeignKey('Assets', related_name='network_card_assets', on_delete=models.PROTECT)
+    asset = models.ForeignKey('Assets', related_name='network_card_assets', on_delete=models.CASCADE)
     network_card_name = models.CharField(max_length=20, blank=True, null=True, verbose_name='网卡名称')
     network_card_mac = models.CharField(max_length=64, blank=True, null=True, verbose_name='MAC地址')
     network_card_ip = models.CharField(max_length=16, blank=True, null=True, verbose_name='IP地址')
@@ -241,7 +241,7 @@ class IDC(models.Model):
 
 class Cabinet(models.Model):
     """机柜表"""
-    idc = models.ForeignKey('IDC', related_name='cabinet', on_delete=models.PROTECT)
+    idc = models.ForeignKey('IDC', related_name='cabinet', on_delete=models.CASCADE)
     cabinet_name = models.CharField(max_length=64, unique=True, verbose_name='机柜名称')
     cabinet_memo = models.CharField(max_length=100, blank=True, null=True, verbose_name='备注')
 
