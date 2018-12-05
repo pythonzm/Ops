@@ -61,7 +61,7 @@
     <!-- /.lockscreen-item -->
     <div class="help-block text-center">
         {% if login_error_info %}
-            {{ login_error_info }}
+            <span class="text-red">{{ login_error_info }}</span>
         {% else %}
             Enter your password to retrieve your session
         {% endif %}

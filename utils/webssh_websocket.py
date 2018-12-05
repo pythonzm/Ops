@@ -34,7 +34,7 @@ class MyThread(threading.Thread):
             except Exception:
                 pass
         self.chan.ssh.close()
-        self.stop()
+
         record_path = os.path.join(settings.MEDIA_ROOT, 'fort_records', self.chan.scope['user'].username,
                                    time.strftime('%Y-%m-%d'))
         if not os.path.exists(record_path):

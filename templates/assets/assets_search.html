@@ -31,6 +31,17 @@
 
     <div class="row">
         <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+            <a href="{% url 'add_asset' %}">
+                <button class="btn btn-sm btn-success pull-left">
+                    <i class="fa fa-plus-square"></i>
+                    <span class="bigger-110">新增资产</span>
+                </button>
+            </a>
+            <button class="btn btn-sm btn-info pull-left" data-toggle="modal" data-target="#importAssetsModal"
+                    style="margin-left: 2px">
+                <i class="fa fa-upload"></i>
+                <span class="bigger-110">批量导入</span>
+            </button>
             <button class="btn btn-sm btn-info pull-left" id="exportChecked" style="margin-left: 2px">
                 <i class="fa fa-file-text"></i>
                 <span class="bigger-110">批量导出</span>
@@ -39,6 +50,46 @@
                 <i class="fa fa-exclamation-triangle"></i>
                 <span class="bigger-110">批量删除</span>
             </button>
+        </div>
+
+        <div class="modal fade" id="importAssetsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
+                    </div>
+                    {% if perms.assets.add_assets %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">上传文件</label>
+                                <div class="col-sm-6">
+                                    <input type="file" name="import_file" placeholder="上传excel文件" id="import_file"
+                                           accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                           required/>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                        onclick="import_assets()">导入
+                                </button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="modal-body">
+                            抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
         </div>
 
         <!--dataTable-->
@@ -88,11 +139,7 @@
                                 </td>
                                 <td>{{ asset.asset_nu }}</td>
                                 <td>
-                                    {% if asset.asset_model %}
-                                        {{ asset.asset_model|default:'' }}
-                                    {% else %}
-
-                                    {% endif %}
+                                    {{ asset.asset_model|default:'' }}
                                 </td>
                                 <td>
                                     {% if asset.asset_management_ip %}
@@ -141,7 +188,7 @@
                                     {% endif %}
                                     {% if perms.assets.change_assets %}
                                         <button type="button" class="btn btn-success btn-xs">更新</button></a>
-                                        {% if asset.asset_type == 'server' %}
+                                        {% if asset.asset_type == 'server' and asset.serverassets.system != 'windows' %}
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-primary btn-xs">收集</button>
                                                 <button type="button" class="btn btn-primary btn-xs dropdown-toggle"
@@ -395,11 +442,19 @@
                     type: "POST",
                     data: data,
                     success: function (res) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'green',
-                            content: res.msg,
-                        })
+                        if (res.code === 200) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: res.msg,
+                            })
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
                     },
                     error: function (response) {
                         $.alert({
@@ -451,6 +506,39 @@
                     content: '抱歉！您没有更新资产的权限！如有疑问，请联系管理员！',
                 });
             {% endif %}
+        }
+
+        // 导入资产
+        function import_assets() {
+            let formData = new FormData();
+            formData.append('file', $('#import_file')[0].files[0]);
+            $.ajax({
+                url: '{% url 'import_assets' %}',
+                type: 'POST',
+                data: formData,
+                // 告诉jQuery不要去处理发送的数据
+                processData: false,
+                // 告诉jQuery不要去设置Content-Type请求头
+                contentType: false,
+                success: function (responseStr) {
+                    $.confirm({
+                        title: 'Tips!',
+                        content: responseStr.msg,
+                        buttons: {
+                            ok: function () {
+                                window.location.reload();
+                            },
+                        }
+                    });
+                },
+                error: function (responseStr) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: responseStr.responseText,
+                    });
+                }
+            });
         }
     </script>
 

@@ -128,12 +128,6 @@ class MyInventory(InventoryManager):
 
             username = host.get('username')
             password = host.get('password')
-            if username == 'root':
-                ssh_key = '/root/.ssh/id_rsa'
-            else:
-                ssh_key = '/home/{}/.ssh/id_rsa'.format(username)
-            if not os.path.exists(ssh_key):
-                ssh_key = host.get('ssh_key')
 
             # 生成ansible主机变量
             self.get_host(ip).set_variable('ansible_ssh_host', ip)
@@ -141,7 +135,9 @@ class MyInventory(InventoryManager):
             self.get_host(ip).set_variable('ansible_ssh_user', username)
             self.get_host(ip).set_variable('ansible_ssh_pass', password)
             self.get_host(ip).set_variable('ansible_sudo_pass', password)
-            self.get_host(ip).set_variable('ansible_ssh_private_key_file', ssh_key)
+
+            # 如果使用同一个密钥管理所有机器，只需把下方的注释去掉，ssh_key指定密钥文件，若是不同主机使用不同密钥管理，则需要单独设置主机变量或组变量
+            # self.get_host(ip).set_variable('ansible_ssh_private_key_file', ssh_key)
 
             # set other variables
             for key, value in host.items():
@@ -169,13 +165,15 @@ class ANSRunner(object):
                                          'verbosity',
                                          'check', 'listhosts', 'listtasks', 'listtags', 'syntax', 'diff',
                                          'gathering'])
-        self.options = Options(connection='smart', module_path=None, forks=50, timeout=10,
-                               remote_user=None, ask_pass=False, private_key_file=None,
+        self.options = Options(connection='smart',
+                               module_path=None,
+                               forks=50, timeout=10,
+                               remote_user='root', ask_pass=False, private_key_file='/root/.ssh/id_rsa',
                                ssh_common_args=None,
                                ssh_extra_args=None,
-                               sftp_extra_args=None, strategy='free', scp_extra_args=None, become='yes',
-                               become_method='sudo',
-                               become_user='root', ask_value_pass=False, verbosity=None, check=False, listhosts=False,
+                               sftp_extra_args=None, strategy='free', scp_extra_args=None, become=None,
+                               become_method=None,
+                               become_user=None, ask_value_pass=False, verbosity=None, check=False, listhosts=False,
                                listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart')
         self.loader = DataLoader()
         self.inventory = MyInventory(resource=resource, loader=self.loader, sources=sources)

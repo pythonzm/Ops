@@ -314,7 +314,15 @@
             let playbook_name = $('#playbook_form #playbook_name').val();
             let role_names = $('#role_name').val();
             let role_desc = $('#playbook_form #playbook_desc').val();
-            window.location.href = `/run/role_add/?playbook_name=${playbook_name}&role_names=${role_names}&role_desc=${role_desc}`
+            if (playbook_name.length === 0 || role_names.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: "剧本名称或role名称不能为空",
+                })
+            } else {
+                window.location.href = `/run/role_add/?playbook_name=${playbook_name}&role_names=${role_names}&role_desc=${role_desc}`
+            }
         });
 
 

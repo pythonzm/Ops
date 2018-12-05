@@ -207,12 +207,20 @@ def playbook_run(request, pk):
         content = playbook.playbook_content
         return JsonResponse({'code': 200, 'content': content})
     elif request.method == 'POST':
-        group_ids = request.POST.getlist('group_ids')
-        try:
-            res = get_playbook_res(group_ids, playbook.playbook_file.path)
-            return JsonResponse({'code': 200, 'msg': res})
-        except Exception as e:
-            return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
+        redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
+        unique_key = playbook.playbook_name
+
+        if redis_conn.exists(unique_key):
+            return JsonResponse({'msg': ['有相同的任务正在执行，请稍后再试'], 'code': 403})
+        else:
+            group_ids = request.POST.getlist('group_ids')
+            try:
+                res = get_playbook_res(group_ids, playbook.playbook_file.path)
+                return JsonResponse({'code': 200, 'msg': res})
+            except Exception as e:
+                return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
+            finally:
+                redis_conn.delete(unique_key)
 
 
 @permission_required('task.delete_ansibleplaybook', raise_exception=True)
@@ -461,12 +469,20 @@ def role_run(request, pk):
                 content = content + line
         return JsonResponse({'code': 200, 'content': content, 'playbook_name': role.playbook_name})
     elif request.method == 'POST':
-        group_ids = request.POST.getlist('group_ids')
-        try:
-            res = get_playbook_res(group_ids, main_file)
-            return JsonResponse({'code': 200, 'msg': res})
-        except Exception as e:
-            return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
+        redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
+        unique_key = role.playbook_name
+
+        if redis_conn.exists(unique_key):
+            return JsonResponse({'msg': ['有相同的任务正在执行，请稍后再试'], 'code': 403})
+        else:
+            group_ids = request.POST.getlist('group_ids')
+            try:
+                res = get_playbook_res(group_ids, main_file)
+                return JsonResponse({'code': 200, 'msg': res})
+            except Exception as e:
+                return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
+            finally:
+                redis_conn.delete(unique_key)
 
 
 @permission_required('task.delete_ansiblerole', raise_exception=True)
