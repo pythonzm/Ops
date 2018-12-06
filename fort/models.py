@@ -43,7 +43,7 @@ class FortServerUser(models.Model):
 class FortBlackCommand(models.Model):
     black_commands = models.TextField(verbose_name='默认禁用命令清单',
                                       default='/bin/rm, /sbin/reboot, /sbin/halt, /sbin/shutdown, /usr/bin/passwd, '
-                                              '/bin/su, /sbin/init, /bin/chmod, /bin/chown')
+                                              '/bin/su, /sbin/init, /bin/chmod, /bin/chown, /usr/sbin/visudo')
 
     class Meta:
         db_table = 'ops_fort_black_command'
