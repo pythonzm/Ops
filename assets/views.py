@@ -310,7 +310,8 @@ def ssh_terminal(request, pk):
     if request.user.is_superuser:
         server_obj = ServerAssets.objects.get(id=pk)
         ssh_server_ip = server_obj.assets.asset_management_ip
-        sftp = SFTP(ssh_server_ip, server_obj.port, username='root', key_file='/root/.ssh/id_rsa')
+        sftp = SFTP(server_obj.assets.asset_management_ip, server_obj.port, server_obj.username,
+                     CryptPwd().decrypt_pwd(server_obj.password))
         if request.method == 'GET':
             download_file = request.GET.get('download_file')
             if download_file:

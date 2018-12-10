@@ -168,7 +168,7 @@ class ANSRunner(object):
         self.options = Options(connection='smart',
                                module_path=None,
                                forks=50, timeout=10,
-                               remote_user='root', ask_pass=False, private_key_file='/root/.ssh/id_rsa',
+                               remote_user=None, ask_pass=False, private_key_file=None,
                                ssh_common_args=None,
                                ssh_extra_args=None,
                                sftp_extra_args=None, strategy='free', scp_extra_args=None, become=None,

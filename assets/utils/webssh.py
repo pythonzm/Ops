@@ -93,7 +93,7 @@ class SSHConsumer(WebsocketConsumer):
         host_port = int(host.port)
         password = CryptPwd().decrypt_pwd(host.password)
 
-        # 创建channels group， 命名为：用户名，并使用channel_layer写入到redis
+        # 创建channels group
         async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
         self.ssh = paramiko.SSHClient()
         self.ssh.load_system_host_keys()
