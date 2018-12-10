@@ -157,7 +157,7 @@ class ANSRunner(object):
     执行ansible模块或者playbook的类，这里默认采用了用户名+密码+sudo的方式
     """
 
-    def __init__(self, resource=None, sources=None):
+    def __init__(self, resource=None, sources=None, **kwargs):
         Options = namedtuple('Options', ['connection', 'module_path', 'forks', 'timeout', 'remote_user',
                                          'ask_pass', 'private_key_file', 'ssh_common_args', 'ssh_extra_args',
                                          'sftp_extra_args', 'strategy',
@@ -171,9 +171,9 @@ class ANSRunner(object):
                                remote_user=None, ask_pass=False, private_key_file=None,
                                ssh_common_args=None,
                                ssh_extra_args=None,
-                               sftp_extra_args=None, strategy='free', scp_extra_args=None, become=None,
-                               become_method=None,
-                               become_user=None, ask_value_pass=False, verbosity=None, check=False, listhosts=False,
+                               sftp_extra_args=None, strategy='free', scp_extra_args=None, become=kwargs.get('become', None),
+                               become_method=kwargs.get('become_method', None),
+                               become_user=kwargs.get('become_user', None), ask_value_pass=False, verbosity=None, check=False, listhosts=False,
                                listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart')
         self.loader = DataLoader()
         self.inventory = MyInventory(resource=resource, loader=self.loader, sources=sources)
