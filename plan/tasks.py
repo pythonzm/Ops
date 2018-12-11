@@ -13,8 +13,9 @@
 from __future__ import absolute_import, unicode_literals
 from Ops.celery import app
 from assets.utils.zabbix_api import ZabbixApi
+from utils.wx_alert import WxApi
 from Ops import settings
-from assets.models import ZabbixAlert
+from assets.models import ZabbixAlert, Assets
 import datetime
 
 
@@ -44,3 +45,35 @@ def get_zabbix_alert():
             alerts.append(i)
 
     ZabbixAlert.objects.create(alert_num=len(alerts))
+
+
+@app.task
+def get_expire_assets():
+    """
+    检测资产到期日期，如果距离到期日期小于等于30天，则微信报警
+    :return:
+    """
+    assets = Assets.objects.all()
+    expire_assets = []
+    for asset in assets:
+        expire_days = (asset.asset_expire_day - datetime.date.today()).days
+        if 0 < expire_days <= 30:
+            expire_assets.append(
+                {'asset_type': asset.get_asset_type_display(), 'asset_nu': asset.asset_nu,
+                 'asset_ip': asset.asset_management_ip, 'asset_expire': asset.asset_expire_day,
+                 'expire_days': expire_days})
+
+    content = None
+    if len(expire_assets) > 0:
+        asset_details = [
+            '{} -> 资产编号：{}\n IP地址 -> {} \n 距离到期日 {} 还剩{}天\n'.format(expire_asset.get('asset_type'),
+                                                                    expire_asset.get('asset_nu'),
+                                                                    expire_asset.get('asset_ip'),
+                                                                    expire_asset.get('asset_expire'),
+                                                                    expire_asset.get('expire_days'))
+            for expire_asset in expire_assets]
+        content = '共有{}个资产即将到期: \n{}'.format(len(asset_details), ' '.join(asset_details))
+
+    wx = WxApi('XXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+
+    wx.send_msg(subject='资产即将过期提醒【重要】', content=content)

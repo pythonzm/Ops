@@ -36,7 +36,8 @@
 <script src="{% static 'js/xterm.js' %}"></script>
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 <script>
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/webssh/{{ pk }}/{{ group_name }}/');
+    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/{{ group_name }}/');
 
     socket.onopen = function () {
 

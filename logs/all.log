@@ -9,3 +9,57 @@ INFO 2018-12-10 10:11:16 _log [chan 0] Opened sftp connection (server version 3)
 INFO 2018-12-10 10:11:16 _log Connected (version 2.0, client OpenSSH_5.3)
 INFO 2018-12-10 10:11:16 _log Authentication (publickey) failed.
 INFO 2018-12-10 10:11:16 _log Authentication (password) successful!
+INFO 2018-12-10 17:28:48 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-12-10 17:28:48 _log Authentication (password) successful!
+INFO 2018-12-10 17:28:48 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-10 17:28:49 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-12-10 17:28:49 _log Authentication (publickey) successful!
+INFO 2018-12-11 10:12:05 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 10:12:05 _log Authentication (password) successful!
+INFO 2018-12-11 10:12:07 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 10:12:07 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 10:12:07 _log Authentication (publickey) successful!
+INFO 2018-12-11 10:12:57 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 10:12:57 _log Authentication (password) successful!
+INFO 2018-12-11 10:12:58 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 10:12:58 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 10:12:58 _log Authentication (publickey) successful!
+INFO 2018-12-11 10:13:35 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-12-11 10:13:35 _log Authentication (password) successful!
+INFO 2018-12-11 10:13:35 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 10:13:35 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2018-12-11 10:13:36 _log Authentication (publickey) successful!
+INFO 2018-12-11 10:51:06 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 10:51:06 _log Authentication (password) successful!
+INFO 2018-12-11 10:51:07 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 10:51:07 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 10:51:07 _log Authentication (publickey) successful!
+INFO 2018-12-11 13:55:40 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 13:55:41 _log Authentication (password) successful!
+INFO 2018-12-11 13:55:41 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 13:55:41 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 13:55:41 _log Authentication (publickey) failed.
+INFO 2018-12-11 13:55:41 _log Authentication (password) successful!
+INFO 2018-12-11 13:57:10 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 13:57:10 _log Authentication (password) successful!
+INFO 2018-12-11 13:57:10 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 13:57:10 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 13:57:10 _log Authentication (publickey) failed.
+INFO 2018-12-11 13:57:10 _log Authentication (password) successful!
+INFO 2018-12-11 13:59:51 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 13:59:51 _log Authentication (password) successful!
+INFO 2018-12-11 13:59:51 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 13:59:52 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 13:59:52 _log Authentication (publickey) failed.
+INFO 2018-12-11 13:59:52 _log Authentication (password) successful!
+INFO 2018-12-11 14:00:19 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 14:00:19 _log Authentication (password) successful!
+INFO 2018-12-11 14:00:19 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 14:00:19 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 14:00:19 _log Authentication (publickey) failed.
+INFO 2018-12-11 14:00:19 _log Authentication (password) successful!
+INFO 2018-12-11 16:26:54 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 16:26:54 _log Authentication (password) successful!
+INFO 2018-12-11 16:26:55 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2018-12-11 16:26:55 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2018-12-11 16:26:55 _log Authentication (publickey) successful!

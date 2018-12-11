@@ -233,6 +233,10 @@
             $('.select2').select2()
         });
 
+        // 处理在modal中select2当选框无法搜索的问题
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {
+        };
+
         // 查看架构图
         $('.modaal-ajax').modaal({
             type: 'ajax',

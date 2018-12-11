@@ -143,36 +143,38 @@
             <!-- /.box -->
         </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">内存信息</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body table-responsive no-padding">
-                    <table class="table table-hover">
-                        <tr>
-                            <th>内存序列号</th>
-                            <th>内存容量</th>
-                            <th>内存生产商</th>
-                            <th>内存插槽</th>
-                        </tr>
-                        {% for ram in asset.ram_assets.all %}
+    {% if asset.serverassets.get_server_type_display != '云主机' %}
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">内存信息</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
                             <tr>
-                                <td>{{ ram.ram_serial }}</td>
-                                <td>{{ ram.ram_volume }}</td>
-                                <td>{{ ram.ram_brand }}</td>
-                                <td>{{ ram.ram_slot }}</td>
+                                <th>内存序列号</th>
+                                <th>内存容量</th>
+                                <th>内存生产商</th>
+                                <th>内存插槽</th>
                             </tr>
-                        {% endfor %}
-                    </table>
+                            {% for ram in asset.ram_assets.all %}
+                                <tr>
+                                    <td>{{ ram.ram_serial }}</td>
+                                    <td>{{ ram.ram_volume }}</td>
+                                    <td>{{ ram.ram_brand }}</td>
+                                    <td>{{ ram.ram_slot }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
                 </div>
-                <!-- /.box-body -->
+                <!-- /.box -->
             </div>
-            <!-- /.box -->
         </div>
-    </div>
+    {% endif %}
     <!-- 硬盘信息
 <div class="row">
     <div class="col-xs-12">

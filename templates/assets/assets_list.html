@@ -200,9 +200,11 @@
                                                     <li><a href="javascript:void(0)"
                                                            onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
                                                     </li>
-                                                    <li><a href="javascript:void(0)"
-                                                           onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
-                                                    </li>
+                                                    {% if asset.serverassets.get_server_type_display != '云主机' %}
+                                                        <li><a href="javascript:void(0)"
+                                                               onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
+                                                        </li>
+                                                    {% endif %}
                                                 </ul>
                                             </div>
                                             {% if request.user.is_superuser %}

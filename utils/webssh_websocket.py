@@ -6,9 +6,8 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets
-from fort.models import FortServerUser
+from fort.models import FortServerUser, FortRecord
 from Ops import settings
-from fort.tasks import fort_record
 
 
 class MyThread(threading.Thread):
@@ -21,21 +20,23 @@ class MyThread(threading.Thread):
         self._stop_event.set()
 
     def run(self):
-        start_time = time.time()
-        stdout = []
-        current_time = time.strftime(settings.TIME_FORMAT)
+        self.start_time = time.time()
+        self.stdout = []
+        self.current_time = time.strftime(settings.TIME_FORMAT)
         while not self._stop_event.is_set():
             try:
                 data = self.chan.chan.recv(1024)
                 if data:
                     str_data = bytes.decode(data)
                     self.send_msg(str_data)
-                    stdout.append([time.time() - start_time, 'o', str_data])
+                    self.stdout.append([time.time() - self.start_time, 'o', str_data])
             except Exception:
                 pass
         self.chan.ssh.close()
+        self.stop()
 
-        record_path = os.path.join(settings.MEDIA_ROOT, 'fort_records', self.chan.scope['user'].username,
+    def record(self):
+        record_path = os.path.join(settings.MEDIA_ROOT, 'ssh_records', self.chan.scope['user'].username,
                                    time.strftime('%Y-%m-%d'))
         if not os.path.exists(record_path):
             os.makedirs(record_path, exist_ok=True)
@@ -46,7 +47,7 @@ class MyThread(threading.Thread):
             "version": 2,
             "width": 120,
             "height": 35,
-            "timestamp": round(start_time),
+            "timestamp": round(self.start_time),
             "title": "Demo",
             "env": {
                 "TERM": os.environ.get('TERM'),
@@ -56,10 +57,10 @@ class MyThread(threading.Thread):
 
         f = open(record_file_path, 'a')
         f.write(json.dumps(header) + '\n')
-        for out in stdout:
+        for out in self.stdout:
             f.write(json.dumps(out) + '\n')
         f.close()
-        login_status_time = time.time() - start_time
+        login_status_time = time.time() - self.start_time
         if login_status_time >= 60:
             login_status_time = '{} m'.format(round(login_status_time / 60, 2))
         elif login_status_time >= 3600:
@@ -67,9 +68,18 @@ class MyThread(threading.Thread):
         else:
             login_status_time = '{} s'.format(round(login_status_time))
 
-        fort_record.delay(login_user=self.chan.scope['user'], fort=self.chan.fort,
-                          remote_ip=self.chan.scope["client"][0], start_time=current_time,
-                          login_status_time=login_status_time, record_file=record_file_path.split('media/')[1])
+        FortRecord.objects.create(
+            login_user=self.chan.scope['user'],
+            fort=self.chan.fort,
+            remote_ip=self.chan.scope["client"][0],
+            start_time=self.current_time,
+            login_status_time=login_status_time,
+            record_file=record_file_path.split('media/')[1]
+        )
+
+        # fort_record.delay(login_user=self.chan.scope['user'], fort=self.chan.fort,
+        #                   remote_ip=self.chan.scope["client"][0], start_time=current_time,
+        #                   login_status_time=login_status_time, record_file=record_file_path.split('media/')[1])
 
     def send_msg(self, msg):
         async_to_sync(self.chan.channel_layer.group_send)(
@@ -116,4 +126,7 @@ class FortConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         self.t1.stop()
-        async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
+        try:
+            self.t1.record()
+        finally:
+            async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
