@@ -10,7 +10,6 @@
                     2018/6/11:
 -------------------------------------------------
 """
-import os
 import json
 import re
 from ansible import constants as C
@@ -80,7 +79,7 @@ class PlayBookResultsCollector(CallbackBase):
 
 class MyInventory(InventoryManager):
     """
-    this is my ansible inventory object.
+    用于动态生成Inventory的类.
     """
 
     def __init__(self, loader, resource=None, sources=None):
@@ -168,12 +167,14 @@ class ANSRunner(object):
         self.options = Options(connection='smart',
                                module_path=None,
                                forks=50, timeout=10,
-                               remote_user=None, ask_pass=False, private_key_file=None,
+                               remote_user=kwargs.get('remote_user', None), ask_pass=False, private_key_file=None,
                                ssh_common_args=None,
                                ssh_extra_args=None,
-                               sftp_extra_args=None, strategy='free', scp_extra_args=None, become=kwargs.get('become', None),
+                               sftp_extra_args=None, strategy='free', scp_extra_args=None,
+                               become=kwargs.get('become', None),
                                become_method=kwargs.get('become_method', None),
-                               become_user=kwargs.get('become_user', None), ask_value_pass=False, verbosity=None, check=False, listhosts=False,
+                               become_user=kwargs.get('become_user', None), ask_value_pass=False, verbosity=None,
+                               check=False, listhosts=False,
                                listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart')
         self.loader = DataLoader()
         self.inventory = MyInventory(resource=resource, loader=self.loader, sources=sources)
@@ -236,6 +237,11 @@ class ANSRunner(object):
             ansible_logger.error('执行{}失败，原因: {}'.format(playbook_path, e))
 
     def get_model_result(self):
+        """
+        获取执行模块的返回结果
+        :return:
+        :rtype: list
+        """
         results_raw = []
         for host, result in self.callback.host_ok.items():
             if 'rc' in result._result and 'stdout' in result._result:
@@ -244,6 +250,11 @@ class ANSRunner(object):
             elif 'results' in result._result and 'rc' in result._result:
                 data = "{host} | success | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
                                                                            stdout=result._result.get('results')[0])
+            elif 'module_stdout' in result._result and 'rc' in result._result:
+                data = "{host} | success | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
+                                                                           stdout=result._result.get(
+                                                                               'module_stdout').encode().decode(
+                                                                               'utf-8'))
             else:
                 data = "{host} | success >> \n{stdout}\n".format(host=host, stdout=json.dumps(result._result, indent=4))
             results_raw.append(data)
@@ -270,45 +281,51 @@ class ANSRunner(object):
         return results_raw
 
     def get_playbook_result(self):
+        """
+        获取playbook执行结果
+        :return:
+        :rtype: list
+        """
         results_raw = []
         for task_obj in self.callback.task_ok:
             for host, result in task_obj.items():
-                for remove_key in (
-                        'invocation', '_ansible_parsed', '_ansible_no_log', '_ansible_verbose_always', 'failed',
-                        'stdout', 'diff', 'results', 'status', 'warnings', 'stdout_lines'):
-                    if remove_key in result._result:
-                        del result._result[remove_key]
-                if result._result.get('changed'):
-                    data = '<code style="color: #FFFF00">TASK [{}] {}\n{}: changed\n{}\n</code><br>'.format(
-                        result.task_name, '*' * 100, host, result._result)
+                if result.is_changed():
+                    data = {'task': result.task_name, 'res': '[{}]=> {}'.format(host, 'changed')}
                 else:
-                    data = '<code style="color: #008000">TASK [{}] {}\n{}: success\n{}\n</code><br>'.format(
-                        result.task_name, '*' * 100, host, result._result)
+                    data = {'task': result.task_name, 'res': '[{}]=> {}'.format(host, 'ok')}
                 results_raw.append(data)
 
         for task_obj in self.callback.task_failed:
             for host, result in task_obj.items():
-                data = '<code style="color: #FF0000">TASK [{}] {}\n{}: failed\n{}\n</code><br>'.format(
-                    result.task_name, '*' * 100, host, self.callback._dump_results(result._result))
+                if 'changed' in result._result:
+                    del result._result['changed']
+                data = {'task': result.task_name,
+                        'res': '[{}]=> {}: {}'.format(host, 'failed', self.callback._dump_results(result._result))}
                 results_raw.append(data)
 
         for task_obj in self.callback.task_skipped:
             for host, result in task_obj.items():
-                data = '<code style="color: #FFFF00">TASK [{}] {}\n{}: skipped\n{}\n</code><br>'.format(
-                    result.task_name, '*' * 100, host, self.callback._dump_results(result._result))
+                if 'changed' in result._result:
+                    del result._result['changed']
+                data = {'task': result.task_name,
+                        'res': '[{}]=> {}: {}'.format(host, 'skipped', self.callback._dump_results(result._result))}
                 results_raw.append(data)
 
         for task_obj in self.callback.task_unreachable:
             for host, result in task_obj.items():
-                data = '<code style="color: #FF0000">TASK [{}] {}\n{}: unreachable\n{}\n</code><br>'.format(
-                    result.task_name, '*' * 100, host, self.callback._dump_results(result._result))
+                if 'changed' in result._result:
+                    del result._result['changed']
+                data = {'task': result.task_name,
+                        'res': '[{}]=> {}: {}'.format(host, 'unreachable', self.callback._dump_results(result._result))}
                 results_raw.append(data)
 
-        task_status = 'PLAY RECAP {}\n'.format('*' * 100)
+        task_status = '\nPLAY RECAP {}\n'.format('*' * 100)
         for host, status in self.callback.task_status.items():
             task_status = task_status + '{} :{}\n'.format(host, status)
-        results_raw.append(task_status)
-        return results_raw
+
+        r = FormatResult(results_raw).gen_res_html()
+        r.append(task_status)
+        return r
 
     @staticmethod
     def handle_setup_data(data):
@@ -352,6 +369,54 @@ class ANSRunner(object):
 
     @staticmethod
     def handle_mem_data(data):
+        """
+        处理获取的内存信息
+        :param data: 通过ansible获取的内存信息
+        :return:
+        """
         result = json.loads(data[data.index('{'): data.rindex('}') + 1])
         facts = result['ansible_facts']
         return facts['mem_info']
+
+
+class FormatResult:
+    """
+    格式化执行playbook返回的结果，result格式为：
+    r = [{'task': 'echo date', 'res': "[10.1.19.11]=> XXXXX]
+    """
+
+    def __init__(self, result):
+        self.result = result
+
+    def gen_task_set(self):
+        task_set = set()
+        for i in self.result:
+            task_set.add(i.get('task'))
+        return task_set
+
+    def gen_task_dict(self):
+        task_dict = {}
+        for task in self.gen_task_set():
+            task_dict[task] = list()
+        return task_dict
+
+    def gen_res(self):
+        res_dict = self.gen_task_dict()
+        for n in res_dict:
+            res_dict[n] = [i.get('res') for i in self.result if i.get('task') == n]
+        return res_dict
+
+    def gen_res_html(self):
+        data_row = []
+        for k, v in self.gen_res().items():
+            v_temp = []
+            for e in v:
+                if 'changed' in e or 'skipped' in e:
+                    v_temp.append('<code style="color: #FFFF00">{}\n</code>'.format(e))
+                elif 'ok' in e:
+                    v_temp.append('<code style="color: #008000">{}\n</code>'.format(e))
+                elif 'failed' in e or 'unreachable' in e:
+                    v_temp.append('<code style="color: #FF0000">{}\n</code>'.format(e))
+            data = '<code style="color: #FFFFFF">\nTASK [{}]{}</code>\n{}'.format(k, '*' * 100, ''.join(v_temp))
+            data_row.append(data)
+        return data_row

@@ -5,73 +5,64 @@ import zipfile
 import shutil
 from django.shortcuts import render
 from task.utils.ansible_api_v2 import ANSRunner
+from task.utils.gen_resource import GenResource
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from task.models import *
 from assets.models import ServerAssets
 from utils.db.redis_ops import RedisOps
 from Ops import settings
-from utils.crypt_pwd import CryptPwd
 from django.contrib.auth.decorators import permission_required
 
 
-def gen_resource(host_ids, group_ids=None):
-    host_list = []
-    for host_id in host_ids:
-        host = {}
-        host_obj = ServerAssets.objects.get(id=host_id)
-        host['ip'] = host_obj.assets.asset_management_ip
-        host['port'] = int(host_obj.port)
-        host['username'] = host_obj.username
-        host['password'] = CryptPwd().decrypt_pwd(host_obj.password)
-        if host_obj.host_vars:
-            host_vars = eval(host_obj.host_vars)
-            for k, v in host_vars.items():
-                host[k] = v
-        host_list.append(host)
-    if group_ids:
-        resource = {}
-        group_values = {}
-        for group_id in group_ids:
-            group_obj = AnsibleInventory.objects.get(id=group_id)
-            group_values['hosts'] = host_list
-            if group_obj.ans_group_vars:
-                group_values['group_vars'] = eval(group_obj.ans_group_vars)
-            resource[group_obj.ans_group_name] = group_values
-    else:
-        resource = host_list
-
-    return resource
+# def gen_resource(host_ids, group_ids=None):
+#     host_list = []
+#     for host_id in host_ids:
+#         host = {}
+#         host_obj = ServerAssets.objects.get(id=host_id)
+#         host['ip'] = host_obj.assets.asset_management_ip
+#         host['port'] = int(host_obj.port)
+#         host['username'] = host_obj.username
+#         host['password'] = CryptPwd().decrypt_pwd(host_obj.password)
+#         if host_obj.host_vars:
+#             host_vars = eval(host_obj.host_vars)
+#             for k, v in host_vars.items():
+#                 host[k] = v
+#         host_list.append(host)
+#     if group_ids:
+#         resource = {}
+#         for group_id in group_ids:
+#             group_values = {}
+#             group_obj = AnsibleInventory.objects.get(id=group_id)
+#             group_values['hosts'] = host_list
+#             if group_obj.ans_group_vars:
+#                 group_values['group_vars'] = eval(group_obj.ans_group_vars)
+#             resource[group_obj.ans_group_name] = group_values
+#     else:
+#         resource = host_list
+#
+#     return resource
 
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def get_inventory_hosts(request):
     if request.method == 'POST':
         group_ids = request.POST.getlist('hostGroup')
-        hosts_temp = []
-        for group_id in group_ids:
-            host_list = AnsibleInventory.objects.prefetch_related('ans_group_hosts').get(
-                id=group_id).ans_group_hosts.all()
-            host_d = [{'host_id': host.id, 'host_ip': host.assets.asset_management_ip} for host in host_list]
-            hosts_temp.extend(host_d)
-
-        hosts = []
-        for i in hosts_temp:
-            if i not in hosts:
-                hosts.append(i)
+        hosts = GenResource().gen_host_dict(group_ids)
         return JsonResponse({'code': 200, 'hosts': hosts})
 
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def run_module(request):
     if request.method == 'POST':
+        gen_resource = GenResource()
         redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
         remote_ip = request.META['REMOTE_ADDR']
         group_ids = request.POST.getlist('hostGroup')
         host_ids = request.POST.getlist('ans_group_hosts')
         if group_ids == ['custom'] or group_ids == ['all']:
-            resource = gen_resource(host_ids)
+            resource = gen_resource.gen_host_list(host_ids)
         else:
-            resource = gen_resource(host_ids, group_ids)
+            resource = gen_resource.gen_group_dict(group_ids)
 
         host_list = [ServerAssets.objects.get(id=host_id).assets.asset_management_ip for host_id in host_ids]
         selected_module_name = request.POST.get('ansibleModule')
@@ -86,7 +77,7 @@ def run_module(request):
         else:
             try:
                 redis_conn.set(unique_key, 1)
-                ans = ANSRunner(resource)
+                ans = ANSRunner(resource, become='yes', become_method='sudo', become_user='root')
                 ans.run_module(host_list=host_list, module_name=module_name, module_args=module_args)
                 res = ans.get_model_result()
 
@@ -246,13 +237,7 @@ def check_playbook_name(request):
 
 
 def get_playbook_res(group_ids, playbook_file):
-    host_ids = None
-    for group_id in group_ids:
-        inventory_obj = AnsibleInventory.objects.prefetch_related('ans_group_hosts').get(id=group_id)
-        hosts = inventory_obj.ans_group_hosts.all()
-        host_ids = [host.id for host in hosts]
-    host_ids = list(set(host_ids))
-    resource = gen_resource(host_ids, group_ids)
+    resource = GenResource().gen_group_dict(group_ids)
 
     ans = ANSRunner(resource)
     ans.run_playbook(playbook_file)

@@ -3,6 +3,7 @@ import threading
 import time
 import os
 import json
+import logging
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets
@@ -104,13 +105,16 @@ class FortConsumer(WebsocketConsumer):
         username = fort_user.fort_username
         password = fort_user.fort_password
         self.fort = r'{}@{}'.format(username, host_ip)
-        # 创建channels group
-        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
-        self.ssh = paramiko.SSHClient()
-        self.ssh.load_system_host_keys()
-        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.ssh.connect(host_ip, host_port, username, password)
-        self.chan = self.ssh.invoke_shell(term='xterm')
+        try:
+            self.ssh = paramiko.SSHClient()
+            self.ssh.load_system_host_keys()
+            self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self.ssh.connect(host_ip, host_port, username, password)
+            # 创建channels group
+            async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+        except Exception as e:
+            logging.getLogger().error('用户{}通过webssh连接{}失败！原因：{}'.format(username, host_ip, e))
+        self.chan = self.ssh.invoke_shell(term='xterm', width=150, height=30)
         self.chan.settimeout(0)
         self.t1 = MyThread(self)
         self.t1.setDaemon(True)

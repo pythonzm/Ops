@@ -4,6 +4,7 @@ import threading
 import time
 import os
 import json
+import logging
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets, SSHRecord
@@ -102,17 +103,16 @@ class SSHConsumer(WebsocketConsumer):
         password = CryptPwd().decrypt_pwd(host.password)
         self.host_ip = host.assets.asset_management_ip
         host_port = int(host.port)
-
-        # 创建channels group， 命名为：用户名，并使用channel_layer写入到redis
-        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
-        self.ssh = paramiko.SSHClient()
-        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if self.host_ip.startswith('1'):
-            self.ssh.connect(self.host_ip, host_port, username='root', key_filename='/root/.ssh/id_rsa')
-        else:
+        try:
+            self.ssh = paramiko.SSHClient()
+            self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.ssh.connect(self.host_ip, host_port, username, password)
-        self.chan = self.ssh.invoke_shell(term='xterm')
-        self.chan.settimeout(300)
+            # 创建channels group
+            async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+        except Exception as e:
+            logging.getLogger().error('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
+        self.chan = self.ssh.invoke_shell(term='xterm', width=150, height=30)
+        self.chan.settimeout(0)
         self.t1 = MyThread(self)
         self.t1.setDaemon(True)
         self.t1.start()

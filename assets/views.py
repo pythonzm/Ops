@@ -302,16 +302,14 @@ def export_assets(request):
             response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=filename)
             return response
         except Exception as e:
-            logger = logging.getLogger(__name__)
-            logger.error('导出失败！{}'.format(e))
+            logging.getLogger().error('导出失败！{}'.format(e))
 
 
 def ssh_terminal(request, pk):
     if request.user.is_superuser:
-        server_obj = ServerAssets.objects.get(id=pk)
+        server_obj = ServerAssets.objects.select_related('assets').get(id=pk)
         ssh_server_ip = server_obj.assets.asset_management_ip
-        sftp = SFTP(server_obj.assets.asset_management_ip, server_obj.port, server_obj.username,
-                     CryptPwd().decrypt_pwd(server_obj.password))
+
         if request.method == 'GET':
             download_file = request.GET.get('download_file')
             if download_file:
@@ -319,21 +317,10 @@ def ssh_terminal(request, pk):
                                                   ssh_server_ip)
                 local_file_name = download_file.split('/')[-1]
 
-                if not os.path.exists(download_file_path):
-                    os.makedirs(download_file_path, exist_ok=True)
+                sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
+                            CryptPwd().decrypt_pwd(server_obj.password))
 
-                local_file = '{}/{}'.format(download_file_path, local_file_name)
-                download_file_size = sftp.sftp.stat(download_file).st_size
-
-                sftp.get_file(download_file, local_file)
-
-                local_file_size = None
-                while local_file_size != download_file_size:
-                    local_file_size = os.path.getsize(local_file)
-
-                response = FileResponse(open(local_file, 'rb'))
-                response['Content-Type'] = 'application/octet-stream'
-                response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=local_file_name)
+                response = sftp.download_file(download_file, download_file_path)
                 return response
             else:
                 group_name = str(uuid.uuid4())
@@ -343,25 +330,12 @@ def ssh_terminal(request, pk):
                 upload_file = request.FILES.get('upload_file')
                 upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
                                                 server_obj.assets.asset_management_ip)
-                if not os.path.exists(upload_file_path):
-                    os.makedirs(upload_file_path, exist_ok=True)
-
-                local_file = '{}/{}'.format(upload_file_path, upload_file.name)
-
-                if not os.path.exists(local_file):
-                    open(local_file, 'w').close()
-                local_file_size = None
-
-                while local_file_size != upload_file.size:
-                    with open(local_file, 'wb') as f:
-                        for chunk in upload_file.chunks():
-                            f.write(chunk)
-                    local_file_size = os.path.getsize(local_file)
-
-                if server_obj.username == 'root':
-                    sftp.put_file(local_file, '/root/')
-                else:
-                    sftp.put_file(local_file, '/home/{}'.format(server_obj.username))
+                upload_file = request.FILES.get('upload_file')
+                upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
+                                                server_obj.assets.asset_management_ip)
+                sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
+                            CryptPwd().decrypt_pwd(server_obj.password))
+                sftp.upload_file(upload_file, upload_file_path)
 
                 return JsonResponse({'code': 200, 'msg': '上传成功！文件默认放在{}用户家目录下'.format(server_obj.username)})
             except Exception as e:

@@ -11,9 +11,15 @@
     <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
     <link href="{% static 'css/xterm.css' %}" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    <style>
+        @media screen and (max-width: 750px) {
+            .main-header {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-
 <div class="wrapper">
     <header class="main-header">
         <nav class="navbar navbar-light" style="background-color: #e3f2fd; margin-bottom: 0">
@@ -37,8 +43,8 @@
             <div class="row">
                 <!--dataTable-->
                 <div class="col-xs-12">
-                    <!-- /.box -->
-                    <div class="box">
+                    <!-- /.box -->`
+                    <div class="box" style="margin-top: -15px;">
                         <div class="box-body">
                             <div id="terms"></div>
                         </div>
@@ -50,26 +56,48 @@
         </section>
     </div>
 </div>
+</body>
 
 <script src="{% static 'AdminLTE/bower_components/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
 <script src="{% static 'js/xterm.js' %}"></script>
+<script src="{% static 'js/fit.js' %}"></script>
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 <script>
+
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
     let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/{{ group_name }}/');
 
     socket.onopen = function () {
-
+        $("#terms").css("height", document.documentElement.clientHeight - 50);
         const term = new Terminal({
-            rows: 30,
-            cols: 128,
             screenKeys: true,
             useStyle: true,
             cursorBlink: true,
         });
         term.open(document.getElementById('terms'));
+
+        term.fit();
+
+        let width1 = document.body.clientWidth;
+        if (width1 <= 750) {
+            let wrapper = $('.wrapper');
+            term.on('focus', function () {
+
+                wrapper.css('position', 'relative');
+                wrapper.css('top', '-170px')
+
+            });
+
+
+            term.on('blur', function () {
+
+                wrapper.css('position', 'relative');
+                wrapper.css('top', '0')
+
+            });
+        }
 
         term.on('data', function (data) {
             socket.send(data);
@@ -85,7 +113,15 @@
         socket.onclose = function () {
             term.destroy();
         };
+
+
     };
+
+    socket.onerror = function() {
+        document.getElementById('terms').innerHTML = '<h3>连接失败！请查看日志！</h3>';
+    };
+
+
 
     $("#upload_file").fileinput({
         language: 'zh',
@@ -134,6 +170,7 @@
         }
     })
 
+
 </script>
-</body>
+
 </html>
