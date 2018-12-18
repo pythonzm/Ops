@@ -1,0 +1,82 @@
+.bg{background-repeat: no-repeat;background-size:cover;background-position: center center;}
+/*img{max-width:100%;}*/
+
+/*登录页面*/
+.log_box{width:380px;position:fixed;left:50%;margin-left:-190px;text-align: center;top:50%;}
+.log_title{color:white;font-size: 36px;line-height: 62px;}
+.urse_box{padding-top:35px;}
+
+
+.urse_input{display:inline-block;width:100%;}
+.input_log{width:270px;height:50px;padding-left:56px;position:relative;border-radius: 5px;background:#f3f3f3;border:1px solid white; }
+.input_log input{width:100%;height:50px;line-height:50px;}
+.urse_input span{font-size:14px;line-height: 32px;margin-right:7px;width:56px;}
+.m16{margin-bottom:24px;}
+.m30{margin-top:30px;}
+.input_log_samll{width:146px;}
+.urse_jpg{width:105px;height:41px;margin-top:5px;}
+.btn_tijiao{width:100%;height:48px;line-height:48px;color:#003876;font-size:22px; background: -webkit-linear-gradient(left, #ff9900 , #f7d108); /* Safari 5.1 - 6.0 */
+  background: -o-linear-gradient(right,  #ff9900 , #f7d108); /* Opera 11.1 - 12.0 */
+  background: -moz-linear-gradient(right, #ff9900 , #f7d108); /* Firefox 3.6 - 15 */
+  background: linear-gradient(to right,  #ff9900 , #f7d108); /* 标准的语法 */border-radius: 100px;}
+.urse_input i{position:absolute;width:20px;height:20px;left:20px;top:15px;}
+.urse_log .zh_password{color:white;font-size:14px;text-align: left;position:relative;line-height: 50px;}
+.zh_password i{width:12px;height:12px;display:inline-block;border:1px solid white;position:absolute;left:0;top:0;}
+.zh_password input{margin-right:10px;}
+
+input::-webkit-input-placeholder { /* WebKit browsers*/ 
+　　color:#d3d3d3;font-size:14px;
+　　}
+input::-moz-placeholder {  /* Mozilla Firefox 4 to 18*/ 
+　　color:#d3d3d3;font-size:14px;
+　　}
+input::-moz-placeholder {  /* Mozilla Firefox 19+*/ 
+　　color:#d3d3d3;font-size:14px;
+　　}
+input:-ms-input-placeholder { /* Internet Explorer 10+*/ 
+　　color:#d3d3d3;font-size:14px;
+}
+
+.tips{height:30px;line-height:30px;text-align:left;color:white;font-size:14px;}
+.tips i{display:none;}
+.log_time{width:328px;margin:0 auto;}
+.footer{text-align: center;color:white;font-size:12px;line-height:40px;height:40px;position:absolute;bottom:20px;left:0;width:100%;}
+.error_box{text-align: center;margin-top:5%;}
+.error_box p{color:white;line-height: 34px;font-size: 20px;margin-top:50px;}
+.error_box a{margin-top:30px;background:#157bc0;width:214px;height:34px;display:inline-block;text-align: center;color:white;border-radius: 100px;font-size: 18px;line-height: 34px;}
+
+
+
+@media screen and (max-width:1000px){
+  .log_box{width:650px;position:fixed;left:50%;margin-left:-325px;text-align: center;top:50%;}
+  .log_title{font-size: 42px;}
+  .log_img{width:254px;}
+  .urse_log{width:100%;}
+  .log_time{width:650px;}
+  .input_log{height:100px;line-height: 100px;width:546px;padding-left:97px;}
+  .input_log .i3 img,.input_log .i1 img,.input_log .i img{width:50px;}
+  .input_log input{height:100px;line-height: 100px;font-size: 30px;}
+  .input_log_samll{width:282px;}
+  .urse_jpg img{width:238px;}
+  .urse_jpg{width:238px;}
+  .urse_log .zh_password{font-size: 24px;}
+  #checkbox{width:35px;height:30px;vertical-align: middle;}
+  .zh_password label{vertical-align: middle;}
+  .btn_tijiao{
+    height:88px;font-size: 36px;
+  }
+  .footer{bottom:80px;font-size: 24px;}
+    input::-webkit-input-placeholder { /* WebKit browsers*/ 
+  　　color:#d3d3d3;font-size:30px;
+  　　}
+  input::-moz-placeholder {  /* Mozilla Firefox 4 to 18*/ 
+  　　color:#d3d3d3;font-size:30px;
+  　　}
+  input::-moz-placeholder {  /* Mozilla Firefox 19+*/ 
+  　　color:#d3d3d3;font-size:30px;
+  　　}
+  input:-ms-input-placeholder { /* Internet Explorer 10+*/ 
+  　　color:#d3d3d3;font-size:30px;
+  }
+  .error_box{margin-top:50%;}
+}

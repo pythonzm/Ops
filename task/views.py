@@ -14,35 +14,6 @@ from Ops import settings
 from django.contrib.auth.decorators import permission_required
 
 
-# def gen_resource(host_ids, group_ids=None):
-#     host_list = []
-#     for host_id in host_ids:
-#         host = {}
-#         host_obj = ServerAssets.objects.get(id=host_id)
-#         host['ip'] = host_obj.assets.asset_management_ip
-#         host['port'] = int(host_obj.port)
-#         host['username'] = host_obj.username
-#         host['password'] = CryptPwd().decrypt_pwd(host_obj.password)
-#         if host_obj.host_vars:
-#             host_vars = eval(host_obj.host_vars)
-#             for k, v in host_vars.items():
-#                 host[k] = v
-#         host_list.append(host)
-#     if group_ids:
-#         resource = {}
-#         for group_id in group_ids:
-#             group_values = {}
-#             group_obj = AnsibleInventory.objects.get(id=group_id)
-#             group_values['hosts'] = host_list
-#             if group_obj.ans_group_vars:
-#                 group_values['group_vars'] = eval(group_obj.ans_group_vars)
-#             resource[group_obj.ans_group_name] = group_values
-#     else:
-#         resource = host_list
-#
-#     return resource
-
-
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def get_inventory_hosts(request):
     if request.method == 'POST':
@@ -226,10 +197,11 @@ def playbook_del(request, pk):
             return JsonResponse({'code': 500, 'msg': '删除失败！{}'.format(e)})
 
 
-def check_playbook_name(request):
+def check_name(request):
     playbook_name = request.GET.get('playbook_name')
+    role_name = request.GET.get('role_name')
     playbook = AnsiblePlaybook.objects.filter(playbook_name=playbook_name).exists()
-    role = AnsibleRole.objects.filter(playbook_name=playbook_name).exists()
+    role = AnsibleRole.objects.filter(role_name=role_name).exists()
     if playbook or role:
         return JsonResponse({'code': 500, 'msg': '同名文件已存在！'})
     else:
@@ -242,6 +214,7 @@ def get_playbook_res(group_ids, playbook_file):
     ans = ANSRunner(resource)
     ans.run_playbook(playbook_file)
     res = ans.get_playbook_result()
+
     return res
 
 
@@ -342,8 +315,8 @@ def role_detail(request, pk):
                     nodes.append(node)
             return HttpResponse(json.dumps(nodes))
         else:
-            playbook_name = AnsibleRole.objects.get(id=pk).playbook_name
-            node = {'name': playbook_name, 'isParent': True, 'p_name': settings.ANSIBLE_ROLE_PATH}
+            role_name = AnsibleRole.objects.get(id=pk).role_name
+            node = {'name': role_name, 'isParent': True, 'p_name': settings.ANSIBLE_ROLE_PATH}
             return HttpResponse(json.dumps(node))
     else:
         if request.user.is_superuser:
@@ -355,15 +328,13 @@ def role_detail(request, pk):
 @permission_required('task.add_ansiblerole', raise_exception=True)
 def role_add(request):
     if request.method == 'GET':
-        playbook_name = request.GET.get('playbook_name')
-        names = request.GET.get('role_names')
+        role_name = request.GET.get('role_name')
         role_desc = request.GET.get('role_desc')
-        role_names = [name.strip() for name in names.split(',')]
         root_path = settings.ANSIBLE_ROLE_PATH
 
         AnsibleRole.objects.select_related('role_user').create(
-            playbook_name=playbook_name,
-            role_file='{}/{}'.format('roles', playbook_name),
+            role_name=role_name,
+            role_file='{}/{}'.format('roles', role_name),
             role_user=request.user,
             role_desc=role_desc
         )
@@ -395,17 +366,17 @@ def role_list(request):
         roles = AnsibleRole.objects.select_related('role_user').all()
         return render(request, 'task/role_list.html', locals())
     elif request.method == 'POST':
-        role_file = request.FILES.get('playbook_file')
-        playbook_name = request.POST.get('playbook_name')
+        role_file = request.FILES.get('role_file')
+        role_name = request.POST.get('role_name')
         if role_file:
             AnsibleRole.objects.create(
-                playbook_name=role_file.name.split('.zip')[0],
+                role_name=role_file.name.split('.zip')[0],
                 role_file=role_file,
                 role_user=request.user,
             )
-        elif playbook_name:
-            role_obj = AnsibleRole.objects.select_related('role_user').get(playbook_name=playbook_name.split('.zip')[0])
-            role_obj.role_desc = request.POST.get('playbook_desc')
+        elif role_name:
+            role_obj = AnsibleRole.objects.select_related('role_user').get(role_name=role_name.split('.zip')[0])
+            role_obj.role_desc = request.POST.get('role_desc')
             role_obj.save()
 
             z = zipfile.ZipFile(role_obj.role_file.path, 'r')
@@ -442,40 +413,12 @@ def role_edit(request):
             return JsonResponse({'code': 500, 'msg': '操作失败！：{}'.format(e)})
 
 
-@permission_required('task.add_ansibleplaybook', raise_exception=True)
-def role_run(request, pk):
-    role = AnsibleRole.objects.select_related('role_user').get(id=pk)
-    main_file = os.path.join(settings.ANSIBLE_ROLE_PATH, role.playbook_name, 'site.yml')
-
-    if request.method == 'GET':
-        content = ''
-        with open(main_file, 'r') as f:
-            for line in f.readlines():
-                content = content + line
-        return JsonResponse({'code': 200, 'content': content, 'playbook_name': role.playbook_name})
-    elif request.method == 'POST':
-        redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
-        unique_key = role.playbook_name
-
-        if redis_conn.exists(unique_key):
-            return JsonResponse({'msg': ['有相同的任务正在执行，请稍后再试'], 'code': 403})
-        else:
-            group_ids = request.POST.getlist('group_ids')
-            try:
-                res = get_playbook_res(group_ids, main_file)
-                return JsonResponse({'code': 200, 'msg': res})
-            except Exception as e:
-                return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
-            finally:
-                redis_conn.delete(unique_key)
-
-
 @permission_required('task.delete_ansiblerole', raise_exception=True)
 def role_del(request, pk):
     if request.method == 'DELETE':
         role = AnsibleRole.objects.get(id=pk)
         try:
-            shutil.rmtree(os.path.join(settings.ANSIBLE_ROLE_PATH, role.playbook_name))
+            shutil.rmtree(os.path.join(settings.ANSIBLE_ROLE_PATH, role.role_name))
             return JsonResponse({'code': 200, 'msg': '删除成功！'})
         except Exception as e:
             return JsonResponse({'code': 500, 'msg': '删除失败！{}'.format(e)})

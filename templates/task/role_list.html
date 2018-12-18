@@ -4,8 +4,6 @@
 {% block head %}
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
-    <!-- Select2 -->
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
     <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
 
     <style>
@@ -47,12 +45,12 @@
             <button class="btn btn-sm btn-success pull-left" data-toggle="modal" style="margin-left: 2px"
                     data-target="#RoleAddModal">
                 <i class="fa fa-edit"></i>
-                <span class="bigger-110">在线添加剧本</span>
+                <span class="bigger-110">在线添加role</span>
             </button>
             <button class="btn btn-sm btn-success pull-left" data-toggle="modal" style="margin-left: 2px"
-                    data-target="#PlaybookUploadModal">
+                    data-target="#RoleUploadModal">
                 <i class="fa fa-upload"></i>
-                <span class="bigger-110">上传playbook</span>
+                <span class="bigger-110">上传role</span>
             </button>
         </div>
         <div class="col-xs-12">
@@ -72,7 +70,7 @@
                         <tbody>
                         {% for role in roles %}
                             <tr>
-                                <td>{{ role.playbook_name }}</td>
+                                <td>{{ role.role_name }}</td>
                                 <td>{{ role.role_desc|default:"" }}</td>
                                 <td>{{ role.role_time|date:"Y-m-d H:i:s" }}</td>
                                 <td>
@@ -80,10 +78,6 @@
                                         <button type="button" class="btn btn-success btn-xs">详细/修改
                                         </button>
                                     </a>
-                                    <button type="button" class="btn btn-primary btn-xs run" data-toggle="modal"
-                                            data-target="#PlaybookRunModal" data-id="{{ role.id }}">
-                                        执行
-                                    </button>
                                     <button type="button" class="btn btn-danger btn-xs delete"
                                             data-id="{{ role.id }}">
                                         删除
@@ -98,10 +92,6 @@
             </div>
             <!-- /.box -->
 
-            <div class="box-footer" style="display: none">
-                <pre style="background-color: black; height: 500px"></pre>
-            </div>
-
 
             <!-- RoleAddModal  -->
             <div class="modal fade" id="RoleAddModal" tabindex="-1" role="dialog"
@@ -114,34 +104,25 @@
                                 &times;
                             </button>
                             <h4 class="modal-title" id="RoleAddModalLabel">
-                                添加剧本
+                                添加role
                             </h4>
                         </div>
                         {% if perms.task.add_ansiblerole %}
                             <div class="modal-body">
-                                <form id="playbook_form" class="main form-horizontal">
+                                <form id="role_form" class="main form-horizontal">
                                     <fieldset>
-                                        <div class="form-group">
-                                            <label for="playbook_name" class="col-sm-2 control-label">剧本名称</label>
-                                            <div class="col-sm-6">
-                                                <input class="form-control" name="playbook_name" id="playbook_name"
-                                                       required>
-                                            </div>
-                                        </div>
-
                                         <div class="form-group">
                                             <label for="role_name" class="col-sm-2 control-label">role名称</label>
                                             <div class="col-sm-6">
-                                                <input class="form-control" name="role_name" placeholder="多个名称以逗号隔开"
-                                                       id="role_name" required>
+                                                <input class="form-control" name="role_name" id="role_name" required>
                                             </div>
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="playbook_desc" class="col-sm-2 control-label">剧本描述</label>
+                                            <label for="role_desc" class="col-sm-2 control-label">role描述</label>
                                             <div class="col-sm-6">
-                                                <textarea class="form-control" name="playbook_desc" rows="5"
-                                                          id="playbook_desc"></textarea>
+                                                <textarea class="form-control" name="role_desc" rows="5"
+                                                          id="role_desc"></textarea>
                                             </div>
                                         </div>
                                     </fieldset>
@@ -163,9 +144,9 @@
                 </div><!-- /.modal -->
             </div>
 
-            <!-- PlaybookUploadModal  -->
-            <div class="modal fade" id="PlaybookUploadModal" tabindex="-1" role="dialog"
-                 aria-labelledby="PlaybookUploadModalLabel"
+            <!-- RoleUploadModal  -->
+            <div class="modal fade" id="RoleUploadModal" tabindex="-1" role="dialog"
+                 aria-labelledby="RoleUploadModalLabel"
                  aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -173,27 +154,27 @@
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                                 &times;
                             </button>
-                            <h4 class="modal-title" id="PlaybookUploadModalLabel">
-                                上传剧本
+                            <h4 class="modal-title" id="RoleUploadModalLabel">
+                                上传role
                             </h4>
                         </div>
-                        {% if perms.task.add_ansibleplaybook %}
+                        {% if perms.task.add_ansiblerole %}
                             <div class="modal-body">
-                                <form id="playbook_detail" class="main form-horizontal">
+                                <form id="role_detail" class="main form-horizontal">
                                     <fieldset>
                                         <div class="form-group">
-                                            <label for="playbook_desc" class="col-sm-2 control-label">剧本描述</label>
+                                            <label for="role_desc" class="col-sm-2 control-label">role描述</label>
                                             <div class="col-sm-6">
-                                                <textarea class="form-control" name="playbook_desc" rows="5"
-                                                          id="playbook_desc"></textarea>
+                                                <textarea class="form-control" name="role_desc" rows="5"
+                                                          id="role_desc"></textarea>
                                             </div>
 
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="playbook_file" class="col-sm-2 control-label">剧本文件</label>
+                                            <label for="role_file" class="col-sm-2 control-label">role文件</label>
                                             <div class="col-sm-6">
-                                                <input type="file" id="playbook_file" class="file" name="playbook_file"
+                                                <input type="file" id="role_file" class="file" name="role_file"
                                                        required>
                                             </div>
                                         </div>
@@ -202,65 +183,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                                <button type="button" class="btn btn-primary" id="playbook_ops">上传</button>
-                            </div>
-                        {% else %}
-                            <div class="modal-body">
-                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
-                            </div>
-                        {% endif %}
-                    </div><!-- /.modal-content -->
-                </div><!-- /.modal -->
-            </div>
-
-            <!-- PlaybookRunModal  -->
-            <div class="modal fade bd-example-modal-lg" id="PlaybookRunModal" tabindex="-1" role="dialog"
-                 aria-labelledby="PlaybookRunModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                                &times;
-                            </button>
-                            <h4 class="modal-title" id="PlaybookRunModalLabel">
-                                执行playbook
-                            </h4>
-                        </div>
-                        {% if perms.task.add_ansibleplaybook %}
-                            <div class="modal-body">
-                                <form id="playbook_info" class="main form-horizontal">
-                                    <fieldset>
-                                        <div class="form-group">
-                                            <label for="inventory"
-                                                   class="col-sm-2 control-label">inventory</label>
-                                            <div class="col-sm-6">
-                                                <select class="form-control select2" multiple="multiple"
-                                                        style="width: 100%;" id="inventory" name="inventory">
-                                                    {% for ans_group in inventory %}
-                                                        <option value="{{ ans_group.id }}">{{ ans_group.ans_group_name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="content" class="col-sm-2 control-label">剧本内容</label>
-                                            <div class="col-sm-6">
-                                                <div id="content"></div>
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="playbook_run">
-                                    确认执行
-                                </button>
+                                <button type="button" class="btn btn-primary" id="role_ops">上传</button>
                             </div>
                         {% else %}
                             <div class="modal-body">
@@ -281,8 +204,6 @@
 
 
 {% block js %}
-    <!-- Select2 -->
-    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
     <!-- DataTables -->
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
@@ -301,32 +222,39 @@
                 }],
                 "order": [[0, "asc"]]
             });
-
-            // Initialize Select2 Elements
-            $('.select2').select2({
-                allowClear: true
-            });
-
-            $("[data-toggle='tooltip']").tooltip();
         });
 
         $('#role_add').on('click', function () {
-            let playbook_name = $('#playbook_form #playbook_name').val();
-            let role_names = $('#role_name').val();
-            let role_desc = $('#playbook_form #playbook_desc').val();
-            if (playbook_name.length === 0 || role_names.length === 0) {
+            let role_name = $('#role_name').val();
+            let role_desc = $('#role_form #role_desc').val();
+            if (role_name.length === 0) {
                 $.alert({
                     title: 'Tips',
                     type: 'red',
-                    content: "剧本名称或role名称不能为空",
+                    content: "role名称不能为空",
                 })
             } else {
-                window.location.href = `/run/role_add/?playbook_name=${playbook_name}&role_names=${role_names}&role_desc=${role_desc}`
+                $.get('/run/check_name/?role_name=' + role_name, function (res) {
+                    if (res.code === 500) {
+                        $.confirm({
+                            title: 'Tips',
+                            content: res.msg,
+                            type: 'red',
+                            buttons: {
+                                OK: function () {
+                                    $('#role_form #role_name').val('')
+                                },
+                            }
+                        });
+                    } else {
+                        window.location.href = `/run/role_add/?&role_name=${role_name}&role_desc=${role_desc}`
+                    }
+                })
             }
         });
 
 
-        $("#playbook_file").fileinput({
+        $("#role_file").fileinput({
             language: 'zh',
             showUpload: false,
             dropZoneEnabled: false,
@@ -356,8 +284,8 @@
                 traditional: true,
                 dataType: 'json',
                 data: {
-                    playbook_name: data.files[0].name,
-                    playbook_desc: $('#playbook_desc').val()
+                    role_name: data.files[0].name,
+                    role_desc: $('#role_desc').val()
                 },
                 success: function (res) {
                     if (res.code === 200) {
@@ -383,18 +311,18 @@
             })
         });
 
-        // 上传playbook
-        $('#playbook_ops').on('click', function () {
-            let playbook_file = $("#playbook_file").val();
-            if (playbook_file.length === 0) {
+        // 上传role
+        $('#role_ops').on('click', function () {
+            let role_file = $("#role_file").val();
+            if (role_file.length === 0) {
                 $.alert({
                     title: 'Tips',
                     type: 'red',
                     content: '请注意必选项！',
                 })
             } else {
-                let playbook_name = playbook_file.slice(playbook_file.lastIndexOf('\\') + 1,).split('.zip')[0];
-                $.get('/run/chk_playbook_name/?playbook_name=' + playbook_name, function (res) {
+                let role_name = role_file.slice(role_file.lastIndexOf('\\') + 1,).split('.zip')[0];
+                $.get('/run/check_name/?role_name=' + role_name, function (res) {
                     if (res.code === 500) {
                         $.alert({
                             title: 'Tips',
@@ -402,7 +330,7 @@
                             content: res.msg,
                         });
                     } else {
-                        $("#playbook_file").fileinput('upload');
+                        $("#role_file").fileinput('upload');
                     }
                 })
 
@@ -410,78 +338,8 @@
         });
 
 
-        <!-- role操作 -->
-        let role_tbody = $('#role tbody');
-
-        // 执行role
-        role_tbody.on('click', '.run', function () {
-            let role_id = $(this).attr('data-id');
-
-            $.get('/run/role_run/' + role_id + '/', function (data) {
-                if (data.code === 200) {
-                    editor = ace.edit("content");
-                    editor.setTheme("ace/theme/monokai");
-                    let YamlMode = ace.require("ace/mode/yaml").Mode;
-                    editor.session.setMode(new YamlMode());
-                    editor.setShowPrintMargin(false);
-                    editor.setReadOnly(true);
-
-                    editor.setValue(data.content, -1);
-
-                    playbook_name = data.playbook_name
-                }
-            });
-
-            $('#playbook_run').unbind('click').on('click', function () {
-                let group_ids = $('#inventory').val();
-                if (group_ids.length === 0) {
-                    $('#playbook_run').removeAttr('data-dismiss');
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: '请选择主机组',
-                    })
-                } else {
-                    $('#playbook_run').attr('data-dismiss', 'modal');
-                    let obj = $('pre');
-                    obj.html('开始执行....\n');
-                    $.ajax({
-                        url: '/run/role_run/' + role_id + '/',
-                        type: 'POST',
-                        data: {group_ids: group_ids, playbook_name: playbook_name}, // 用于task记录playbook_name
-                        dataType: 'json',
-                        traditional: true,
-                        success: function (res) {
-                            $('.box-footer').css('display', 'block');
-                            if (res.code === 200) {
-                                res = res.msg;
-                                for (let i = 0; i < res.length; i++) {
-                                    if (res[i].indexOf('RECAP') !== -1) {
-                                        obj.append(`<code style="color: #FFFFFF">${res[i]}</code><br>`)
-                                    } else {
-                                        obj.append(res[i])
-                                    }
-                                }
-                                obj.append('<code>执行完毕....</code>');
-                                obj.scrollTop = obj.scrollHeight;
-                            } else {
-                                obj.append(`<code>${res.msg}</code>`)
-                            }
-                        },
-                        error: function (response) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: response.responseText,
-                            })
-                        }
-                    })
-                }
-            });
-        });
-
         // 删除role
-        role_tbody.on('click', '.delete', function () {
+        $('#role tbody').on('click', '.delete', function () {
             {% if perms.task.delete_ansiblerole %}
                 let pk = $(this).attr('data-id');
                 let tr_obj = $(this).parents('tr');

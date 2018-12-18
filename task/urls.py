@@ -27,13 +27,12 @@ urlpatterns = [
     path(r'path_del/', views.path_del, name='path_del'),
     path(r'path_create/', views.path_create, name='path_create'),
     path(r'get_file_content/', views.get_file_content, name='get_file_content'),
-    re_path(r'role_run/(?P<pk>[0-9]+)/', views.role_run, name='role_run'),
     re_path(r'playbook_run/(?P<pk>[0-9]+)/', views.playbook_run, name='playbook_run'),
     re_path(r'playbook_info/(?P<pk>[0-9]+)/', views.playbook_info, name='playbook_info'),
     re_path(r'playbook_del/(?P<pk>[0-9]+)/', views.playbook_del, name='playbook_del'),
     re_path(r'role_del/(?P<pk>[0-9]+)/', views.role_del, name='role_del'),
     re_path(r'playbook_log_del/(?P<pk>[0-9]+)/', views.playbook_log_del, name='playbook_log_del'),
     re_path(r'module_log_del/(?P<pk>[0-9]+)/', views.module_log_del, name='module_log_del'),
-    path(r'chk_playbook_name/', views.check_playbook_name, name='chk_playbook_name'),
+    path(r'check_name/', views.check_name, name='check_name'),
     path(r'get_inventory_hosts/', views.get_inventory_hosts, name='get_inventory_hosts')
 ]

@@ -223,18 +223,8 @@ desired effect
                             {% if perms.task.add_ansibleinventory %}
                                 <li><a href="{% url 'inventory' %}"><i class="fa fa-gears"></i> 动态主机组</a></li>
                                 <li><a href="{% url 'run_module' %}"><i class="fa fa-play"></i> 执行模块</a></li>
-                                <li class="treeview">
-                                <a href="#"><i class="fa fa-play-circle"></i> 执行playbook
-                                    <span class="pull-right-container">
-                                            <i class="fa fa-angle-left pull-right"></i>
-                                        </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="{% url 'playbook_list' %}"><i class="fa fa-book"></i> 不带Role剧本列表</a>
-                                    </li>
-                                    <li><a href="{% url 'role_list' %}"><i class="fa  fa-navicon"></i> 附带Role剧本列表</a>
-                                    </li>
-                                </ul>
+                                <li><a href="{% url 'playbook_list' %}"><i class="fa fa-book"></i> playbook管理</a></li>
+                                <li><a href="{% url 'role_list' %}"><i class="fa  fa-navicon"></i> role管理</a></li>
                             {% endif %}
                             {% if request.user.is_superuser %}
                                 <li><a href="{% url 'run_log' %}"><i class="fa fa-user-secret"></i> 操作日志</a></li>

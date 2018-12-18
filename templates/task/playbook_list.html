@@ -405,7 +405,7 @@
                 })
             } else {
                 let playbook_name = playbook_file.slice(playbook_file.lastIndexOf('\\') + 1,);
-                $.get('/run/chk_playbook_name/?playbook_name=' + playbook_name, function (res) {
+                $.get('/run/check_name/?playbook_name=' + playbook_name, function (res) {
                     if (res.code === 500) {
                         $.alert({
                             title: 'Tips',
@@ -443,7 +443,7 @@
                             }
                         });
                     } else {
-                        $.get('/run/chk_playbook_name/?playbook_name=' + playbook_name, function (res) {
+                        $.get('/run/check_name/?playbook_name=' + playbook_name, function (res) {
                             if (res.code === 500) {
                                 $.confirm({
                                     title: 'Tips',

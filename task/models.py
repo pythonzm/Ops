@@ -57,11 +57,11 @@ class AnsiblePlaybookLog(models.Model):
 
 
 class AnsibleRole(models.Model):
-    playbook_name = models.CharField(max_length=100, verbose_name='剧本名称', unique=True)
+    role_name = models.CharField(max_length=100, verbose_name='role名称', unique=True)
     role_file = models.FileField(upload_to='roles/')
     role_user = models.ForeignKey('users.UserProfile', verbose_name='添加人员', on_delete=models.CASCADE)
     role_time = models.DateTimeField(auto_now_add=True, verbose_name='添加日期')
-    role_desc = models.TextField(verbose_name='剧本描述', null=True, blank=True)
+    role_desc = models.TextField(verbose_name='role描述', null=True, blank=True)
 
     class Meta:
         db_table = 'ops_ansible_role'

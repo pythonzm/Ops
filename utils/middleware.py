@@ -13,7 +13,7 @@ class UserLoginMiddleware(MiddlewareMixin):
     @staticmethod
     def process_request(request):
         # 若请求的是登陆页面 则往下执行
-        if request.path == '/login/' or request.path == '/lock_screen/':
+        if request.path == '/login/' or request.path == '/lock_screen/' or request.path == '/create_code/':
             return None
         else:
             user = request.session.get('username')
@@ -78,8 +78,7 @@ class RecordMiddleware(MiddlewareMixin):
                                 post_data['ansibleModule'] != ['custom'] else ''.join(post_data['customModule']),
                                 ans_args=''.join(post_data['ansibleModuleArgs']),
                                 ans_server=ans_server, ans_result=res)
-        elif request.method == 'POST' and (
-                'playbook_run' in request.path or 'role_run' in request.path) and response.status_code == 200:
+        elif request.method == 'POST' and 'playbook_run' in request.path and response.status_code == 200:
             playbook_name = dict(request._post).get('playbook_name')[0]
             response_data = str(response.__dict__.get('_container')[0], encoding="utf-8")
             res = eval(response_data)['msg']

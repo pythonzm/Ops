@@ -22,6 +22,7 @@ from ansible.plugins.callback import CallbackBase
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from conf.logger import ansible_logger
+from Ops import settings
 
 
 class ModelResultsCollector(CallbackBase):
@@ -93,7 +94,6 @@ class MyInventory(InventoryManager):
             }
              如果你只传入1个列表，这默认该列表内的所有主机属于default 组,比如
             [{"ip": "10.0.0.0", "port": "22", "username": "test", "password": "pass"}, ...]
-
         sources是原生的方法，参数是配置的inventory文件路径，可以指定一个，也可以以列表的形式可以指定多个
         """
         super(MyInventory, self).__init__(loader=loader, sources=sources)
@@ -163,7 +163,7 @@ class ANSRunner(object):
                                          'scp_extra_args', 'become', 'become_method', 'become_user', 'ask_value_pass',
                                          'verbosity',
                                          'check', 'listhosts', 'listtasks', 'listtags', 'syntax', 'diff',
-                                         'gathering'])
+                                         'gathering', 'roles_path'])
         self.options = Options(connection='smart',
                                module_path=None,
                                forks=50, timeout=10,
@@ -175,7 +175,8 @@ class ANSRunner(object):
                                become_method=kwargs.get('become_method', None),
                                become_user=kwargs.get('become_user', None), ask_value_pass=False, verbosity=None,
                                check=False, listhosts=False,
-                               listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart')
+                               listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart',
+                               roles_path=settings.ANSIBLE_ROLE_PATH)
         self.loader = DataLoader()
         self.inventory = MyInventory(resource=resource, loader=self.loader, sources=sources)
         self.variable_manager = VariableManager(loader=self.loader, inventory=self.inventory)
@@ -323,7 +324,7 @@ class ANSRunner(object):
         for host, status in self.callback.task_status.items():
             task_status = task_status + '{} :{}\n'.format(host, status)
 
-        r = FormatResult(results_raw).gen_res_html()
+        r = FormatResult(results_raw).gen_res_html
         r.append(task_status)
         return r
 
@@ -406,6 +407,7 @@ class FormatResult:
             res_dict[n] = [i.get('res') for i in self.result if i.get('task') == n]
         return res_dict
 
+    @property
     def gen_res_html(self):
         data_row = []
         for k, v in self.gen_res().items():

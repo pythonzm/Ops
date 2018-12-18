@@ -315,7 +315,6 @@ def ssh_terminal(request, pk):
             if download_file:
                 download_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'download',
                                                   ssh_server_ip)
-                local_file_name = download_file.split('/')[-1]
 
                 sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
                             CryptPwd().decrypt_pwd(server_obj.password))
@@ -327,9 +326,6 @@ def ssh_terminal(request, pk):
                 return render(request, 'assets/ssh_terminal.html', locals())
         elif request.method == 'POST':
             try:
-                upload_file = request.FILES.get('upload_file')
-                upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
-                                                server_obj.assets.asset_management_ip)
                 upload_file = request.FILES.get('upload_file')
                 upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
                                                 server_obj.assets.asset_management_ip)

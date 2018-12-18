@@ -21,6 +21,7 @@ from Ops import views
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path(r'login/', views.login, name='login'),
+    path(r'create_code/', views.gen_code_img, name='create_code'),
     path(r'logout/', views.logout, name='logout'),
     path(r'lock_screen/', views.lock_screen, name='lock_screen'),
     path(r'api/', include('api.urls')),

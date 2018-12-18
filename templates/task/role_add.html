@@ -89,51 +89,35 @@
         };
 
         let nodes = [
-            {id: 1, pId: 0, name: "{{ playbook_name }}", open: true, p_name: "{{ root_path }}"},
-            {id: 11, pId: 1, name: "roles", open: true, isParent: true, p_name: "{{ root_path }}/{{ playbook_name }}"},
-            {id: 12, pId: 1, name: "site.yml", p_name: "{{ root_path }}/{{ playbook_name }}"},
+            {id: 1, pId: 0, name: "{{ role_name }}", open: true, p_name: "{{ root_path }}"},
         ];
 
-        let role_id = 111;
         let dirs = ["defaults", "files", "handlers", "meta", "tasks", "templates", "vars"];
-        let role_dir_id = 1111;
-        {% for role_name in role_names %}
-            nodes.push({
-                id: role_id,
-                pId: 11,
-                name: '{{ role_name }}',
-                isParent: true,
-                open: true,
-                p_name: "{{ root_path }}/{{ playbook_name }}/roles"
-            });
-            for (let i = 0; i < dirs.length; i++) {
-                if (dirs[i] === "files" || dirs[i] === "templates") {
-                    nodes.push({
-                        id: role_dir_id,
-                        pId: role_id,
-                        name: dirs[i],
-                        isParent: true,
-                        open: true,
-                        p_name: "{{ root_path }}/{{ playbook_name }}/roles/{{ role_name }}"
-                    });
-                } else {
-                    nodes.push({
-                        id: role_dir_id,
-                        pId: role_id,
-                        name: dirs[i],
-                        isParent: true,
-                        open: true,
-                        p_name: "{{ root_path }}/{{ playbook_name }}/roles/{{ role_name }}",
-                        children: [{
-                            name: "main.yml",
-                            p_name: "{{ root_path }}/{{ playbook_name }}/roles/{{ role_name }}/" + dirs[i]
-                        }]
-                    });
-                }
-                role_dir_id++;
+        for (let i = 0; i < dirs.length; i++) {
+            if (dirs[i] === "files" || dirs[i] === "templates") {
+                nodes.push({
+                    id: 11,
+                    pId: 1,
+                    name: dirs[i],
+                    isParent: true,
+                    open: true,
+                    p_name: "{{ root_path }}/{{ role_name }}"
+                });
+            } else {
+                nodes.push({
+                    id: 11,
+                    pId: 1,
+                    name: dirs[i],
+                    isParent: true,
+                    open: true,
+                    p_name: "{{ root_path }}/{{ role_name }}",
+                    children: [{
+                        name: "main.yml",
+                        p_name: "{{ root_path }}/{{ role_name }}/" + dirs[i]
+                    }]
+                });
             }
-            role_id++;
-        {% endfor %}
+        }
 
         function beforeRemove(treeId, treeNode) {
             return confirm("确认删除 节点 -- " + treeNode.name + " 吗？");

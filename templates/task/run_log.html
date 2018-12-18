@@ -221,7 +221,7 @@
                     'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[0, "desc"]]
+                "order": [[3, "desc"]]
             });
         });
 
@@ -235,12 +235,10 @@
             let obj = $('pre');
             obj.html('');
             for (let i = 0; i < result.length; i++) {
-                if (result[i].indexOf('success') !== -1) {
-                    obj.append('<code style="color: green">' + result[i] + '</code><br>')
-                } else if (result[i].indexOf('failed') !== -1) {
-                    obj.append('<code style="color: red">' + result[i] + '</code><br>')
+                if (result[i].indexOf('RECAP') !== -1) {
+                    obj.append(`<code style="color: #FFFFFF">${result[i]}</code><br>`)
                 } else {
-                    obj.append('<code style="color: yellow">' + result[i] + '</code><br>')
+                    obj.append(result[i])
                 }
             }
             obj.scrollTop = obj.scrollHeight;

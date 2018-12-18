@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+import random
 from django.contrib import auth
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.shortcuts import redirect, render
 from assets.models import *
 from users.models import UserProfile
 from projs.models import Project
 from fort.models import FortServer
+from utils.gen_random_code import generate
+from io import BytesIO
 
 
 def dashboard(request):
@@ -21,32 +24,45 @@ def dashboard(request):
         return HttpResponseForbidden('<h1>403 Forbidden</h1>', content_type='text/html')
 
 
+def gen_code_img(request):
+    f = BytesIO()
+    img, code = generate(fg_color=(random.randint(10, 300), random.randint(50, 150), random.randint(50, 150)))
+    request.session['check_code'] = code
+    img.save(f, 'PNG')
+    return HttpResponse(f.getvalue())
+
+
 def login(request):
-    if request.session.get('username') and request.session.get('lock'):
-        del request.session['lock']
-        del request.session['username']
+    if request.method == 'GET':
+        if request.session.get('username') and request.session.get('lock'):
+            del request.session['lock']
+            del request.session['username']
         return render(request, 'login.html')
     else:
         username = request.POST.get('username')
         password = request.POST.get('password')
+        # code = request.POST.get('code')
         remember_me = request.POST.get('remember_me')
+        # if code.lower() != request.session.get('check_code', 'error').lower():
+        #     return render(request, 'login.html', {"login_error_info": "验证码错误,请重新输入！"})
         user = auth.authenticate(username=username, password=password)
         if user and user.is_active:
             auth.login(request, user)
             request.session['username'] = username
             if remember_me:
-                request.session.set_expiry(604800)
+                request.session.set_expiry(60 * 60 * 24 * 7)
             else:
                 request.session.set_expiry(0)
             UserProfile.objects.filter(username=username).update(
                 login_status=0
             )
             return HttpResponseRedirect('/users/user_center/', locals())
+        elif user is None:
+            return render(request, 'login.html', {"login_error_info": "输入的用户名或密码错误！"})
+        elif not user.is_active:
+            return render(request, 'login.html', {"login_error_info": "账户被禁用！"})
         else:
-            if request.method == "POST":
-                return render(request, 'login.html', {"login_error_info": "用户名不存在，或者密码错误！"}, )
-            else:
-                return render(request, 'login.html')
+            return render(request, 'login.html', {"login_error_info": "未知异常，请联系管理员！"})
 
 
 def logout(request):

@@ -72,7 +72,7 @@
                                         <label for="is_superuser" class="col-sm-2 control-label">超级管理员</label>
                                         <div class="col-sm-6">
                                             <select class="form-control select2" name="is_superuser" id="is_superuser"
-                                                    style="width: 100%;">
+                                                    style="width: 100%;" required>
                                                 <option value="1">是</option>
                                                 <option value="0" selected>否</option>
                                             </select>
@@ -83,7 +83,7 @@
                                         <label for="is_active" class="col-sm-2 control-label">是否激活</label>
                                         <div class="col-sm-6">
                                             <select class="form-control select2" name="is_active" id="is_active"
-                                                    style="width: 100%;">
+                                                    style="width: 100%;" required>
                                                 <option value="1" selected>是</option>
                                                 <option value="0">否</option>
                                             </select>
@@ -123,8 +123,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                    id="user_ops"></button>
+                            <button type="button" class="btn btn-primary" id="user_ops"></button>
                         </div>
                     {% else %}
                         <div class="modal-body">
@@ -215,6 +214,8 @@
     <!-- DataTables -->
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- 输入验证 -->
+    <script src="{% static 'parsley/dist/parsley.min.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 
     <script>
@@ -247,39 +248,45 @@
                 user_ops.text('添加');
 
                 user_ops.unbind('click').on('click', function () {
-                    let groups = $('#groups option:selected').text();
-                    let data = $('#user_detail').serialize();
-                    $.ajax({
-                        url: '{% url 'create_user' %}',
-                        type: 'POST',
-                        data: data,
-                        success: function (res) {
-                            let user_info = res.data;
-                            let is_superuser = user_info.is_superuser === "1" ? '<span class="label label-success">是</span>' : '<span class="label label-danger">否</span>';
-                            let is_active = user_info.is_active === "1" ? '<span class="label label-success">已激活</span>' : '<span class="label label-danger">未激活</span>';
-                            $.alert({
-                                title: 'Tips',
-                                type: 'green',
-                                content: res.msg,
-                            });
-                            user_table.row.add([
-                                user_info.id,
-                                user_info.username,
-                                is_superuser,
-                                groups,
-                                is_active,
-                                user_info.mobile,
-                                `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${user_info.id}" data-target="#UserModal">详细/更新</button> <button type="button" class="btn btn-warning btn-xs change_pwd" data-id="${user_info.id}">重置密码</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${user_info.id}">删除</button>`
-                            ]).draw();
-                        },
-                        error: function (response) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: response.responseText,
-                            })
-                        }
-                    })
+                    let obj = $('#user_detail');
+                    let status = obj.parsley().validate();
+                    if (status) {
+                        user_ops.attr('data-dismiss', 'modal');
+                        let groups = $('#groups option:selected').text();
+                        let data = obj.serialize();
+                        $.ajax({
+                            url: '{% url 'create_user' %}',
+                            type: 'POST',
+                            data: data,
+                            success: function (res) {
+                                let user_info = res.data;
+                                let is_superuser = user_info.is_superuser === "1" ? '<span class="label label-success">是</span>' : '<span class="label label-danger">否</span>';
+                                let is_active = user_info.is_active === "1" ? '<span class="label label-success">已激活</span>' : '<span class="label label-danger">未激活</span>';
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'green',
+                                    content: res.msg,
+                                });
+                                user_table.row.add([
+                                    user_info.id,
+                                    user_info.username,
+                                    is_superuser,
+                                    groups,
+                                    is_active,
+                                    user_info.mobile,
+                                    `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${user_info.id}" data-target="#UserModal">详细/更新</button> <button type="button" class="btn btn-warning btn-xs change_pwd" data-id="${user_info.id}">重置密码</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${user_info.id}">删除</button>`
+                                ]).draw();
+                            },
+                            error: function (response) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: response.responseText,
+                                })
+                            }
+                        })
+                    }
+
                 });
             {% endif %}
         });
@@ -344,12 +351,11 @@
                     content: '确定要删除这条记录么？',
                     type: 'red',
                     buttons: {
-                        Ok: function (res) {
+                        Ok: function () {
                             $.ajax({
                                 url: '/api/users/' + pk + '/',
                                 method: 'DELETE',
                                 success: function () {
-                                    console.log(res)
                                     user_table.row(tr_obj).remove().draw();
                                 },
                                 error: function (data) {
