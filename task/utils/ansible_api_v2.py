@@ -246,40 +246,55 @@ class ANSRunner(object):
         results_raw = []
         for host, result in self.callback.host_ok.items():
             if 'rc' in result._result and 'stdout' in result._result:
-                data = "{host} | success | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
-                                                                           stdout=result._result.get('stdout'))
+                data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
+                    host=host, rc=result._result.get('rc'),
+                    stdout=result._result.get('stdout'))
             elif 'results' in result._result and 'rc' in result._result:
-                data = "{host} | success | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
-                                                                           stdout=result._result.get('results')[0])
+                data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
+                    host=host, rc=result._result.get('rc'),
+                    stdout=result._result.get('results')[0])
             elif 'module_stdout' in result._result and 'rc' in result._result:
-                data = "{host} | success | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
-                                                                           stdout=result._result.get(
-                                                                               'module_stdout').encode().decode(
-                                                                               'utf-8'))
+                data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
+                    host=host, rc=result._result.get('rc'),
+                    stdout=result._result.get(
+                        'module_stdout').encode().decode(
+                        'utf-8'))
             else:
-                data = "{host} | success >> \n{stdout}\n".format(host=host, stdout=json.dumps(result._result, indent=4))
+                data = '<code style="color: #008000">\n{host} | success >> \n{stdout}\n</code>'.format(host=host,
+                                                                                                     stdout=json.dumps(
+                                                                                                         result._result,
+                                                                                                         indent=4))
             results_raw.append(data)
 
         for host, result in self.callback.host_failed.items():
             if 'stderr' in result._result:
-                data = "{host} | failed | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
-                                                                          stdout=result._result.get(
-                                                                              'stderr').encode().decode('utf-8'))
+                data = '<code style="color: #FF0000">\n{host} | failed | rc={rc} >> \n{stdout}\n</code>'.format(host=host,
+                                                                                                              rc=result._result.get(
+                                                                                                                  'rc'),
+                                                                                                              stdout=result._result.get(
+                                                                                                                  'stderr').encode().decode(
+                                                                                                                  'utf-8'))
             else:
-                data = "{host} | failed >> \n{stdout}\n".format(host=host,
-                                                                stdout=json.dumps(result._result, indent=4))
+                data = '<code style="color: #FF0000">\n{host} | failed >> \n{stdout}\n</code>'.format(host=host,
+                                                                                                    stdout=json.dumps(
+                                                                                                        result._result,
+                                                                                                        indent=4))
             results_raw.append(data)
 
         for host, result in self.callback.host_unreachable.items():
             if 'msg' in result._result:
-                data = "{host} | unreachable | rc={rc} >> \n{stdout}\n".format(host=host, rc=result._result.get('rc'),
-                                                                               stdout=result._result.get('msg'))
+                data = '<code style="color: #FF0000">\n{host} | unreachable | rc={rc} >> \n{stdout}\n</code>'.format(
+                    host=host, rc=result._result.get('rc'),
+                    stdout=result._result.get('msg'))
             else:
-                data = "{host} | unreachable >> \n{stdout}\n".format(host=host,
-                                                                     stdout=json.dumps(result._result, indent=4))
+                data = '<code style="color: #FF0000">\n{host} | unreachable >> \n{stdout}\n</code>'.format(host=host,
+                                                                                                         stdout=json.dumps(
+                                                                                                             result._result,
+                                                                                                             indent=4))
             results_raw.append(data)
 
         return results_raw
+
 
     def get_playbook_result(self):
         """
