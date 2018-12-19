@@ -1,5 +1,0 @@
-- hosts: centos
-  
-  tasks:
-    - name:  test playbook
-      shell: echo "hello world" > /tmp/hello.txt
