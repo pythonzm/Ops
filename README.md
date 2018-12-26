@@ -11,7 +11,7 @@
 git clone https://github.com/pythonzm/Ops.git
 pip install -r requirements.txt
 
-// 可选： 因为playbook第一次执行都会执行gather facts任务，若想取消该任务，编辑ansible配置文件修改：gathering = explicit
+// 可选： 因为playbook第一次执行都会执行gather facts任务，若想取消该任务，可在playbook中设置，也可以编辑ansible配置文件修改：gathering = explicit
   
 
 // 因为django-celery-results的pip包与github上不一致，所以使用下面方法安装
