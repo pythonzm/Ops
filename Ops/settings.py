@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+ASGI_APPLICATION = "Ops.routing.application"
+
 # channel配置
 CHANNEL_LAYERS = {
     "default": {
@@ -52,8 +54,6 @@ CELERY_ROUTES = {
     'task.tasks.*': {'queue': 'ansible', 'routing_key': 'ansible'},
     'fort.tasks.*': {'queue': 'fort', 'routing_key': 'fort'},
 }
-
-ASGI_APPLICATION = "Ops.routing.application"
 
 # 执行ansible命令使用的redis信息
 REDIS_HOST = '10.1.19.10'
@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'plan.apps.PlanConfig',
     'wiki.apps.WikiConfig',
     'haystack.apps.HaystackConfig',
+    'dbmanager.apps.DbmanagerConfig',
 ]
 
 # 全局搜索配置
@@ -207,11 +208,11 @@ TIME_FORMAT = '%Y-%m-%d %X'
 
 # zabbix配置
 ZABBIX_INFO = {
-    'api_url': 'http://10.1.19.11/zabbix/api_jsonrpc.php',
-    'graph_url': 'http://10.1.19.11/zabbix/chart2.php',
-    'login_url': 'http://10.1.19.11/zabbix/index.php',
+    'api_url': 'http://172.16.1.176/zabbix/api_jsonrpc.php',
+    'graph_url': 'http://172.16.1.176/zabbix/chart2.php',
+    'login_url': 'http://172.16.1.176/zabbix/index.php',
     'username': 'admin',
-    'password': 'adminpassword'
+    'password': '123.juREN'
 }
 
 ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')

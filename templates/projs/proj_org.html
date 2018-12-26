@@ -78,7 +78,7 @@
                                 <td>{{ project_obj.project_name }} | {{ project_obj.get_project_env_display }}</td>
                                 <td>{{ service.service_name }}</td>
                                 <td>
-                                    {% for asset in service.service_assets.all %}
+                                    {% for asset in service.service_asset.all %}
                                         {{ asset.asset_management_ip }}<br>
                                     {% endfor %}
                                 </td>
@@ -140,11 +140,10 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="service_assets" class="col-sm-2 control-label">所在机器</label>
+                                            <label for="service_asset" class="col-sm-2 control-label">所在机器</label>
                                             <div class="col-sm-6">
-                                                <select class="form-control select2" name="service_assets" multiple
-                                                        id="service_assets"
-                                                        style="width: 100%;">
+                                                <select class="form-control select2" name="service_asset"
+                                                        id="service_asset" style="width: 100%;">
                                                     {% for asset in assets %}
                                                         <option value="{{ asset.id }}">{{ asset.asset_management_ip }}</option>
                                                     {% endfor %}
@@ -212,20 +211,22 @@
 
         // Initialize Select2 Elements
         $(function () {
-            $('.select2').select2({
-                allowClear: true
-            })
+            $('.select2').select2()
         });
+
+        // 处理在modal中select2当选框无法搜索的问题
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {
+        };
 
 
         let service_tbody = $('#service-list tbody');
         let service_ops = $('#service_ops');
 
-        // 新增项目
+        // 新增服务
         $('#add-service').on('click', function () {
             document.getElementById('service_info').reset();
             $("#project").val('{{ pk }}').trigger('change');
-            $('#service_assets').val('').trigger('change');
+            $('#service_asset').val('').trigger('change');
             $('.modal-title').text('新增服务');
             service_ops.text('添加');
 
@@ -233,7 +234,7 @@
                 let data = {
                     project: $('#project').val(),
                     service_name: $('#service_name').val(),
-                    service_assets: $('#service_assets').val(),
+                    service_asset: $('#service_asset').val(),
                     service_memo: $('#service_memo').val(),
                 };
 
@@ -265,14 +266,14 @@
             $.get('/api/service/' + service_id + '/', function (data) {
                 $('#project').val(data.project).trigger('change');
                 $('#service_name').val(data.service_name);
-                $('#service_assets').val(data.service_assets).trigger('change');
+                $('#service_asset').val(data.service_asset).trigger('change');
                 $('#service_memo').val(data.service_memo);
             });
 
             service_ops.unbind('click').on('click', function () {
                 let data = {
                     service_name: $('#service_name').val(),
-                    service_assets: $('#service_assets').val(),
+                    service_asset: $('#service_asset').val(),
                     service_memo: $('#service_memo').val(),
                 };
 
@@ -347,10 +348,10 @@
                         {% for service in services %}
                             {
                                 'name': '{{ service.service_name }}',
-                                'title': '{{ service.service_assets.count }} host',
+                                'title': '{{ service.service_asset.count }} host',
                                 'className': 'second-level',
                                 'children': [
-                                    {% for asset in service.service_assets.all %}
+                                    {% for asset in service.service_asset.all %}
                                         {
                                             'name': '{{ asset.asset_management_ip }}',
                                             'title': '{{ asset.asset_model }}',

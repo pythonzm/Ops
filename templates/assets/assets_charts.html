@@ -132,25 +132,29 @@
         // 资产明细饼图
         function genData() {
             let legendData = [];
-            let seriesData = [];
+            let seriesData_total = [];
+            let seriesData_detail = [];
 
-            {% for asset_type in asset_types %}
-                {% for asset_type_count in asset_types_count %}
-                    {% if asset_type_count.asset_type == asset_type.0 %}
-                        legendData.push('{{ asset_type.1 }}');
-                        seriesData.push({
-                            name: '{{ asset_type.1 }}',
-                            value: {{ asset_type_count.dcount }}
-                        });
-                    {% endif %}
-                {% endfor %}
+            {% for asset_datum in asset_data %}
+                legendData.push('{{ asset_datum.asset_type }}');
+                seriesData_total.push({
+                    name: '{{ asset_datum.asset_type }}',
+                    value: {{ asset_datum.dcount }}
+                });
+            {% endfor %}
 
+            {% for foo in data_detail %}
+                seriesData_detail.push({
+                    name: '{{ foo.asset_type }}',
+                    value: {{ foo.dcount }}
+                });
             {% endfor %}
 
 
             return {
                 legendData: legendData,
-                seriesData: seriesData,
+                seriesData_total: seriesData_total,
+                seriesData_detail: seriesData_detail,
             };
         }
 
@@ -164,7 +168,7 @@
 
         function genColor() {
             let colors = [];
-            let num = genData().legendData.length;
+            let num = genData().seriesData_detail.length;
             for (let i = 0; i < num; i++) {
                 colors.push(color())
             }
@@ -186,24 +190,25 @@
                 bottom: 20,
                 data: data.legendData,
             },
-            graphic: {
-                type: 'text',
-                left: 'center',
-                top: 'center',
-                style: {
-                    text: '资产总数\n' + '{{ assets.count }}', //使用“+”可以使每行文字居中
-                    textAlign: 'center',
-                    font: 'italic bolder 16px cursive',
-                    fill: '#000',
-                    width: 30,
-                    height: 30
-                }
-            },
             series: [
                 {
                     name: '资产类型',//tooltip提示框中显示内容
                     type: 'pie',//图形类型，如饼状图，柱状图等
-                    radius: ['35%', '65%'],//饼图的半径，数组的第一项是内半径，第二项是外半径。支持百分比，本例设置成环形图。具体可以看文档或改变其值试一试
+                    radius: [0, '35%'],//饼图的半径，数组的第一项是内半径，第二项是外半径。支持百分比，本例设置成环形图。具体可以看文档或改变其值试一试
+                    //roseType:'area',是否显示成南丁格尔图，默认false
+                    label: {
+                        normal: {
+                            position: 'inner'
+                        }
+                    },
+                    data: data.seriesData_total,//数据，数据中其他属性，查阅文档
+                    color: genColor().slice(0, genData().legendData.length),//各个区域颜色
+                },//数组中一个{}元素，一个图，以此可以做出环形图
+
+                {
+                    name: '资产详细',//tooltip提示框中显示内容
+                    type: 'pie',//图形类型，如饼状图，柱状图等
+                    radius: ['35%', '70%'],//饼图的半径，数组的第一项是内半径，第二项是外半径。支持百分比，本例设置成环形图。具体可以看文档或改变其值试一试
                     //roseType:'area',是否显示成南丁格尔图，默认false
                     itemStyle: {
                         normal: {
@@ -226,7 +231,7 @@
                             textColor: '#000'
                         }//鼠标放在各个区域的样式
                     },
-                    data: data.seriesData,//数据，数据中其他属性，查阅文档
+                    data: data.seriesData_detail,//数据，数据中其他属性，查阅文档
                     color: genColor(),//各个区域颜色
                 },//数组中一个{}元素，一个图，以此可以做出环形图
             ],

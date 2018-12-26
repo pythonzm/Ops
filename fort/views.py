@@ -2,7 +2,7 @@ import datetime
 import uuid
 import os
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponseForbidden, FileResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render
 from fort.models import *
 from assets.models import ServerAssets
@@ -73,10 +73,18 @@ def format_commands(commands):
 
 @permission_required('fort.ssh_fortserver', raise_exception=True)
 def ssh_list(request):
-    user = UserProfile.objects.get(username=request.user)
-    groups = user.groups.all()
-    fort_users = set(FortServerUser.objects.filter(Q(fort_belong_user=user) | Q(fort_belong_group__in=groups)))
-    fort_servers = {fort_user.fort_server for fort_user in fort_users}
+    fort_server_users = FortServerUser.objects.prefetch_related('fort_belong_group').all()
+    groups = request.user.groups.all()
+
+    fort_users = set()
+    for fort_server_user in fort_server_users:
+        if not set(fort_server_user.fort_belong_group.all()).isdisjoint(set(groups)):  # 判断fort_user的组与当前用户的组是否有交集
+            fort_users.add(fort_server_user)
+
+    for i in FortServerUser.objects.prefetch_related('fort_belong_user').filter(fort_belong_user=request.user):
+        fort_users.add(i)
+
+    fort_users = [user for user in fort_users if user.fort_server.server_status == 1 and user.fort_user_status == 1]
 
     return render(request, 'fort/ssh_list.html', locals())
 

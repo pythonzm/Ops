@@ -51,10 +51,10 @@
                     {% for service in services %}
                         {
                             'name': '{{ service.service_name }}',
-                            'title': '{{ service.service_assets.count }} host',
+                            'title': '{{ service.service_asset.count }} host',
                             'className': 'second-level',
                             'children': [
-                                {% for asset in service.service_assets.all %}
+                                {% for asset in service.service_asset.all %}
                                     {
                                         'name': '{{ asset.asset_management_ip }}',
                                         'title': '{{ asset.asset_model }}',

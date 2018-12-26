@@ -34,31 +34,27 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for fort_server in fort_servers %}
-                            {% for fort_user in fort_server.fortserveruser_set.all %}
-                                {% if fort_server.server_status == 1 and fort_user.fort_user_status == 1 and request.user in fort_user.fort_belong_user.all %}
-                                    <tr>
-                                        <td>{{ fort_server.server.assets.asset_management_ip }}</td>
-                                        <td>
-                                            {% if 'win' in fort_server.server.system or 'Win' in fort_server.server.system %}
-                                                <i class="fa fa-fw fa-windows"
-                                                   style="color: #00a7d0;font-size: 25px"></i>
-                                            {% else %}
-                                                <i class="fa fa-fw fa-linux"
-                                                   style="color: green;font-size: 25px"></i>
-                                            {% endif %}
-                                        </td>
+                        {% for fort_user in fort_users %}
+                            <tr>
+                                <td>{{ fort_user.fort_server.server.assets.asset_management_ip }}</td>
+                                <td>
+                                    {% if 'win' in fort_user.fort_server.server.system or 'Win' in fort_user.fort_server.server.system %}
+                                        <i class="fa fa-fw fa-windows"
+                                           style="color: #00a7d0;font-size: 25px"></i>
+                                    {% else %}
+                                        <i class="fa fa-fw fa-linux"
+                                           style="color: green;font-size: 25px"></i>
+                                    {% endif %}
+                                </td>
 
-                                        <td>
-                                            <a href="{% url 'terminal' server_id=fort_server.server.id fort_user_id=fort_user.id %}"
-                                               target="_blank">{{ fort_user.fort_username }}@{{ fort_server.server.assets.asset_management_ip }}</a>
-                                        </td>
-                                        <td><span
-                                                class="badge bg-gray">{{ fort_user.fort_username }}</span>: {{ fort_user.fort_user_memo }}<br>
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
+                                <td>
+                                    <a href="{% url 'terminal' server_id=fort_user.fort_server.server.id fort_user_id=fort_user.id %}"
+                                       target="_blank">{{ fort_user.fort_username }}@{{ fort_user.fort_server.server.assets.asset_management_ip }}</a>
+                                </td>
+                                <td><span
+                                        class="badge bg-gray">{{ fort_user.fort_username }}</span>: {{ fort_user.fort_user_memo }}<br>
+                                </td>
+                            </tr>
                         {% endfor %}
                         </tbody>
                     </table>

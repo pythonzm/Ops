@@ -12,6 +12,7 @@ from assets.models import ServerAssets
 from utils.db.redis_ops import RedisOps
 from Ops import settings
 from django.contrib.auth.decorators import permission_required
+from utils.decorators import admin_auth
 
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
@@ -297,6 +298,7 @@ def gen_inventory(request):
     return render(request, 'task/inventory.html', locals())
 
 
+@admin_auth
 def role_detail(request, pk):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -319,10 +321,7 @@ def role_detail(request, pk):
             node = {'name': role_name, 'isParent': True, 'p_name': settings.ANSIBLE_ROLE_PATH}
             return HttpResponse(json.dumps(node))
     else:
-        if request.user.is_superuser:
-            return render(request, 'task/role_detail.html', locals())
-        else:
-            return HttpResponseForbidden('<h1>403</h1>')
+        return render(request, 'task/role_detail.html', locals())
 
 
 @permission_required('task.add_ansiblerole', raise_exception=True)

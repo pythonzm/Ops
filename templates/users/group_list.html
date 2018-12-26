@@ -17,6 +17,10 @@
         #group > thead:first-child > tr:first-child > th {
             text-align: center;
         }
+
+        .form-horizontal .form-group {
+            margin-right: -200px;
+        }
     </style>
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
 {% endblock %}
@@ -79,7 +83,7 @@
                                                     id="permissions" name="permissions"
                                                     style="width: 100%;">
                                                 {% for permission in permissions %}
-                                                    <option value="{{ permission.id }}">{{ permission.name }}</option>
+                                                    <option value="{{ permission.id }}">{{ permission }}</option>
                                                 {% endfor %}
                                             </select>
 

@@ -268,6 +268,25 @@ desired effect
                     </li>
                 {% endif %}
 
+
+                {% if perms.plan.add_dblog %}
+                    <li class="treeview">
+                        <a href="#"><i class="fa fa-fw fa-database"></i> <span>数据库管理</span>
+                            <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            {% if user.is_superuser %}
+                                <li><a href="{% url 'db_list' %}"><i class="fa fa-wrench"></i> 数据库配置</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'db_exec' %}"><i class="fa fa-mouse-pointer"></i> 数据库连接</a></li>
+                            <li><a href="{% url 'db_log' %}"><i class="fa fa-signal"></i> 操作记录</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+
+
                 {% if perms.plan.add_periodictask %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-sliders"></i> <span>任务编排</span>

@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+
+    <style>
+        #edit-content {
+            width: 100%;
+            height: 400px;
+        }
+
+        .btn {
+            width: 10%;
+            float: left;
+            display: inline;
+            margin-left: 2px;
+            margin-right: 0;
+        }
+
+        .btn-block + .btn-block {
+            margin-top: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        /* dataTables列内容居中 */
+        #sql-res > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #sql-res > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="box">
+                <div class="box-body seach-db">
+
+                    <div class="form-group">
+                        <label for="db_server">选择数据库</label>
+                        <select class="form-control select2" name="db_server" id="db_server" style="width: 100%;">
+                            <option selected="selected">请选择数据库</option>
+                            {% for user_db in user_dbs %}
+                                <option value="{{ user_db.id }}">{{ user_db.db_server.project.project_name }}|{{ user_db.db_server.project.get_project_env_display }}|{{ user_db.db_server.service_asset.asset_management_ip }}|{{ user_db.db_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm connect" style="width: 100%">连接</button>
+
+                </div>
+
+                <div class="table-name" style="display: none;">
+                    <div class="box-header with-border">
+                        <h3 class="box-title text-center" style="display: block">
+                            表名称
+                        </h3>
+                    </div>
+                    <div class="box-body table-names" style="overflow: auto;text-align: center;">
+                        <table rules="all" frame="box" style="text-align: center; width: auto;display:inline-block;">
+                            <tbody class="names">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8" style="width: 75%">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">SQL内容</h3>
+                </div>
+                <div class="box-body no-padding">
+                    <div class="row" style="margin-right: 0; margin-left: 0;">
+                        <div id="edit-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-right: 0; margin-left: 0;">
+                <button type="button" class="btn btn-block btn-warning btn-sm sql-one" data-toggle="tooltip"
+                        title="用于执行update,insert,delete等单条语句">执行
+                </button>
+                <button type="button" class="btn btn-block btn-warning btn-sm sql-many" data-toggle="tooltip"
+                        title="用于同时执行多条语句，一般用于insert或replace语句，格式必须是：insert test values (%s, %s) args=[('name1', 18), ('name2', 18)]">
+                    批量执行
+                </button>
+                <button type="button" class="btn btn-block btn-primary btn-sm sql-select" data-toggle="tooltip"
+                        title="用于执行select或show等查询语句">查询
+                </button>
+                <button type="button" class="btn btn-block btn-success btn-sm sql-export" style="display: none">导出结果
+                </button>
+            </div>
+
+            <div class="row" style="margin-right: 0; margin-left: 0; margin-top: 5px; height:700px;overflow: auto;">
+                <div class="box-body no-padding">
+                    <table id="sql-res" class="table table-bordered table-hover cell-border">
+
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'ace/js/ace.js' %}"></script>
+    <script src="{% static 'ace/js/mode-mysql.js' %}"></script>
+    <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
+    <script src="{% static 'ace/js/ext-language_tools.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+
+            $("[data-toggle='tooltip']").tooltip();
+            // Initialize Select2 Elements
+            $('.select2').select2();
+
+            ace.require("ace/ext/language_tools");
+            editor = ace.edit("edit-content");
+            editor.setTheme("ace/theme/monokai");
+            editor.session.setMode("ace/mode/mysql");
+            editor.setShowPrintMargin(false);
+            editor.setOptions({
+                enableBasicAutocompletion: true,
+                enableSnippets: true,
+                enableLiveAutocompletion: true
+            });
+        });
+
+        // 连接数据库获取所有的表
+        $('.connect').on('click', function () {
+            let data = {
+                pk: $('#db_server').val(),
+                sql: "show tables"
+            };
+            $.ajax({
+                url: "{% url 'db_exec' %}",
+                type: 'POST',
+                data: data,
+                success: function (res) {
+                    if (res.code === 200) {
+                        $('.table-name').css('display', 'block');
+                        let names = res.data;
+                        let table = $('.names');
+                        table.html('');
+                        for (let i = 0; i < names.length; i++) {
+                            table.append(`<tr> <td>${names[i]}</td> </tr>`)
+                        }
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: res.msg,
+                        })
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        // 连接数据库执行查询语句
+        $('.sql-select').on('click', function () {
+            let sql = editor.getSession().getValue();
+            let names = $('.names').text();
+
+            if (names.trim().length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请正确连接数据库',
+                })
+            } else if (sql.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请正确输入SQL语句',
+                })
+            } else {
+                $.ajax({
+                    url: "{% url 'db_exec' %}",
+                    type: 'POST',
+                    data: {pk: $('#db_server').val(), sql: sql, sql_type: 'select'},
+                    success: function (res) {
+                        if (res.code === 200) {
+                            let sql_export = $('.sql-export');
+                            sql_export.css('display', 'block');
+                            sql_export.attr('data-id', res.db_log_id);
+                            let sql_res = $('#sql-res');
+                            let columnList = [];
+                            for (let i = 0; i < res.table_heads.length; i++) {
+                                columnList.push({'title': res.table_heads[i]})
+                            }
+
+                            if (sql_res.hasClass('dataTable')) {
+                                let oldTable = sql_res.dataTable({
+                                    'columns': columnList,
+                                    'retrieve': true,
+                                });
+                                oldTable.fnClearTable(); //清空一下table
+                                oldTable.fnDestroy(); //还原初始化了的dataTable
+                                sql_res.empty();
+                            }
+
+                            let sql_table = sql_res.DataTable({
+                                'paging': true,
+                                'ordering': true,
+                                'info': true,
+                                'autoWidth': false,
+                                'columns': columnList,
+                                'retrieve': true
+                            });
+
+                            sql_table.rows.add(res.data).draw();
+
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            }
+        });
+
+        // 连接数据库执行单条语句
+        $('.sql-one').on('click', function () {
+            let sql = editor.getSession().getValue();
+            let names = $('.names').text();
+
+            if (names.trim().length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请正确连接数据库',
+                })
+            } else if (sql.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请正确输入SQL语句',
+                })
+            } else {
+                $.ajax({
+                    url: "{% url 'db_exec' %}",
+                    type: 'POST',
+                    data: {pk: $('#db_server').val(), sql: sql, sql_type: 'sql-one'},
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $('.sql-export').css('display', 'none');
+                            $('#sql-res').text('\n' + res.data);
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            }
+        });
+
+        // 连接数据库执行多条语句
+        $('.sql-many').on('click', function () {
+            let sql = editor.getSession().getValue();
+            let names = $('.names').text();
+
+            if (names.trim().length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请正确连接数据库',
+                })
+            } else if (sql.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请正确输入SQL语句',
+                })
+            } else {
+                $.ajax({
+                    url: "{% url 'db_exec' %}",
+                    type: 'POST',
+                    data: {pk: $('#db_server').val(), sql: sql, sql_type: 'sql-many'},
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $('.sql-export').css('display', 'none');
+                            $('#sql-res').text('\n' + res.data);
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            }
+        });
+
+        // 将查询结果导出到csv文件
+        $('.sql-export').on('click', function () {
+            let pk = $(this).attr('data-id');
+
+            location.href = '/db_config/db_log_detail/?pk=' + pk
+        });
+
+
+        //获取屏幕的高度
+        let windowheight = $(window).height() - 40;
+        let navbar = $('.navbar').height();
+        let seachdb = $('.seach-db').height();
+        let mainfooter = $('.main-footer').height();
+        $('.table-names').css('height', windowheight - navbar - seachdb - mainfooter + 'px')
+
+
+    </script>
+
+{% endblock %}
+

@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #db-log > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #db-log > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <br>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="SqlRunStartTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="开始时间">
+                        <span class="input-group-addon">
+										                    <span class="glyphicon glyphicon-calendar"></span>
+										                </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="SqlRunEndTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="结束时间">
+                        <span class="input-group-addon" onclick="searchUserLog()">
+										                    <span class="glyphicon glyphicon-search"
+                                                                  style="cursor: pointer"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="db-log" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>所属项目</th>
+                            <th>数据库</th>
+                            <th>SQL内容</th>
+                            <th>执行结果</th>
+                            <th>执行用户</th>
+                            <th>执行时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for db_log in db_logs %}
+
+                            <tr>
+                                <td>{{ db_log.db_config.db_server.project.project_name }}|{{ db_log.db_config.db_server.project.get_project_env_display }}</td>
+                                <td>{{ db_log.db_config.db_server.service_asset.asset_management_ip }}|{{ db_log.db_config.db_name }}</td>
+                                <td>
+                                    <button type="button" class="result btn btn-default"
+                                            data-toggle="modal"
+                                            data-target="#modal-sql-content"
+                                            data-whatever="{{ db_log.db_sql_content }}"><i
+                                            class="fa fa-fw fa-eye"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="result btn btn-default"
+                                            data-toggle="modal"
+                                            data-target="#modal-sql-res"
+                                            data-id="{{ db_log.id }}"
+                                            data-result="{{ db_log.db_sql_res }}"
+                                            data-thead="{{ db_log.db_sql_res_thead }}"><i
+                                            class="fa fa-fw fa-eye"></i>
+                                    </button>
+                                </td>
+                                <td>{{ db_log.db_login_user.username }}</td>
+                                <td>{{ db_log.db_run_datetime|date:"Y-m-d H:i:s" }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <div class="modal fade bd-example-modal-lg" id="modal-sql-content">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">SQL内容</h4>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+
+        <div class="modal fade bd-example-modal-lg" id="modal-sql-res">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">执行结果</h4>
+                    </div>
+                    <div class="modal-body" style="overflow: auto;">
+
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
+    <script>
+        $(function () {
+            table = $('#db-log').DataTable({
+                'ordering': false,
+            });
+
+            //Date picker
+            $('#SqlRunStartTime, #SqlRunEndTime').datepicker({
+                autoclose: true
+            });
+        });
+
+        // 查看SQL语句
+        $('#modal-sql-content').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget); // Button that triggered the modal
+            let sql_content = button.data('whatever'); // Extract info from data-* attributes
+            let modal = $(this);
+            modal.find('.modal-body').text(sql_content);
+            modal.scrollTop = modal.scrollHeight;
+        });
+
+        // 查看执行结果
+        $('#modal-sql-res').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget); // Button that triggered the modal
+            let sql_thead = button.data('thead'); // Extract info from data-* attributes
+            let sql_result = button.data('result');
+            let pk = button.data('id'); // Extract info from data-* attributes
+
+            let modal = $(this);
+            modal.find('.modal-body').html('');
+            modal.find('.modal-footer').html('');
+
+            if (sql_thead.length !== 0) {
+                modal.find('.modal-body').append('<table id="sql-res" class="table table-bordered table-hover cell-border"></table>');
+
+                modal.find('.modal-footer').append(`<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button> <button type="button" class="btn btn-primary export" data-dismiss="modal">导出结果</button>`);
+
+                let sql_res = $('#sql-res');
+
+                $.ajax({
+                    url: "{% url 'db_log_detail' %}",
+                    type: 'POST',
+                    data: {pk: pk},
+                    success: function (res) {
+                        if (res.code === 200) {
+                            let columnList = [];
+
+                            for (let i = 0; i < res.heads.length; i++) {
+                                columnList.push({'title': res.heads[i]})
+                            }
+
+                            if (sql_res.hasClass('dataTable')) {
+                                let oldTable = sql_res.dataTable({
+                                    'columns': columnList,
+                                    'retrieve': true,
+                                });
+                                oldTable.fnClearTable(); //清空一下table
+                                oldTable.fnDestroy(); //还原初始化了的dataTable
+                                sql_res.empty();
+                            }
+
+                            let sql_table = sql_res.DataTable({
+                                'paging': true,
+                                'ordering': true,
+                                'info': true,
+                                'autoWidth': false,
+                                'columns': columnList,
+                                'retrieve': true
+                            });
+
+                            sql_table.rows.add(res.data).draw();
+
+                            // 将查询结果导出到csv文件
+                            $('.export').on('click', function () {
+                                location.href = '/db_config/db_log_detail/?pk=' + pk
+                            });
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+
+            } else {
+                modal.find('.modal-body').text(sql_result);
+                modal.find('.modal-footer').append('<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>')
+            }
+            modal.scrollTop = modal.scrollHeight;
+        });
+
+
+        // 按日期搜索
+        function searchUserLog() {
+            let startTime = $('#SqlRunStartTime').val();
+            let endTime = $('#SqlRunEndTime').val();
+            if (startTime.length === 0 || endTime.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请选择起始时间！'
+                });
+                return false;
+            }
+            $.ajax({
+                dataType: "JSON",
+                url: '{% url 'db_log' %}',
+                type: "POST",  //提交类似
+                data: {
+                    "startTime": startTime,
+                    "endTime": endTime,
+                },
+                success: function (response) {
+                    if (response.records.length === 0) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '该时间段内没有任何操作！'
+                        });
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '查询完成！'
+                        });
+                        table.clear().draw();
+                        for (let i = 0; i < response.records.length; i++) {
+                            let result = response.records[i];
+                            let run_time = $.format.date(result['db_run_datetime'], "yyyy-MM-dd HH:mm:ss");
+
+                            table.row.add([
+                                result['db_project'],
+                                result['db_server'],
+                                `<button type="button" class="result btn btn-default" data-toggle="modal" data-target="#modal-sql-content" data-whatever="${result['db_sql_content']}"><i class="fa fa-fw fa-eye"></i> </button>`,
+                                `<button type="button" class="result btn btn-default" data-toggle="modal" data-target="#modal-sql-res" data-id="${result['id']}" data-result="${result['db_sql_res']}" data-thead="${result['db_sql_res_thead']}"><i class="fa fa-fw fa-eye"></i> </button>`,
+                                result['db_login_user'],
+                                run_time
+                            ]).draw();
+                        }
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText
+                    });
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
+

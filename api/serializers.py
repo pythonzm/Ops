@@ -10,6 +10,7 @@ from fort.models import *
 from projs.models import *
 from django_celery_beat.models import PeriodicTask
 from wiki.models import Post
+from dbmanager.models import DBConfig
 
 
 class AssetsSerializer(serializers.ModelSerializer):

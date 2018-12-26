@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #db_list > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #db_list > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        .form-horizontal .form-group {
+            margin-right: -200px;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#DBModal"
+                    id="add-db">
+                <i class="fa fa-plus-square"></i>
+                <span class="bigger-110">新增数据库</span>
+            </button>
+        </div>
+
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+                    <table id="db_list" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>所属项目</th>
+                            <th>地址</th>
+                            <th>端口</th>
+                            <th>账号</th>
+                            <th>库名称</th>
+                            <th>使用组</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for db in dbs %}
+                            <tr>
+                                <td><span class="badge bg-blue">{{ db.db_server.project.project_name }}</span>|
+                                    {% if db.db_server.project.project_env == 0 %}
+                                        <span class="badge bg-green">{{ db.db_server.project.get_project_env_display }}</span>
+                                    {% elif db.db_server.project.project_env == 1 %}
+                                        <span class="badge bg-yellow">{{ db.db_server.project.get_project_env_display }}</span>
+                                    {% elif db.db_server.project.project_env == 2 %}
+                                        <span class="badge bg-red">{{ db.db_server.project.get_project_env_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ db.db_server.service_asset.asset_management_ip }}</td>
+                                <td>{{ db.db_port }}</td>
+                                <td>{{ db.db_user }}</td>
+                                <td>{{ db.db_name }}</td>
+                                <td>
+                                    {% for group in db.db_group.all %}
+                                        {{ group.name }}&nbsp;
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-id="{{ db.id }}" data-target="#DBModal">详细/更新
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete"
+                                            data-id="{{ db.id }}">删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <!-- DBModal  -->
+            <div class="modal fade" id="DBModal" tabindex="-1" role="dialog" aria-labelledby="DBModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="DBModalLabel">
+
+                            </h4>
+                        </div>
+                        {% if request.user.is_superuser %}
+                            <div class="modal-body">
+                                <form id="db_info" class="main form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="db_server" class="col-sm-2 control-label">数据库地址</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="db_server" id="db_server"
+                                                        style="width: 100%;" required>
+                                                    {% for service in services %}
+                                                        <option value="{{ service.id }}">{{ service.project.project_name }}|{{ service.project.get_project_env_display }}|{{ service.service_asset.asset_management_ip }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="db_port" class="col-sm-2 control-label">数据库端口</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="db_port"
+                                                       id="db_port" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="db_name" class="col-sm-2 control-label">数据库名称</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="db_name"
+                                                       id="db_name" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="db_user" class="col-sm-2 control-label">数据库账号</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" name="db_user"
+                                                       id="db_user" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="db_password" class="col-sm-2 control-label">数据库密码</label>
+                                            <div class="col-sm-6">
+                                                <input type="password" class="form-control" name="db_password"
+                                                       id="db_password" required/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="db_group" class="col-sm-2 control-label">使用组</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="db_group" multiple
+                                                        id="db_group" style="width: 100%;">
+                                                    {% for group in groups %}
+                                                        <option value="{{ group.id }}">{{ group.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="db_memo" class="col-sm-2 control-label">备注</label>
+                                            <div class="col-sm-6">
+                                            <textarea class="form-control" name="db_memo"
+                                                      id="db_memo"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" id="db_ops"></button>
+                            </div>
+                        {% else %}
+                            <div class="modal-body">
+                                抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                            </div>
+                        {% endif %}
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- 输入验证 -->
+    <script src="{% static 'parsley/dist/parsley.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            db_table = $('#db_list').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [[0, "asc"]]
+            });
+        });
+
+        // Initialize Select2 Elements
+        $(function () {
+            $('.select2').select2({
+                allowClear: true
+            })
+        });
+
+        // 处理在modal中select2当选框无法搜索的问题
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {
+        };
+
+
+        let db_tbody = $('#db_list tbody');
+        let db_ops = $('#db_ops');
+
+        // 新增数据库
+        $('#add-db').on('click', function () {
+            document.getElementById('db_info').reset();
+            $(".select2").val('').trigger('change');
+            $('#db_server').removeAttr("disabled");
+            $('.modal-title').text('新增数据库');
+            db_ops.text('添加');
+
+            db_ops.unbind('click').on('click', function () {
+                let obj = $('#db_info');
+                let status = obj.parsley().validate();
+                if (status) {
+                    let data = obj.serialize();
+
+                    $.ajax({
+                        url: "{% url 'db_list' %}",
+                        type: 'POST',
+                        data: data,
+                        traditional: true,
+                        dataType: 'json',
+                        success: function (res) {
+                            if (res.code === 200) {
+                                window.location.reload()
+                            } else {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: res.msg,
+                                })
+                            }
+                        },
+                        error: function (response) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.responseText,
+                            })
+                        }
+                    })
+                }
+            })
+        });
+
+        // 更新数据库
+        db_tbody.on('click', '.modify', function () {
+            let db_id = $(this).attr('data-id');
+            $('.modal-title').text('修改数据库信息');
+            db_ops.text('确认修改');
+            $.get('/db_config/db_edit/' + db_id + '/', function (res) {
+                let data = res.data;
+                $('#db_server').val(data.db_server).trigger('change');
+                $('#db_port').val(data.db_port);
+                $('#db_name').val(data.db_name);
+                $('#db_user').val(data.db_user);
+                $('#db_password').val(data.db_password);
+                $('#db_group').val(data.db_group).trigger('change');
+                $('#project_memo').val(data.project_memo);
+            });
+            $('#db_server').attr('disabled', true);
+
+            db_ops.unbind('click').on('click', function () {
+                let data = $('#db_info').serialize();
+                $.ajax({
+                    url: '/db_config/db_edit/' + db_id + '/',
+                    type: 'POST',
+                    data: data,
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $.confirm({
+                                title: 'Tips',
+                                content: res.msg,
+                                type: 'green',
+                                buttons: {
+                                    Ok: function () {
+                                        window.location.reload()
+                                    },
+                                }
+                            });
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除数据库
+        db_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/db_config/db_del/' + pk + '/',
+                            method: 'DELETE',
+                            success: function (res) {
+                                if (res.code === 200) {
+                                    db_table.row(tr_obj).remove().draw();
+                                } else {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: res.msg,
+                                    })
+                                }
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        });
+    </script>
+
+{% endblock %}
+

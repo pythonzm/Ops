@@ -5,6 +5,7 @@ import os
 import xlrd
 import xlwt
 import logging
+from itertools import product
 from utils.export_excel import ExportExcel
 from Ops import settings
 from django.db.models import Count
@@ -21,12 +22,48 @@ from utils.sftp import SFTP
 @permission_required('assets.add_assets', raise_exception=True)
 def get_assets_charts(request):
     assets = Assets.objects.all()
-    asset_types = Assets.asset_types
     online_assets_count = Assets.objects.filter(asset_status=0).count()
     break_assets_count = Assets.objects.filter(asset_status=2).count()
     unused_assets_count = Assets.objects.filter(asset_status=3).count()
+
+    asset_data = []
+    data_detail = []
     asset_types_count = Assets.objects.values('asset_type').annotate(dcount=Count('asset_type'))
-    asset_logs = AssetsLog.objects.all().order_by('-c_time')[:5]
+    for m, n in product(asset_types_count, Assets.asset_types):
+        if m.get('asset_type') == n[0]:
+            asset_data.append({'asset_type': n[1], 'dcount': m.get('dcount')})
+
+    server_types_count = ServerAssets.objects.values('server_type').annotate(dcount=Count('server_type'))
+    for m, n in product(server_types_count, ServerAssets.server_types):
+        if m.get('server_type') == n[0]:
+            data_detail.append({'asset_type': n[1], 'dcount': m.get('dcount')})
+
+    network_types_count = NetworkAssets.objects.values('network_type').annotate(dcount=Count('network_type'))
+    for m, n in product(network_types_count, NetworkAssets.network_types):
+        if m.get('network_type') == n[0]:
+            data_detail.append({'asset_type': n[1], 'dcount': m.get('dcount')})
+
+    office_types_count = OfficeAssets.objects.values('office_type').annotate(dcount=Count('office_type'))
+    for m, n in product(office_types_count, OfficeAssets.office_types):
+        if m.get('office_type') == n[0]:
+            data_detail.append({'asset_type': n[1], 'dcount': m.get('dcount')})
+
+    security_types_count = SecurityAssets.objects.values('security_type').annotate(dcount=Count('security_type'))
+    for m, n in product(security_types_count, SecurityAssets.security_types):
+        if m.get('security_type') == n[0]:
+            data_detail.append({'asset_type': n[1], 'dcount': m.get('dcount')})
+
+    storage_types_count = StorageAssets.objects.values('storage_type').annotate(dcount=Count('storage_type'))
+    for m, n in product(storage_types_count, StorageAssets.storage_types):
+        if m.get('storage_type') == n[0]:
+            data_detail.append({'asset_type': n[1], 'dcount': m.get('dcount')})
+
+    software_types_count = SoftwareAssets.objects.values('software_type').annotate(dcount=Count('software_type'))
+    for m, n in product(software_types_count, SoftwareAssets.software_types):
+        if m.get('software_type') == n[0]:
+            data_detail.append({'asset_type': n[1], 'dcount': m.get('dcount')})
+
+    asset_logs = AssetsLog.objects.select_related('user').all().order_by('-c_time')[:5]
 
     return render(request, 'assets/assets_charts.html', locals())
 
