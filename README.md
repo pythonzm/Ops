@@ -128,6 +128,11 @@ python manage.py runserver 0.0.0.0:8000
 ### webssh操作记录回放
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/record.png)
 
+### 数据库执行命令
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/sql_exec.png)
+### 数据库操作记录
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/sql_log.png)
+
 ### 项目管理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_list.png)
 ### 项目架构查看
