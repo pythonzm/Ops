@@ -135,7 +135,7 @@ python manage.py runserver 0.0.0.0:8000
 
 ### 项目管理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_list.png)
-### 项目架构查看
+### 自定义项目架构
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_chart.png)
 
 ### celery任务编排
