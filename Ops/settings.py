@@ -208,11 +208,11 @@ TIME_FORMAT = '%Y-%m-%d %X'
 
 # zabbix配置
 ZABBIX_INFO = {
-    'api_url': 'http://172.16.1.176/zabbix/api_jsonrpc.php',
-    'graph_url': 'http://172.16.1.176/zabbix/chart2.php',
-    'login_url': 'http://172.16.1.176/zabbix/index.php',
+    'api_url': 'http://10.1.19.10/zabbix/api_jsonrpc.php',
+    'graph_url': 'http://10.1.19.10/zabbix/chart2.php',
+    'login_url': 'http://10.1.19.10/zabbix/index.php',
     'username': 'admin',
-    'password': '123.juREN'
+    'password': '123456'
 }
 
 ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')
