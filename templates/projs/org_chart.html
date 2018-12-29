@@ -1,78 +1,112 @@
 {% load staticfiles %}
-<link rel="stylesheet" href="{% static 'orgchart/css/jquery.orgchart.min.css' %}">
+<link rel="stylesheet" href="{% static 'jsplumb/css/jsplumbtoolkit-defaults.css' %}">
 <style>
-    #chart-container {
-        font-family: Arial, serif;
-        height: 420px;
-        border: 2px dashed #aaa;
-        border-radius: 5px;
+    #main {
+        width: 80%;
+        height: 500px;
         overflow: auto;
+        position: relative;
+    }
+
+    .item {
+        background: #CCFFFF;
+        height: 30px;
+        width: 200px;
+        border: 1px solid #5F9EDF;
+        margin: 5px;
+        font: 15px/30px "微软雅黑";
         text-align: center;
-    }
-
-    /* 抵消AdminLTE.min.css中content的配置 */
-    .orgchart .node .content {
-        min-height: 0;
-        margin-right: 0;
-        margin-left: 0;
-        padding: 0;
-    }
-
-    .orgchart .top-level .title {
-        background-color: #006699;
-    }
-
-    .orgchart .second-level .title {
-        background-color: #009933;
+        border-radius: 5px;
     }
 </style>
 
-
-<div id="chart-container">
-    <div align="center" id="edit-org">
-        <a href="{% url 'proj_org' project_obj.id %}" target="_blank">
-            <button type="button" class="btn btn-block btn-primary btn-flat"
-                    style="width: 10%;margin-bottom: 10px">编辑
-            </button>
-        </a>
-    </div>
+<div align="center" id="edit-org">
+    <a href="{% url 'proj_org' project_obj.id %}" target="_blank">
+        <button type="button" class="btn btn-block btn-primary btn-flat"
+                style="margin-bottom: 10px">编辑
+        </button>
+    </a>
 </div>
-<script src="{% static 'orgchart/js/jquery.orgchart.min.js' %}"></script>
+<div id="main"></div>
+<script src="{% static 'jsplumb/js/jsplumb.min.js' %}"></script>
 
 <script>
     // 生成架构图
-    (function ($) {
-        $(function () {
-            let ds = {
-                'name': '{{ project_obj.project_name }}',
-                'title': '{{ project_obj.project_web }}',
-                'className': 'top-level',
-                'children': [
-                    {% for service in services %}
-                        {
-                            'name': '{{ service.service_name }}',
-                            'title': '{{ service.service_asset.count }} host',
-                            'className': 'second-level',
-                            'children': [
-                                {% for asset in service.service_asset.all %}
-                                    {
-                                        'name': '{{ asset.asset_management_ip }}',
-                                        'title': '{{ asset.asset_model }}',
-                                        'className': 'third-level',
-                                    },
-                                {% endfor %}
-                            ]
-                        },
-                    {% endfor %}
-                ]
+    $(function () {
+        if ('{{ project_org }}'.length !== 0) {
+            let elementSign = 0;
+            let origin = {//起点
+                endpoint: ['Dot', {radius: 5}],  //端点的形状
+                connectorStyle: {
+                    outlineStroke: 'black',
+                    strokeWidth: 1
+                },//连接线的颜色，大小样式
+                connectorHoverStyle: {
+                    strokeWidth: 3
+                },
+                paintStyle: {fill: "lightblue", strokeWidth: 3},       //端点的颜色样式
+                isSource: true,    //是否可以拖动（作为连线起点）
+                connector: 'Straight', //连接线的样式种类有[Bezier],[Flowchart],[StateMachine ],[Straight ]
+                isTarget: false,    //是否可以放置（连线终点）
+                maxConnections: -1,    // 设置连接点最多可以连接几条线,-1表示无限大
+                connectorOverlays: [["Arrow", {width: 10, length: 10, location: 1}]]
             };
 
-            $('#chart-container').orgchart({
-                'data': ds,
-                'nodeContent': 'title',
-            });
-        });
-    })(jQuery);
+            let destination = {//终点
+                endpoint: ['Dot', {radius: 5}],  //端点的形状
+                connectorStyle: {
+                    outlineStroke: 'black',
+                    strokeWidth: 1
+                },//连接线的颜色，大小样式
+                connectorHoverStyle: {
+                    strokeWidth: 3
+                },
+                paintStyle: {fill: "lightblue", strokeWidth: 3},       //端点的颜色样式
+                isSource: false,    //是否可以拖动（作为连线起点）
+                connector: 'Straight',  //连接线的样式种类有[Bezier],[Flowchart],[StateMachine ],[Straight ]
+                isTarget: true,    //是否可以放置（连线终点）
+                maxConnections: -1,    // 设置连接点最多可以连接几条线,-1表示无限大
+                connectorOverlays: [["Arrow", {width: 10, length: 10, location: 1}]]
+            };
+            $.get('/api/project/{{ pk }}', function (res) {
+                let project_org = JSON.parse(res.project_org);
+
+                let mainHTML = "";
+                for (let i = 0; i < project_org.mainArr.length; i++) {
+                    if (elementSign < project_org.mainArr[i].sign) {//如果已经保存过,即将标记更新
+                        elementSign = project_org.mainArr[i].sign;
+                    }
+                    mainHTML += '<div class="item" data-sign="' + project_org.mainArr[i].sign + '"  data-index="' + project_org.mainArr[i].index + '" style="left:' + project_org.mainArr[i].offset.left + 'px;top:' + project_org.mainArr[i].offset.top + 'px;position:absolute;margin:0" >' + project_org.mainArr[i].text + '</div>';
+                }
+
+                $("#main").append(mainHTML);
+                $("#main .item").each(function () {
+                    jsPlumb.addEndpoint(this, {anchors: "BottomCenter"}, deepCopy(origin, {uuid: $(this).attr("data-sign") + "origin"}));//起点
+                    jsPlumb.addEndpoint(this, {anchors: "TopCenter"}, deepCopy(destination, {uuid: $(this).attr("data-sign") + "destination"}));//终点
+                });
+                //固定连线
+                for (let i = 0; i < project_org.connects.length; i++) {
+                    jsPlumb.connect({uuids: [project_org.connects[i].originSign + "origin", project_org.connects[i].destinationSign + "destination"]});
+                }
+            })
+        }
+    });
+
+    function deepCopy(p, c) {  //克隆对象
+        let d = c || {};
+        for (let i in p) {
+            if (!p.hasOwnProperty(i)) {
+                continue;
+            }
+            if (typeof p[i] === 'object') {
+                d[i] = (p[i].constructor === Array) ? [] : {};
+                deepCopy(p[i], d[i]);
+            } else {
+                d[i] = p[i];
+            }
+        }
+        return d;
+    }
 </script>
 
 

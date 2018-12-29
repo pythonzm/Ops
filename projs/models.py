@@ -19,6 +19,7 @@ class Project(models.Model):
     project_repo = models.CharField(max_length=100, unique=True, verbose_name='项目仓库路径')
     project_dir = models.CharField(max_length=100, unique=True, verbose_name='项目代码目录')
     project_admin = models.ForeignKey('users.UserProfile', verbose_name='项目负责人', on_delete=models.PROTECT)
+    project_org = models.TextField(blank=True, default='', verbose_name='项目架构JSON数据')
     project_memo = models.TextField(blank=True, verbose_name='项目描述', default='')
 
     class Meta:

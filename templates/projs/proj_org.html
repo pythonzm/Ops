@@ -6,7 +6,7 @@
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
-    <link rel="stylesheet" href="{% static 'orgchart/css/jquery.orgchart.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jsplumb/css/jsplumbtoolkit-defaults.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
     <style>
         /* dataTables列内容居中 */
@@ -19,29 +19,41 @@
             text-align: center;
         }
 
-        #chart-container {
-            font-family: Arial, serif;
-            height: 420px;
-            border: 2px dashed #aaa;
-            border-radius: 5px;
-            overflow: auto;
+        #left {
+            width: 20%;
+            height: 500px;
+            border: 1px solid #000;
+            float: left;
+            padding: 0 10px;
+            position: relative;
+        }
+
+        #main {
+            width: 80%;
+            height: 500px;
+            border: 1px solid gray;
+            float: left;
+            overflow-y: auto;
+            position: relative;
+            background: url("{% static 'jsplumb/images/grid.png' %}") repeat;
+            z-index: 5;
+        }
+
+        .item {
+            background: #CCFFFF;
+            height: 30px;
+            width: 200px;
+            border: 1px solid #5F9EDF;
+            margin: 5px;
+            font: 15px/30px "微软雅黑";
             text-align: center;
+            border-radius: 5px;
+            z-index: 10;
+            cursor: pointer;
         }
 
-        /* 抵消AdminLTE.min.css中content的配置 */
-        .orgchart .node .content {
-            min-height: 0;
-            margin-right: 0;
-            margin-left: 0;
-            padding: 0;
-        }
-
-        .orgchart .top-level .title {
-            background-color: #006699;
-        }
-
-        .orgchart .second-level .title {
-            background-color: #009933;
+        .theGrey {
+            background: #ccc !important;
         }
     </style>
 {% endblock %}
@@ -77,11 +89,7 @@
                             <tr>
                                 <td>{{ project_obj.project_name }} | {{ project_obj.get_project_env_display }}</td>
                                 <td>{{ service.service_name }}</td>
-                                <td>
-                                    {% for asset in service.service_asset.all %}
-                                        {{ asset.asset_management_ip }}<br>
-                                    {% endfor %}
-                                </td>
+                                <td>{{ service.service_asset.asset_management_ip }}</td>
                                 <td>{{ service.service_memo }}</td>
                                 <td>
                                     <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
@@ -182,7 +190,23 @@
             </div>
         </div>
 
-        <div id="chart-container"></div>
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-body">
+                    <button type="button" class="btn btn-block btn-primary btn-flat" id="save-node"
+                            style="margin-bottom: 5px;">保存
+                    </button>
+                    <div id="left">
+                        {% for service in services %}
+                            <div class="item"
+                                 data-index="{{ service.service_name }}">{{ service.service_asset.asset_management_ip }}|{{ service.service_name }}</div>
+                        {% endfor %}
+                    </div>
+                    <div id="main">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- /.row -->
 
@@ -196,7 +220,8 @@
     <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
-    <script src="{% static 'orgchart/js/jquery.orgchart.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/jquery-ui/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'jsplumb/js/jsplumb.min.js' %}"></script>
 
     <script>
         $(function () {
@@ -207,6 +232,8 @@
                 }],
                 "order": [[0, "asc"]]
             });
+
+            initOrg()
         });
 
         // Initialize Select2 Elements
@@ -336,40 +363,201 @@
             {% endif %}
         });
 
-
         // 生成架构图
-        (function ($) {
-            $(function () {
-                let ds = {
-                    'name': '{{ project_obj.project_name }}',
-                    'title': '{{ project_obj.project_web }}',
-                    'className': 'top-level',
-                    'children': [
-                        {% for service in services %}
-                            {
-                                'name': '{{ service.service_name }}',
-                                'title': '{{ service.service_asset.count }} host',
-                                'className': 'second-level',
-                                'children': [
-                                    {% for asset in service.service_asset.all %}
-                                        {
-                                            'name': '{{ asset.asset_management_ip }}',
-                                            'title': '{{ asset.asset_model }}',
-                                            'className': 'third-level',
-                                        },
-                                    {% endfor %}
-                                ]
-                            },
-                        {% endfor %}
-                    ]
-                };
+        function initOrg() {
 
-                $('#chart-container').orgchart({
-                    'data': ds,
-                    'nodeContent': 'title',
+            function deepCopy(p, c) {  //克隆对象
+                let d = c || {};
+                for (let i in p) {
+                    if (!p.hasOwnProperty(i)) {
+                        continue;
+                    }
+                    if (typeof p[i] === 'object') {
+                        d[i] = (p[i].constructor === Array) ? [] : {};
+                        deepCopy(p[i], d[i]);
+                    } else {
+                        d[i] = p[i];
+                    }
+                }
+                return d;
+            }
+
+            let origin = {//起点
+                endpoint: ['Dot', {radius: 5}],  //端点的形状
+                connectorStyle: {
+                    outlineStroke: 'black',
+                    strokeWidth: 1
+                },//连接线的颜色，大小样式
+                connectorHoverStyle: {
+                    strokeWidth: 3
+                },
+                paintStyle: {fill: "lightblue", strokeWidth: 3},       //端点的颜色样式
+                isSource: true,    //是否可以拖动（作为连线起点）
+                connector: 'Straight', //连接线的样式种类有[Bezier],[Flowchart],[StateMachine ],[Straight ]
+                isTarget: false,    //是否可以放置（连线终点）
+                maxConnections: -1,    // 设置连接点最多可以连接几条线,-1表示无限大
+                connectorOverlays: [["Arrow", {width: 10, length: 10, location: 1}]]
+            };
+
+            let destination = {//终点
+                endpoint: ['Dot', {radius: 5}],  //端点的形状
+                connectorStyle: {
+                    outlineStroke: 'black',
+                    strokeWidth: 1
+                },//连接线的颜色，大小样式
+                connectorHoverStyle: {
+                    strokeWidth: 3
+                },
+                paintStyle: {fill: "lightblue", strokeWidth: 3},       //端点的颜色样式
+                isSource: false,    //是否可以拖动（作为连线起点）
+                connector: 'Straight',  //连接线的样式种类有[Bezier],[Flowchart],[StateMachine ],[Straight ]
+                isTarget: true,    //是否可以放置（连线终点）
+                maxConnections: -1,    // 设置连接点最多可以连接几条线,-1表示无限大
+                connectorOverlays: [["Arrow", {width: 10, length: 10, location: 1}]]
+            };
+
+
+            jsPlumb.bind("click", function (conn, originalEvent) {//点击线段删除
+                if (confirm("确定删除吗?"))
+                    jsPlumb.deleteConnection(conn);
+            });
+            jsPlumb.bind("connection", function (connInfo, originalEvent) {//自己连自己管控
+                if (connInfo.connection.sourceId === connInfo.connection.targetId) {
+                    alert("不能连接自己！");
+                    jsPlumb.deleteConnection(connInfo.connection);
+                }
+            });
+
+            $("#left").children().draggable({
+                helper: "clone",
+                scope: "ss",
+            });
+
+            let elementSign = 0;//标志元素唯一性
+
+            $("#main").droppable({
+                scope: "ss",
+                drop: function (event, ui) {//在目标(target)容器上释放鼠标 ,ui.draggable[0]为开始拖拽的元素
+                    elementSign++;
+                    let left = parseInt(ui.offset.left - $(this).offset().left);
+                    let top = parseInt(ui.offset.top - $(this).offset().top);
+                    let ele = $('<div class="item" data-sign="' + elementSign + '" data-index="' + $(ui.draggable[0]).attr("data-index") + '" >' + $(ui.helper).html() + '</div>');//$(ui.helper).html()取第一个JQ元素的文本
+                    ele.css({"left": left, "top": top, position: "absolute", margin: 0});
+                    $(this).append(ele);
+                    jsPlumb.addEndpoint(ele, {anchors: "BottomCenter"}, origin);//起点
+                    jsPlumb.addEndpoint(ele, {anchors: "TopCenter"}, destination);//终点
+                    jsPlumb.draggable(ele, {containment: "parent", grid: [10, 10]});//端点可以拖动设置,并且将端点限制在父级内
+                    $(ele).draggable({ //设置拖动到main区域中的元素还可以拖拽
+                        containment: "parent", grid: [10, 10] //限制拖动不超过父级边框
+                    });
+
+                    $(ui.draggable[0]).addClass("theGrey").draggable("disable"); // 禁止其拖动功能
+                }
+            });
+
+            $("#main").on("mouseenter", ".item", function () {
+                let ele = $('<span class="del-item">X</span>');
+                ele.css({position: "absolute", left: "160px", top: "-15px"});
+                $(this).append(ele);
+            }).on("mouseleave", ".item", function () {
+                $(".del-item").remove();
+            }).on("click", ".del-item", function () {
+                if (confirm("确定删除吗?")) {
+                    jsPlumb.removeAllEndpoints($(this).parent().attr("id"));
+                    let index = $(this).parent().attr("data-index");
+                    $(this).parent().remove();
+                    $("#left .item").each(function () {
+                        if ($(this).attr("data-index") === index) {
+                            $(this).removeClass("theGrey").draggable("enable"); // 激活其拖动功能
+                        }
+                    });
+                }
+            });
+
+            if ('{{ project_org }}'.length !== 0) {
+                $.get('/api/project/{{ pk }}', function (res) {
+                    let project_org = JSON.parse(res.project_org);
+
+                    let mainHTML = "";
+                    for (let i = 0; i < project_org.mainArr.length; i++) {
+                        if (elementSign < project_org.mainArr[i].sign) {//如果已经保存过,即将标记更新
+                            elementSign = project_org.mainArr[i].sign;
+                        }
+                        mainHTML += '<div class="item" data-sign="' + project_org.mainArr[i].sign + '"  data-index="' + project_org.mainArr[i].index + '" style="left:' + project_org.mainArr[i].offset.left + 'px;top:' + project_org.mainArr[i].offset.top + 'px;position:absolute;margin:0" >' + project_org.mainArr[i].text + '</div>';
+                    }
+
+                    $("#main").append(mainHTML);
+                    $("#main .item").each(function () {
+                        jsPlumb.addEndpoint(this, {anchors: "BottomCenter"}, deepCopy(origin, {uuid: $(this).attr("data-sign") + "origin"}));//起点
+                        jsPlumb.addEndpoint(this, {anchors: "TopCenter"}, deepCopy(destination, {uuid: $(this).attr("data-sign") + "destination"}));//终点
+                        jsPlumb.draggable(this, {containment: "parent", grid: [10, 10]});//端点可以拖动设置,并且将端点限制在父级内
+                        $(this).draggable({ //设置拖动到main区域中的元素还可以拖拽
+                            containment: "parent", grid: [10, 10] //限制拖动不超过父级边框
+                        });
+                    });
+                    //固定连线
+                    for (let i = 0; i < project_org.connects.length; i++) {
+                        jsPlumb.connect({uuids: [project_org.connects[i].originSign + "origin", project_org.connects[i].destinationSign + "destination"]});
+                    }
+                })
+            }
+        }
+
+
+        $('#save-node').on('click', function () {
+            let connects = [];//存储连线的数组
+            let mainArr = [];//存储元素的数组
+            $.each(jsPlumb.getAllConnections(), function (idx, connection) {
+                connects.push({
+                    ConnectionId: connection.id,
+                    start: $(connection.source).attr("data-index"),
+                    end: $(connection.target).attr("data-index"),
+                    originSign: $(connection.source).attr("data-sign"),
+                    destinationSign: $(connection.target).attr("data-sign"),
                 });
             });
-        })(jQuery);
+            $("#main .item").each(function () {
+                mainArr.push({
+                    offset: $(this).position(),
+                    text: $(this).text(),
+                    index: $(this).attr("data-index"),
+                    sign: $(this).attr("data-sign"),
+                });
+            });
+
+            let serliza = JSON.stringify({"connects": connects, "mainArr": mainArr});
+
+
+            $.ajax({
+                url: "{% url 'proj_org' pk %}",
+                type: 'POST',
+                data: {data: serliza},
+                success: function (res) {
+                    if (res.code === 200) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: res.msg,
+                        })
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '修改完成！',
+                        })
+                    }
+
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+
+        })
     </script>
 
 {% endblock %}

@@ -52,6 +52,7 @@
             </button>
         </div>
 
+
         <div class="modal fade" id="importAssetsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
@@ -118,22 +119,22 @@
                                 <td>{{ asset.id }}</td>
                                 <td>
                                     {% if asset.asset_type == 'server' %}
-                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
+                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax-asset"
                                            data-id="{{ asset.id }}">{{ asset.serverassets.get_server_type_display }}</a>
                                     {% elif asset.asset_type == 'network' %}
-                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
+                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax-asset"
                                            data-id="{{ asset.id }}">{{ asset.networkassets.get_network_type_display }}</a>
                                     {% elif asset.asset_type == 'office' %}
-                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
+                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax-asset"
                                            data-id="{{ asset.id }}">{{ asset.officeassets.get_office_type_display }}</a>
                                     {% elif asset.asset_type == 'security' %}
-                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
+                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax-asset"
                                            data-id="{{ asset.id }}">{{ asset.securityassets.get_security_type_display }}</a>
                                     {% elif asset.asset_type == 'storage' %}
-                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
+                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax-asset"
                                            data-id="{{ asset.id }}">{{ asset.storageassets.get_storage_type_display }}</a>
                                     {% elif asset.asset_type == 'software' %}
-                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax"
+                                        <a href="{% url 'get_asset_info' asset.id %}" class="modaal-ajax-asset"
                                            data-id="{{ asset.id }}">{{ asset.softwareassets.get_software_type_display }}</a>
                                     {% endif %}
                                 </td>
@@ -156,7 +157,7 @@
                                 <td>
                                     {% for service in asset.service_set.all %}
                                         <a href="{% url 'org_chart' service.project.id %}"
-                                           class="modaal-ajax">{{ service.project.project_name }}</a>
+                                           class="modaal-ajax-org">{{ service.project.project_name }}</a>
                                         |{{ service.project.get_project_env_display }}
                                         |{{ service.service_name }}<br>
                                     {% endfor %}
@@ -279,9 +280,15 @@
         });
 
         // 查看服务器详细
-        $('.modaal-ajax').modaal({
+        $('.modaal-ajax-asset').modaal({
             type: 'ajax',
             width: 1500
+        });
+
+        // 查看项目架构
+        $('.modaal-ajax-org').modaal({
+            type: 'ajax',
+            width: 1000
         });
 
         function checked() {
