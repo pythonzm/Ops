@@ -9,6 +9,7 @@ from projs.models import Project
 from fort.models import FortServer
 from utils.gen_random_code import generate
 from io import BytesIO
+from plan.tasks import get_login_info
 
 
 def dashboard(request):
@@ -41,6 +42,7 @@ def login(request):
     else:
         username = request.POST.get('username')
         password = request.POST.get('password')
+        login_ip = request.META.get('REMOTE_ADDR')
         # code = request.POST.get('code')
         remember_me = request.POST.get('remember_me')
         # if code.lower() != request.session.get('check_code', 'error').lower():
@@ -56,8 +58,10 @@ def login(request):
             UserProfile.objects.filter(username=username).update(
                 login_status=0
             )
+            get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录成功')
             return HttpResponseRedirect('/users/user_center/', locals())
         elif user is None:
+            get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录失败')
             return render(request, 'login.html', {"login_error_info": "输入的用户名或密码错误！"})
         elif not user.is_active:
             return render(request, 'login.html', {"login_error_info": "账户被禁用！"})

@@ -17,6 +17,9 @@ from utils.wx_alert import WxApi
 from Ops import settings
 from assets.models import ZabbixAlert, Assets
 import datetime
+import requests
+import json
+import logging
 
 
 @app.task
@@ -50,7 +53,7 @@ def get_zabbix_alert():
 @app.task
 def get_expire_assets():
     """
-    检测资产到期日期，如果距离到期日期小于等于30天，则微信报警
+    每天检测资产到期日期，如果距离到期日期小于等于30天，则微信报警
     :return:
     """
     assets = Assets.objects.all()
@@ -74,6 +77,26 @@ def get_expire_assets():
             for expire_asset in expire_assets]
         content = '共有{}个资产即将到期: \n{}'.format(len(asset_details), ' '.join(asset_details))
 
-    wx = WxApi('XXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+    wx = WxApi('XXXXXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXX')
 
     wx.send_msg(subject='资产即将过期提醒【重要】', content=content)
+
+
+@app.task
+def get_login_info(login_user, login_ip, login_status):
+    url = 'http://ip.taobao.com/service/getIpInfo.php?ip={}'.format(login_ip)
+    r = requests.get(url=url)
+    info = json.loads(r.text)
+    if info.get('code') == 0:
+        data = info.get('data')
+        content = '用户{}于{}尝试登录系统，结果{}\n登录IP：{}\n登录国家：{}\n登录省市：{}\n登录城市：{}\n'.format(login_user,
+                                                                                    datetime.datetime.now().strftime(
+                                                                                        settings.TIME_FORMAT),
+                                                                                    login_status, login_ip,
+                                                                                    data.get('country'),
+                                                                                    data.get('region'),
+                                                                                    data.get('city'))
+        wx = WxApi('XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXXX')
+        wx.send_msg(subject='系统ops.juren.com登录提醒【重要】', content=content)
+    else:
+        logging.getLogger().error('获取登录详情失败,code:{}'.format(info.get('code')))
