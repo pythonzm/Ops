@@ -360,6 +360,7 @@ def ssh_terminal(request, pk):
                 return response
             else:
                 group_name = str(uuid.uuid4())
+                remote_ip = request.META.get('REMOTE_ADDR')
                 return render(request, 'assets/ssh_terminal.html', locals())
         elif request.method == 'POST':
             try:

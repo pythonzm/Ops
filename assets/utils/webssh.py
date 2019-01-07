@@ -26,6 +26,7 @@ class MyThread(threading.Thread):
         self.stdout = []
         self.current_time = time.strftime(settings.TIME_FORMAT)
         while not self._stop_event.is_set():
+            time.sleep(0.1)
             try:
                 data = self.chan.chan.recv(1024)
                 if data:
@@ -77,7 +78,7 @@ class MyThread(threading.Thread):
         SSHRecord.objects.create(
             ssh_login_user=self.chan.scope['user'],
             ssh_server=self.chan.host_ip,
-            ssh_remote_ip=self.chan.scope["client"][0],
+            ssh_remote_ip=self.chan.remote_ip,
             ssh_start_time=self.current_time,
             ssh_login_status_time=login_status_time,
             ssh_record_file=record_file_path.split('media/')[1]
@@ -106,7 +107,10 @@ class SSHConsumer(WebsocketConsumer):
         try:
             self.ssh = paramiko.SSHClient()
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self.ssh.connect(self.host_ip, host_port, username, password)
+            if self.host_ip.startswith('1'):
+                self.ssh.connect(self.host_ip, host_port, username='root', key_filename='/root/.ssh/id_rsa')
+            else:
+                self.ssh.connect(self.host_ip, host_port, username, password)
             # 创建channels group
             async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
         except Exception as e:
@@ -120,12 +124,17 @@ class SSHConsumer(WebsocketConsumer):
         self.accept()
 
     def receive(self, text_data=None, bytes_data=None):
-        self.chan.send(text_data)
+        if text_data[0].isdigit():
+            self.remote_ip = text_data
+        else:
+            self.chan.send(text_data)
 
     def user_message(self, event):
         self.send(text_data=event["text"])
 
     def disconnect(self, close_code):
-        self.t1.stop()
-        self.t1.record()
-        async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
+        try:
+            self.t1.stop()
+            self.t1.record()
+        finally:
+            async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)

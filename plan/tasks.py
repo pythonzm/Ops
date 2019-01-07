@@ -19,7 +19,7 @@ from assets.models import ZabbixAlert, Assets
 import datetime
 import requests
 import json
-import logging
+from json.decoder import JSONDecodeError
 
 
 @app.task
@@ -66,7 +66,6 @@ def get_expire_assets():
                  'asset_ip': asset.asset_management_ip, 'asset_expire': asset.asset_expire_day,
                  'expire_days': expire_days})
 
-    content = None
     if len(expire_assets) > 0:
         asset_details = [
             '{} -> 资产编号：{}\n IP地址 -> {} \n 距离到期日 {} 还剩{}天\n'.format(expire_asset.get('asset_type'),
@@ -77,26 +76,38 @@ def get_expire_assets():
             for expire_asset in expire_assets]
         content = '共有{}个资产即将到期: \n{}'.format(len(asset_details), ' '.join(asset_details))
 
-    wx = WxApi('XXXXXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXX')
+        wx = WxApi('XXXXXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXX')
 
-    wx.send_msg(subject='资产即将过期提醒【重要】', content=content)
+        wx.send_msg(subject='资产即将过期提醒【重要】', content=content)
 
 
 @app.task
 def get_login_info(login_user, login_ip, login_status):
+    """
+    获取登录登录信息
+    :param login_user:
+    :param login_ip:
+    :param login_status:
+    :return:
+    """
     url = 'http://ip.taobao.com/service/getIpInfo.php?ip={}'.format(login_ip)
     r = requests.get(url=url)
-    info = json.loads(r.text)
-    if info.get('code') == 0:
-        data = info.get('data')
-        content = '用户{}于{}尝试登录系统，结果{}\n登录IP：{}\n登录国家：{}\n登录省市：{}\n登录城市：{}\n'.format(login_user,
-                                                                                    datetime.datetime.now().strftime(
-                                                                                        settings.TIME_FORMAT),
-                                                                                    login_status, login_ip,
-                                                                                    data.get('country'),
-                                                                                    data.get('region'),
-                                                                                    data.get('city'))
-        wx = WxApi('XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXXX')
+
+    wx = WxApi('XXXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+    try:
+        info = json.loads(r.text)
+        if info.get('code') == 0:
+            data = info.get('data')
+            content = '用户{}于{}尝试登录系统\n结果：{}\n登录IP：{}\n登录国家：{}\n登录省市：{}\n登录城市：{}\n'.format(login_user,
+                                                                                          datetime.datetime.now().strftime(
+                                                                                              settings.TIME_FORMAT),
+                                                                                          login_status, login_ip,
+                                                                                          data.get('country'),
+                                                                                          data.get('region'),
+                                                                                          data.get('city'))
+            wx.send_msg(subject='系统ops.juren.com登录提醒【重要】', content=content)
+    except JSONDecodeError:
+        content = '用户{}于{}尝试登录系统\n结果：{}\n登录IP：{}\n'.format(login_user,
+                                                           datetime.datetime.now().strftime(settings.TIME_FORMAT),
+                                                           '未知', login_ip)
         wx.send_msg(subject='系统ops.juren.com登录提醒【重要】', content=content)
-    else:
-        logging.getLogger().error('获取登录详情失败,code:{}'.format(info.get('code')))

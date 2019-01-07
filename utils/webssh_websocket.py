@@ -25,6 +25,7 @@ class MyThread(threading.Thread):
         self.stdout = []
         self.current_time = time.strftime(settings.TIME_FORMAT)
         while not self._stop_event.is_set():
+            time.sleep(0.1)
             try:
                 data = self.chan.chan.recv(1024)
                 if data:
@@ -72,7 +73,7 @@ class MyThread(threading.Thread):
         FortRecord.objects.create(
             login_user=self.chan.scope['user'],
             fort=self.chan.fort,
-            remote_ip=self.chan.scope["client"][0],
+            remote_ip=self.chan.remote_ip,
             start_time=self.current_time,
             login_status_time=login_status_time,
             record_file=record_file_path.split('media/')[1]
@@ -123,14 +124,17 @@ class FortConsumer(WebsocketConsumer):
         self.accept()
 
     def receive(self, text_data=None, bytes_data=None):
-        self.chan.send(text_data)
+        if text_data[0].isdigit():
+            self.remote_ip = text_data
+        else:
+            self.chan.send(text_data)
 
     def user_message(self, event):
         self.send(text_data=event["text"])
 
     def disconnect(self, close_code):
-        self.t1.stop()
         try:
+            self.t1.stop()
             self.t1.record()
         finally:
             async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)

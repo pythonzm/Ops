@@ -1,7 +1,6 @@
 import datetime
 import uuid
 import os
-from django.db.models import Q
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render
 from fort.models import *
@@ -13,6 +12,7 @@ from task.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.decorators import permission_required
 from Ops import settings
 from utils.sftp import SFTP
+from utils.decorators import admin_auth
 
 
 def fort_server(request):
@@ -109,6 +109,7 @@ def terminal(request, server_id, fort_user_id):
             return response
         else:
             group_name = str(uuid.uuid4())
+            remote_ip = request.META.get('REMOTE_ADDR')
             return render(request, 'fort/terminal.html', locals())
     elif request.method == 'POST':
         try:
@@ -125,35 +126,33 @@ def terminal(request, server_id, fort_user_id):
             return JsonResponse({'code': 500, 'msg': '上传失败！{}'.format(e)})
 
 
+@admin_auth
 def login_fort_record(request):
-    if request.user.is_superuser:
-        if request.method == 'GET':
-            results = FortRecord.objects.select_related('login_user').all()
-            return render(request, 'fort/login_fort_log.html', locals())
-        elif request.method == 'POST':
-            start_time = request.POST.get('startTime')
-            end_time = request.POST.get('endTime')
-            new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
-            end_time = new_end_time.strftime('%Y-%m-%d')
-            try:
-                records = []
-                search_records = FortRecord.objects.select_related('login_user').filter(start_time__gt=start_time,
-                                                                                        start_time__lt=end_time)
-                for search_record in search_records:
-                    record = {
-                        'id': search_record.id,
-                        'login_user': search_record.login_user.username,
-                        'fort': search_record.fort,
-                        'remote_ip': search_record.remote_ip,
-                        'start_time': search_record.start_time,
-                        'login_status_time': search_record.login_status_time
-                    }
-                    records.append(record)
-                return JsonResponse({'code': 200, 'records': records})
-            except Exception as e:
-                return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
-    else:
-        return HttpResponseForbidden('<h1>403</h1>')
+    if request.method == 'GET':
+        results = FortRecord.objects.select_related('login_user').all()
+        return render(request, 'fort/login_fort_log.html', locals())
+    elif request.method == 'POST':
+        start_time = request.POST.get('startTime')
+        end_time = request.POST.get('endTime')
+        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+        end_time = new_end_time.strftime('%Y-%m-%d')
+        try:
+            records = []
+            search_records = FortRecord.objects.select_related('login_user').filter(start_time__gt=start_time,
+                                                                                    start_time__lt=end_time)
+            for search_record in search_records:
+                record = {
+                    'id': search_record.id,
+                    'login_user': search_record.login_user.username,
+                    'fort': search_record.fort,
+                    'remote_ip': search_record.remote_ip,
+                    'start_time': search_record.start_time,
+                    'login_status_time': search_record.login_status_time
+                }
+                records.append(record)
+            return JsonResponse({'code': 200, 'records': records})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
 
 
 def record_play(request, pk):

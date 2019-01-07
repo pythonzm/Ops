@@ -70,6 +70,7 @@
     let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/{{ group_name }}/');
 
     socket.onopen = function () {
+        socket.send('{{ remote_ip }}');
         $("#terms").css("height", document.documentElement.clientHeight - 50);
         const term = new Terminal({
             screenKeys: true,
