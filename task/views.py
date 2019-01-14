@@ -4,12 +4,10 @@ import json
 import zipfile
 import shutil
 from django.shortcuts import render
-from task.utils.ansible_api_v2 import ANSRunner
 from task.utils.gen_resource import GenResource
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from task.models import *
 from assets.models import ServerAssets
-from utils.db.redis_ops import RedisOps
 from Ops import settings
 from django.contrib.auth.decorators import permission_required
 from utils.decorators import admin_auth
@@ -25,41 +23,9 @@ def get_inventory_hosts(request):
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def run_module(request):
-    if request.method == 'POST':
-        gen_resource = GenResource()
-        redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
-        remote_ip = request.META['REMOTE_ADDR']
-        group_ids = request.POST.getlist('hostGroup')
-        host_ids = request.POST.getlist('ans_group_hosts')
-        if group_ids == ['custom'] or group_ids == ['all']:
-            resource = gen_resource.gen_host_list(host_ids)
-        else:
-            resource = gen_resource.gen_group_dict(group_ids)
-
-        host_list = [ServerAssets.objects.get(id=host_id).assets.asset_management_ip for host_id in host_ids]
-        selected_module_name = request.POST.get('ansibleModule')
-        custom_model_name = request.POST.get('customModule')
-        module_name = selected_module_name if selected_module_name != 'custom' else custom_model_name
-        module_args = request.POST.get('ansibleModuleArgs')
-
-        unique_key = '{}.{}.{}'.format(host_ids, module_name, module_args)
-
-        if redis_conn.exists(unique_key):
-            return JsonResponse({'msg': ['有相同的任务正在执行，请稍后再试'], 'code': 403})
-        else:
-            try:
-                redis_conn.set(unique_key, 1)
-                ans = ANSRunner(resource, become='yes', become_method='sudo', become_user='root')
-                ans.run_module(host_list=host_list, module_name=module_name, module_args=module_args)
-                res = ans.get_model_result()
-
-                return JsonResponse({'code': 200, 'msg': res})
-            except Exception as e:
-                return JsonResponse({'code': 500, 'msg': ['任务执行失败：{}'.format(e)]})
-            finally:
-                redis_conn.delete(unique_key)
     inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
     hosts = ServerAssets.objects.select_related('assets')
+    remote_ip = request.META['REMOTE_ADDR']
     return render(request, 'task/run_module.html', locals())
 
 
@@ -130,6 +96,7 @@ def playbook_upload(request):
 def playbook_list(request):
     playbooks = AnsiblePlaybook.objects.select_related('playbook_user').all()
     inventory = AnsibleInventory.objects.prefetch_related('ans_group_hosts')
+    remote_ip = request.META['REMOTE_ADDR']
     return render(request, 'task/playbook_list.html', locals())
 
 
@@ -165,25 +132,8 @@ def playbook_info(request, pk):
 @permission_required('task.add_ansibleplaybook', raise_exception=True)
 def playbook_run(request, pk):
     playbook = AnsiblePlaybook.objects.select_related('playbook_user').get(id=pk)
-
-    if request.method == 'GET':
-        content = playbook.playbook_content
-        return JsonResponse({'code': 200, 'content': content})
-    elif request.method == 'POST':
-        redis_conn = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
-        unique_key = playbook.playbook_name
-
-        if redis_conn.exists(unique_key):
-            return JsonResponse({'msg': ['有相同的任务正在执行，请稍后再试'], 'code': 403})
-        else:
-            group_ids = request.POST.getlist('group_ids')
-            try:
-                res = get_playbook_res(group_ids, playbook.playbook_file.path)
-                return JsonResponse({'code': 200, 'msg': res})
-            except Exception as e:
-                return JsonResponse({'code': 500, 'msg': ['playbook执行失败：{}'.format(e)]})
-            finally:
-                redis_conn.delete(unique_key)
+    content = playbook.playbook_content
+    return JsonResponse({'code': 200, 'content': content})
 
 
 @permission_required('task.delete_ansibleplaybook', raise_exception=True)
@@ -207,16 +157,6 @@ def check_name(request):
         return JsonResponse({'code': 500, 'msg': '同名文件已存在！'})
     else:
         return JsonResponse({'code': 200})
-
-
-def get_playbook_res(group_ids, playbook_file):
-    resource = GenResource().gen_group_dict(group_ids)
-
-    ans = ANSRunner(resource)
-    ans.run_playbook(playbook_file)
-    res = ans.get_playbook_result()
-
-    return res
 
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)

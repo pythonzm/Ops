@@ -12,6 +12,7 @@
 """
 import json
 import re
+import uuid
 from ansible import constants as C
 from collections import namedtuple
 from ansible.parsing.dataloader import DataLoader
@@ -23,6 +24,7 @@ from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from conf.logger import ansible_logger
 from Ops import settings
+from utils.db.redis_ops import RedisOps
 
 
 class ModelResultsCollector(CallbackBase):
@@ -30,26 +32,73 @@ class ModelResultsCollector(CallbackBase):
     直接执行模块命令的回调类
     """
 
+    unique_key = str(uuid.uuid4())
+
     def __init__(self, *args, **kwargs):
         super(ModelResultsCollector, self).__init__(*args, **kwargs)
-        self.host_ok = {}
-        self.host_unreachable = {}
-        self.host_failed = {}
+        self.redis_instance = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, 7)
+        self.channel_key = self.unique_key
 
     def v2_runner_on_unreachable(self, result):
-        self.host_unreachable[result._host.get_name()] = result
+        if 'msg' in result._result:
+            data = '<code style="color: #FF0000">\n{host} | unreachable | rc={rc} >> \n{stdout}\n</code>'.format(
+                host=result._host.name, rc=result._result.get('rc'),
+                stdout=result._result.get('msg'))
+        else:
+            data = '<code style="color: #FF0000">\n{host} | unreachable >> \n{stdout}\n</code>'.format(
+                host=result._host.name,
+                stdout=json.dumps(
+                    result._result,
+                    indent=4))
+        self.redis_instance.publish(self.channel_key, data)
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
-        self.host_ok[result._host.get_name()] = result
+        if 'rc' in result._result and 'stdout' in result._result:
+            data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
+                host=result._host.name, rc=result._result.get('rc'),
+                stdout=result._result.get('stdout'))
+        elif 'results' in result._result and 'rc' in result._result:
+            data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
+                host=result._host.name, rc=result._result.get('rc'),
+                stdout=result._result.get('results')[0])
+        elif 'module_stdout' in result._result and 'rc' in result._result:
+            data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
+                host=result._host.name, rc=result._result.get('rc'),
+                stdout=result._result.get(
+                    'module_stdout').encode().decode(
+                    'utf-8'))
+        else:
+            data = '<code style="color: #008000">\n{host} | success >> \n{stdout}\n</code>'.format(
+                host=result._host.name,
+                stdout=json.dumps(
+                    result._result,
+                    indent=4))
+        self.redis_instance.publish(self.channel_key, data)
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
-        self.host_failed[result._host.get_name()] = result
+        if 'stderr' in result._result:
+            data = '<code style="color: #FF0000">\n{host} | failed | rc={rc} >> \n{stdout}\n</code>'.format(
+                host=result._host.name,
+                rc=result._result.get(
+                    'rc'),
+                stdout=result._result.get(
+                    'stderr').encode().decode(
+                    'utf-8'))
+        else:
+            data = '<code style="color: #FF0000">\n{host} | failed >> \n{stdout}\n</code>'.format(
+                host=result._host.name,
+                stdout=json.dumps(
+                    result._result,
+                    indent=4))
+        self.redis_instance.publish(self.channel_key, data)
 
 
 class PlayBookResultsCollector(CallbackBase):
     """
     执行playbook的回调类
     """
+
+    unique_key = str(uuid.uuid4())
 
     def __init__(self, *args, **kwargs):
         super(PlayBookResultsCollector, self).__init__(*args, **kwargs)
@@ -58,24 +107,59 @@ class PlayBookResultsCollector(CallbackBase):
         self.task_status = {}
         self.task_unreachable = []
         self.task_ok = []
+        self.redis_instance = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, 8)
+        self.channel_key = self.unique_key
+
+    def v2_playbook_on_play_start(self, play):
+        name = play.get_name().strip()
+        if not name:
+            msg = '<code style="color: #FFFFFF">\nPLAY {}\n</code>'.format('*' * 100)
+        else:
+            msg = '<code style="color: #FFFFFF">\nPLAY [{}] {}\n</code>'.format(name, '*' * 100)
+        self.redis_instance.publish(self.channel_key, msg)
+
+    def v2_playbook_on_task_start(self, task, is_conditional):
+        self.redis_instance.publish(self.channel_key,
+                                    '<code style="color: #FFFFFF">\nTASK [{}] {}\n</code>'.format(task.get_name(),
+                                                                                                  '*' * 100))
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
-        self.task_ok.append({result._host.name: result})
+        if result.is_changed():
+            data = '<code style="color: #FFFF00">[{}]=> changed\n</code>'.format(result._host.name)
+        else:
+            data = '<code style="color: #008000">[{}]=> ok\n</code>'.format(result._host.name)
+        self.redis_instance.publish(self.channel_key, data)
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
-        self.task_failed.append({result._host.name: result})
+        if 'changed' in result._result:
+            del result._result['changed']
+        data = '<code style="color: #FF0000">[{}]=> {}: {}\n</code>'.format(result._host.name, 'failed',
+                                                                            self._dump_results(result._result))
+        self.redis_instance.publish(self.channel_key, data)
 
     def v2_runner_on_unreachable(self, result):
-        self.task_unreachable.append({result._host.name: result})
+        if 'changed' in result._result:
+            del result._result['changed']
+        data = '<code style="color: #FF0000">[{}]=> {}: {}\n</code>'.format(result._host.name, 'unreachable',
+                                                                            self._dump_results(result._result))
+        self.redis_instance.publish(self.channel_key, data)
 
     def v2_runner_on_skipped(self, result):
-        self.task_skipped.append({result._host.name: result})
+        if 'changed' in result._result:
+            del result._result['changed']
+        data = '<code style="color: #FFFF00">[{}]=> {}: {}\n</code>'.format(result._host.name, 'skipped',
+                                                                            self._dump_results(result._result))
+        self.redis_instance.publish(self.channel_key, data)
 
     def v2_playbook_on_stats(self, stats):
         hosts = sorted(stats.processed.keys())
+        data = '<code style="color: #FFFFFF">\nPLAY RECAP {}\n'.format('*' * 100)
+        self.redis_instance.publish(self.channel_key, data)
         for h in hosts:
             s = stats.summarize(h)
-            self.task_status[h] = s
+            msg = '<code style="color: #FFFFFF">{} : ok={} changed={} unreachable={} failed={} skipped={}\n</code>'.format(
+                h, s['ok'], s['changed'], s['unreachable'], s['failures'], s['skipped'])
+            self.redis_instance.publish(self.channel_key, msg)
 
 
 class MyInventory(InventoryManager):
@@ -237,112 +321,6 @@ class ANSRunner(object):
         except Exception as e:
             ansible_logger.error('执行{}失败，原因: {}'.format(playbook_path, e))
 
-    def get_model_result(self):
-        """
-        获取执行模块的返回结果
-        :return:
-        :rtype: list
-        """
-        results_raw = []
-        for host, result in self.callback.host_ok.items():
-            if 'rc' in result._result and 'stdout' in result._result:
-                data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
-                    host=host, rc=result._result.get('rc'),
-                    stdout=result._result.get('stdout'))
-            elif 'results' in result._result and 'rc' in result._result:
-                data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
-                    host=host, rc=result._result.get('rc'),
-                    stdout=result._result.get('results')[0])
-            elif 'module_stdout' in result._result and 'rc' in result._result:
-                data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
-                    host=host, rc=result._result.get('rc'),
-                    stdout=result._result.get(
-                        'module_stdout').encode().decode(
-                        'utf-8'))
-            else:
-                data = '<code style="color: #008000">\n{host} | success >> \n{stdout}\n</code>'.format(host=host,
-                                                                                                     stdout=json.dumps(
-                                                                                                         result._result,
-                                                                                                         indent=4))
-            results_raw.append(data)
-
-        for host, result in self.callback.host_failed.items():
-            if 'stderr' in result._result:
-                data = '<code style="color: #FF0000">\n{host} | failed | rc={rc} >> \n{stdout}\n</code>'.format(host=host,
-                                                                                                              rc=result._result.get(
-                                                                                                                  'rc'),
-                                                                                                              stdout=result._result.get(
-                                                                                                                  'stderr').encode().decode(
-                                                                                                                  'utf-8'))
-            else:
-                data = '<code style="color: #FF0000">\n{host} | failed >> \n{stdout}\n</code>'.format(host=host,
-                                                                                                    stdout=json.dumps(
-                                                                                                        result._result,
-                                                                                                        indent=4))
-            results_raw.append(data)
-
-        for host, result in self.callback.host_unreachable.items():
-            if 'msg' in result._result:
-                data = '<code style="color: #FF0000">\n{host} | unreachable | rc={rc} >> \n{stdout}\n</code>'.format(
-                    host=host, rc=result._result.get('rc'),
-                    stdout=result._result.get('msg'))
-            else:
-                data = '<code style="color: #FF0000">\n{host} | unreachable >> \n{stdout}\n</code>'.format(host=host,
-                                                                                                         stdout=json.dumps(
-                                                                                                             result._result,
-                                                                                                             indent=4))
-            results_raw.append(data)
-
-        return results_raw
-
-
-    def get_playbook_result(self):
-        """
-        获取playbook执行结果
-        :return:
-        :rtype: list
-        """
-        results_raw = []
-        for task_obj in self.callback.task_ok:
-            for host, result in task_obj.items():
-                if result.is_changed():
-                    data = {'task': result.task_name, 'res': '[{}]=> {}'.format(host, 'changed')}
-                else:
-                    data = {'task': result.task_name, 'res': '[{}]=> {}'.format(host, 'ok')}
-                results_raw.append(data)
-
-        for task_obj in self.callback.task_failed:
-            for host, result in task_obj.items():
-                if 'changed' in result._result:
-                    del result._result['changed']
-                data = {'task': result.task_name,
-                        'res': '[{}]=> {}: {}'.format(host, 'failed', self.callback._dump_results(result._result))}
-                results_raw.append(data)
-
-        for task_obj in self.callback.task_skipped:
-            for host, result in task_obj.items():
-                if 'changed' in result._result:
-                    del result._result['changed']
-                data = {'task': result.task_name,
-                        'res': '[{}]=> {}: {}'.format(host, 'skipped', self.callback._dump_results(result._result))}
-                results_raw.append(data)
-
-        for task_obj in self.callback.task_unreachable:
-            for host, result in task_obj.items():
-                if 'changed' in result._result:
-                    del result._result['changed']
-                data = {'task': result.task_name,
-                        'res': '[{}]=> {}: {}'.format(host, 'unreachable', self.callback._dump_results(result._result))}
-                results_raw.append(data)
-
-        task_status = '\nPLAY RECAP {}\n'.format('*' * 100)
-        for host, status in self.callback.task_status.items():
-            task_status = task_status + '{} :{}\n'.format(host, status)
-
-        r = FormatResult(results_raw).gen_res_html
-        r.append(task_status)
-        return r
-
     @staticmethod
     def handle_setup_data(data):
         """处理setup模块数据，用于收集服务器信息功能"""
@@ -393,47 +371,3 @@ class ANSRunner(object):
         result = json.loads(data[data.index('{'): data.rindex('}') + 1])
         facts = result['ansible_facts']
         return facts['mem_info']
-
-
-class FormatResult:
-    """
-    格式化执行playbook返回的结果，result格式为：
-    r = [{'task': 'echo date', 'res': "[10.1.19.11]=> XXXXX]
-    """
-
-    def __init__(self, result):
-        self.result = result
-
-    def gen_task_set(self):
-        task_set = set()
-        for i in self.result:
-            task_set.add(i.get('task'))
-        return task_set
-
-    def gen_task_dict(self):
-        task_dict = {}
-        for task in self.gen_task_set():
-            task_dict[task] = list()
-        return task_dict
-
-    def gen_res(self):
-        res_dict = self.gen_task_dict()
-        for n in res_dict:
-            res_dict[n] = [i.get('res') for i in self.result if i.get('task') == n]
-        return res_dict
-
-    @property
-    def gen_res_html(self):
-        data_row = []
-        for k, v in self.gen_res().items():
-            v_temp = []
-            for e in v:
-                if 'changed' in e or 'skipped' in e:
-                    v_temp.append('<code style="color: #FFFF00">{}\n</code>'.format(e))
-                elif 'ok' in e:
-                    v_temp.append('<code style="color: #008000">{}\n</code>'.format(e))
-                elif 'failed' in e or 'unreachable' in e:
-                    v_temp.append('<code style="color: #FF0000">{}\n</code>'.format(e))
-            data = '<code style="color: #FFFFFF">\nTASK [{}]{}</code>\n{}'.format(k, '*' * 100, ''.join(v_temp))
-            data_row.append(data)
-        return data_row

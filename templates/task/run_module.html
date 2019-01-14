@@ -69,7 +69,7 @@
     </div>
 
     <div class="box-footer">
-        <pre style="background-color: black"></pre>
+        <pre style="background-color: #0c0c0c"></pre>
     </div>
 {% endblock %}
 
@@ -80,6 +80,8 @@
             $('.select2').select2({
                 allowClear: true
             });
+
+            Pace.options.ajax.trackWebSockets = false;
         });
 
         function groupSelect() {
@@ -162,32 +164,31 @@
         }
 
         function runModule() {
+            let data = {
+                hostGroup: $('#hostGroup').val(),
+                ans_group_hosts: $('#ans_group_hosts').val(),
+                ansibleModule: $('#ansibleModule').val(),
+                customModule: $('#customModule').val(),
+                ansibleModuleArgs: $('#ansibleModuleArgs').val(),
+                run_user: '{{ request.user.id }}',
+                remote_ip: '{{ remote_ip }}'
+            };
+            let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+            let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ans_module_log/");
             let obj = $('pre');
-            let data = $('#runModule').serialize();
-            obj.html('开始执行....\n');
-            $.ajax({
-                url: "{% url 'run_module' %}",
-                type: "POST",
-                data: data,
-                success: function (res) {
-                    if (res.code === 200) {
-                        res = res['msg'];
-                        for (let i = 0; i < res.length; i++) {
-                            if (res[i].indexOf('success') !== -1) {
-                                obj.append('<code style="color: green">' + res[i] + '</code><br>')
-                            } else {
-                                obj.append('<code style="color: red">' + res[i] + '</code><br>')
-                            }
-                        }
-                        obj.append('<code>执行完毕....</code>')
-                    } else {
-                        obj.append(`<code>${res.msg}</code>`)
-                    }
-                },
-                error: function (res) {
-                    alert('执行失败：' + res.responseText)
-                }
-            })
+
+            socket.onopen = function () {
+                obj.html('开始执行....\n');
+                socket.send(JSON.stringify(data));
+            };
+
+            socket.onmessage = function (e) {
+                obj.append(e.data)
+            };
+
+            socket.onclose = function () {
+                obj.append('\n<code>执行完毕....</code>')
+            }
         }
     </script>
 {% endblock %}

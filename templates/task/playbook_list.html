@@ -316,6 +316,8 @@
 
             $("[data-toggle='tooltip']").tooltip();
 
+            Pace.options.ajax.trackWebSockets = false;
+
             edit_content = ace.edit("edit-content");
             edit_content.setTheme("ace/theme/monokai");
             let YamlMode = ace.require("ace/mode/yaml").Mode;
@@ -578,7 +580,6 @@
         // 执行playbook
         playbook_tbody.on('click', '.run', function () {
             let playbook_id = $(this).attr('data-id');
-            let playbook_name = $(this).parents('tr').children()[0].innerText;
 
             $.get('/run/playbook_run/' + playbook_id + '/', function (data) {
                 let editor = ace.edit("run-content");
@@ -602,37 +603,28 @@
                 } else {
                     $('#playbook_run').attr('data-dismiss', 'modal');
                     let obj = $('pre');
-                    obj.html('开始执行....\n');
-                    $.ajax({
-                        url: '/run/playbook_run/' + playbook_id + '/',
-                        type: 'POST',
-                        traditional: true,
-                        data: {playbook_name: playbook_name, group_ids: group_ids}, // playbook_name用于task记录playbook_name
-                        dataType: 'json',
-                        success: function (res) {
-                            $('.box-footer').css('display', 'block');
-                            if (res.code === 200) {
-                                res = res.msg;
-                                for (let i = 0; i < res.length; i++) {
-                                    if (res[i].indexOf('RECAP') !== -1) {
-                                        obj.append(`<code style="color: #FFFFFF">${res[i]}</code><br>`)
-                                    } else {
-                                        obj.append(res[i])
-                                    }
-                                }
-                                obj.append('<code>执行完毕....</code>')
-                            } else {
-                                obj.append(`<code>${res.msg}</code>`)
-                            }
-                        },
-                        error: function (response) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: response.responseText,
-                            })
-                        }
-                    })
+                    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+                    let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ans_playbook_log/");
+                    let data = {
+                        group_ids: group_ids,
+                        playbook_id: playbook_id,
+                        run_user: '{{ request.user.id }}',
+                        remote_ip: '{{ remote_ip }}'
+                    };
+
+                    socket.onopen = function () {
+                        $('.box-footer').css('display', 'block');
+                        obj.html('开始执行....\n');
+                        socket.send(JSON.stringify(data));
+                    };
+
+                    socket.onmessage = function (e) {
+                        obj.append(e.data)
+                    };
+
+                    socket.onclose = function () {
+                        obj.append('\n<code>执行完毕....</code>')
+                    }
                 }
             });
         });
