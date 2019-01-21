@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+import time
+import logging
+import threading
+from socket import timeout
 from channels.generic.websocket import WebsocketConsumer
 from guacamole.client import GuacamoleClient
 from assets.models import ServerAssets
 from fort.models import FortServerUser
-import threading
 from django.conf import settings
 from utils.db.redis_ops import RedisOps
-import time
-import logging
 
 
 class GuacamoleThread(threading.Thread):
@@ -33,7 +34,7 @@ class GuacamoleThread(threading.Thread):
                     instruction = self.message.client.receive()
                     if instruction:
                         self.message.send(instruction)
-                except TimeoutError:
+                except timeout:
                     logging.getLogger().error('连接超时！')
                     break
 

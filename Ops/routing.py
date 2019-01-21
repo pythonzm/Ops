@@ -14,7 +14,7 @@ from django.urls import path, re_path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from utils.log_websocket import LogConsumer
-from utils.webssh_websocket import FortConsumer
+from fort.utils.webssh_websocket import FortConsumer
 from assets.utils.webssh import SSHConsumer
 from fort.utils.rdp_websocket import GuacamoleConsumer
 from assets.utils.admin_rdp import AdminGuacamole

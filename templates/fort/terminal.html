@@ -112,16 +112,15 @@
         };
 
         socket.onclose = function () {
-            term.destroy();
+            // pass
         };
 
 
     };
 
-    socket.onerror = function() {
+    socket.onerror = function () {
         document.getElementById('terms').innerHTML = '<h3>连接失败！请查看日志！</h3>';
     };
-
 
 
     $("#upload_file").fileinput({
@@ -169,9 +168,11 @@
                 content: "文件名不能为空！",
             })
         }
-    })
+    });
 
-
+    window.onbeforeunload = function (e) {
+        return '确定离开此页吗？';
+    }
 </script>
 
 </html>

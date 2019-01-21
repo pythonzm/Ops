@@ -48,3 +48,27 @@ INFO 2019-01-21 10:38:44 _log Connected (version 2.0, client OpenSSH_5.3)
 INFO 2019-01-21 10:38:44 _log Authentication (publickey) successful!
 INFO 2019-01-21 10:38:46 _log [chan 2] Opened sftp connection (server version 3)
 INFO 2019-01-21 10:38:48 _log [chan 2] sftp session closed.
+INFO 2019-01-21 16:10:14 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-01-21 16:10:14 _log Authentication (publickey) failed.
+INFO 2019-01-21 16:10:14 _log Authentication (password) successful!
+INFO 2019-01-21 16:12:05 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-01-21 16:12:06 _log Authentication (publickey) failed.
+INFO 2019-01-21 16:12:06 _log Authentication (password) successful!
+INFO 2019-01-21 16:14:08 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-01-21 16:14:08 _log Authentication (publickey) failed.
+INFO 2019-01-21 16:14:08 _log Authentication (password) successful!
+INFO 2019-01-21 16:14:17 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-01-21 16:14:17 _log Authentication (publickey) failed.
+INFO 2019-01-21 16:14:17 _log Authentication (password) successful!
+INFO 2019-01-21 16:15:28 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-01-21 16:15:28 _log Authentication (publickey) failed.
+INFO 2019-01-21 16:15:28 _log Authentication (password) successful!
+ERROR 2019-01-21 16:22:28 run 连接超时！
+ERROR 2019-01-21 16:22:42 connect 用户zz通过webssh连接10.1.19.113失败！原因：[Errno None] Unable to connect to port 22 on 10.1.19.113
+ERROR 2019-01-21 16:25:20 connect 用户zz通过webssh连接10.1.19.113失败！原因：[Errno None] Unable to connect to port 22 on 10.1.19.113
+ERROR 2019-01-21 16:30:31 connect 用户zz通过webssh连接10.1.19.113失败！原因：[Errno None] Unable to connect to port 22 on 10.1.19.113
+INFO 2019-01-21 16:35:40 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-01-21 16:35:40 _log Authentication (publickey) failed.
+INFO 2019-01-21 16:35:40 _log Authentication (password) successful!
+INFO 2019-01-21 16:45:33 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-01-21 16:45:33 _log Authentication (publickey) successful!

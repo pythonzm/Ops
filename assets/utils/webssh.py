@@ -5,7 +5,7 @@ import time
 import os
 import json
 import logging
-from asgiref.sync import async_to_sync
+from socket import timeout
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets, SSHRecord
 from Ops import settings
@@ -17,26 +17,26 @@ class MyThread(threading.Thread):
         super(MyThread, self).__init__()
         self.chan = chan
         self._stop_event = threading.Event()
+        self.start_time = time.time()
+        self.current_time = time.strftime(settings.TIME_FORMAT)
+        self.stdout = []
+        self.read_lock = threading.RLock()
 
     def stop(self):
         self._stop_event.set()
 
     def run(self):
-        self.start_time = time.time()
-        self.stdout = []
-        self.current_time = time.strftime(settings.TIME_FORMAT)
-        while not self._stop_event.is_set():
-            time.sleep(0.1)
-            try:
-                data = self.chan.chan.recv(1024)
-                if data:
-                    str_data = bytes.decode(data)
-                    self.send_msg(str_data)
-                    self.stdout.append([time.time() - self.start_time, 'o', str_data])
-            except Exception:
-                pass
-        self.chan.ssh.close()
-        self.stop()
+        with self.read_lock:
+            while not self._stop_event.is_set():
+                time.sleep(0.1)
+                try:
+                    data = self.chan.chan.recv(1024)
+                    if data:
+                        str_data = bytes.decode(data)
+                        self.chan.send(str_data)
+                        self.stdout.append([time.time() - self.start_time, 'o', str_data])
+                except timeout:
+                    pass
 
     def record(self):
         record_path = os.path.join(settings.MEDIA_ROOT, 'ssh_records', self.chan.scope['user'].username,
@@ -71,10 +71,6 @@ class MyThread(threading.Thread):
         else:
             login_status_time = '{} s'.format(round(login_status_time))
 
-        # ssh_record.delay(ssh_login_user=self.chan.scope['user'], ssh_server=self.chan.host_ip,
-        #                  ssh_remote_ip=self.chan.scope["client"][0], ssh_start_time=current_time,
-        #                  ssh_login_status_time=login_status_time, ssh_record_file=record_file_path.split('media/')[1])
-
         SSHRecord.objects.create(
             ssh_login_user=self.chan.scope['user'],
             ssh_server=self.chan.host_ip,
@@ -84,44 +80,34 @@ class MyThread(threading.Thread):
             ssh_record_file=record_file_path.split('media/')[1]
         )
 
-    def send_msg(self, msg):
-        async_to_sync(self.chan.channel_layer.group_send)(
-            self.chan.group_name,
-            {
-                "type": "user.message",
-                "text": msg
-            },
-        )
-
 
 class SSHConsumer(WebsocketConsumer):
-    def connect(self):
+    def __init__(self, *args, **kwargs):
+        super(SSHConsumer, self).__init__(*args, **kwargs)
+        self.ssh = paramiko.SSHClient()
         self.group_name = self.scope['url_route']['kwargs']['group_name']
-        path = self.scope['path']
-        server_id = path.split('/')[3]
-        host = ServerAssets.objects.select_related('assets').get(id=server_id)
-        username = host.username
-        password = CryptPwd().decrypt_pwd(host.password)
-        self.host_ip = host.assets.asset_management_ip
-        host_port = int(host.port)
+        self.server = ServerAssets.objects.select_related('assets').get(id=self.scope['path'].split('/')[3])
+        self.host_ip = self.server.assets.asset_management_ip
+        self.t1 = MyThread(self)
+        self.chan = None
+        self.remote_ip = None
+
+    def connect(self):
+        self.accept()
+
+        username = self.server.username
         try:
-            self.ssh = paramiko.SSHClient()
+            self.ssh.load_system_host_keys()
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            if self.host_ip.startswith('1'):
-                self.ssh.connect(self.host_ip, host_port, username='root', key_filename='/root/.ssh/id_rsa')
-            else:
-                self.ssh.connect(self.host_ip, host_port, username, password)
-            # 创建channels group
-            async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+            self.ssh.connect(self.host_ip, int(self.server.port), username,
+                             CryptPwd().decrypt_pwd(self.server.password))
         except Exception as e:
             logging.getLogger().error('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
+            self.send('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
         self.chan = self.ssh.invoke_shell(term='xterm', width=150, height=30)
         self.chan.settimeout(0)
-        self.t1 = MyThread(self)
         self.t1.setDaemon(True)
         self.t1.start()
-        # 返回给receive方法处理
-        self.accept()
 
     def receive(self, text_data=None, bytes_data=None):
         if text_data[0].isdigit():
@@ -129,12 +115,9 @@ class SSHConsumer(WebsocketConsumer):
         else:
             self.chan.send(text_data)
 
-    def user_message(self, event):
-        self.send(text_data=event["text"])
-
     def disconnect(self, close_code):
         try:
-            self.t1.stop()
             self.t1.record()
         finally:
-            async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
+            self.ssh.close()
+            self.t1.stop()
