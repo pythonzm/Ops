@@ -200,17 +200,27 @@
                                                     <li><a href="javascript:void(0)"
                                                            onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
                                                     </li>
-                                                    <li><a href="javascript:void(0)"
-                                                           onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
-                                                    </li>
+                                                    {% if asset.serverassets.get_server_type_display != '云主机' %}
+                                                        <li><a href="javascript:void(0)"
+                                                               onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
+                                                        </li>
+                                                    {% endif %}
                                                 </ul>
                                             </div>
-                                            {% if request.user.is_superuser %}
-                                                <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
-                                                    <button type="button" class="btn btn-info btn-xs"><i
-                                                            class="fa fa-fw fa-terminal"></i></button>
-                                                </a>
-                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if request.user.is_superuser and asset.asset_type == 'server' %}
+                                        {% if 'win' in asset.serverassets.system or 'Win' in asset.serverassets.system %}
+                                            <a href="{% url 'guacamole_terminal' asset.serverassets.id %}"
+                                               target="_blank">
+                                                <button type="button" class="btn btn-info btn-xs"><i
+                                                        class="fa fa-fw fa-terminal"></i></button>
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'ssh_terminal' asset.serverassets.id %}" target="_blank">
+                                                <button type="button" class="btn btn-info btn-xs"><i
+                                                        class="fa fa-fw fa-terminal"></i></button>
+                                            </a>
                                         {% endif %}
                                     {% endif %}
                                     <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ asset.id }}">

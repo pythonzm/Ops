@@ -125,9 +125,6 @@ class RedisOps:
         except Exception as e:
             ansible_logger.error("获取数据集合失败：{}".format(e))
 
-    def exists(self, rediskey):
-        self.redis_conn.exists(rediskey)
-
     def publish(self, channel, message):
         self.redis_conn.publish(channel, message)
 

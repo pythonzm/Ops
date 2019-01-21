@@ -6,7 +6,13 @@ class FortServer(models.Model):
         (0, '禁用'),
         (1, '正常'),
     )
+    server_protocols = (
+        ('ssh', 'ssh'),
+        ('vnc', 'vnc'),
+        ('rdp', 'rdp'),
+    )
     server = models.OneToOneField('assets.ServerAssets', on_delete=models.CASCADE)
+    server_protocol = models.CharField(max_length=3, choices=server_protocols, verbose_name='连接协议', default='ssh')
     server_status = models.SmallIntegerField(choices=server_status_, default=1, verbose_name='是否允许web登录')
 
     class Meta:
@@ -28,6 +34,7 @@ class FortServerUser(models.Model):
     fort_username = models.CharField(max_length=64, verbose_name='登录用户')
     fort_password = models.CharField(max_length=64, null=True, blank=True, verbose_name='登录密码')
     fort_user_status = models.SmallIntegerField(choices=fort_user_status_, default=1, verbose_name='用户状态')
+    fort_vnc_port = models.CharField(max_length=5, blank=True, verbose_name='VNC连接端口', default='')
     fort_belong_user = models.ManyToManyField('users.UserProfile', blank=True, verbose_name='所属用户')
     fort_belong_group = models.ManyToManyField('auth.Group', blank=True, verbose_name='所属组')
     fort_black_commands = models.TextField(null=True, blank=True, verbose_name='禁用命令清单')

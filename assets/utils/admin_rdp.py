@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
-from channels.generic.websocket import WebsocketConsumer
-from guacamole.client import GuacamoleClient
-from assets.models import ServerAssets
-from fort.models import FortServerUser
-import threading
-from django.conf import settings
-from utils.db.redis_ops import RedisOps
+"""
+-------------------------------------------------
+   File Name：      root_rdp
+   Description:
+   Author:          Administrator
+   date：           2019-01-21
+-------------------------------------------------
+   Change Activity:
+                    2019-01-21:
+-------------------------------------------------
+"""
 import time
 import logging
+import threading
+from django.conf import settings
+from utils.crypt_pwd import CryptPwd
+from assets.models import ServerAssets
+from utils.db.redis_ops import RedisOps
+from guacamole.client import GuacamoleClient
+from channels.generic.websocket import WebsocketConsumer
 
 
 class GuacamoleThread(threading.Thread):
@@ -41,30 +52,22 @@ class GuacamoleThread(threading.Thread):
             self.message.send('0.;')
 
 
-class GuacamoleConsumer(WebsocketConsumer):
+class AdminGuacamole(WebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
-        super(GuacamoleConsumer, self).__init__(*args, **kwargs)
+        super(AdminGuacamole, self).__init__(*args, **kwargs)
         self.client = GuacamoleClient(settings.GUACD_HOST, settings.GUACD_PORT)
         self.group_name = self.scope['url_route']['kwargs']['group_name']
         self.fort_server = ServerAssets.objects.select_related('assets').get(id=self.scope['path'].split('/')[3])
-        self.fort_user = FortServerUser.objects.get(id=self.scope['path'].split('/')[4])
         self.guacamole_thread = GuacamoleThread(self)
 
     def connect(self):
         self.accept('guacamole')
 
-        server_protocol = self.fort_user.fort_server.server_protocol
-        if server_protocol == 'vnc':
-            self.client.handshake(protocol=server_protocol,
-                                  hostname=self.fort_server.assets.asset_management_ip,
-                                  port=self.fort_user.fort_vnc_port,
-                                  password=self.fort_user.fort_password)
-        elif server_protocol == 'rdp':
-            self.client.handshake(protocol=server_protocol,
-                                  hostname=self.fort_server.assets.asset_management_ip, port=self.fort_server.port,
-                                  password=self.fort_user.fort_password,
-                                  username=self.fort_user.fort_username)
+        self.client.handshake(protocol='rdp',
+                              hostname=self.fort_server.assets.asset_management_ip, port=self.fort_server.port,
+                              password=CryptPwd().decrypt_pwd(self.fort_server.password),
+                              username=self.fort_server.username)
         self.send('0.,{0}.{1};'.format(len(self.group_name), self.group_name))
         self.guacamole_thread.setDaemon(True)
         self.guacamole_thread.start()

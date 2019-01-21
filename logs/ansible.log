@@ -1,1 +1,1 @@
-ERROR 2019-01-14 16:18:41 module_record 添加执行模块操作记录失败，原因：Cannot assign "'admin'": "AnsibleModuleLog.ans_user" must be a "UserProfile" instance.
+ERROR 2019-01-17 10:57:44 module_record 添加执行模块操作记录失败，原因：(1048, "Column 'ans_remote_ip' cannot be null")

@@ -147,7 +147,7 @@
             <div id="server_items">
                 <p class="lead">* 服务器专属字段</p>
                 <div class="form-group">
-                    <label for="username" class="col-sm-2 control-label">用户名称<span class="text-red">*</span></label>
+                    <label for="username" class="col-sm-2 control-label">管理用户<span class="text-red">*</span></label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" name="username" id="username">
                     </div>
@@ -161,7 +161,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="port" class="col-sm-2 control-label">SSH端口<span class="text-red">*</span></label>
+                    <label for="port" class="col-sm-2 control-label">管理端口<span
+                            data-toggle="tooltip"
+                            title="rdp协议默认端口是：3389"><i
+                            class="fa fa-exclamation-circle"></i></span></label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" name="port" id="port">
                     </div>
@@ -188,7 +191,8 @@
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script>
         $(function () {
-            $('.select2').select2()
+            $('.select2').select2();
+            $("[data-toggle='tooltip']").tooltip();
         });
 
         function assetType() {
@@ -256,12 +260,6 @@
                     }
                 }
             })
-        }
-
-        function authType() {
-            let auth_type = $('#auth_type').val();
-            let pwd_obj = $('.password');
-            auth_type === '0' ? pwd_obj.hide() : pwd_obj.show();
         }
 
         // 添加资产

@@ -79,7 +79,6 @@ INSTALLED_APPS = [
     'django_celery_results',
     'api.apps.ApiConfig',
     'channels',
-    'corsheaders',
     'assets.apps.AssetsConfig',
     'users.apps.UsersConfig',
     'task.apps.TaskConfig',
@@ -100,12 +99,10 @@ HAYSTACK_CONNECTIONS = {
 }
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-CORS_ORIGIN_ALLOW_ALL = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -222,5 +219,3 @@ ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')
 
 GUACD_HOST = '10.1.19.10'
 GUACD_PORT = 4822
-
-CHANNELS_WS_PROTOCOLS = ["guacamole"]

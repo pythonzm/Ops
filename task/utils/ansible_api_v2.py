@@ -38,6 +38,7 @@ class ModelResultsCollector(CallbackBase):
         super(ModelResultsCollector, self).__init__(*args, **kwargs)
         self.redis_instance = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, 7)
         self.channel_key = self.unique_key
+        self.module_results = []
 
     def v2_runner_on_unreachable(self, result):
         if 'msg' in result._result:
@@ -51,6 +52,7 @@ class ModelResultsCollector(CallbackBase):
                     result._result,
                     indent=4))
         self.redis_instance.publish(self.channel_key, data)
+        self.module_results.append(data)
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
         if 'rc' in result._result and 'stdout' in result._result:
@@ -74,6 +76,7 @@ class ModelResultsCollector(CallbackBase):
                     result._result,
                     indent=4))
         self.redis_instance.publish(self.channel_key, data)
+        self.module_results.append(data)
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
         if 'stderr' in result._result:
@@ -91,6 +94,7 @@ class ModelResultsCollector(CallbackBase):
                     result._result,
                     indent=4))
         self.redis_instance.publish(self.channel_key, data)
+        self.module_results.append(data)
 
 
 class PlayBookResultsCollector(CallbackBase):
@@ -320,6 +324,10 @@ class ANSRunner(object):
             executor.run()
         except Exception as e:
             ansible_logger.error('执行{}失败，原因: {}'.format(playbook_path, e))
+
+    @property
+    def get_module_results(self):
+        return self.callback.module_results
 
     @staticmethod
     def handle_setup_data(data):

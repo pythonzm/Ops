@@ -208,12 +208,20 @@
                                                     {% endif %}
                                                 </ul>
                                             </div>
-                                            {% if request.user.is_superuser %}
-                                                <a href="{% url 'ssh' asset.serverassets.id %}" target="_blank">
-                                                    <button type="button" class="btn btn-info btn-xs"><i
-                                                            class="fa fa-fw fa-terminal"></i></button>
-                                                </a>
-                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if request.user.is_superuser and asset.asset_type == 'server' %}
+                                        {% if 'win' in asset.serverassets.system or 'Win' in asset.serverassets.system %}
+                                            <a href="{% url 'guacamole_terminal' asset.serverassets.id %}"
+                                               target="_blank">
+                                                <button type="button" class="btn btn-info btn-xs"><i
+                                                        class="fa fa-fw fa-terminal"></i></button>
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'ssh_terminal' asset.serverassets.id %}" target="_blank">
+                                                <button type="button" class="btn btn-info btn-xs"><i
+                                                        class="fa fa-fw fa-terminal"></i></button>
+                                            </a>
                                         {% endif %}
                                     {% endif %}
                                     <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ asset.id }}">

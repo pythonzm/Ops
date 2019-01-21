@@ -48,7 +48,7 @@
                     <div class="form-group" style="display:none;" id="customModule">
                         <label for="customModule">自定义模块</label>
                         <input type="text" class="form-control" placeholder="Enter model"
-                               name="customModule">
+                               name="customModule" id="c_module">
                     </div>
                     <div class="form-group">
                         <label for="ansibleModuleArgs">模块参数</label>
@@ -168,7 +168,7 @@
                 hostGroup: $('#hostGroup').val(),
                 ans_group_hosts: $('#ans_group_hosts').val(),
                 ansibleModule: $('#ansibleModule').val(),
-                customModule: $('#customModule').val(),
+                customModule: $('#c_module').val(),
                 ansibleModuleArgs: $('#ansibleModuleArgs').val(),
                 run_user: '{{ request.user.id }}',
                 remote_ip: '{{ remote_ip }}'

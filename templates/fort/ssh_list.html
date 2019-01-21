@@ -28,7 +28,7 @@
                         <thead>
                         <tr>
                             <th>主机</th>
-                            <th>系统</th>
+                            <th>连接协议</th>
                             <th>账号</th>
                             <th>账号说明</th>
                         </tr>
@@ -38,12 +38,12 @@
                             <tr>
                                 <td>{{ fort_user.fort_server.server.assets.asset_management_ip }}</td>
                                 <td>
-                                    {% if 'win' in fort_user.fort_server.server.system or 'Win' in fort_user.fort_server.server.system %}
-                                        <i class="fa fa-fw fa-windows"
-                                           style="color: #00a7d0;font-size: 25px"></i>
-                                    {% else %}
-                                        <i class="fa fa-fw fa-linux"
-                                           style="color: green;font-size: 25px"></i>
+                                    {% if fort_user.fort_server.server_protocol == 'ssh' %}
+                                        <small class="label label-primary"> {{ fort_user.fort_server.get_server_protocol_display }}</small>
+                                    {% elif fort_user.fort_server.server_protocol == 'vnc' %}
+                                        <small class="label label-warning"> {{ fort_user.fort_server.get_server_protocol_display }}</small>
+                                    {% elif fort_user.fort_server.server_protocol == 'rdp' %}
+                                        <small class="label label-info"> {{ fort_user.fort_server.get_server_protocol_display }}</small>
                                     {% endif %}
                                 </td>
 

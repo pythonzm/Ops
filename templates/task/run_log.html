@@ -91,12 +91,12 @@
                                             <td>{{ info.ans_user }}</td>
                                             <td>{{ info.ans_remote_ip }}</td>
                                             <td>{{ info.ans_module }}</td>
-                                            <td>{{ info.ans_args|slice:":50" }}</td>
+                                            <td>{{ info.ans_args }}</td>
                                             <td>{{ info.ans_server }}</td>
                                             <td>{{ info.ans_datetime|date:"Y-m-d H:i:s" }}</td>
                                             <td>
                                                 <button type="button" class="result btn btn-default"
-                                                        onclick="getResult({{ info.ans_result }})"
+                                                        data-id="{{ info.id }}"
                                                         data-toggle="modal"
                                                         data-target="#modal-default"><i
                                                         class="fa fa-fw fa-eye"></i>
@@ -144,7 +144,7 @@
                                             <td>{{ info.playbook_datetime|date:"Y-m-d H:i:s" }}</td>
                                             <td>
                                                 <button type="button" class="result btn btn-default"
-                                                        onclick="getResult({{ info.playbook_result }})"
+                                                        data-id="{{ info.id }}"
                                                         data-toggle="modal"
                                                         data-target="#modal-default"><i
                                                         class="fa fa-fw fa-eye"></i>
@@ -230,22 +230,24 @@
             autoclose: true
         });
 
-        // 获取执行结果
-        function getResult(result) {
+        let module_body = $('#moduleLog tbody');
+        let playbook_body = $('#playbookLog tbody');
+
+        // 查看module日志
+        module_body.on('click', 'button.result', function () {
+            let pk = $(this).attr('data-id');
             let obj = $('pre');
             obj.html('');
-            for (let i = 0; i < result.length; i++) {
-                if (result[i].indexOf('RECAP') !== -1) {
-                    obj.append(`<code style="color: #FFFFFF">${result[i]}</code><br>`)
-                } else {
-                    obj.append(result[i])
+            $.get('/run/run_log/?module_log_id=' + pk, function (res) {
+                for (let i of res.data) {
+                    obj.append(i)
                 }
-            }
+            });
             obj.scrollTop = obj.scrollHeight;
-        }
+        });
 
         //删除module日志
-        $('#moduleLog tbody').on('click', 'button.delete', function () {
+        module_body.on('click', 'button.delete', function () {
             let pk = $(this).attr('data-id');
             let tr_obj = $(this).parents('tr');
 
@@ -293,8 +295,21 @@
             {% endif %}
         });
 
+        // 查看playbook日志
+        playbook_body.on('click', 'button.result', function () {
+            let pk = $(this).attr('data-id');
+            let obj = $('pre');
+            obj.html('');
+            $.get('/run/run_log/?playbook_log_id=' + pk, function (res) {
+                for (let i of res.data) {
+                    obj.append(i)
+                }
+            });
+            obj.scrollTop = obj.scrollHeight;
+        });
+
         //删除playbook日志
-        $('#playbookLog tbody').on('click', 'button.delete', function () {
+        playbook_body.on('click', 'button.delete', function () {
             let pk = $(this).attr('data-id');
             let tr_obj = $(this).parents('tr');
 
@@ -382,7 +397,6 @@
                                 let result = response.records[i];
                                 let id = result['id'];
                                 let ans_datetime = $.format.date(result['ans_datetime'], "yyyy-MM-dd HH:mm:ss");
-                                let counter = 1;
                                 module_table.row.add([
                                     result['ans_user'],
                                     result['ans_remote_ip'],
@@ -390,9 +404,8 @@
                                     result['ans_args'],
                                     result['ans_server'],
                                     ans_datetime,
-                                    `<button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
+                                    `<button type="button" class="result btn btn-default" data-id="${id}" data-toggle="modal" data-target="#modal-default"><i class="fa fa-fw fa-eye"></i></button> <button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
                                 ]).draw();
-                                counter++;
                             }
                         }
                     },
@@ -432,15 +445,13 @@
                                 let result = response.records[i];
                                 let id = result['id'];
                                 let playbook_datetime = $.format.date(result['playbook_datetime'], "yyyy-MM-dd HH:mm:ss");
-                                let counter = 1;
                                 playbook_table.row.add([
                                     result['playbook_user'],
                                     result['playbook_remote_ip'],
                                     result['playbook_name'],
                                     playbook_datetime,
-                                    `<button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
+                                    `<button type="button" class="result btn btn-default" data-id="${id}" data-toggle="modal" data-target="#modal-default"><i class="fa fa-fw fa-eye"></i></button> <button type="button" class="delete btn btn-default" data-id="${id}"><i class="glyphicon glyphicon-trash"></i></button>`
                                 ]).draw();
-                                counter++;
                             }
                         }
                     },

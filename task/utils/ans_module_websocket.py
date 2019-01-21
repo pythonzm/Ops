@@ -28,7 +28,6 @@ class ModuleThread(threading.Thread):
         self.ans = ans
         self._stop_event = threading.Event()
         self.pub = ans.redis_instance.redis_conn.pubsub()
-        self.module_results = []
 
     def stop(self):
         self.pub.unsubscribe(self.ans.channel_key)
@@ -43,11 +42,6 @@ class ModuleThread(threading.Thread):
             for i in text:
                 if i["type"] == "message":
                     self.ans.send(i['data'])
-                    self.module_results.append(i['data'])
-
-    @property
-    def results(self):
-        return self.module_results
 
 
 class AnsModuleConsumer(WebsocketConsumer):
@@ -71,7 +65,7 @@ class AnsModuleConsumer(WebsocketConsumer):
         group_ids = self.ans_info['hostGroup']
         host_ids = self.ans_info['ans_group_hosts']
         selected_module_name = self.ans_info['ansibleModule']
-        custom_model_name = self.ans_info['customModule']
+        custom_model_name = self.ans_info.get('customModule', None)
         module_args = self.ans_info['ansibleModuleArgs']
 
         self.run_model(group_ids, host_ids, selected_module_name, custom_model_name, module_args)
@@ -107,7 +101,7 @@ class AnsModuleConsumer(WebsocketConsumer):
                                     ans_remote_ip=self.ans_info['remote_ip'],
                                     ans_module=module_name,
                                     ans_args=module_args,
-                                    ans_server=host_list, ans_result=self.module_thread.results)
+                                    ans_server=host_list, ans_result=ans.get_module_results)
             except Exception as e:
                 self.send('<code style="color: #FF0000">\nansible执行模块出错：{}\n</code>'.format(str(e)))
             finally:

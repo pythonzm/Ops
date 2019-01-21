@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ fort_username }}@{{ server_ip }}</title>
+    <title>{{ guacamole_server_ip }}</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
@@ -47,7 +47,7 @@
     // Instantiate client, using an HTTP tunnel for communications.
     //http://guacamole.apache.org/doc/guacamole-common-js/Guacamole.WebSocketTunnel.html
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let ws_path = ws_scheme + '://' + window.location.host + '/ws/fort_guacamole/{{ server_id }}/{{ fort_user_id }}/{{ group_name }}/';
+    let ws_path = ws_scheme + '://' + window.location.host + '/ws/admin_guacamole/{{ pk }}/{{ group_name }}/';
     let guac = new Guacamole.Client(
         // new Guacamole.HTTPTunnel("tunnel")
         new Guacamole.WebSocketTunnel(ws_path)

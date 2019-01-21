@@ -70,6 +70,18 @@
                                 </div>
 
                                 <div class="form-group">
+                                    <label for="server_protocol" class="col-sm-2 control-label">协议</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" id="server_protocol" name="server_protocol"
+                                                style="width: 100%;">
+                                            {% for server_protocol in server_protocols %}
+                                                <option value="{{ server_protocol.0 }}">{{ server_protocol.1 }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
                                     <label for="server_status" class="col-sm-2 control-label">状态</label>
                                     <div class="col-sm-6">
                                         <select class="form-control select2" id="server_status" name="server_status"
@@ -80,8 +92,6 @@
                                         </select>
                                     </div>
                                 </div>
-
-                                <div class="space-24"></div>
 
                             </fieldset>
                         </form>
@@ -149,6 +159,14 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group" id="vnc_port">
+                                    <label for="fort_vnc_port" class="col-sm-2 control-label">VNC端口</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="fort_vnc_port"
+                                               id="fort_vnc_port" required/>
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
                                     <label for="fort_belong_user" class="col-sm-2 control-label">所属用户</label>
                                     <div class="col-sm-6">
@@ -175,7 +193,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group" id="black_commands">
                                     <label for="fort_black_commands" class="col-sm-2 control-label">该用户禁用命令</label>
                                     <div class="col-sm-6">
                                         <textarea class="form-control" id="fort_black_commands"
@@ -214,6 +232,7 @@
                         <tr>
                             <th>主机</th>
                             <th>账号</th>
+                            <th>协议</th>
                             <th>状态</th>
                             <th>操作</th>
                         </tr>
@@ -229,19 +248,32 @@
                                             <span class="badge bg-red update-fort-user" data-toggle="modal"
                                                   data-target="#FortUserModal" data-user-id="{{ fort_user.id }}"
                                                   data-server-id="{{ fort_server.server.id }}"
+                                                  data-protocol="{{ fort_server.server_protocol }}"
                                                   style="cursor: pointer">{{ fort_user.fort_username }}</span>&nbsp;
                                         {% elif fort_user.fort_user_status == 1 %}
                                             <span class="badge bg-green update-fort-user" data-toggle="modal"
                                                   data-target="#FortUserModal" data-user-id="{{ fort_user.id }}"
                                                   data-server-id="{{ fort_server.server.id }}"
+                                                  data-protocol="{{ fort_server.server_protocol }}"
                                                   style="cursor: pointer">{{ fort_user.fort_username }}</span>&nbsp;
                                         {% endif %}
                                     {% endfor %}
                                     <button type="button" class="btn btn-info btn-xs add-fort-user" data-toggle="modal"
                                             data-target="#FortUserModal" data-server-id="{{ fort_server.server.id }}"
-                                            data-fort-server="{{ fort_server.id }}"><i class="fa fa-plus"></i>
+                                            data-fort-server="{{ fort_server.id }}"
+                                            data-protocol="{{ fort_server.server_protocol }}"><i class="fa fa-plus"></i>
                                     </button>
                                 </td>
+                                <td>
+                                    {% if fort_server.server_protocol == 'ssh' %}
+                                        <small class="label label-primary"> {{ fort_server.get_server_protocol_display }}</small>
+                                    {% elif fort_server.server_protocol == 'vnc' %}
+                                        <small class="label label-warning"> {{ fort_server.get_server_protocol_display }}</small>
+                                    {% else %}
+                                        <small class="label label-info"> {{ fort_server.get_server_protocol_display }}</small>
+                                    {% endif %}
+                                </td>
+
                                 <td>
                                     {% if fort_server.server_status == 0 %}
                                         <span class="badge bg-red">{{ fort_server.get_server_status_display }}</span>
@@ -302,9 +334,12 @@
         $(function () {
             $('.select2').select2({
                 allowClear: true
-            })
+            });
         });
-        $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+
+        // 处理在modal中select2当选框无法搜索的问题
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {
+        };
 
         let fort_server_tbody = $('#fort tbody');
 
@@ -313,9 +348,9 @@
             $(".select2").val('').trigger('change');
 
             $('#add-fort').on('click', function () {
-                let server_text = $('#server option:selected').text();
                 let data = {
                     server: $('#server').val(),
+                    server_protocol: $('#server_protocol').val(),
                     server_status: $('#server_status').val()
                 };
                 $.ajax({
@@ -324,14 +359,8 @@
                     data: JSON.stringify(data),
                     dataType: 'json',
                     contentType: "application/json",
-                    success: function (res) {
-                        let server_status = res.server_status === 1 ? '<span class="badge bg-green>正常</span>' : '<span class="badge bg-red">禁用</span>';
-                        fort_server_table.row.add([
-                            server_text,
-                            `<button type="button" class="btn btn-info btn-xs add-fort-user" data-toggle="modal" data-target="#FortUserModal" data-server-id="${res.server}"><i class="fa fa-plus"></i></button>`,
-                            server_status,
-                            `<button type="button" class="btn btn-danger btn-xs disable_server" data-id="${res.id}">禁用</button> <button type="button" class="btn btn-info btn-xs enable_server" data-id="${res.id}">解禁</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
-                        ]).draw();
+                    success: function () {
+                        location.reload()
                     },
                     error: function (response) {
                         $.alert({
@@ -395,7 +424,7 @@
                 dataType: 'json',
                 contentType: "application/json",
                 success: function () {
-                    fort_server_td_obj[2].innerHTML = '<span class="badge bg-red">禁用</span>'
+                    fort_server_td_obj[3].innerHTML = '<span class="badge bg-red">禁用</span>'
                 },
                 error: function (response) {
                     $.alert({
@@ -419,7 +448,7 @@
                 dataType: 'json',
                 contentType: "application/json",
                 success: function () {
-                    fort_server_td_obj[2].innerHTML = '<span class="badge bg-green">正常</span>'
+                    fort_server_td_obj[3].innerHTML = '<span class="badge bg-green">正常</span>'
                 },
                 error: function (response) {
                     $.alert({
@@ -442,37 +471,48 @@
 
             let server_id = $(this).attr('data-server-id');
             let fort_server = $(this).attr('data-fort-server');
+            let fort_protocol = $(this).attr('data-protocol');
             $('#FortUserModalLabel').text('新增用户');
             fort_user_ops.text('添加');
 
-            fort_user_ops.unbind('click').on('click', function () {
-                let username = $('#fort_username').val();
-                let password = $('#fort_password').val();
-                let fort_black_commands = $('#fort_black_commands').val();
-                let black_commands = gen_sudo_conf(fort_black_commands);
-                let data = {
-                    fort_server: fort_server,
-                    fort_username: username,
-                    fort_password: password,
-                    fort_user_status: $('#fort_user_status').val(),
-                    fort_black_commands: fort_black_commands,
-                    fort_user_memo: $('#fort_user_memo').val(),
-                    fort_belong_user: $('#fort_belong_user').val(),
-                    fort_belong_group: $('#fort_belong_group').val(),
-                };
+            if (fort_protocol === 'ssh') {
+                $('#vnc_port').css('display', 'none');
+                $("[data-toggle='tooltip']").tooltip('destroy');
+                $('#black_commands').css('display', 'block');
+                fort_user_ops.unbind('click').on('click', function () {
 
-                let ansible_data = {
-                    hostGroup: 'custom',
-                    ans_group_hosts: server_id,
-                    ansibleModule: 'shell',
-                    ansibleModuleArgs: `useradd ${username} && echo "${password}" | passwd --stdin ${username} && echo '${username}  ALL\\=(ALL)       NOPASSWD: ALL,${black_commands}' > /etc/sudoers.d/${username}`,
-                };
-                $.ajax({
-                    url: '{% url 'run_module' %}',
-                    type: 'POST',
-                    data: ansible_data,
-                    success: function (res) {
-                        if (res.msg[0].indexOf('success') !== -1) {
+                    let fort_black_commands = $('#fort_black_commands').val();
+                    let black_commands = gen_sudo_conf(fort_black_commands);
+                    let data = {
+                        fort_server: fort_server,
+                        fort_username: $('#fort_username').val(),
+                        fort_password: $('#fort_password').val(),
+                        fort_user_status: $('#fort_user_status').val(),
+                        fort_black_commands: fort_black_commands,
+                        fort_user_memo: $('#fort_user_memo').val(),
+                        fort_belong_user: $('#fort_belong_user').val(),
+                        fort_belong_group: $('#fort_belong_group').val(),
+                    };
+
+                    let host_ids = [];
+                    host_ids.push(server_id);
+                    let ansible_data = {
+                        hostGroup: ["custom"],
+                        ans_group_hosts: host_ids,
+                        ansibleModule: 'shell',
+                        ansibleModuleArgs: `useradd ${data.fort_username} && echo "${data.fort_password}" | passwd --stdin ${data.fort_username} && echo '${data.fort_username}  ALL\\=(ALL)       NOPASSWD: ALL,${black_commands}' > /etc/sudoers.d/${data.fort_username}`,
+                        run_user: '{{ request.user.id }}',
+                        remote_ip: '{{ remote_ip }}'
+                    };
+                    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+                    let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ans_module_log/");
+
+                    socket.onopen = function () {
+                        socket.send(JSON.stringify(ansible_data));
+                    };
+
+                    socket.onmessage = function (e) {
+                        if (e.data.indexOf('success') !== -1) {
                             $.ajax({
                                 url: '/api/fort_user/',
                                 type: 'POST',
@@ -486,7 +526,7 @@
                                     $.alert({
                                         title: 'Tips',
                                         type: 'red',
-                                        content: response.responseText,
+                                        content: '数据库添加用户失败！' + response.responseText,
                                     })
                                 }
                             });
@@ -494,26 +534,40 @@
                             $.alert({
                                 title: 'Tips',
                                 type: 'red',
-                                content: '添加用户失败！' + res.responseText,
+                                content: '服务器添加用户失败！' + e.data,
                             })
                         }
+                    };
 
-                    },
-                    error: function (response) {
+                    socket.onerror = function (e) {
                         $.alert({
                             title: 'Tips',
                             type: 'red',
-                            content: '服务器添加用户失败！' + response.responseText,
+                            content: '服务器添加用户失败！' + e,
                         })
                     }
                 });
-            });
+            } else if (fort_protocol === 'vnc') {
+                $('#vnc_port').css('display', 'block');
+                fort_user_ops.attr({"data-toggle": "tooltip", "title": "VNC服务器需要手动连接服务器添加该用户"});
+                $('#black_commands').css('display', 'block');
+
+                add_fort_user(server_id, fort_server)
+            } else if (fort_protocol === 'rdp') {
+                $('#vnc_port').css('display', 'none');
+                fort_user_ops.attr({"data-toggle": "tooltip", "title": "Windows服务器需要手动连接服务器添加该用户"});
+                $('#black_commands').css('display', 'none');
+
+                add_fort_user(server_id, fort_server)
+            }
         });
 
         // 更新/删除用户
         fort_server_tbody.on('click', '.update-fort-user', function () {
+            $("[data-toggle='tooltip']").tooltip('destroy');
             let fort_user_id = $(this).attr('data-user-id');
             let server_id = $(this).attr('data-server-id');
+            let fort_protocol = $(this).attr('data-protocol');
             $('.modal-title').text('修改用户');
             fort_user_ops.text('保存');
             if (!$('#delete_fort_user')[0]) {
@@ -522,6 +576,17 @@
             $('#fort_username').attr("readonly", "readonly");
             $('#form-password').css('display', 'none');
 
+            if (fort_protocol === 'ssh') {
+                $('#black_commands').css('display', 'block');
+                $('#vnc_port').css('display', 'none');
+            } else if (fort_protocol === 'vnc') {
+                $('#black_commands').css('display', 'block');
+                $('#vnc_port').css('display', 'block');
+            } else if (fort_protocol === 'rdp') {
+                $('#black_commands').css('display', 'none');
+                $('#vnc_port').css('display', 'none');
+            }
+
             $.get('/api/fort_user/' + fort_user_id + '/', function (data) {
                 $('#fort_username').val(data.fort_username);
                 $('#fort_user_status').val(data.fort_user_status).trigger('change');
@@ -529,6 +594,9 @@
                 $('#fort_belong_group').val(data.fort_belong_group).trigger('change');
                 $('#fort_black_commands').val(data.fort_black_commands);
                 $('#fort_user_memo').val(data.fort_user_memo);
+                if (fort_protocol === 'vnc') {
+                    $('#fort_vnc_port').val(data.fort_vnc_port)
+                }
             });
 
             $('#fort_black_commands').change(function () {
@@ -544,7 +612,8 @@
                     fort_belong_user: $('#fort_belong_user').val(),
                     fort_belong_group: $('#fort_belong_group').val(),
                     fort_black_commands: fort_black_commands.val(),
-                    fort_user_memo: $('#fort_user_memo').val()
+                    fort_user_memo: $('#fort_user_memo').val(),
+                    fort_vnc_port: $('#fort_vnc_port').val()
                 };
 
                 if (fort_black_commands.data('changed')) {
@@ -552,52 +621,56 @@
                     let fort_black_commands = $('#fort_black_commands').val();
                     let black_commands = gen_sudo_conf(fort_black_commands);
                     let ansible_data = {
-                        hostGroup: 'custom',
-                        ans_group_hosts: server_id,
+                        hostGroup: ["custom"],
+                        ans_group_hosts: server_id.split(""),
                         ansibleModule: 'shell',
                         ansibleModuleArgs: `echo '${username}  ALL\\=(ALL)       NOPASSWD: ALL,${black_commands}' > /etc/sudoers.d/${username}`,
+                        run_user: '{{ request.user.id }}',
+                        remote_ip: '{{ remote_ip }}'
                     };
 
-                    $.ajax({
-                        url: '{% url 'run_module' %}',
-                        type: 'POST',
-                        data: ansible_data,
-                        success: function (res) {
-                            if (res.msg[0].indexOf('success') !== -1) {
-                                $.ajax({
-                                    url: '/api/fort_user/' + fort_user_id + '/',
-                                    type: 'PATCH',
-                                    data: JSON.stringify(data),
-                                    dataType: 'json',
-                                    contentType: "application/json",
-                                    success: function () {
-                                        window.location.reload();
-                                    },
-                                    error: function (response) {
-                                        $.alert({
-                                            title: 'Tips',
-                                            type: 'red',
-                                            content: response.responseText,
-                                        })
-                                    }
-                                });
-                            } else {
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'red',
-                                    content: '服务器更新用户失败！' + res.responseText,
-                                })
-                            }
+                    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+                    let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ans_module_log/");
 
-                        },
-                        error: function (response) {
+                    socket.onopen = function () {
+                        socket.send(JSON.stringify(ansible_data));
+                    };
+
+                    socket.onmessage = function (e) {
+                        if (e.data.indexOf('success') !== -1) {
+                            $.ajax({
+                                url: '/api/fort_user/' + fort_user_id + '/',
+                                type: 'PATCH',
+                                data: JSON.stringify(data),
+                                dataType: 'json',
+                                contentType: "application/json",
+                                success: function () {
+                                    window.location.reload();
+                                },
+                                error: function (response) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '数据库更新用户失败！' + response.responseText,
+                                    })
+                                }
+                            });
+                        } else {
                             $.alert({
                                 title: 'Tips',
                                 type: 'red',
-                                content: '更新用户失败！' + response.responseText,
+                                content: '服务器更新用户失败！' + e.data,
                             })
                         }
-                    });
+                    };
+
+                    socket.onerror = function (e) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '服务器更新用户失败！' + e,
+                        })
+                    }
                 } else {
                     $.ajax({
                         url: '/api/fort_user/' + fort_user_id + '/',
@@ -620,48 +693,80 @@
             });
 
             // 删除用户
-            $('#delete_fort_user').click(function () {
+            $('#delete_fort_user').unbind('click').on('click', function () {
                 $.confirm({
                     title: 'Tips',
                     content: '确定要删除么？',
                     type: 'red',
                     buttons: {
                         Ok: function () {
-                            let username = $('#fort_username').val();
-                            let ansible_data = {
-                                hostGroup: 'custom',
-                                ans_group_hosts: server_id,
-                                ansibleModule: 'user',
-                                ansibleModuleArgs: 'name=' + username + ' state=absent remove=yes',
-                            };
-                            $.ajax({
-                                url: '{% url 'run_module' %}',
-                                type: 'POST',
-                                data: ansible_data,
-                                success: function () {
-                                    $.ajax({
-                                        url: '/api/fort_user/' + fort_user_id + '/',
-                                        method: 'DELETE',
-                                        success: function () {
-                                            window.location.reload()
-                                        },
-                                        error: function (data) {
-                                            $.alert({
-                                                title: 'Tips',
-                                                type: 'red',
-                                                content: '删除失败！' + data.responseText,
-                                            })
-                                        }
-                                    })
-                                },
-                                error: function (response) {
+                            if (fort_protocol === 'ssh' || fort_protocol === 'vnc') {
+                                let username = $('#fort_username').val();
+                                let host_ids = [];
+                                host_ids.push(server_id);
+                                let ansible_data = {
+                                    hostGroup: ["custom"],
+                                    ans_group_hosts: host_ids,
+                                    ansibleModule: 'user',
+                                    ansibleModuleArgs: 'name=' + username + ' state=absent remove=yes',
+                                    run_user: '{{ request.user.id }}',
+                                    remote_ip: '{{ remote_ip }}'
+                                };
+                                let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+                                let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ans_module_log/");
+
+                                socket.onopen = function () {
+                                    socket.send(JSON.stringify(ansible_data));
+                                };
+
+                                socket.onmessage = function (e) {
+                                    if (e.data.indexOf('success') !== -1) {
+                                        $.ajax({
+                                            url: '/api/fort_user/' + fort_user_id + '/',
+                                            type: 'DELETE',
+                                            success: function () {
+                                                window.location.reload();
+                                            },
+                                            error: function (response) {
+                                                $.alert({
+                                                    title: 'Tips',
+                                                    type: 'red',
+                                                    content: '数据库删除用户失败！' + response.responseText,
+                                                })
+                                            }
+                                        });
+                                    } else {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: '服务器删除用户失败！' + e.data,
+                                        })
+                                    }
+                                };
+
+                                socket.onerror = function (e) {
                                     $.alert({
                                         title: 'Tips',
                                         type: 'red',
-                                        content: '服务器删除用户失败！' + response.responseText,
+                                        content: '服务器删除用户失败！' + e,
                                     })
                                 }
-                            });
+                            } else {
+                                $.ajax({
+                                    url: '/api/fort_user/' + fort_user_id + '/',
+                                    type: 'DELETE',
+                                    success: function () {
+                                        window.location.reload();
+                                    },
+                                    error: function (response) {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: '数据库删除用户失败！' + response.responseText,
+                                        })
+                                    }
+                                });
+                            }
                         },
                         Cancel: function () {
                             // close
@@ -688,6 +793,40 @@
 
             let u_command_list = Array.from(new Set(command_list));
             return u_command_list.join(',')
+        }
+
+        function add_fort_user(server_id, fort_server) {
+            $("[data-toggle='tooltip']").tooltip();
+            fort_user_ops.unbind('click').on('click', function () {
+                let data = {
+                    fort_server: fort_server,
+                    fort_username: $('#fort_username').val(),
+                    fort_password: $('#fort_password').val(),
+                    fort_user_status: $('#fort_user_status').val(),
+                    fort_user_memo: $('#fort_user_memo').val(),
+                    fort_belong_user: $('#fort_belong_user').val(),
+                    fort_belong_group: $('#fort_belong_group').val(),
+                    fort_vnc_port: $('#fort_vnc_port').val()
+                };
+
+                $.ajax({
+                    url: '/api/fort_user/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function () {
+                        window.location.reload();
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '数据库添加用户失败！' + response.responseText,
+                        })
+                    }
+                });
+            });
         }
 
     </script>

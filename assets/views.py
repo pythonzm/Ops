@@ -9,7 +9,7 @@ from itertools import product
 from utils.export_excel import ExportExcel
 from Ops import settings
 from django.db.models import Count
-from django.http import JsonResponse, FileResponse, HttpResponseForbidden
+from django.http import JsonResponse, FileResponse
 from django.shortcuts import render
 from assets.models import *
 from users.models import UserProfile
@@ -17,6 +17,7 @@ from utils.crypt_pwd import CryptPwd
 from task.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.decorators import permission_required
 from utils.sftp import SFTP
+from utils.decorators import admin_auth
 
 
 @permission_required('assets.add_assets', raise_exception=True)
@@ -181,8 +182,8 @@ def server_facts(request):
         try:
             ans = ANSRunner(resource)
             ans.run_module(host_list=[server_obj.assets.asset_management_ip], module_name=module, module_args="")
-            res = ans.get_model_result()
-            for data in res:
+
+            for data in ans.get_module_results:
                 if module == 'setup':
                     if 'success' in data:
                         server_info, server_model, nks = ans.handle_setup_data(data)
@@ -342,43 +343,49 @@ def export_assets(request):
             logging.getLogger().error('导出失败！{}'.format(e))
 
 
+@admin_auth
 def ssh_terminal(request, pk):
-    if request.user.is_superuser:
-        server_obj = ServerAssets.objects.select_related('assets').get(id=pk)
-        ssh_server_ip = server_obj.assets.asset_management_ip
+    server_obj = ServerAssets.objects.select_related('assets').get(id=pk)
+    ssh_server_ip = server_obj.assets.asset_management_ip
 
-        if request.method == 'GET':
-            download_file = request.GET.get('download_file')
-            if download_file:
-                download_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'download',
-                                                  ssh_server_ip)
+    if request.method == 'GET':
+        download_file = request.GET.get('download_file')
+        if download_file:
+            download_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'download',
+                                              ssh_server_ip)
 
-                sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
-                            CryptPwd().decrypt_pwd(server_obj.password))
+            sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
+                        CryptPwd().decrypt_pwd(server_obj.password))
 
-                response = sftp.download_file(download_file, download_file_path)
-                return response
-            else:
-                group_name = str(uuid.uuid4())
-                remote_ip = request.META.get('REMOTE_ADDR')
-                return render(request, 'assets/ssh_terminal.html', locals())
-        elif request.method == 'POST':
-            try:
-                upload_file = request.FILES.get('upload_file')
-                upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
-                                                server_obj.assets.asset_management_ip)
-                sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
-                            CryptPwd().decrypt_pwd(server_obj.password))
-                sftp.upload_file(upload_file, upload_file_path)
+            response = sftp.download_file(download_file, download_file_path)
+            return response
+        else:
+            group_name = str(uuid.uuid4())
+            remote_ip = request.META.get('REMOTE_ADDR')
+            return render(request, 'assets/ssh_terminal.html', locals())
+    elif request.method == 'POST':
+        try:
+            upload_file = request.FILES.get('upload_file')
+            upload_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'upload',
+                                            server_obj.assets.asset_management_ip)
+            sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
+                        CryptPwd().decrypt_pwd(server_obj.password))
+            sftp.upload_file(upload_file, upload_file_path)
 
-                return JsonResponse({'code': 200, 'msg': '上传成功！文件默认放在{}用户家目录下'.format(server_obj.username)})
-            except Exception as e:
-                return JsonResponse({'code': 500, 'msg': '上传失败！{}'.format(e)})
-    else:
-        return HttpResponseForbidden('<h1>403</h1>')
+            return JsonResponse({'code': 200, 'msg': '上传成功！文件默认放在{}用户家目录下'.format(server_obj.username)})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '上传失败！{}'.format(e)})
 
 
-@permission_required('assets.add_sshrecord', raise_exception=True)
+@admin_auth
+def guacamole_terminal(request, pk):
+    group_name = str(uuid.uuid4())
+    server_obj = ServerAssets.objects.select_related('assets').get(id=pk)
+    guacamole_server_ip = server_obj.assets.asset_management_ip
+    return render(request, 'assets/admin_guacamole.html', locals())
+
+
+@admin_auth
 def login_ssh_record(request):
     if request.method == 'GET':
         results = SSHRecord.objects.select_related('ssh_login_user').all()
@@ -407,7 +414,7 @@ def login_ssh_record(request):
             return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
 
 
-@permission_required('assets.add_sshrecord', raise_exception=True)
+@admin_auth
 def ssh_play(request, pk):
     record = SSHRecord.objects.select_related('ssh_login_user').get(id=pk)
     return render(request, 'assets/ssh_play.html', locals())

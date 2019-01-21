@@ -5,7 +5,7 @@ import zipfile
 import shutil
 from django.shortcuts import render
 from task.utils.gen_resource import GenResource
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
+from django.http import JsonResponse, HttpResponse
 from task.models import *
 from assets.models import ServerAssets
 from Ops import settings
@@ -159,7 +159,7 @@ def check_name(request):
         return JsonResponse({'code': 200})
 
 
-@permission_required('task.add_ansiblemodulelog', raise_exception=True)
+@admin_auth
 def run_log(request):
     if request.method == 'POST':
         ansible_logs = None
@@ -203,12 +203,20 @@ def run_log(request):
         except Exception as e:
             return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})
     elif request.method == 'GET':
-        if request.user.is_superuser:
+        module_log_id = request.GET.get('module_log_id')
+        playbook_log_id = request.GET.get('playbook_log_id')
+        if module_log_id:
+            module_log = AnsibleModuleLog.objects.get(id=module_log_id)
+            result = eval(module_log.ans_result)
+            return JsonResponse({'code': 200, 'data': result})
+        elif playbook_log_id:
+            playbook_log = AnsiblePlaybookLog.objects.get(id=playbook_log_id)
+            result = eval(playbook_log.playbook_result)
+            return JsonResponse({'code': 200, 'data': result})
+        else:
             module_log_info = AnsibleModuleLog.objects.select_related('ans_user').all()
             playbook_log_info = AnsiblePlaybookLog.objects.select_related('playbook_user').all()
             return render(request, 'task/run_log.html', locals())
-        else:
-            return HttpResponseForbidden('<h1>403</h1>')
 
 
 @permission_required('task.delete_ansiblemodulelog', raise_exception=True)
