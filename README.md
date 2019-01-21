@@ -1,5 +1,5 @@
 # ops
-基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible、简易堡垒机(主机分配、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、项目管理（一部分）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
+基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、项目管理（一部分）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
 
 ## 安装
 一、安装python3.6
@@ -78,7 +78,12 @@ cp conf/celerybeat.server /etc/init.d/celerybeat
 cp conf/get_mem.py /path/to/your ansible library_path  ##可以使用ansbile --version命令查看路径
 ```
 
-八、启动服务
+八、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
+安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
+
+实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
+
+九、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
 ```
 python manage.py makemigrations
@@ -128,6 +133,9 @@ python manage.py runserver 0.0.0.0:8000
 ### webssh操作记录回放
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/record.png)
 
+### web端登录Windows服务器
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/rdp.png)
+
 ### 数据库执行命令
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/sql_exec.png)
 ### 数据库操作记录
@@ -145,3 +153,34 @@ python manage.py runserver 0.0.0.0:8000
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/wiki_add.png)
 ### 文章详细
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/wiki_view.png)
+
+## 用到的一些开源产品
+
+* 后端：
+  * channels：用于实现websocket长连接：<https://github.com/django/channels>
+  * django-rest-framework：用于编写API：<https://github.com/encode/django-rest-framework>
+  * ansible：用于批量管理机器的工具：<https://github.com/ansible/ansible>
+  * celery：用于执行异步任务：<https://github.com/celery/celery>
+  * django-celery-beat，用于监测celery定时任务：<https://github.com/celery/django-celery-beat>
+  * django-celery-results：用于存储celery执行结果：<https://github.com/celery/django-celery-results>
+  * paramiko：用于远程连接Linux服务器：<https://github.com/paramiko/paramiko>
+  * Pillow：用于图像处理：<https://github.com/python-pillow/Pillow>
+  * pyguacamole：连接Guacamole服务器的客户端：<https://github.com/mohabusama/pyguacamole>
+  * PyMySQL：处理mysql：<https://github.com/PyMySQL/PyMySQL>
+  * requests：用于HTTP请求：<https://github.com/requests/requests>
+  * xlrd，xlwt：excel处理：<https://github.com/python-excel/xlrd> <https://github.com/python-excel/xlwt>
+  
+* 前端：
+  * AdminLTE：后台管理的前端框架：<https://github.com/almasaeed2010/AdminLTE>
+  * ace：用于生成前端编辑器：<https://github.com/ajaxorg/ace>
+  * bootstrap-fileinput：基于bootstrap的文件上传插件：<https://github.com/kartik-v/bootstrap-fileinput>
+  * echarts：用于图表展示：<https://echarts.baidu.com/>
+  * highlight：用于代码高亮：<https://github.com/highlightjs/highlight.js>
+  * jquery-confirm：基于jquery的确认modal：<https://github.com/craftpip/jquery-confirm>
+  * jsplumb：用于生成流程图的jquery插件：<https://github.com/jsplumb/jsplumb>
+  * modaal：生成modal的插件：<https://github.com/humaan/Modaal>
+  * parsley：处理表单验证的插件：<https://github.com/guillaumepotier/Parsley.js>
+  * zTree_v3：用于生成树形结构的jquery插件：<https://github.com/zTree/zTree_v3>
+  * asciinema-player：用于播放webssh录像的插件：<https://github.com/asciinema/asciinema-player>
+  * xterm：用于前端生成webssh界面：<https://github.com/xtermjs/xterm.js>
+  * dataTables：用于生成表格的插件：<https://github.com/DataTables/DataTables>
