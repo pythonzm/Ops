@@ -79,9 +79,10 @@ cp conf/get_mem.py /path/to/your ansible library_path  ##可以使用ansbile --v
 ```
 
 八、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
+
 安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
 
-实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
+功能实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
 
 九、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
