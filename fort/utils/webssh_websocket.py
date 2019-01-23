@@ -2,8 +2,8 @@ import paramiko
 import threading
 import time
 import os
-import json
 import logging
+from fort.tasks import fort_file
 from socket import timeout
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets
@@ -57,11 +57,8 @@ class MyThread(threading.Thread):
             },
         }
 
-        f = open(record_file_path, 'a')
-        f.write(json.dumps(header) + '\n')
-        for out in self.stdout:
-            f.write(json.dumps(out) + '\n')
-        f.close()
+        fort_file.delay(record_file_path, self.stdout, header)
+
         login_status_time = time.time() - self.start_time
         if login_status_time >= 60:
             login_status_time = '{} m'.format(round(login_status_time / 60, 2))
@@ -76,7 +73,8 @@ class MyThread(threading.Thread):
             remote_ip=self.chan.remote_ip,
             start_time=self.current_time,
             login_status_time=login_status_time,
-            record_file=record_file_path.split('media/')[1]
+            record_file=record_file_path.split('media/')[1],
+            record_mode='ssh'
         )
 
 
@@ -84,7 +82,6 @@ class FortConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super(FortConsumer, self).__init__(*args, **kwargs)
         self.ssh = paramiko.SSHClient()
-        self.group_name = self.scope['url_route']['kwargs']['group_name']
         self.fort_server = ServerAssets.objects.select_related('assets').get(id=self.scope['path'].split('/')[3])
         self.fort_user = FortServerUser.objects.get(id=self.scope['path'].split('/')[4])
         self.t1 = MyThread(self)

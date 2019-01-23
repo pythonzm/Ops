@@ -17,6 +17,6 @@ urlpatterns = [
     re_path(r'export_assets/', views.export_assets, name='export_assets'),
     re_path(r'ssh/(?P<pk>[0-9]+)/', views.ssh_terminal, name='ssh_terminal'),
     re_path(r'guacamole/(?P<pk>[0-9]+)/', views.guacamole_terminal, name='guacamole_terminal'),
-    path(r'login_ssh_record/', views.login_ssh_record, name='login_ssh_record'),
-    re_path(r'ssh_play/(?P<pk>[0-9]+)/', views.ssh_play, name='ssh_play'),
+    path(r'login_record/', views.login_record, name='login_record'),
+    re_path(r'admin_play/(?P<pk>[0-9]+)/', views.admin_play, name='admin_play'),
 ]

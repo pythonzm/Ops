@@ -58,6 +58,7 @@
                         <tr>
                             <th>用户</th>
                             <th>登录用户及主机</th>
+                            <th>连接方式</th>
                             <th>远程地址</th>
                             <th>开始时间</th>
                             <th>登录时长</th>
@@ -70,6 +71,13 @@
                             <tr>
                                 <td>{{ result.login_user.username }}</td>
                                 <td>{{ result.fort }}</td>
+                                <td>
+                                    {% if result.record_mode == 'ssh' %}
+                                        <small class="label label-primary"> ssh</small>
+                                    {% else %}
+                                        <small class="label label-info"> guacamole</small>
+                                    {% endif %}
+                                </td>
                                 <td>{{ result.remote_ip }}</td>
                                 <td>{{ result.start_time }}</td>
                                 <td>{{ result.login_status_time }}</td>
@@ -109,7 +117,7 @@
                     'targets': [-1],
                     'orderable': false
                 }],
-                "order": [[3, "desc"]]
+                "order": [[4, "desc"]]
             });
 
             //Date picker
@@ -154,16 +162,16 @@
                         table.clear().draw();
                         for (let i = 0; i < response.records.length; i++) {
                             let result = response.records[i];
-                            let counter = 1;
+                            let record_mode = result['record_mode'] === 'ssh' ? '<small class="label label-primary"> ssh</small>' : '<small class="label label-info"> guacamole</small>';
                             table.row.add([
                                 result['login_user'],
                                 result['fort'],
+                                record_mode,
                                 result['remote_ip'],
                                 result['start_time'],
                                 result['login_status_time'],
                                 '<a onclick="window.open(\'/fort/record_play/' + result['id'] + '/\',\'newwindow\', \'height=600, width=800, top=400, left=400, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a>'
                             ]).draw();
-                            counter++;
                         }
                     }
                 },

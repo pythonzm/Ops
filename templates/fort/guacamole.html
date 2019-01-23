@@ -64,7 +64,7 @@
     };
 
     // Connect
-    guac.connect();
+    guac.connect('{{ remote_ip }}');
 
     // Disconnect on close
     window.onunload = function () {

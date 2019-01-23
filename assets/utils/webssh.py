@@ -3,11 +3,11 @@ import paramiko
 import threading
 import time
 import os
-import json
 import logging
 from socket import timeout
+from assets.tasks import admin_file
 from channels.generic.websocket import WebsocketConsumer
-from assets.models import ServerAssets, SSHRecord
+from assets.models import ServerAssets, AdminRecord
 from Ops import settings
 from utils.crypt_pwd import CryptPwd
 
@@ -39,7 +39,7 @@ class MyThread(threading.Thread):
                     pass
 
     def record(self):
-        record_path = os.path.join(settings.MEDIA_ROOT, 'ssh_records', self.chan.scope['user'].username,
+        record_path = os.path.join(settings.MEDIA_ROOT, 'admin_ssh_records', self.chan.scope['user'].username,
                                    time.strftime('%Y-%m-%d'))
         if not os.path.exists(record_path):
             os.makedirs(record_path, exist_ok=True)
@@ -58,11 +58,8 @@ class MyThread(threading.Thread):
             },
         }
 
-        f = open(record_file_path, 'a')
-        f.write(json.dumps(header) + '\n')
-        for out in self.stdout:
-            f.write(json.dumps(out) + '\n')
-        f.close()
+        admin_file.delay(record_file_path, self.stdout, header)
+
         login_status_time = time.time() - self.start_time
         if login_status_time >= 60:
             login_status_time = '{} m'.format(round(login_status_time / 60, 2))
@@ -71,14 +68,17 @@ class MyThread(threading.Thread):
         else:
             login_status_time = '{} s'.format(round(login_status_time))
 
-        SSHRecord.objects.create(
-            ssh_login_user=self.chan.scope['user'],
-            ssh_server=self.chan.host_ip,
-            ssh_remote_ip=self.chan.remote_ip,
-            ssh_start_time=self.current_time,
-            ssh_login_status_time=login_status_time,
-            ssh_record_file=record_file_path.split('media/')[1]
-        )
+        try:
+            AdminRecord.objects.create(
+                admin_login_user=self.chan.scope['user'],
+                admin_server=self.chan.host_ip,
+                admin_remote_ip=self.chan.remote_ip,
+                admin_start_time=self.current_time,
+                admin_login_status_time=login_status_time,
+                admin_record_file=record_file_path.split('media/')[1]
+            )
+        except Exception as e:
+            logging.getLogger().error('数据库添加用户操作记录失败，原因：{}'.format(e))
 
 
 class SSHConsumer(WebsocketConsumer):

@@ -3,12 +3,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{{ record.admin_server }}</title>
     <link rel="stylesheet" href="{% static 'css/asciinema-player.css' %}">
 </head>
 <body>
 <div>
-    <asciinema-player cols="120" rows="35" src="{{ MEDIA_URL }}{{ record.ssh_record_file }}"></asciinema-player>
+    <asciinema-player cols="120" rows="35" src="{{ MEDIA_URL }}{{ record.admin_record_file }}"></asciinema-player>
 </div>
 <script src="{% static 'js/asciinema-player.js' %}"></script>
 </body>

@@ -11,27 +11,23 @@
 -------------------------------------------------
 """
 from __future__ import absolute_import, unicode_literals
+import json
+import logging
 from Ops.celery import app
-from fort.models import FortRecord
-from conf.logger import fort_logger
 
 
 @app.task
-def fort_record(login_user, fort, remote_ip, start_time, login_status_time, record_file):
+def fort_file(filename, txts, header=None):
     try:
-        FortRecord.objects.create(
-            login_user=login_user,
-            fort=fort,
-            remote_ip=remote_ip,
-            start_time=start_time,
-            login_status_time=login_status_time,
-            record_file=record_file
-        )
+        if header:
+            f = open(filename, 'a')
+            f.write(json.dumps(header) + '\n')
+            for txt in txts:
+                f.write(json.dumps(txt) + '\n')
+            f.close()
+        else:
+            with open(filename, 'a') as f:
+                for txt in txts:
+                    f.write(txt)
     except Exception as e:
-        fort_logger.error('添加用户操作记录失败，原因：{}'.format(e))
-
-
-@app.task
-def test_celery(filename, some):
-    with open(filename, 'a+') as f:
-        f.write(some)
+        logging.getLogger().error('添加用户操作记录文件失败，原因：{}'.format(e))

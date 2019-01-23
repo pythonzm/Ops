@@ -16,8 +16,8 @@ from channels.auth import AuthMiddlewareStack
 from utils.log_websocket import LogConsumer
 from fort.utils.webssh_websocket import FortConsumer
 from assets.utils.webssh import SSHConsumer
-from fort.utils.rdp_websocket import GuacamoleConsumer
-from assets.utils.admin_rdp import AdminGuacamole
+from fort.utils.guacamole_websocket import GuacamoleConsumer
+from assets.utils.guacamole import AdminGuacamole
 from task.utils.ans_module_websocket import AnsModuleConsumer
 from task.utils.ans_playbook_websocket import AnsPlaybookConsumer
 

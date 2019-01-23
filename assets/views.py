@@ -382,14 +382,15 @@ def guacamole_terminal(request, pk):
     group_name = str(uuid.uuid4())
     server_obj = ServerAssets.objects.select_related('assets').get(id=pk)
     guacamole_server_ip = server_obj.assets.asset_management_ip
+    remote_ip = request.META.get('REMOTE_ADDR')
     return render(request, 'assets/admin_guacamole.html', locals())
 
 
 @admin_auth
-def login_ssh_record(request):
+def login_record(request):
     if request.method == 'GET':
-        results = SSHRecord.objects.select_related('ssh_login_user').all()
-        return render(request, 'assets/login_ssh_record.html', locals())
+        results = AdminRecord.objects.select_related('admin_login_user').all()
+        return render(request, 'assets/login_admin_record.html', locals())
     elif request.method == 'POST':
         start_time = request.POST.get('startTime')
         end_time = request.POST.get('endTime')
@@ -397,16 +398,18 @@ def login_ssh_record(request):
         end_time = new_end_time.strftime('%Y-%m-%d')
         try:
             records = []
-            search_records = SSHRecord.objects.select_related('ssh_login_user').filter(ssh_start_time__gt=start_time,
-                                                                                       ssh_start_time__lt=end_time)
+            search_records = AdminRecord.objects.select_related('admin_login_user').filter(
+                admin_start_time__gt=start_time,
+                admin_start_time__lt=end_time)
             for search_record in search_records:
                 record = {
                     'id': search_record.id,
-                    'ssh_login_user': search_record.ssh_login_user.username,
-                    'ssh_server': search_record.ssh_server,
-                    'ssh_remote_ip': search_record.ssh_remote_ip,
-                    'ssh_start_time': search_record.ssh_start_time,
-                    'ssh_login_status_time': search_record.ssh_login_status_time
+                    'admin_login_user': search_record.admin_login_user.username,
+                    'admin_server': search_record.admin_server,
+                    'admin_remote_ip': search_record.admin_remote_ip,
+                    'admin_start_time': search_record.admin_start_time,
+                    'admin_login_status_time': search_record.admin_login_status_time,
+                    'admin_record_mode': search_record.get_admin_record_mode_display()
                 }
                 records.append(record)
             return JsonResponse({'code': 200, 'records': records})
@@ -415,6 +418,9 @@ def login_ssh_record(request):
 
 
 @admin_auth
-def ssh_play(request, pk):
-    record = SSHRecord.objects.select_related('ssh_login_user').get(id=pk)
-    return render(request, 'assets/ssh_play.html', locals())
+def admin_play(request, pk):
+    record = AdminRecord.objects.select_related('admin_login_user').get(id=pk)
+    if record.admin_record_mode == 'ssh':
+        return render(request, 'assets/ssh_play.html', locals())
+    else:
+        return render(request, 'assets/guacamole_play.html', locals())

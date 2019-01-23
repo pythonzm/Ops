@@ -264,16 +264,22 @@ class AssetsLog(models.Model):
         verbose_name_plural = '资产管理操作记录表'
 
 
-class SSHRecord(models.Model):
-    ssh_login_user = models.ForeignKey('users.UserProfile', verbose_name='用户', on_delete=models.CASCADE)
-    ssh_server = models.CharField(max_length=32, verbose_name='登录主机')
-    ssh_remote_ip = models.GenericIPAddressField(verbose_name='远程地址')
-    ssh_start_time = models.CharField(max_length=64, verbose_name='开始时间')
-    ssh_login_status_time = models.CharField(max_length=16, verbose_name='登录时长')
-    ssh_record_file = models.CharField(max_length=256, verbose_name='操作记录')
+class AdminRecord(models.Model):
+    record_modes = (
+        ('ssh', 'ssh'),
+        ('guacamole', 'guacamole')
+    )
+
+    admin_login_user = models.ForeignKey('users.UserProfile', verbose_name='用户', on_delete=models.CASCADE)
+    admin_server = models.CharField(max_length=32, verbose_name='登录主机')
+    admin_remote_ip = models.GenericIPAddressField(verbose_name='远程地址')
+    admin_start_time = models.CharField(max_length=64, verbose_name='开始时间')
+    admin_login_status_time = models.CharField(max_length=16, verbose_name='登录时长')
+    admin_record_file = models.CharField(max_length=256, verbose_name='操作记录')
+    admin_record_mode = models.CharField(max_length=10, choices=record_modes, verbose_name='登录协议', default='ssh')
 
     class Meta:
-        db_table = 'ops_ssh_record'
+        db_table = 'ops_admin_record'
         verbose_name = '登录管理用户记录表'
         verbose_name_plural = '登录管理用户记录表'
 

@@ -59,12 +59,18 @@ class FortBlackCommand(models.Model):
 
 
 class FortRecord(models.Model):
+    record_modes = (
+        ('ssh', 'ssh'),
+        ('guacamole', 'guacamole')
+    )
+
     login_user = models.ForeignKey('users.UserProfile', verbose_name='用户', on_delete=models.CASCADE)
     fort = models.CharField(max_length=32, verbose_name='登录主机及用户')
     remote_ip = models.GenericIPAddressField(verbose_name='远程地址')
     start_time = models.CharField(max_length=64, verbose_name='开始时间')
     login_status_time = models.CharField(max_length=16, verbose_name='登录时长')
     record_file = models.CharField(max_length=256, verbose_name='操作记录')
+    record_mode = models.CharField(max_length=10, choices=record_modes, verbose_name='登录协议', default='ssh')
 
     class Meta:
         db_table = 'ops_fort_record'
