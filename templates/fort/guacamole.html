@@ -7,37 +7,27 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+
+    <style>
+        #dpi {
+            height: 1in;
+            width: 1in;
+            position: absolute;
+            left: -100%;
+            top: -100%;
+
+        }
+    </style>
 </head>
 <body>
+<!-- 用于获取屏幕dpi-->
+<div id='dpi'></div>
 
 <!-- Display -->
-<div class="wrapper">
-    <div class="content-wrapper">
-        <section class="content container-fluid">
-            <div class="row">
-                <!--dataTable-->
-                <div class="col-xs-12">
-                    <!-- /.box -->
-                    <div class="box" style="margin-top: -15px;">
-                        <div class="box-body">
-                            <div class="row">
-                                <div id="display"></div>
-                            </div>
-                        </div>
-                        <!-- /.box-body -->
-                    </div>
-                    <!-- /.box -->
-                </div>
-            </div>
-        </section>
-    </div>
-</div>
+<div id="display"></div>
 
-
-<script type="text/javascript" src="{% static "guacamole/js/all.min.js" %}"></script>
 <script src="{% static 'AdminLTE/bower_components/jquery/dist/jquery.min.js' %}"></script>
-<script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static "guacamole/js/all.min.js" %}"></script>
 <!-- Init -->
 <script type="text/javascript">
 
@@ -63,8 +53,13 @@
         console.log(error);
     };
 
+    let remote_ip = '{{ remote_ip }}';
+    let width = document.body.scrollWidth;
+    let height = document.body.scrollHeight;
+    let dpi = getDPI();
+
     // Connect
-    guac.connect('{{ remote_ip }}');
+    guac.connect(`${remote_ip},${width},${height},${dpi}`);
 
     // Disconnect on close
     window.onunload = function () {
@@ -90,6 +85,10 @@
     keyboard.onkeyup = function (keysym) {
         guac.sendKeyEvent(0, keysym);
     };
+
+    function getDPI() {
+        return jQuery('#dpi').height();
+    }
 
     window.onbeforeunload = function (e) {
         return '确定离开此页吗？';

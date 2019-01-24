@@ -45,12 +45,17 @@
 
         </div>
 
+        <script src="{% static 'AdminLTE/bower_components/jquery/dist/jquery.min.js' %}"></script>
         <!-- Guacamole JavaScript API -->
         <script type="text/javascript" src="{% static 'guacamole/js/all.min.js' %}"></script>
         <!-- -->
         <script type="text/javascript" src="{% static 'guacamole/js/playback.js' %}"></script>
 
         <script type="text/javascript">
+            $(function () {
+                $('.player').css({'height': $(document.body).height(), 'width': $(document.body).width()})
+            });
+
             initExamplePlayer('{{ MEDIA_URL }}{{ record.record_file }}')
         </script>
     </body>

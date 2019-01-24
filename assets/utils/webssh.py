@@ -36,7 +36,10 @@ class MyThread(threading.Thread):
                         self.chan.send(str_data)
                         self.stdout.append([time.time() - self.start_time, 'o', str_data])
                 except timeout:
-                    pass
+                    break
+            self.chan.send('\n由于长时间没有操作，连接已断开!')
+            self.stdout.append([time.time() - self.start_time, 'o', '\n由于长时间没有操作，连接已断开!'])
+            self.chan.close()
 
     def record(self):
         record_path = os.path.join(settings.MEDIA_ROOT, 'admin_ssh_records', self.chan.scope['user'].username,
@@ -48,8 +51,8 @@ class MyThread(threading.Thread):
 
         header = {
             "version": 2,
-            "width": 120,
-            "height": 35,
+            "width": self.chan.width,
+            "height": self.chan.height,
             "timestamp": round(self.start_time),
             "title": "Demo",
             "env": {
@@ -88,6 +91,8 @@ class SSHConsumer(WebsocketConsumer):
         self.group_name = self.scope['url_route']['kwargs']['group_name']
         self.server = ServerAssets.objects.select_related('assets').get(id=self.scope['path'].split('/')[3])
         self.host_ip = self.server.assets.asset_management_ip
+        self.width = 150
+        self.height = 30
         self.t1 = MyThread(self)
         self.chan = None
         self.remote_ip = None
@@ -100,12 +105,13 @@ class SSHConsumer(WebsocketConsumer):
             self.ssh.load_system_host_keys()
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.ssh.connect(self.host_ip, int(self.server.port), username,
-                             CryptPwd().decrypt_pwd(self.server.password))
+                             CryptPwd().decrypt_pwd(self.server.password), timeout=5)
         except Exception as e:
             logging.getLogger().error('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
             self.send('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
-        self.chan = self.ssh.invoke_shell(term='xterm', width=150, height=30)
-        self.chan.settimeout(0)
+        self.chan = self.ssh.invoke_shell(term='xterm', width=self.width, height=self.height)
+        # 设置如果3分钟没有任何输入，就断开连接
+        self.chan.settimeout(60 * 3)
         self.t1.setDaemon(True)
         self.t1.start()
 

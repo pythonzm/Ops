@@ -82,8 +82,13 @@
                                 <td>{{ result.admin_start_time }}</td>
                                 <td>{{ result.admin_login_status_time }}</td>
                                 <td>
-                                    <a onclick="window.open('{% url 'admin_play' result.id %}','newwindow', 'height=600, width=800, top=400, left=400, toolbar=no, menubar=no, scrollbars=no, location=no, status=no')"
-                                       class="btn btn-xs btn-warning btn-replay">回放</a>
+                                    {% if result.admin_record_mode == 'ssh' %}
+                                        <a onclick="window.open('{% url 'admin_play' result.id %}','newwindow', 'height=500, width=1005, top=200, left=200, toolbar=no, menubar=no, scrollbars=no, location=no, status=no')"
+                                           class="btn btn-xs btn-warning btn-replay">回放</a>
+                                    {% else %}
+                                        <a onclick="window.open('{% url 'admin_play' result.id %}','newwindow')"
+                                           class="btn btn-xs btn-warning btn-replay">回放</a>
+                                    {% endif %}
                                 </td>
                             </tr>
 
@@ -170,7 +175,7 @@
                                 result['admin_remote_ip'],
                                 result['admin_start_time'],
                                 result['admin_login_status_time'],
-                                '<a onclick="window.open(\'/assets/admin_play/' + result['id'] + '/' + '\',\'newwindow\', \'height=600, width=800, top=400, left=400, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a>'
+                                '<a onclick="window.open(\'/assets/admin_play/' + result['id'] + '/' + '\',\'newwindow\', \'height=700, width=900, top=400, left=400, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a>'
                             ]).draw();
                         }
                     }

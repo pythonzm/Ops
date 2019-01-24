@@ -95,11 +95,15 @@ class AdminGuacamole(WebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super(AdminGuacamole, self).__init__(*args, **kwargs)
-        self.client = GuacamoleClient(settings.GUACD_HOST, settings.GUACD_PORT)
+        self.client = GuacamoleClient(settings.GUACD_HOST, settings.GUACD_PORT, timeout=5)
         self.group_name = self.scope['url_route']['kwargs']['group_name']
         self.server = ServerAssets.objects.select_related('assets').get(id=self.scope['path'].split('/')[3])
         self.guacamole_thread = GuacamoleThread(self)
-        self.remote_ip = self.scope['query_string'].decode('utf8')
+        self.query_list = self.scope['query_string'].decode('utf8').split(',')
+        self.remote_ip = self.query_list[0].strip()
+        self.width = self.query_list[1].strip()
+        self.height = self.query_list[2].strip()
+        self.dpi = self.query_list[3].strip()
         self.server_ip = self.server.assets.asset_management_ip
 
     def connect(self):
@@ -108,7 +112,7 @@ class AdminGuacamole(WebsocketConsumer):
         self.client.handshake(protocol='rdp',
                               hostname=self.server_ip, port=self.server.port,
                               password=CryptPwd().decrypt_pwd(self.server.password),
-                              username=self.server.username)
+                              username=self.server.username, width=self.width, height=self.height, dpi=self.dpi)
         self.send('0.,{0}.{1};'.format(len(self.group_name), self.group_name))
         self.guacamole_thread.setDaemon(True)
         self.guacamole_thread.start()

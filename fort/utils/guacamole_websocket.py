@@ -84,12 +84,16 @@ class GuacamoleConsumer(WebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super(GuacamoleConsumer, self).__init__(*args, **kwargs)
-        self.client = GuacamoleClient(settings.GUACD_HOST, settings.GUACD_PORT)
+        self.client = GuacamoleClient(settings.GUACD_HOST, settings.GUACD_PORT, timeout=5)
         self.group_name = self.scope['url_route']['kwargs']['group_name']
         self.fort_server = ServerAssets.objects.select_related('assets').get(id=self.scope['path'].split('/')[3])
         self.fort_user = FortServerUser.objects.get(id=self.scope['path'].split('/')[4])
         self.guacamole_thread = GuacamoleThread(self)
-        self.remote_ip = self.scope['query_string'].decode('utf8')
+        self.query_list = self.scope['query_string'].decode('utf8').split(',')
+        self.remote_ip = self.query_list[0].strip()
+        self.width = self.query_list[1].strip()
+        self.height = self.query_list[2].strip()
+        self.dpi = self.query_list[3].strip()
         self.fort = None
 
     def connect(self):
@@ -104,12 +108,13 @@ class GuacamoleConsumer(WebsocketConsumer):
             self.client.handshake(protocol=server_protocol,
                                   hostname=host_ip,
                                   port=self.fort_user.fort_vnc_port,
-                                  password=self.fort_user.fort_password)
+                                  password=self.fort_user.fort_password, width=self.width, height=self.height,
+                                  dpi=self.dpi)
         elif server_protocol == 'rdp':
             self.client.handshake(protocol=server_protocol,
                                   hostname=host_ip, port=self.fort_server.port,
                                   password=self.fort_user.fort_password,
-                                  username=username)
+                                  username=username, width=self.width, height=self.height, dpi=self.dpi)
         self.send('0.,{0}.{1};'.format(len(self.group_name), self.group_name))
         self.guacamole_thread.setDaemon(True)
         self.guacamole_thread.start()

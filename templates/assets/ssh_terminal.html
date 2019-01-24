@@ -113,7 +113,7 @@
         };
 
         socket.onclose = function () {
-            term.destroy();
+            // pass
         };
 
 
@@ -187,7 +187,11 @@
                 content: "文件名不能为空！",
             })
         }
-    })
+    });
+
+    window.onbeforeunload = function (e) {
+        return '确定离开此页吗？';
+    }
 
 </script>
 
