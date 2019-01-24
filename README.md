@@ -80,9 +80,10 @@ cp conf/get_mem.py /path/to/your ansible library_path  ##可以使用ansbile --v
 
 八、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
 
-安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
+    安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
+    安装完成后，修改settings.py中的 GUACD_HOST和 GUACD_PORT，改为guac服务启动后监听的地址和端口
 
-功能实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
+    功能实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
 
 九、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
@@ -125,8 +126,6 @@ python manage.py runserver 0.0.0.0:8000
 
 ### webssh分配主机及用户、用户组
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/webssh_manage.png)
-![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_black_commands.png)
-![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_fort_user.png)
 
 ### webssh终端，包括文件的上传下载
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/terminal.png)
@@ -136,6 +135,9 @@ python manage.py runserver 0.0.0.0:8000
 
 ### web端登录Windows服务器
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/rdp.png)
+
+### 登录日志查看
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/login_record.png)
 
 ### 数据库执行命令
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/sql_exec.png)
@@ -183,5 +185,6 @@ python manage.py runserver 0.0.0.0:8000
   * parsley：处理表单验证的插件：<https://github.com/guillaumepotier/Parsley.js>
   * zTree_v3：用于生成树形结构的jquery插件：<https://github.com/zTree/zTree_v3>
   * asciinema-player：用于播放webssh录像的插件：<https://github.com/asciinema/asciinema-player>
+  * guacamole-client：用于播放rdp和vnc录像的插件：<https://github.com/apache/guacamole-client/tree/master/doc/guacamole-playback-example>
   * xterm：用于前端生成webssh界面：<https://github.com/xtermjs/xterm.js>
   * dataTables：用于生成表格的插件：<https://github.com/DataTables/DataTables>
