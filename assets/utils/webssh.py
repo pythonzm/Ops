@@ -94,8 +94,8 @@ class SSHConsumer(WebsocketConsumer):
         self.width = 150
         self.height = 30
         self.t1 = MyThread(self)
+        self.remote_ip = self.scope['query_string'].decode('utf8')
         self.chan = None
-        self.remote_ip = None
 
     def connect(self):
         self.accept()
@@ -109,6 +109,7 @@ class SSHConsumer(WebsocketConsumer):
         except Exception as e:
             logging.getLogger().error('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
             self.send('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
+            self.close()
         self.chan = self.ssh.invoke_shell(term='xterm', width=self.width, height=self.height)
         # 设置如果3分钟没有任何输入，就断开连接
         self.chan.settimeout(60 * 3)
@@ -116,10 +117,7 @@ class SSHConsumer(WebsocketConsumer):
         self.t1.start()
 
     def receive(self, text_data=None, bytes_data=None):
-        if text_data[0].isdigit():
-            self.remote_ip = text_data
-        else:
-            self.chan.send(text_data)
+        self.chan.send(text_data)
 
     def disconnect(self, close_code):
         try:

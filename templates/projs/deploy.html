@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="box box-info">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="project">当前项目</label>
+                        <input type="text" class="form-control" id="project" name="project"
+                               value="{{ config.project.project_name }} | {{ config.project.get_project_env_display }}"
+                               readonly>
+                    </div>
+                    <!-- /.form-group -->
+
+                    {% if config.repo_model == 'branch' %}
+                        <div class="form-group">
+                            <label for="repo_model">选择分支</label>
+                            <div class="input-group">
+                                <select class="form-control select2" name="repo_model"
+                                        id="repo_model">
+                                    <option value="" selected>请选择分支</option>
+                                    {% for local_branch in local_branches %}
+                                        <option value="{{ local_branch }}">{{ local_branch }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="input-group-addon fresh" data-toggle="tooltip" data-placement="top"
+                                     title="获取远程仓库最新分支，如果没有添加新的分支，不需要点击获取" style="cursor: pointer">
+                                    <i class="fa fa-refresh"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="repo_release">选择版本</label>
+                            <div class="input-group">
+                                <select class="form-control select2" style="width: 100%;" name="repo_release"
+                                        id="repo_release">
+
+                                </select>
+                                <div class="input-group-addon commit fresh" data-toggle="tooltip" data-placement="top"
+                                     title="获取该分支最新的commits" style="cursor: pointer">
+                                    <i class="fa fa-refresh"></i>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif config.repo_model == 'tag' %}
+                        <div class="form-group">
+                            <label for="repo_model">选择tag</label>
+                            <div class="input-group">
+                                <select class="form-control select2" name="repo_model"
+                                        id="repo_model">
+                                    <option value="" selected>请选择tag</option>
+                                    {% for local_tag in local_tags %}
+                                        <option value="{{ local_tag }}">{{ local_tag }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="input-group-addon fresh" data-toggle="tooltip" data-placement="top"
+                                     title="获取远程仓库最新tag，如果没有添加新的tag，不需要点击获取" style="cursor: pointer">
+                                    <i class="fa fa-refresh"></i>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="box-footer">
+                        {% if mode == 'deploy' %}
+                            <button type="button" class="btn btn-primary pull-right deploy">部署</button>
+                        {% elif mode == 'rollback' %}
+                            <button type="button" class="btn btn-warning pull-right rollback">回滚</button>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- /.col -->
+                <div class="col-md-8">
+                    <div class="form-group">
+                        {% if mode == 'deploy' %}
+                            <label id="res-label">部署结果</label>
+                        {% elif mode == 'rollback' %}
+                            <label id="res-label">回滚结果</label>
+                        {% endif %}
+
+                        <ul class="timeline">
+
+                        </ul>
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.box-body -->
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            // Initialize Select2 Elements
+            $('.select2').select2();
+            $('[data-toggle="tooltip"]').tooltip();
+            Pace.options.ajax.trackWebSockets = false;
+
+            {% if mode == 'rollback' %}
+                $('.fresh').off('click').css({'cursor': 'auto'});
+            {% endif %}
+        });
+
+        // 获取branch或tag
+        $('.fresh').on('click', function () {
+            $.get("{% url 'deploy' pk %}", {key: "model"}, function (res) {
+                if (res.code === 200) {
+                    let repo_model = $('#repo_model');
+                    repo_model.empty();
+                    for (let item of res.models) {
+                        repo_model.append(`<option value="${item}">${item}</option>`)
+                    }
+                    $('.fresh').off('click').css({'cursor': 'auto'});
+                } else {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: res.msg,
+                    })
+                }
+            }).fail(function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText,
+                })
+            })
+        });
+
+        // 获取远程仓库最新的commits
+        $('.commit').on('click', function () {
+            let branch = $('#repo_model').val();
+            $.get("{% url 'deploy' pk %}", {key: "commit", branch: branch, new_commit: true}, function (res) {
+                let repo_release = $('#repo_release');
+                repo_release.empty();
+                for (let item of res.data) {
+                    let short_commit_id = item['commit_id'].slice(0, 8);
+                    repo_release.append(`<option value="${item['commit_id']}">${short_commit_id} | ${item['message']} | ${item['committer']}</option>`)
+                }
+            }).fail(function (response) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText,
+                })
+            });
+        });
+
+        // 获取本地仓库的commits
+        $('#repo_model').on('change', function () {
+            {% if config.repo_model == 'branch' %}
+                let branch = $(this).val();
+                $.get("{% url 'deploy' pk %}", {key: "commit", branch: branch}, function (res) {
+                    let repo_release = $('#repo_release');
+                    repo_release.empty();
+                    for (let item of res.data) {
+                        let short_commit_id = item['commit_id'].slice(0, 8);
+                        repo_release.append(`<option value="${item['commit_id']}">${short_commit_id} | ${item['message']} | ${item['committer']}</option>`)
+                    }
+                }).fail(function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                });
+            {% endif %}
+        });
+
+        // 开始部署/回滚
+        $('.deploy,.rollback').on('click', function () {
+            let count = 0;
+            let repo_release = $('#repo_release');
+            let branch_tag = $('#repo_model').val();
+            let commit = repo_release !== null ? repo_release.val() : null;
+
+            let ajax_data = {branch_tag: branch_tag, commit: commit, mode: ''};
+            ajax_data.mode = ("{{ mode }}" === "rollback") ? "rollback" : "deploy";
+
+            let ws_data = {config_id: '{{ config.id }}', branch_tag: branch_tag, commit: commit, rollback: true};
+            ws_data.rollback = ("{{ mode }}" === "rollback");
+
+            $.ajax({
+                url: '{% url "deploy" pk %}',
+                type: 'POST',
+                data: ajax_data,
+                success: function (res) {
+                    if (res.code === 200) {
+                        let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+                        let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/deploy/");
+                        let obj = $('.timeline');
+
+                        socket.onopen = function () {
+                            obj.html('');
+                            socket.send(JSON.stringify(ws_data));
+                        };
+
+                        socket.onmessage = function (e) {
+                            if (e.data.indexOf('<p') === -1) {
+                                obj.append(e.data);
+                                count++
+                            } else {
+                                $('.timeline li:eq(' + (count - 1) + ') .timeline-item .timeline-body').append(e.data);
+                            }
+                        };
+
+                        socket.onclose = function () {
+                            obj.append('<li><i class="fa fa-clock-o bg-gray"></i><div class="timeline-item"><h3 class="timeline-header"><a href="javascript:void(0)">任务执行完毕！</a></h3></div></li>')
+                        }
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: res.msg,
+                        })
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            });
+        })
+    </script>
+{% endblock %}

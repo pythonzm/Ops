@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #deploy-list > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #deploy-list > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <br>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="LogStartTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="开始时间">
+                        <span class="input-group-addon">
+										                    <span class="glyphicon glyphicon-calendar"></span>
+										                </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="LogEndTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="结束时间">
+                        <span class="input-group-addon" onclick="searchLog()">
+										                    <span class="glyphicon glyphicon-search"
+                                                                  style="cursor: pointer"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+                    <table id="deploy-list" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>项目名称</th>
+                            <th>项目环境</th>
+                            <th>操作类型</th>
+                            <th>Branch/Tag</th>
+                            <th>部署版本</th>
+                            <th>版本注释</th>
+                            <th>操作用户</th>
+                            <th>操作时间</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for log in logs %}
+                            <tr>
+                                <td>{{ log.project_config.project.project_name }}</td>
+                                <td>
+                                    {% if log.project_config.project.project_env == 0 %}
+                                        <span class="badge bg-green">{{ log.project_config.project.get_project_env_display }}</span>
+                                    {% elif log.project_config.project.project_env == 1 %}
+                                        <span class="badge bg-yellow">{{ log.project_config.project.get_project_env_display }}</span>
+                                    {% elif log.project_config.project.project_env == 2 %}
+                                        <span class="badge bg-red">{{ log.project_config.project.get_project_env_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if log.d_type == 'deploy' %}
+                                        <small class="label label-info">{{ log.get_d_type_display }}</small>
+                                    {% elif log.d_type == 'rollback' %}
+                                        <small class="label label-warning">{{ log.get_d_type_display }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ log.branch_tag }}</td>
+                                <td>{{ log.release_name|slice:":7" }}</td>
+                                <td>{{ log.release_desc }}</td>
+                                <td>{{ log.deploy_user.username }}</td>
+                                <td>{{ log.c_time|date:"Y-m-d H:i:s" }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-default" data-toggle="modal"
+                                            data-id={{ log.id }} data-target="#deploy-log">查看
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <!-- DeployLogModal  -->
+            <div class="modal fade bd-example-modal-lg" id="deploy-log">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">部署记录</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="timeline">
+
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            deploy_table = $('#deploy-list').DataTable({
+                columnDefs: [{
+                    'targets': [-1],
+                    'orderable': false
+                }],
+                "order": [7, "desc"]
+            });
+
+            //Date picker
+            $('#LogStartTime, #LogEndTime').datepicker({
+                autoclose: true
+            });
+        });
+
+        // 查看部署记录
+        $('#deploy-log').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget); // Button that triggered the modal
+            let pk = button.data('id');
+            let modal = $(this);
+            let count = 0;
+            let obj = $('.timeline');
+            obj.empty();
+            $.get("{% url 'deploy_log' %}?pk=" + pk, function (res) {
+                if (res.code === 200) {
+                    for (let item of res.result) {
+                        if (item.indexOf('<p') === -1) {
+                            obj.append(item);
+                            count++
+                        } else {
+                            $('.timeline li:eq(' + (count - 1) + ') .timeline-item .timeline-body').append(item);
+                        }
+                    }
+                    obj.append('<li><i class="fa fa-clock-o bg-gray"></i><div class="timeline-item"><h3 class="timeline-header"><a href="javascript:void(0)">任务执行完毕！</a></h3></div></li>');
+                    modal.scrollTop = modal.scrollHeight;
+                }
+            });
+        });
+
+        // 按日期搜索
+        function searchLog() {
+            let startTime = $('#LogStartTime').val();
+            let endTime = $('#LogEndTime').val();
+            if (startTime.length === 0 || endTime.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请选择起始时间！'
+                });
+                return false;
+            }
+            $.get("{% url 'deploy_log' %}?startTime=" + startTime + '&endTime=' + endTime, function (response) {
+                if (response.records.length === 0) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: '该时间段内没有任何操作！'
+                    });
+                } else {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'green',
+                        content: '查询完成！'
+                    });
+                    deploy_table.clear().draw();
+                    for (let i = 0; i < response.records.length; i++) {
+                        let result = response.records[i];
+                        let run_time = $.format.date(result['c_time'], "yyyy-MM-dd HH:mm:ss");
+
+                        deploy_table.row.add([
+                            result['project_name'],
+                            result['project_env'],
+                            result['d_type'],
+                            result['branch_tag'],
+                            result['release_name'],
+                            result['release_desc'],
+                            result['deploy_user'],
+                            run_time,
+                            `<button type="button" class="btn btn-default" data-toggle="modal" data-id=${result['id']} data-target="#deploy-log">查看</button>`
+                        ]).draw();
+                    }
+                }
+            }).fail(function () {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: response.responseText
+                });
+            });
+        }
+    </script>
+
+{% endblock %}
+

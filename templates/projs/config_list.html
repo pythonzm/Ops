@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #project-conf > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #project-conf > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
+            <a href="{% url 'proj_config' %}">
+                <button class="btn btn-sm btn-success pull-left" id="add-celery-task">
+                    <i class="fa fa-plus-square"></i>
+                    <span class="bigger-110">新增项目配置</span>
+                </button>
+            </a>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- dataTable -->
+                <div class="box-body">
+                    <table id="project-conf" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>项目名称</th>
+                            <th>项目环境</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for config in configs %}
+                            <tr>
+                                <td>{{ config.project.project_name }}</td>
+                                <td>
+                                    {% if config.project.project_env == 0 %}
+                                        <span class="badge bg-green">{{ config.project.get_project_env_display }}</span>
+                                    {% elif config.project.project_env == 1 %}
+                                        <span class="badge bg-yellow">{{ config.project.get_project_env_display }}</span>
+                                    {% elif config.project.project_env == 2 %}
+                                        <span class="badge bg-red">{{ config.project.get_project_env_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'proj_config' %}?id={{ config.id }}" target="_blank">
+                                        <button type="button" class="btn btn-success btn-xs modify">配置明细</button>
+                                    </a>
+                                    <a href="{% url 'deploy' pk=config.id %}" target="_blank">
+                                        <button type="button" class="btn btn-info btn-xs">部署</button>
+                                    </a>
+                                    <a href="{% url 'rollback' pk=config.id %}?mode=rollback" target="_blank">
+                                        <button type="button" class="btn btn-warning btn-xs">回滚</button>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-xs delete"
+                                            data-id="{{ config.id }}"> 删除配置
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            project_conf_table = $('#project-conf').DataTable({
+                'ordering': false,
+            });
+        });
+
+        // 删除project-conf
+        $('#project-conf tbody').on('click', '.delete', function () {
+            {% if request.user.is_superuser %}
+                let pk = $(this).attr('data-id');
+                let tr_obj = $(this).parents('tr');
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要删除这条记录么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: '/api/project_config/' + pk + '/',
+                                method: 'DELETE',
+                                success: function () {
+                                    project_conf_table.row(tr_obj).remove().draw();
+                                },
+                                error: function (data) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: '删除失败！' + data.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            //
+                        }
+                    }
+                });
+            {% else %}
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '抱歉！您没有删除项目配置的权限！如有疑问，请联系管理员！',
+                });
+            {% endif %}
+        });
+    </script>
+
+{% endblock %}
+
+>

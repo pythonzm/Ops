@@ -12,13 +12,11 @@ class UserLoginMiddleware(MiddlewareMixin):
     @staticmethod
     def process_request(request):
         # 若请求的是登陆页面 则往下执行
-        if request.path == '/login/' or request.path == '/lock_screen/' or request.path == '/create_code/':
-            return None
-        else:
+        if request.path not in ['/login/', '/logout/', '/lock_screen/', '/create_code/']:
             user = request.session.get('username')
             lock = request.session.get('lock')
             if not user:
-                return redirect('/login/')
+                return redirect('/login/?next={}'.format(request.path))
             if lock:
                 return redirect('/lock_screen/')
 

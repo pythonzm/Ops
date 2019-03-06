@@ -67,10 +67,9 @@
 <script>
 
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/{{ group_name }}/');
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/{{ group_name }}/?' + '{{ remote_ip }}');
 
     socket.onopen = function () {
-        socket.send('{{ remote_ip }}');
         $("#terms").css("height", document.documentElement.clientHeight - 50);
         const term = new Terminal({
             screenKeys: true,
@@ -132,7 +131,7 @@
         showCaption: true,
         maxFileSize: 10240,
         maxFileCount: 10,
-        uploadUrl: '/fort/terminal/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/',
+        uploadUrl: '/fort/terminal/{{ server_id }}/{{ fort_user_id }}/',
         mergeAjaxCallbacks: true,
         ajaxSettings: {
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -169,10 +168,6 @@
             })
         }
     });
-
-    window.onbeforeunload = function (e) {
-        return '确定离开此页吗？';
-    }
 </script>
 
 </html>

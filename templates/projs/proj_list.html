@@ -43,8 +43,8 @@
                             <th>项目名称</th>
                             <th>项目环境</th>
                             <th>项目网址</th>
-                            <th>仓库路径</th>
-                            <th>代码目录</th>
+                            <th>项目负责人</th>
+                            <th>项目备注</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -62,8 +62,8 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ project.project_web|default:'' }}</td>
-                                <td>{{ project.project_repo }}</td>
-                                <td>{{ project.project_dir }}</td>
+                                <td>{{ project.project_admin.username }}</td>
+                                <td>{{ project.project_memo }}</td>
                                 <td>
                                     <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
                                             data-id="{{ project.id }}" data-target="#ProjectModal">详细/更新
@@ -131,35 +131,6 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="project_model" class="col-sm-2 control-label">仓库类型</label>
-                                            <div class="col-sm-6">
-                                                <select class="form-control select2" name="project_model"
-                                                        id="project_model"
-                                                        style="width: 100%;">
-                                                    {% for project_model in project_models %}
-                                                        <option value="{{ project_model.0 }}">{{ project_model.1 }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="project_repo" class="col-sm-2 control-label">仓库路径</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="form-control" name="project_repo"
-                                                       id="project_repo"/>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="project_dir" class="col-sm-2 control-label">代码目录</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="form-control" name="project_dir"
-                                                       id="project_dir"/>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
                                             <label for="project_admin" class="col-sm-2 control-label">项目负责人</label>
                                             <div class="col-sm-6">
                                                 <select class="form-control select2" name="project_admin"
@@ -173,15 +144,12 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="project_memo" class="col-sm-2 control-label">备注</label>
+                                            <label for="project_memo" class="col-sm-2 control-label">项目备注</label>
                                             <div class="col-sm-6">
                                             <textarea class="form-control" name="project_memo"
                                                       id="project_memo"></textarea>
                                             </div>
                                         </div>
-
-                                        <div class="space-24"></div>
-
                                     </fieldset>
                                 </form>
                             </div>
@@ -259,6 +227,7 @@
             proj_ops.unbind('click').on('click', function () {
                 let data = $('#proj_info').serializeJson();
                 let proj_env_text = $('#project_env option:selected').text();
+                let proj_admin = $('#project_admin option:selected').text();
 
                 $.ajax({
                     url: '/api/project/',
@@ -271,8 +240,8 @@
                             res.project_name,
                             proj_env_text,
                             res.project_web,
-                            res.project_repo,
-                            res.project_dir,
+                            proj_admin,
+                            res.project_memo,
                             `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#ProjectModal">详细/更新</button> <a href="/project/proj_list/${res.id}/" target="_blank"><button type="button" class="btn btn-info btn-xs">架构</button></a> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
                         ]).draw();
                     },
@@ -297,9 +266,6 @@
                 $('#project_name').val(data.project_name);
                 $('#project_env').val(data.project_env).trigger('change');
                 $('#project_web').val(data.project_web);
-                $('#project_model').val(data.project_model).trigger('change');
-                $('#project_repo').val(data.project_repo);
-                $('#project_dir').val(data.project_dir);
                 $('#project_admin').val(data.project_admin).trigger('change');
                 $('#project_memo').val(data.project_memo);
             });
@@ -314,15 +280,17 @@
                     data: JSON.stringify(data),
                     dataType: 'json',
                     contentType: "application/json",
-                    success: function (res) {
-                        proj_td_obj[2].innerText = res.project_web;
-                        proj_td_obj[3].innerText = res.project_repo;
-                        proj_td_obj[4].innerText = res.project_dir;
-                        $.alert({
+                    success: function () {
+                        $.confirm({
                             title: 'Tips',
-                            type: 'green',
                             content: '修改完成！',
-                        })
+                            type: 'green',
+                            buttons: {
+                                Ok: function () {
+                                    location.reload()
+                                },
+                            }
+                        });
                     },
                     error: function (response) {
                         $.alert({

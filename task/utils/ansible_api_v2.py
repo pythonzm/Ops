@@ -12,7 +12,6 @@
 """
 import json
 import re
-import uuid
 from ansible import constants as C
 from collections import namedtuple
 from ansible.parsing.dataloader import DataLoader
@@ -22,23 +21,20 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.plugins.callback import CallbackBase
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
+from projs.utils.deploy_websocket import DeployResultsCollector
 from conf.logger import ansible_logger
 from Ops import settings
-from utils.db.redis_ops import RedisOps
 
 
-class ModelResultsCollector(CallbackBase):
+class ModuleResultsCollector(CallbackBase):
     """
     直接执行模块命令的回调类
     """
 
-    unique_key = str(uuid.uuid4())
-
-    def __init__(self, *args, **kwargs):
-        super(ModelResultsCollector, self).__init__(*args, **kwargs)
-        self.redis_instance = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, 7)
-        self.channel_key = self.unique_key
+    def __init__(self, sock, *args, **kwargs):
+        super(ModuleResultsCollector, self).__init__(*args, **kwargs)
         self.module_results = []
+        self.sock = sock
 
     def v2_runner_on_unreachable(self, result):
         if 'msg' in result._result:
@@ -51,7 +47,7 @@ class ModelResultsCollector(CallbackBase):
                 stdout=json.dumps(
                     result._result,
                     indent=4))
-        self.redis_instance.publish(self.channel_key, data)
+        self.sock.send(data)
         self.module_results.append(data)
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
@@ -75,7 +71,7 @@ class ModelResultsCollector(CallbackBase):
                 stdout=json.dumps(
                     result._result,
                     indent=4))
-        self.redis_instance.publish(self.channel_key, data)
+        self.sock.send(data)
         self.module_results.append(data)
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
@@ -93,7 +89,7 @@ class ModelResultsCollector(CallbackBase):
                 stdout=json.dumps(
                     result._result,
                     indent=4))
-        self.redis_instance.publish(self.channel_key, data)
+        self.sock.send(data)
         self.module_results.append(data)
 
 
@@ -102,17 +98,10 @@ class PlayBookResultsCollector(CallbackBase):
     执行playbook的回调类
     """
 
-    unique_key = str(uuid.uuid4())
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, sock, *args, **kwargs):
         super(PlayBookResultsCollector, self).__init__(*args, **kwargs)
-        self.task_skipped = []
-        self.task_failed = []
-        self.task_status = {}
-        self.task_unreachable = []
-        self.task_ok = []
-        self.redis_instance = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, 8)
-        self.channel_key = self.unique_key
+        self.playbook_results = []
+        self.sock = sock
 
     def v2_playbook_on_play_start(self, play):
         name = play.get_name().strip()
@@ -120,50 +109,53 @@ class PlayBookResultsCollector(CallbackBase):
             msg = '<code style="color: #FFFFFF">\nPLAY {}\n</code>'.format('*' * 100)
         else:
             msg = '<code style="color: #FFFFFF">\nPLAY [{}] {}\n</code>'.format(name, '*' * 100)
-        self.redis_instance.publish(self.channel_key, msg)
+        self.send_save(msg)
 
     def v2_playbook_on_task_start(self, task, is_conditional):
-        self.redis_instance.publish(self.channel_key,
-                                    '<code style="color: #FFFFFF">\nTASK [{}] {}\n</code>'.format(task.get_name(),
-                                                                                                  '*' * 100))
+        msg = '<code style="color: #FFFFFF">\nTASK [{}] {}\n</code>'.format(task.get_name(), '*' * 100)
+        self.send_save(msg)
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
         if result.is_changed():
             data = '<code style="color: #FFFF00">[{}]=> changed\n</code>'.format(result._host.name)
         else:
             data = '<code style="color: #008000">[{}]=> ok\n</code>'.format(result._host.name)
-        self.redis_instance.publish(self.channel_key, data)
+        self.send_save(data)
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
         if 'changed' in result._result:
             del result._result['changed']
         data = '<code style="color: #FF0000">[{}]=> {}: {}\n</code>'.format(result._host.name, 'failed',
                                                                             self._dump_results(result._result))
-        self.redis_instance.publish(self.channel_key, data)
+        self.send_save(data)
 
     def v2_runner_on_unreachable(self, result):
         if 'changed' in result._result:
             del result._result['changed']
         data = '<code style="color: #FF0000">[{}]=> {}: {}\n</code>'.format(result._host.name, 'unreachable',
                                                                             self._dump_results(result._result))
-        self.redis_instance.publish(self.channel_key, data)
+        self.send_save(data)
 
     def v2_runner_on_skipped(self, result):
         if 'changed' in result._result:
             del result._result['changed']
         data = '<code style="color: #FFFF00">[{}]=> {}: {}\n</code>'.format(result._host.name, 'skipped',
                                                                             self._dump_results(result._result))
-        self.redis_instance.publish(self.channel_key, data)
+        self.send_save(data)
 
     def v2_playbook_on_stats(self, stats):
         hosts = sorted(stats.processed.keys())
         data = '<code style="color: #FFFFFF">\nPLAY RECAP {}\n'.format('*' * 100)
-        self.redis_instance.publish(self.channel_key, data)
+        self.send_save(data)
         for h in hosts:
             s = stats.summarize(h)
             msg = '<code style="color: #FFFFFF">{} : ok={} changed={} unreachable={} failed={} skipped={}\n</code>'.format(
                 h, s['ok'], s['changed'], s['unreachable'], s['failures'], s['skipped'])
-            self.redis_instance.publish(self.channel_key, msg)
+            self.send_save(msg)
+
+    def send_save(self, data):
+        self.sock.send(data)
+        self.playbook_results.append(data)
 
 
 class MyInventory(InventoryManager):
@@ -244,12 +236,12 @@ class ANSRunner(object):
     执行ansible模块或者playbook的类，这里默认采用了用户名+密码+sudo的方式
     """
 
-    def __init__(self, resource=None, sources=None, **kwargs):
+    def __init__(self, resource=None, sources=None, sock=None, **kwargs):
         Options = namedtuple('Options', ['connection', 'module_path', 'forks', 'timeout', 'remote_user',
                                          'ask_pass', 'private_key_file', 'ssh_common_args', 'ssh_extra_args',
                                          'sftp_extra_args', 'strategy',
                                          'scp_extra_args', 'become', 'become_method', 'become_user', 'ask_value_pass',
-                                         'verbosity',
+                                         'verbosity', 'retry_files_enabled',
                                          'check', 'listhosts', 'listtasks', 'listtags', 'syntax', 'diff',
                                          'gathering', 'roles_path'])
         self.options = Options(connection='smart',
@@ -262,7 +254,7 @@ class ANSRunner(object):
                                become=kwargs.get('become', None),
                                become_method=kwargs.get('become_method', None),
                                become_user=kwargs.get('become_user', None), ask_value_pass=False, verbosity=None,
-                               check=False, listhosts=False,
+                               retry_files_enabled=False, check=False, listhosts=False,
                                listtasks=False, listtags=False, syntax=False, diff=True, gathering='smart',
                                roles_path=settings.ANSIBLE_ROLE_PATH)
         self.loader = DataLoader()
@@ -270,12 +262,14 @@ class ANSRunner(object):
         self.variable_manager = VariableManager(loader=self.loader, inventory=self.inventory)
         self.passwords = dict(sshpass=None, becomepass=None)
         self.callback = None
+        self.sock = sock
 
-    def run_module(self, host_list, module_name, module_args):
+    def run_module(self, host_list, module_name, module_args, deploy=False):
         """
         run module from ansible ad-hoc.
         """
-        self.callback = ModelResultsCollector()
+        self.callback = DeployResultsCollector(self.sock) if deploy else ModuleResultsCollector(self.sock)
+
         play_source = dict(
             name="Ansible Play",
             hosts=host_list,
@@ -311,7 +305,7 @@ class ANSRunner(object):
         run ansible playbook
         """
         try:
-            self.callback = PlayBookResultsCollector()
+            self.callback = PlayBookResultsCollector(sock=self.sock)
             if extra_vars:
                 self.variable_manager.extra_vars = extra_vars
             executor = PlaybookExecutor(
@@ -328,6 +322,10 @@ class ANSRunner(object):
     @property
     def get_module_results(self):
         return self.callback.module_results
+
+    @property
+    def get_playbook_results(self):
+        return self.callback.playbook_results
 
     @staticmethod
     def handle_setup_data(data):

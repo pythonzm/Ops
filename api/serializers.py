@@ -141,6 +141,12 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ProjectConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectConfig
+        fields = '__all__'
+
+
 class AssetProviderSerializer(serializers.ModelSerializer):
     assets = AssetsSerializer(many=True, read_only=True)
 

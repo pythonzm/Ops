@@ -20,6 +20,7 @@ from fort.utils.guacamole_websocket import GuacamoleConsumer
 from assets.utils.guacamole import AdminGuacamole
 from task.utils.ans_module_websocket import AnsModuleConsumer
 from task.utils.ans_playbook_websocket import AnsPlaybookConsumer
+from projs.utils.deploy_websocket import DeployConsumer
 
 application = ProtocolTypeRouter({
 
@@ -27,6 +28,7 @@ application = ProtocolTypeRouter({
         URLRouter([
             # URLRouter just takes standard Django path() or url() entries.
             path(r'ws/log/', LogConsumer),
+            path(r'ws/deploy/', DeployConsumer),
             path(r'ws/ans_module_log/', AnsModuleConsumer),
             path(r'ws/ans_playbook_log/', AnsPlaybookConsumer),
             re_path(r'ws/fortssh/([0-9]+)/([0-9]+)/(?P<group_name>.*)/', FortConsumer),

@@ -68,10 +68,9 @@
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 <script>
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/{{ group_name }}/');
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/{{ group_name }}/?' + '{{ remote_ip }}');
 
     socket.onopen = function () {
-        socket.send('{{ remote_ip }}');
         $("#terms").css("height", document.documentElement.clientHeight - 50);
         const term = new Terminal({
             screenKeys: true,
@@ -132,7 +131,7 @@
         showCaption: true,
         maxFileSize: 10240,
         maxFileCount: 10,
-        uploadUrl: '/assets/ssh/' + {{ pk }} +' / ',
+        uploadUrl: '/assets/ssh/{{ pk }}/',
         mergeAjaxCallbacks: true,
         ajaxSettings:
             {
@@ -188,10 +187,6 @@
             })
         }
     });
-
-    window.onbeforeunload = function (e) {
-        return '确定离开此页吗？';
-    }
 
 </script>
 

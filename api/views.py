@@ -59,6 +59,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
 
+class ProjectConfigViewSet(viewsets.ModelViewSet):
+    queryset = ProjectConfig.objects.all().order_by('id')
+    serializer_class = ProjectConfigSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all().order_by('id')
     serializer_class = ServiceSerializer

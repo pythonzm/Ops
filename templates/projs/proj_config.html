@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    <style>
+        #prev_deploy, #post_deploy, #prev_release, #post_release {
+            width: 100%;
+            height: 100px;
+        }
+
+        .box.box-info {
+            border-top: 1px solid #d2d6de;
+        }
+
+        .box-title {
+            color: #00c0ef;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <form action="" id="project_config">
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">基础配置</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="project">选择项目</label>
+                            <select class="form-control select2" style="width: 100%;" id="project" name="project">
+                                <option value="" selected>请选择项目</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.project_name }}&nbsp;|&nbsp;{{ project.get_project_env_display }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- /.form-group -->
+                        <div class="form-group">
+                            <label for="repo">选择仓库类型</label>
+                            <select class="form-control select2" style="width: 100%;" name="repo" id="repo">
+                                <option value="" selected>请选择仓库类型</option>
+                                {% for repo in repos %}
+                                    <option value="{{ repo.0 }}">{{ repo.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="svn_auth" style="display: none">
+                            <label for="repo" style="display: block">SVN账号密码</label>
+                            <input type="text" class="form-control" id="repo_user" placeholder="输入SVN账号"
+                                   style="display: inline-block; width: 49%">
+                            <input type="password" class="form-control" id="repo_password" placeholder="输入SVN密码"
+                                   style="display: inline-block; width: 49%; float: right">
+                        </div>
+                        <!-- /.form-group -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="repo_url">仓库地址</label>
+                            <input type="text" class="form-control" id="repo_url" name="repo_url">
+                        </div>
+                        <!-- /.form-group -->
+                        <div class="form-group">
+                            <label for="repo_model">分支/Tag</label>
+                            <select class="form-control select2" style="width: 100%;" name="repo_model" id="repo_model">
+
+                            </select>
+                        </div>
+                        <!-- /.form-group -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">宿主机配置</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="src_dir">代码检出地址&nbsp;<span data-toggle="tooltip" title="宿主机存放所有源代码的统一路径">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <input type="text" class="form-control" id="src_dir" name="src_dir">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="exclude">排除文件&nbsp;<span data-toggle="tooltip"
+                                                                 title="排除不需要打包同步至服务器的文件或目录，一行一个，支持通配符，如：*.log">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <textarea class="form-control" rows="4" id="exclude" name="exclude"></textarea>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">目标服务器配置</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="deploy_server">目标服务器&nbsp;<span data-toggle="tooltip" title="部署代码的机器">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <select class="form-control select2" style="width: 100%;" multiple="multiple"
+                                    name="deploy_server" id="deploy_server">
+                                {% for server_asset in server_assets %}
+                                    <option value="{{ server_asset.id }}">{{ server_asset.assets.asset_management_ip }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deploy_webroot">部署路径&nbsp;<span data-toggle="tooltip" title="指定webroot目录，如：/usr/local/tomcat/webapps">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <input type="text" class="form-control" id="deploy_webroot" name="deploy_webroot">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="deploy_releases">版本仓库路径&nbsp;<span data-toggle="tooltip" title="用于存储、回滚等版本管理">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <input type="text" class="form-control" id="deploy_releases" name="deploy_releases">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="releases_num">版本保留数&nbsp;<span data-toggle="tooltip" title="默认保留20个">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <input type="text" class="form-control" id="releases_num" name="releases_num">
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">任务配置</h3> <span
+                    style="color: #FF0000">* 所有任务必须是shell可以执行的命令，一行一条，注释以#开头</span>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="prev_deploy">代码检出前任务&nbsp;<span data-toggle="tooltip" title="如安装依赖、配置环境变量等">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <div id="prev_deploy" name="prev_deploy"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="prev_release">部署前任务&nbsp;<span data-toggle="tooltip"
+                                                                       title="在目标服务器同步代码至版本库后的操作，如暂停服务等">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <div id="prev_release" name="prev_release"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="post_deploy">代码检出后任务&nbsp;<span data-toggle="tooltip" title="如编译、清除文件等">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <div id="post_deploy" name="post_deploy"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="post_release">部署后任务&nbsp;<span data-toggle="tooltip"
+                                                                       title="在目标服务器新版本服务切换后的操作，如删除缓存、启动服务等">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <div id="post_release" name="post_release"></div>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+        <div class="box-footer">
+            <button type="button" class="btn btn-default pull-right" onclick="history.go(-1)">返回</button>
+            <button type="button" class="btn btn-info pull-right add-conf" style="margin-right: 5px">添加</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'ace/js/ace.js' %}"></script>
+    <script src="{% static 'ace/js/mode-sh.js' %}"></script>
+    <script src="{% static 'ace/js/theme-tomorrow.js' %}"></script>
+    <script src="{% static 'ace/js/ext-language_tools.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+
+        let editors = ["prev_deploy", "post_deploy", "prev_release", "post_release"];
+        $(function () {
+            $("[data-toggle='tooltip']").tooltip();
+            // Initialize Select2 Elements
+            $('.select2').select2({
+                allowClear: true
+            });
+
+            init_editor(editors)
+        });
+
+        function init_editor(elements) {
+            ace.require("ace/ext/language_tools");
+            for (let element of elements) {
+                ace.edit(element, {
+                    mode: "ace/mode/sh",
+                    selectionStyle: "text",
+                    theme: "ace/theme/monokai",
+                    enableBasicAutocompletion: true,
+                    enableSnippets: true,
+                    enableLiveAutocompletion: true
+                })
+            }
+        }
+
+        $('#repo').on('change', function () {
+            let repo = $(this).val();
+            let repo_model = $('#repo_model');
+            repo_model.empty();
+            if (repo === 'git') {
+                $('#svn_auth').css('display', 'none');
+                repo_model.append('<option value="branch">branch</option> <option value="tag">tag</option>')
+            } else {
+                $('#svn_auth').css('display', 'block');
+                repo_model.append('<option value="trunk">trunk</option> <option value="tag">tag</option>')
+            }
+        });
+
+        // 添加项目配置
+        $('.add-conf').on('click', function () {
+            let data = $('#project_config').serializeJson();
+            let v = get_editor_value(editors);
+            Object.assign(data, v);
+
+            $.ajax({
+                url: '/api/project_config/',
+                type: 'POST',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: "application/json",
+                success: function () {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'green',
+                        content: '添加成功！',
+                    })
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        function get_editor_value(elements) {
+            let editor_values = {};
+            for (let element of elements) {
+                let editor_name = element + 'editor';
+                editor_name = ace.edit(element);
+                editor_values[element] = editor_name.getSession().getValue();
+            }
+            return editor_values
+        }
+
+        // 将数据JSON化
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        if (this.name === 'deploy_server') {
+                            serializeObj[this.name] = [this.value];
+                        } else {
+                            serializeObj[this.name] = this.value;
+                        }
+                    }
+                });
+                return serializeObj;
+            };
+        })(jQuery);
+    </script>
+
+{% endblock %}

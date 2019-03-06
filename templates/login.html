@@ -34,7 +34,7 @@
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <b>巨人教育集团</b>运维系统
+        <b>OPS</b>运维系统
     </div>
     <!-- /.login-logo -->
     <div class="login-box-body">
@@ -42,11 +42,11 @@
             {% if login_error_info %}
                 <span class="text-red">{{ login_error_info }}</span>
             {% else %}
-                欢迎使用巨人教育集团运维系统
+                OPS运维系统
             {% endif %}
         </p>
 
-        <form action="{% url 'login' %}" method="post">
+        <form role="form" method="post">
             {% csrf_token %}
             <div class="form-group has-feedback">
                 <input type="text" class="form-control" placeholder="用户名称" name="username">

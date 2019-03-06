@@ -168,6 +168,7 @@
                         for (let i = 0; i < response.records.length; i++) {
                             let result = response.records[i];
                             let record_mode = result['record_mode'] === 'ssh' ? '<small class="label label-primary"> ssh</small>' : '<small class="label label-info"> guacamole</small>';
+                            let btn = result['record_mode'] === 'ssh' ? '<a onclick="window.open(\'/fort/record_play/' + result['id'] + '/\',\'newwindow\', \'height=500, width=1005, top=200, left=200, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a>' : '<a onclick="window.open(\'/fort/record_play/' + result['id'] + '/\',\'newwindow\')" class="btn btn-xs btn-warning btn-replay">回放</a>';
                             table.row.add([
                                 result['login_user'],
                                 result['fort'],
@@ -175,7 +176,7 @@
                                 result['remote_ip'],
                                 result['start_time'],
                                 result['login_status_time'],
-                                '<a onclick="window.open(\'/fort/record_play/' + result['id'] + '/\',\'newwindow\', \'height=700, width=900, top=400, left=400, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a>'
+                                btn
                             ]).draw();
                         }
                     }

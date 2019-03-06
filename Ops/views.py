@@ -34,12 +34,13 @@ def gen_code_img(request):
 
 
 def login(request):
+    next_url = request.GET.get('next', None)
     if request.method == 'GET':
         if request.session.get('username') and request.session.get('lock'):
             del request.session['lock']
             del request.session['username']
         return render(request, 'login.html')
-    else:
+    elif request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         login_ip = request.META.get('REMOTE_ADDR')
@@ -59,7 +60,13 @@ def login(request):
                 login_status=0
             )
             get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录成功')
-            return HttpResponseRedirect('/users/user_center/', locals())
+
+            if next_url:
+                if next_url == '/' and not user.is_superuser:
+                    return HttpResponseRedirect('/users/user_center/', locals())
+                return HttpResponseRedirect(next_url, locals())
+            else:
+                return HttpResponseRedirect('/users/user_center/', locals())
         elif user is None:
             get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录失败')
             return render(request, 'login.html', {"login_error_info": "输入的用户名或密码错误！"})
