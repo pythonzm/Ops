@@ -1,5 +1,5 @@
 # ops
-基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、项目管理（一部分）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
+基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、CI/CD（完成基于git仓库）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
 
 ## 安装
 一、安装python3.6
@@ -80,10 +80,10 @@ cp conf/get_mem.py /path/to/your ansible library_path  ##可以使用ansbile --v
 
 八、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
 
-    安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
+   安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
+    
     安装完成后，修改settings.py中的 GUACD_HOST和 GUACD_PORT，改为guac服务启动后监听的地址和端口
-
-    功能实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
+   功能实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
 
 九、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
@@ -96,9 +96,6 @@ python manage.py runserver 0.0.0.0:8000
 ```
 
 以下为部分截图：
-
-### 仪表盘，曲线图是通过celery每天获取的zabbix告警数量
-![image](https://github.com/pythonzm/Ops/blob/master/screenshots/dashboard.png)
 
 ### 用户管理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_list.png)
@@ -144,8 +141,11 @@ python manage.py runserver 0.0.0.0:8000
 ### 数据库操作记录
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/sql_log.png)
 
-### 项目管理
-![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_list.png)
+### CI/CD
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_config.png)
+> 注意：如果是启动tomcat项目，启动命令需要加上nohup，由于ansible运行机制问题
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/deploy.png)
+
 ### 自定义项目架构
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_chart.png)
 
