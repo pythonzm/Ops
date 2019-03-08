@@ -41,6 +41,7 @@ class ProjectConfig(models.Model):
     repo_model = models.CharField(max_length=10, choices=repo_models, verbose_name='版本控制类型', default='branch')
     src_dir = models.CharField(max_length=100, verbose_name='代码检出目录')
     exclude = models.TextField(blank=True, verbose_name='排除文件', default='')
+    run_user = models.CharField(max_length=10, verbose_name='运行服务用户', default='root')
     deploy_server = models.ManyToManyField('assets.ServerAssets', verbose_name='目标部署机器')
     deploy_webroot = models.CharField(max_length=100, verbose_name='目标机器webroot')
     deploy_releases = models.CharField(max_length=100, verbose_name='目标机器版本库地址')

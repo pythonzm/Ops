@@ -130,9 +130,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="deploy_webroot">部署路径&nbsp;<span data-toggle="tooltip" title="指定webroot目录，如：/usr/local/tomcat/webapps">
+                            <label for="deploy_webroot">部署路径&nbsp;<span data-toggle="tooltip"
+                                                                        title="指定webroot目录，如：/usr/local/tomcat/webapps">
                             <i class="fa fa-exclamation-circle"></i></span></label>
                             <input type="text" class="form-control" id="deploy_webroot" name="deploy_webroot">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="run_user">用户&nbsp;<span data-toggle="tooltip" title="指定运行服务的用户，默认是root">
+                            <i class="fa fa-exclamation-circle"></i></span></label>
+                            <input type="text" class="form-control" id="run_user" name="run_user">
                         </div>
                     </div>
 
@@ -232,6 +239,7 @@
                 $('#repo_model').val(res.repo_model).trigger('change');
                 $('#src_dir').val(res.src_dir);
                 $('#exclude').val(res.exclude);
+                $('#run_user').val(res.run_user);
                 $('#deploy_server').val(res.deploy_server).trigger('change');
                 $('#deploy_webroot').val(res.deploy_webroot);
                 $('#deploy_releases').val(res.deploy_releases);

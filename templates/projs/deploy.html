@@ -44,7 +44,7 @@
                                         id="repo_release">
 
                                 </select>
-                                <div class="input-group-addon commit fresh" data-toggle="tooltip" data-placement="top"
+                                <div class="input-group-addon commit" data-toggle="tooltip" data-placement="top"
                                      title="获取该分支最新的commits" style="cursor: pointer">
                                     <i class="fa fa-refresh"></i>
                                 </div>
@@ -111,7 +111,7 @@
             Pace.options.ajax.trackWebSockets = false;
 
             {% if mode == 'rollback' %}
-                $('.fresh').off('click').css({'cursor': 'auto'});
+                $('.fresh, .commit').off('click').css({'cursor': 'auto'});
             {% endif %}
         });
 

@@ -264,11 +264,12 @@ class ANSRunner(object):
         self.callback = None
         self.sock = sock
 
-    def run_module(self, host_list, module_name, module_args, deploy=False):
+    def run_module(self, host_list, module_name, module_args, deploy=False, send_msg=True):
         """
         run module from ansible ad-hoc.
         """
-        self.callback = DeployResultsCollector(self.sock) if deploy else ModuleResultsCollector(self.sock)
+        self.callback = DeployResultsCollector(self.sock, send_msg=send_msg) if deploy else ModuleResultsCollector(
+            self.sock)
 
         play_source = dict(
             name="Ansible Play",

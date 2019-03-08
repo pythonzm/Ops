@@ -98,7 +98,13 @@ class DeployConsumer(WebsocketConsumer):
 
                     self.send_save(timeline_header.format('执行同步代码任务'))
 
-                    self.sync_code(ans, self.host_list, src_dir, des_dir)
+                    self.sync_code(ans, self.host_list, src_dir, des_dir, excludes=self.config.exclude)
+
+                    # 如果运行服务的用户不是root，就将代码目录的属主改为指定的user
+                    if self.config.run_user != 'root':
+                        ans.run_module(self.host_list, module_name='file',
+                                       module_args='path={} owner={} recurse=yes'.format(des_dir, self.config.run_user),
+                                       deploy=True, send_msg=False)
 
                     # 将版本保存到数据库
                     if self.release_name not in self.config.versions.split(','):
@@ -145,6 +151,9 @@ class DeployConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         self.redis_instance.delete(self.unique_key)
+        if '<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>' in self.deploy_results:
+            self.deploy_results = self.deploy_results[
+                                  :self.deploy_results.index('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>') + 1]
         deploy_log.delay(project_config=self.config, deploy_user=self.scope['user'], d_type=self.d_type,
                          branch_tag=self.branch_tag, release_name=self.release_name, release_desc=self.release_desc,
                          result=self.deploy_results)
@@ -188,11 +197,13 @@ class DeployConsumer(WebsocketConsumer):
         """按照数据库设置的保留版本个数，删除最早的多余的版本"""
         ans.run_module(host_list, module_name='shell',
                        module_args='cd {path} && rm -rf `ls -t | tail -n +{releases_num}`'.format(path=path,
-                                                                                                  releases_num=releases_num + 1))
+                                                                                                  releases_num=releases_num + 1),
+                       deploy=True, send_msg=False)
 
-    def send_save(self, msg, close=False):
-        self.send(msg, close=close)
-        self.deploy_results.append(msg)
+    def send_save(self, msg, close=False, send=True):
+        if send:
+            self.send(msg, close=close)
+            self.deploy_results.append(msg)
 
 
 class DeployResultsCollector(CallbackBase):
@@ -200,9 +211,10 @@ class DeployResultsCollector(CallbackBase):
     直接执行模块命令的回调类
     """
 
-    def __init__(self, sock, *args, **kwargs):
+    def __init__(self, sock, send_msg, *args, **kwargs):
         super(DeployResultsCollector, self).__init__(*args, **kwargs)
         self.sock = sock
+        self.send_msg = send_msg
 
     def v2_runner_on_unreachable(self, result):
         if 'msg' in result._result:
@@ -212,12 +224,11 @@ class DeployResultsCollector(CallbackBase):
             data = '<p style="color: #FF0000">\n主机{host}不可达！==> {stdout}\n剔除该主机！</p>'.format(
                 host=result._host.name, stdout=json.dumps(result._result, indent=4))
 
-        self.sock.send_save(data)
-        self.sock.host_list.remove(result._host.name)
+        self.chk_host_list(data, result._host.name)
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
         data = '<p style="color: #008000">\n主机{host}执行任务成功！\n</p>'.format(host=result._host.name)
-        self.sock.send_save(data)
+        self.sock.send_save(data, send=self.send_msg)
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
         if 'stderr' in result._result:
@@ -229,5 +240,11 @@ class DeployResultsCollector(CallbackBase):
         else:
             data = '<p style="color: #FF0000">\n主机{host}执行任务失败 ==> {stdout}\n剔除该主机！</p>'.format(
                 host=result._host.name, stdout=json.dumps(result._result, indent=4))
-        self.sock.send_save(data)
-        self.sock.host_list.remove(result._host.name)
+        self.chk_host_list(data, result._host.name)
+
+    def chk_host_list(self, data, host):
+        self.sock.send_save(data, send=self.send_msg)
+        self.sock.host_list.remove(host)
+        if len(self.sock.host_list) == 0:
+            self.sock.send('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>', close=True)
+            self.sock.deploy_results.append('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>')
