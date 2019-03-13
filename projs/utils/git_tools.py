@@ -13,21 +13,23 @@
 import os
 import git
 import shutil
-import logging
 import subprocess
+from conf.logger import deploy_logger
 
 
 class GitTools:
 
-    def __init__(self, repo_url, path, remote_name='origin'):
+    def __init__(self, repo_url, path, env, remote_name='origin'):
         """
         :param path: 需要是绝对路径
+        :param env: 项目环境，默认是测试环境
         """
         self.base_path = path
         self.repo_url = repo_url
         self.proj_name = repo_url.split('/')[1].rstrip('.git')
-        self.path = os.path.join(self.base_path, self.proj_name)
+        self.proj_path = os.path.join(self.base_path, self.proj_name, env)
         self.remote_name = remote_name
+        self.repo = self.__repo
 
     def clone(self, prev_cmds):
         """
@@ -37,22 +39,22 @@ class GitTools:
         try:
             if not os.path.exists(self.base_path):
                 os.makedirs(self.base_path)
-            if os.path.exists(self.path) and os.listdir(self.path):
-                shutil.rmtree(self.path, ignore_errors=True)
+            if os.path.exists(self.proj_path) and os.listdir(self.proj_path):
+                shutil.rmtree(self.proj_path, ignore_errors=True)
             if len(prev_cmds) == 0:
-                git.Repo.clone_from(url=self.repo_url, to_path=self.path, origin=self.remote_name)
+                git.Repo.clone_from(url=self.repo_url, to_path=self.proj_path, origin=self.remote_name)
             else:
                 if self.run_cmd(prev_cmds) == 0:
-                    git.Repo.clone_from(url=self.repo_url, to_path=self.path, origin=self.remote_name)
+                    git.Repo.clone_from(url=self.repo_url, to_path=self.proj_path, origin=self.remote_name)
         except Exception as e:
-            logging.getLogger().error(e)
+            deploy_logger.error('拉取代码失败！{}'.format(e))
 
     @property
     def __repo(self):
-        if not os.path.exists(self.path):
-            return git.Repo.init(self.path)
+        if not os.path.exists(self.proj_path):
+            return git.Repo.init(self.proj_path)
         else:
-            return git.Repo(self.path)
+            return git.Repo(self.proj_path)
 
     @property
     def __git(self):
@@ -68,15 +70,13 @@ class GitTools:
     @property
     def local_branches(self):
         """获取本地分支"""
-        repo = self.__repo
-        branch_list = [i.name for i in repo.heads]
+        branch_list = [i.name for i in self.repo.heads]
         return branch_list
 
     @property
     def tags(self):
         """获取所有tag"""
-        repo = self.__repo
-        tag_list = [i.name for i in repo.tags]
+        tag_list = [i.name for i in self.repo.tags]
         return tag_list
 
     def checkout(self, name):
@@ -84,20 +84,18 @@ class GitTools:
         _git = self.__git
         _git.checkout(name)
 
-    def get_commits(self, name, max_count=10):
+    def get_commits(self, name, max_count=None):
         """获取指定分支的提交记录"""
-        repo = self.__repo
         if name != 'master':
             self.checkout(name)
         commits = []
-        for i in repo.iter_commits(name, max_count=max_count):
+        for i in self.repo.iter_commits(name, max_count=max_count):
             commits.append({'message': i.message.rstrip('\n'), 'commit_id': i.hexsha, 'committer': i.committer.name})
         return commits
 
     def get_commit_msg(self, branch, commit):
         """获取指定commit的注释"""
-        repo = self.__repo
-        for i in repo.iter_commits(branch):
+        for i in self.repo.iter_commits(branch):
             if i.hexsha == commit:
                 return i.message.rstrip('\n')
 

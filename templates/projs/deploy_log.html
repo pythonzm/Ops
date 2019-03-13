@@ -72,11 +72,11 @@
                             <tr>
                                 <td>{{ log.project_config.project.project_name }}</td>
                                 <td>
-                                    {% if log.project_config.project.project_env == 0 %}
+                                    {% if log.project_config.project.project_env == 'test' %}
                                         <span class="badge bg-green">{{ log.project_config.project.get_project_env_display }}</span>
-                                    {% elif log.project_config.project.project_env == 1 %}
+                                    {% elif log.project_config.project.project_env == 'fz' %}
                                         <span class="badge bg-yellow">{{ log.project_config.project.get_project_env_display }}</span>
-                                    {% elif log.project_config.project.project_env == 2 %}
+                                    {% elif log.project_config.project.project_env == 'prod' %}
                                         <span class="badge bg-red">{{ log.project_config.project.get_project_env_display }}</span>
                                     {% endif %}
                                 </td>

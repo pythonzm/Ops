@@ -47,11 +47,11 @@
                             <tr>
                                 <td>{{ config.project.project_name }}</td>
                                 <td>
-                                    {% if config.project.project_env == 0 %}
+                                    {% if config.project.project_env == 'test' %}
                                         <span class="badge bg-green">{{ config.project.get_project_env_display }}</span>
-                                    {% elif config.project.project_env == 1 %}
+                                    {% elif config.project.project_env == 'fz' %}
                                         <span class="badge bg-yellow">{{ config.project.get_project_env_display }}</span>
-                                    {% elif config.project.project_env == 2 %}
+                                    {% elif config.project.project_env == 'prod' %}
                                         <span class="badge bg-red">{{ config.project.get_project_env_display }}</span>
                                     {% endif %}
                                 </td>

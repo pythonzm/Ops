@@ -51,9 +51,11 @@
 
                         <div class="form-group" id="svn_auth" style="display: none">
                             <label for="repo" style="display: block">SVN账号密码</label>
-                            <input type="text" class="form-control" id="repo_user" placeholder="输入SVN账号"
+                            <input type="text" class="form-control" id="repo_user" name="repo_user"
+                                   placeholder="输入SVN账号"
                                    style="display: inline-block; width: 49%">
-                            <input type="password" class="form-control" id="repo_password" placeholder="输入SVN密码"
+                            <input type="password" class="form-control" id="repo_password" name="repo_password"
+                                   placeholder="输入SVN密码"
                                    style="display: inline-block; width: 49%; float: right">
                         </div>
                         <!-- /.form-group -->
@@ -237,6 +239,8 @@
                 $('#repo').val(res.repo).trigger('change');
                 $('#repo_url').val(res.repo_url);
                 $('#repo_model').val(res.repo_model).trigger('change');
+                $('#repo_user').val(res.repo_user);
+                $('#repo_password').val(res.repo_password);
                 $('#src_dir').val(res.src_dir);
                 $('#exclude').val(res.exclude);
                 $('#run_user').val(res.run_user);
@@ -273,7 +277,7 @@
                 repo_model.append('<option value="branch">branch</option> <option value="tag">tag</option>')
             } else {
                 $('#svn_auth').css('display', 'block');
-                repo_model.append('<option value="trunk">trunk</option> <option value="tag">tag</option>')
+                repo_model.append('<option value="trunk">trunk</option> <option value="branch">branch</option> <option value="tag">tag</option>')
             }
         });
 

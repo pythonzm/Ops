@@ -4,13 +4,13 @@ from django.db import models
 class Project(models.Model):
     """项目表"""
     project_envs = (
-        (0, '测试环境'),
-        (1, '仿真环境'),
-        (2, '生产环境')
+        ('test', '测试环境'),
+        ('fz', '仿真环境'),
+        ('prod', '生产环境')
     )
 
     project_name = models.CharField(max_length=64, verbose_name='项目名称')
-    project_env = models.SmallIntegerField(choices=project_envs, verbose_name='项目环境')
+    project_env = models.CharField(max_length=4, choices=project_envs, verbose_name='项目环境', default='test')
     project_web = models.CharField(max_length=64, blank=True, verbose_name='项目网址', default='')
     project_admin = models.ForeignKey('users.UserProfile', verbose_name='项目负责人', on_delete=models.PROTECT)
     project_org = models.TextField(blank=True, default='', verbose_name='项目架构JSON数据')

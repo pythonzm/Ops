@@ -53,11 +53,11 @@
                             <tr>
                                 <td>{{ project.project_name }}</td>
                                 <td>
-                                    {% if project.project_env == 0 %}
+                                    {% if project.project_env == 'test' %}
                                         <span class="badge bg-green">{{ project.get_project_env_display }}</span>
-                                    {% elif project.project_env == 1 %}
+                                    {% elif project.project_env == 'fz' %}
                                         <span class="badge bg-yellow">{{ project.get_project_env_display }}</span>
-                                    {% elif project.project_env == 2 %}
+                                    {% elif project.project_env == 'prod' %}
                                         <span class="badge bg-red">{{ project.get_project_env_display }}</span>
                                     {% endif %}
                                 </td>

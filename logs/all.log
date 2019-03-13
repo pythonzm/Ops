@@ -1,136 +1,440 @@
-INFO 2019-03-07 15:09:12 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-07 15:09:12 _log Authentication (publickey) successful!
-INFO 2019-03-07 15:09:13 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-07 15:09:13 _log [chan 2] sftp session closed.
-INFO 2019-03-07 16:39:49 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-07 16:39:49 _log Authentication (publickey) successful!
-INFO 2019-03-07 16:39:50 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-07 16:39:51 _log [chan 2] sftp session closed.
-INFO 2019-03-07 16:39:59 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-07 16:40:00 _log Authentication (publickey) successful!
-INFO 2019-03-07 16:40:00 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-07 16:40:01 _log [chan 2] sftp session closed.
-INFO 2019-03-07 16:40:01 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-07 16:40:01 _log Authentication (publickey) successful!
-INFO 2019-03-07 16:40:02 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-07 16:40:02 _log [chan 2] sftp session closed.
-INFO 2019-03-08 09:24:25 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 09:24:25 _log Authentication (publickey) successful!
-INFO 2019-03-08 09:24:26 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 09:24:26 _log [chan 2] sftp session closed.
-INFO 2019-03-08 09:24:35 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 09:24:35 _log Authentication (publickey) successful!
-INFO 2019-03-08 09:24:36 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 09:24:36 _log [chan 2] sftp session closed.
-INFO 2019-03-08 09:24:36 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 09:24:36 _log Authentication (publickey) successful!
-INFO 2019-03-08 09:24:37 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 09:24:38 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:42:28 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:42:33 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:42:33 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:42:34 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:42:38 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:42:38 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:42:39 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:42:41 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:42:41 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:42:41 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:42:42 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:42:42 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:42:43 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:42:43 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:42:43 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:42:44 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:42:44 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:42:44 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:42:45 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:42:45 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:48:56 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:48:56 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:48:57 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:48:57 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:49:00 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:49:00 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:49:01 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:49:02 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:49:03 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:49:03 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:49:03 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:49:04 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:49:04 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:49:04 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:49:05 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:49:05 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:49:05 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:49:06 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:49:06 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:49:07 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:57:12 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:57:12 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:57:13 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:57:13 _log [chan 2] sftp session closed.
-INFO 2019-03-08 10:57:14 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 10:57:14 _log Authentication (publickey) successful!
-INFO 2019-03-08 10:57:14 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 10:57:15 _log [chan 2] sftp session closed.
-ERROR 2019-03-08 10:59:08 clone Cmd('git') failed due to: exit code(128)
-  cmdline: git clone --origin=origin -v git@github.com:pythonzm/ytk.git /data/www/ytk
-  stderr: 'fatal: destination path '/data/www/ytk' already exists and is not an empty directory.
-'
-INFO 2019-03-08 11:03:59 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:03:59 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:03:59 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:04:00 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:04:03 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:04:03 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:04:03 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:04:05 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:04:06 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:04:06 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:04:07 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:04:07 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:04:07 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:04:07 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:04:08 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:04:08 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:04:09 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:04:09 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:04:09 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:04:10 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:48:08 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:48:08 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:48:09 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:48:09 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:48:12 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:48:12 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:48:13 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:48:15 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:48:15 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:48:15 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:48:16 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:48:16 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:48:16 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:48:17 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:48:17 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:48:18 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:48:18 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:48:18 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:48:19 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:48:19 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:49:23 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:49:23 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:49:24 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:49:24 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:49:24 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:49:25 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:49:25 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:49:26 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:50:26 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-03-08 11:50:26 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:50:27 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2019-03-08 11:50:27 _log Authentication (publickey) successful!
-INFO 2019-03-08 11:50:27 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:50:28 _log [chan 2] sftp session closed.
-INFO 2019-03-08 11:50:30 _log [chan 2] Opened sftp connection (server version 3)
-INFO 2019-03-08 11:50:32 _log [chan 2] sftp session closed.
+INFO 2019-03-12 16:52:00 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 16:52:00 _log Authentication (publickey) successful!
+INFO 2019-03-12 16:52:01 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 16:52:02 _log [chan 2] sftp session closed.
+INFO 2019-03-12 17:30:43 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 17:30:43 _log Authentication (publickey) successful!
+INFO 2019-03-12 17:30:44 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 17:30:44 _log [chan 2] sftp session closed.
+INFO 2019-03-12 17:35:38 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 17:35:38 _log Authentication (publickey) successful!
+INFO 2019-03-12 17:35:39 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 17:35:39 _log [chan 2] sftp session closed.
+INFO 2019-03-12 17:38:32 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 17:38:32 _log Authentication (publickey) successful!
+INFO 2019-03-12 17:38:33 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 17:38:33 _log [chan 2] sftp session closed.
+INFO 2019-03-12 17:38:34 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 17:38:35 _log Authentication (publickey) successful!
+INFO 2019-03-12 17:38:35 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 17:38:36 _log [chan 2] sftp session closed.
+INFO 2019-03-12 17:38:36 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 17:38:36 _log Authentication (publickey) successful!
+INFO 2019-03-12 17:38:37 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 17:38:38 _log [chan 2] sftp session closed.
+INFO 2019-03-12 17:38:38 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 17:38:38 _log Authentication (publickey) successful!
+INFO 2019-03-12 17:38:38 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 17:38:39 _log [chan 2] sftp session closed.
+INFO 2019-03-12 17:38:39 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 17:38:39 _log Authentication (publickey) successful!
+INFO 2019-03-12 17:38:40 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 17:38:40 _log [chan 2] sftp session closed.
+INFO 2019-03-12 18:17:35 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 18:17:35 _log Authentication (publickey) successful!
+INFO 2019-03-12 18:17:36 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 18:17:36 _log [chan 2] sftp session closed.
+INFO 2019-03-12 18:20:34 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 18:20:34 _log Authentication (publickey) successful!
+INFO 2019-03-12 18:20:34 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 18:20:35 _log [chan 2] sftp session closed.
+INFO 2019-03-12 18:20:36 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 18:20:36 _log Authentication (publickey) successful!
+INFO 2019-03-12 18:20:37 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 18:20:37 _log [chan 2] sftp session closed.
+INFO 2019-03-12 18:20:37 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 18:20:37 _log Authentication (publickey) successful!
+INFO 2019-03-12 18:20:38 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 18:20:39 _log [chan 2] sftp session closed.
+INFO 2019-03-12 18:20:39 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 18:20:39 _log Authentication (publickey) successful!
+INFO 2019-03-12 18:20:40 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 18:20:40 _log [chan 2] sftp session closed.
+INFO 2019-03-12 18:20:40 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-12 18:20:40 _log Authentication (publickey) successful!
+INFO 2019-03-12 18:20:41 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-12 18:20:41 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:17:32 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:17:32 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:17:33 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:17:33 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:17:34 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:17:34 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:17:35 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:17:36 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:17:36 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:17:36 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:17:37 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:17:37 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:17:37 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:17:38 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:17:38 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:17:39 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:17:39 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:17:39 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:17:40 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:17:40 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:25:24 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:25:24 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:25:25 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:25:25 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:25:26 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:25:26 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:25:27 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:25:27 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:25:27 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:25:27 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:25:28 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:25:29 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:25:29 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:25:29 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:25:30 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:25:30 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:25:30 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:25:30 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:25:31 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:25:31 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:30:10 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:30:10 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:30:11 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:30:11 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:30:13 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:30:13 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:30:13 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:30:14 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:30:14 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:30:14 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:30:15 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:30:15 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:30:15 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:30:16 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:30:16 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:30:17 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:30:17 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:30:17 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:30:18 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:30:18 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:46:03 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:46:03 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:46:03 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:46:04 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:46:14 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:46:14 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:46:15 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:46:15 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:46:16 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:46:16 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:46:16 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:46:17 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:46:17 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:46:17 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:46:18 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:46:18 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:46:19 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:46:19 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:46:19 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:46:20 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:47:52 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:47:52 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:47:53 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:47:53 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:48:03 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:48:03 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:48:04 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:48:05 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:48:05 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:48:05 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:48:06 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:48:06 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:48:06 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:48:06 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:48:07 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:48:08 _log [chan 2] sftp session closed.
+INFO 2019-03-13 09:48:08 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 09:48:08 _log Authentication (publickey) successful!
+INFO 2019-03-13 09:48:09 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 09:48:09 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:03:31 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:03:31 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:03:32 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:03:33 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:03:34 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:03:34 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:03:34 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:03:35 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:03:35 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:03:35 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:03:36 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:03:37 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:03:37 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:03:37 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:03:38 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:03:38 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:03:38 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:03:38 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:03:39 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:03:40 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:09:04 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:09:04 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:09:05 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:09:05 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:09:06 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:09:06 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:09:07 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:09:07 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:09:07 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:09:08 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:09:08 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:09:09 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:09:09 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:09:09 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:09:10 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:09:10 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:09:10 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:09:10 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:09:11 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:09:12 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:18:54 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:18:54 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:18:55 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:18:55 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:18:57 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:18:57 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:18:57 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:18:58 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:18:58 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:18:58 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:18:59 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:19:00 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:19:00 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:19:00 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:19:01 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:19:01 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:19:01 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:19:01 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:19:02 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:19:03 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:20:51 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:20:52 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:20:52 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:20:53 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:20:54 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:20:54 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:20:55 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:20:55 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:20:55 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:20:55 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:20:56 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:20:57 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:20:57 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:20:57 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:20:58 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:20:58 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:20:58 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:20:58 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:20:59 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:21:00 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:24:46 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:24:46 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:24:47 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:24:47 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:24:48 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:24:48 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:24:49 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:24:50 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:24:50 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:24:50 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:24:51 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:24:51 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:24:51 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:24:51 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:24:52 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:24:53 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:24:53 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:24:53 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:24:54 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:24:54 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:31:35 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:31:35 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:31:36 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:31:37 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:31:38 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:31:38 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:31:39 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:31:39 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:31:39 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:31:40 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:31:40 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:31:41 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:31:41 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:31:41 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:31:42 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:31:42 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:31:43 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:31:43 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:31:43 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:31:44 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:41:07 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:41:07 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:41:08 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:41:08 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:41:10 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:41:10 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:41:10 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:41:11 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:41:11 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:41:11 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:41:12 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:41:12 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:41:13 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:41:13 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:41:13 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:41:14 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:41:14 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:41:14 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:41:15 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:41:15 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:46:00 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:46:00 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:46:01 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:46:02 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:46:03 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:46:03 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:46:04 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:46:04 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:46:04 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:46:04 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:46:05 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:46:06 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:46:06 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:46:06 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:46:07 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:46:07 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:46:07 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:46:07 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:46:08 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:46:09 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:54:54 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:54:54 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:54:55 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:54:56 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:54:57 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:54:57 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:54:58 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:54:58 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:54:58 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:54:58 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:54:59 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:55:00 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:55:00 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:55:00 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:55:01 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:55:01 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:55:01 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:55:01 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:55:02 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:55:02 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:56:26 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:56:26 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:56:27 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:56:27 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:56:28 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:56:28 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:56:29 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:56:29 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:56:30 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:56:30 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:56:30 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:56:31 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:56:31 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:56:31 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:56:32 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:56:32 _log [chan 2] sftp session closed.
+INFO 2019-03-13 10:56:33 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 10:56:33 _log Authentication (publickey) successful!
+INFO 2019-03-13 10:56:33 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 10:56:34 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:01:25 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:01:26 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:01:26 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:01:27 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:05:34 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:05:34 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:05:35 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:05:36 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:05:37 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:05:37 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:05:38 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:05:38 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:05:38 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:05:38 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:05:39 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:05:40 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:05:40 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:05:40 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:05:41 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:05:42 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:05:42 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:05:42 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:05:43 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:05:43 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:31:37 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:31:38 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:31:38 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:31:39 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:31:40 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:31:40 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:31:41 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:31:42 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:31:42 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:31:42 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:31:43 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:31:43 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:31:43 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:31:43 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:31:44 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:31:45 _log [chan 2] sftp session closed.
+INFO 2019-03-13 11:31:45 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 11:31:45 _log Authentication (publickey) successful!
+INFO 2019-03-13 11:31:46 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 11:31:46 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:15:42 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:15:42 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:15:43 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:15:43 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:15:46 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:15:47 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:15:47 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:15:51 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:15:51 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:15:51 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:15:52 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:15:52 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:15:52 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:15:52 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:15:53 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:15:54 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:15:54 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:15:54 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:15:55 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:15:55 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:17:57 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:17:57 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:17:57 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:17:58 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:18:01 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:18:01 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:18:02 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:18:05 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:18:05 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:18:05 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:18:06 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:18:07 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:18:07 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:18:07 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:18:08 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:18:08 _log [chan 2] sftp session closed.
+INFO 2019-03-13 15:18:08 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-13 15:18:08 _log Authentication (publickey) successful!
+INFO 2019-03-13 15:18:09 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-03-13 15:18:09 _log [chan 2] sftp session closed.
