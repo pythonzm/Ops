@@ -1,5 +1,5 @@
 # ops
-基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、CI/CD（完成基于git仓库）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
+基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、CI/CD（支持git仓库和svn仓库）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
 
 ## 安装
 一、安装python3.6
@@ -141,10 +141,15 @@ python manage.py runserver 0.0.0.0:8000
 ### 数据库操作记录
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/sql_log.png)
 
-### CI/CD
+### CI/CD项目配置
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_config.png)
 > 注意：如果是启动tomcat项目，启动命令需要加上nohup，由于ansible运行机制问题
+
+### CI/CD部署流程
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/deploy.png)
+
+### CI/CD部署日志
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/deploy_log.png)
 
 ### 自定义项目架构
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/project_chart.png)
