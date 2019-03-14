@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.urls import path, include, re_path
 from django.views.static import serve
-from Ops.settings import MEDIA_ROOT
+from django.conf import settings
 from Ops import views
 
 urlpatterns = [
@@ -33,5 +33,5 @@ urlpatterns = [
     path(r'plan/', include('plan.urls')),
     path(r'wiki/', include('wiki.urls')),
     path(r'db_config/', include('dbmanager.urls')),
-    re_path(r'^media/(?P<path>.*)', serve, {"document_root": MEDIA_ROOT}),
+    re_path(r'^media/(?P<path>.*)', serve, {"document_root": settings.MEDIA_ROOT}),
 ]

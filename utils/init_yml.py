@@ -10,13 +10,13 @@
                     2018/6/3:
 -------------------------------------------------
 """
-from Ops.settings import BASE_DIR
+from django.conf import settings
 import yaml
 
 
 class Yaml:
     def __init__(self, filename):
-        self.file = '{}/conf/{}'.format(BASE_DIR, filename)
+        self.file = '{}/conf/{}'.format(settings.BASE_DIR, filename)
 
     def init_yml(self):
         """

@@ -8,7 +8,7 @@ from socket import timeout
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets
 from fort.models import FortServerUser, FortRecord
-from Ops import settings
+from django.conf import settings
 
 
 class MyThread(threading.Thread):

@@ -7,7 +7,7 @@ import xlwt
 import logging
 from itertools import product
 from utils.export_excel import ExportExcel
-from Ops import settings
+from django.conf import settings
 from django.db.models import Count
 from django.http import JsonResponse, FileResponse
 from django.shortcuts import render

@@ -1,6 +1,6 @@
 import os
 import json
-from Ops import settings
+from django.conf import settings
 from projs.tasks import deploy_log
 from projs.models import ProjectConfig
 from utils.db.redis_ops import RedisOps
@@ -9,6 +9,7 @@ from projs.utils.svn_tools import SVNTools
 from ansible.plugins.callback import CallbackBase
 from task.utils import ansible_api_v2, gen_resource
 from channels.generic.websocket import WebsocketConsumer
+from projs.utils.deploy_notice import deploy_mail
 
 
 class DeployConsumer(WebsocketConsumer):
@@ -88,6 +89,7 @@ class DeployConsumer(WebsocketConsumer):
             self.redis_instance.delete(unique_key)
 
     def disconnect(self, close_code):
+        deploy_mail()
         if '<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>' in self.deploy_results:
             self.deploy_results = self.deploy_results[
                                   :self.deploy_results.index('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>') + 1]
@@ -97,32 +99,32 @@ class DeployConsumer(WebsocketConsumer):
 
     def deploy(self, rollback, timeline_header, cmd_detail, timeline_body_green, timeline_body_red, ans, info, tool,
                repo='git', commit=None):
-        if repo == 'svn':
-            # 执行检出代码之前的命令，比如安装依赖等
-            if self.config.prev_deploy:
-                self.send_save(timeline_header.format('执行检出代码前置任务'))
-                self.send_save(cmd_detail.format(self.config.prev_deploy))
-                try:
-                    code = tool.run_cmd(self.config.prev_deploy)
-                    if code == 0:
-                        self.send_save(timeline_body_green.format('执行检出代码前置任务成功！'))
-                    else:
-                        self.send_save(timeline_body_red.format('执行检出代码前置任务失败！'), close=True)
-                except Exception as e:
-                    self.send_save(timeline_body_red.format('执行检出代码前置任务失败！{}'.format(e)),
-                                   close=True)
-
-            # 执行检出代码任务
-            try:
-                self.send_save(timeline_header.format('执行检出代码任务'))
-                if self.config.repo_model == 'trunk':
-                    tool.checkout(self.config.repo_model, revision=commit)
-                else:
-                    tool.checkout(self.config.repo_model, self.branch_tag, revision=commit)
-                self.send_save(timeline_body_green.format('执行检出代码任务成功！'))
-            except Exception as e:
-                self.send_save(timeline_body_red.format('执行检出代码任务失败！'.format(e)), close=True)
         if not rollback:
+            if repo == 'svn':
+                # 执行检出代码之前的命令，比如安装依赖等
+                if self.config.prev_deploy:
+                    self.send_save(timeline_header.format('执行检出代码前置任务'))
+                    self.send_save(cmd_detail.format(self.config.prev_deploy))
+                    try:
+                        code = tool.run_cmd(self.config.prev_deploy)
+                        if code == 0:
+                            self.send_save(timeline_body_green.format('执行检出代码前置任务成功！'))
+                        else:
+                            self.send_save(timeline_body_red.format('执行检出代码前置任务失败！'), close=True)
+                    except Exception as e:
+                        self.send_save(timeline_body_red.format('执行检出代码前置任务失败！{}'.format(e)),
+                                       close=True)
+
+                # 执行检出代码任务
+                try:
+                    self.send_save(timeline_header.format('执行检出代码任务'))
+                    if self.config.repo_model == 'trunk':
+                        tool.checkout(self.config.repo_model, revision=commit)
+                    else:
+                        tool.checkout(self.config.repo_model, self.branch_tag, revision=commit)
+                    self.send_save(timeline_body_green.format('执行检出代码任务成功！'))
+                except Exception as e:
+                    self.send_save(timeline_body_red.format('执行检出代码任务失败！'.format(e)), close=True)
             # 执行同步代码之前的命令，比如编译等
             if self.config.post_deploy:
                 self.send_save(timeline_header.format('执行同步代码前置任务'))

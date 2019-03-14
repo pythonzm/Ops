@@ -17,6 +17,10 @@
         .box-title {
             color: #00c0ef;
         }
+
+        .tooltip-inner {
+            max-width: 100% !important;
+        }
     </style>
 {% endblock %}
 
@@ -190,7 +194,8 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="post_deploy">代码检出后任务&nbsp;<span data-toggle="tooltip" title="如编译、清除文件等">
+                            <label for="post_deploy">代码检出后任务&nbsp;<span data-toggle="tooltip"
+                                                                        title="如编译、清除文件等;测试环境代码目录在 检出目录/项目名称/test,仿真环境在检出目录/项目名称/fz,正式环境在检出目录/项目名称/prod">
                             <i class="fa fa-exclamation-circle"></i></span></label>
                             <div id="post_deploy" name="post_deploy"></div>
                         </div>

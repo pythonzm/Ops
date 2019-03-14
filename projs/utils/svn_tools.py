@@ -39,12 +39,19 @@ class SVNTools:
         except Exception as e:
             deploy_logger.error('拉取代码失败！{}'.format(e))
 
-    def get_remote_commits(self, repo_model='trunk', model_name='', limit=None):
+    def get_commits(self, versions, repo_model='trunk', model_name='', mode='deploy', limit=None):
         path = os.path.join(self.gen_model(repo_model), model_name)
 
         commits = []
-        for i in self.__remote_repo.log_default(rel_filepath=path, limit=limit):
-            commits.append({'committer': i.author, 'message': i.msg, 'commit_id': i.revision})
+
+        if mode == 'deploy':
+            for i in self.__remote_repo.log_default(rel_filepath=path, limit=limit):
+                if str(i.revision) not in versions:
+                    commits.append({'committer': i.author, 'message': i.msg, 'commit_id': i.revision})
+        elif mode == 'rollback':
+            for i in self.__remote_repo.log_default(rel_filepath=path, limit=limit):
+                if str(i.revision) in versions:
+                    commits.append({'committer': i.author, 'message': i.msg, 'commit_id': i.revision})
         return commits
 
     def get_commit_msg(self, commit_id, repo_model='trunk', model_name=''):

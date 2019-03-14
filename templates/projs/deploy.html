@@ -165,7 +165,10 @@
         // 获取远程仓库最新的commits
         $('.commit').on('click', function () {
             let branch = $('#repo_model').val();
-            $.get("{% url 'deploy' pk %}", {key: "commit", branch: branch, new_commit: true}, function (res) {
+            let ajax_data = {key: "commit", branch: branch, new_commit: true, mode: ''};
+            ajax_data.mode = ("{{ mode }}" === "rollback") ? "rollback" : "deploy";
+
+            $.get("{% url 'deploy' pk %}", ajax_data, function (res) {
                 let repo_release = $('#repo_release');
                 repo_release.empty();
                 for (let item of res.data) {
@@ -185,7 +188,10 @@
         $('#repo_model').on('change', function () {
             {% if config.repo_model == 'branch' and config.repo == 'git' %}
                 let branch = $(this).val();
-                $.get("{% url 'deploy' pk %}", {key: "commit", branch: branch}, function (res) {
+                let ajax_data = {key: "commit", branch: branch, mode: ''};
+                ajax_data.mode = ("{{ mode }}" === "rollback") ? "rollback" : "deploy";
+
+                $.get("{% url 'deploy' pk %}", ajax_data, function (res) {
                     let repo_release = $('#repo_release');
                     repo_release.empty();
                     for (let item of res.data) {
@@ -209,55 +215,30 @@
             let branch_tag = $('#repo_model').val();
             let commit = repo_release !== null ? repo_release.val() : null;
 
-            let ajax_data = {branch_tag: branch_tag, commit: commit, mode: ''};
-            ajax_data.mode = ("{{ mode }}" === "rollback") ? "rollback" : "deploy";
-
             let ws_data = {config_id: '{{ config.id }}', branch_tag: branch_tag, commit: commit, rollback: true};
             ws_data.rollback = ("{{ mode }}" === "rollback");
 
-            $.ajax({
-                url: '{% url "deploy" pk %}',
-                type: 'POST',
-                data: ajax_data,
-                success: function (res) {
-                    if (res.code === 200) {
-                        let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-                        let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/deploy/");
-                        let obj = $('.timeline');
+            let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+            let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/deploy/");
+            let obj = $('.timeline');
 
-                        socket.onopen = function () {
-                            obj.html('');
-                            socket.send(JSON.stringify(ws_data));
-                        };
+            socket.onopen = function () {
+                obj.html('');
+                socket.send(JSON.stringify(ws_data));
+            };
 
-                        socket.onmessage = function (e) {
-                            if (e.data.indexOf('<p') === -1) {
-                                obj.append(e.data);
-                                count++
-                            } else {
-                                $('.timeline li:eq(' + (count - 1) + ') .timeline-item .timeline-body').append(e.data);
-                            }
-                        };
-
-                        socket.onclose = function () {
-                            obj.append('<li><i class="fa fa-clock-o bg-gray"></i><div class="timeline-item"><h3 class="timeline-header"><a href="javascript:void(0)">任务执行完毕！</a></h3></div></li>')
-                        }
-                    } else {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: res.msg,
-                        })
-                    }
-                },
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response.responseText,
-                    })
+            socket.onmessage = function (e) {
+                if (e.data.indexOf('<p') === -1) {
+                    obj.append(e.data);
+                    count++
+                } else {
+                    $('.timeline li:eq(' + (count - 1) + ') .timeline-item .timeline-body').append(e.data);
                 }
-            });
+            };
+
+            socket.onclose = function () {
+                obj.append('<li><i class="fa fa-clock-o bg-gray"></i><div class="timeline-item"><h3 class="timeline-header"><a href="javascript:void(0)">任务执行完毕！</a></h3></div></li>')
+            }
         })
     </script>
 {% endblock %}

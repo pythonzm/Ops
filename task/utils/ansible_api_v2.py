@@ -23,7 +23,7 @@ from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from projs.utils.deploy_websocket import DeployResultsCollector
 from conf.logger import ansible_logger
-from Ops import settings
+from django.conf import settings
 
 
 class ModuleResultsCollector(CallbackBase):

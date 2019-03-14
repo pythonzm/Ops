@@ -14,7 +14,7 @@ import base64 as b64
 import os
 import random
 from io import BytesIO
-from Ops import settings
+from django.conf import settings
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 

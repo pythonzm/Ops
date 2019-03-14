@@ -8,7 +8,7 @@ from task.utils.gen_resource import GenResource
 from django.http import JsonResponse, HttpResponse
 from task.models import *
 from assets.models import ServerAssets
-from Ops import settings
+from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from utils.decorators import admin_auth
 

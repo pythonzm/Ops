@@ -11,7 +11,7 @@
 -------------------------------------------------
 """
 import json
-from Ops import settings
+from django.conf import settings
 from task.tasks import playbook_record
 from task.models import AnsiblePlaybook
 from users.models import UserProfile

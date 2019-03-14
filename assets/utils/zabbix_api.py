@@ -14,7 +14,7 @@ import requests
 import json
 import uuid
 import os
-from Ops import settings
+from django.conf import settings
 
 
 class ZabbixApi(object):

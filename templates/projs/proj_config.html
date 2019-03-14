@@ -17,6 +17,10 @@
         .box-title {
             color: #00c0ef;
         }
+
+        .tooltip-inner {
+            max-width: 100% !important;
+        }
     </style>
 {% endblock %}
 
@@ -52,9 +56,11 @@
 
                         <div class="form-group" id="svn_auth" style="display: none">
                             <label for="repo" style="display: block">SVN账号密码</label>
-                            <input type="text" class="form-control" id="repo_user" name="repo_user" placeholder="输入SVN账号"
+                            <input type="text" class="form-control" id="repo_user" name="repo_user"
+                                   placeholder="输入SVN账号"
                                    style="display: inline-block; width: 49%">
-                            <input type="password" class="form-control" id="repo_password" name="repo_password" placeholder="输入SVN密码"
+                            <input type="password" class="form-control" id="repo_password" name="repo_password"
+                                   placeholder="输入SVN密码"
                                    style="display: inline-block; width: 49%; float: right">
                         </div>
                         <!-- /.form-group -->
@@ -189,7 +195,7 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="post_deploy">代码检出后任务&nbsp;<span data-toggle="tooltip" title="如编译、清除文件等">
+                            <label for="post_deploy">代码检出后任务&nbsp;<span data-toggle="tooltip" title="如编译、清除文件等;测试环境代码目录在 检出目录/项目名称/test,仿真环境在检出目录/项目名称/fz,正式环境在检出目录/项目名称/prod">
                             <i class="fa fa-exclamation-circle"></i></span></label>
                             <div id="post_deploy" name="post_deploy"></div>
                         </div>
@@ -266,7 +272,6 @@
         // 添加项目配置
         $('.add-conf').on('click', function () {
             let data = $('#project_config').serializeJson();
-            console.log(data)
             let v = get_editor_value(editors);
             Object.assign(data, v);
 

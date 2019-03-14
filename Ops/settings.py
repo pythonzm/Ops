@@ -219,3 +219,10 @@ ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')
 
 GUACD_HOST = '10.1.19.10'
 GUACD_PORT = 4822
+
+# email配置
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'zm_world@163.com'
+EMAIL_HOST_PASSWORD = 'zhang123'
+DEFAULT_FROM_EMAIL = 'zm_world@163.com'

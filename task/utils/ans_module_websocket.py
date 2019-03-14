@@ -11,7 +11,7 @@
 -------------------------------------------------
 """
 import json
-from Ops import settings
+from django.conf import settings
 from assets.models import ServerAssets
 from task.tasks import module_record
 from users.models import UserProfile

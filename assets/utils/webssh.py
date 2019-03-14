@@ -8,7 +8,7 @@ from socket import timeout
 from assets.tasks import admin_file
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets, AdminRecord
-from Ops import settings
+from django.conf import settings
 from utils.crypt_pwd import CryptPwd
 
 

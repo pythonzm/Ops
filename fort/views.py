@@ -10,7 +10,7 @@ from users.models import UserProfile
 from task.utils.gen_resource import GenResource
 from task.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.decorators import permission_required
-from Ops import settings
+from django.conf import settings
 from utils.sftp import SFTP
 from utils.decorators import admin_auth
 

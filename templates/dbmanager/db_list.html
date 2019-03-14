@@ -56,11 +56,11 @@
                         {% for db in dbs %}
                             <tr>
                                 <td><span class="badge bg-blue">{{ db.db_server.project.project_name }}</span>|
-                                    {% if db.db_server.project.project_env == 0 %}
+                                    {% if db.db_server.project.project_env == 'test' %}
                                         <span class="badge bg-green">{{ db.db_server.project.get_project_env_display }}</span>
-                                    {% elif db.db_server.project.project_env == 1 %}
+                                    {% elif db.db_server.project.project_env == 'fz' %}
                                         <span class="badge bg-yellow">{{ db.db_server.project.get_project_env_display }}</span>
-                                    {% elif db.db_server.project.project_env == 2 %}
+                                    {% elif db.db_server.project.project_env == 'prod' %}
                                         <span class="badge bg-red">{{ db.db_server.project.get_project_env_display }}</span>
                                     {% endif %}
                                 </td>

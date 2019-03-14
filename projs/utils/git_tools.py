@@ -84,13 +84,22 @@ class GitTools:
         _git = self.__git
         _git.checkout(name)
 
-    def get_commits(self, name, max_count=None):
+    def get_commits(self, name, versions, mode='deploy', max_count=None):
         """获取指定分支的提交记录"""
         if name != 'master':
             self.checkout(name)
         commits = []
-        for i in self.repo.iter_commits(name, max_count=max_count):
-            commits.append({'message': i.message.rstrip('\n'), 'commit_id': i.hexsha, 'committer': i.committer.name})
+
+        if mode == 'deploy':
+            for i in self.repo.iter_commits(name, max_count=max_count):
+                if i.hexsha not in versions:
+                    commits.append(
+                        {'message': i.message.rstrip('\n'), 'commit_id': i.hexsha, 'committer': i.committer.name})
+        elif mode == 'rollback':
+            for i in self.repo.iter_commits(name, max_count=max_count):
+                if i.hexsha in versions:
+                    commits.append(
+                        {'message': i.message.rstrip('\n'), 'commit_id': i.hexsha, 'committer': i.committer.name})
         return commits
 
     def get_commit_msg(self, branch, commit):

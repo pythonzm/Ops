@@ -86,9 +86,11 @@ def deploy(request, pk):
                 elif key == 'commit':
                     try:
                         branch = request.GET.get('branch')
+                        mode = request.GET.get('mode')
                         if request.GET.get('new_commit'):
                             git_tool.pull(branch)
-                        commits = git_tool.get_commits(branch, max_count=20)
+                        commits = git_tool.get_commits(branch, versions=config.versions.split(','), mode=mode,
+                                                       max_count=20)
                         return JsonResponse({'code': 200, 'data': commits, 'msg': '获取成功！'})
                     except Exception as e:
                         return JsonResponse({'code': 500, 'msg': '获取失败：{}'.format(e)})
@@ -119,11 +121,13 @@ def deploy(request, pk):
                         return JsonResponse({'code': 500, 'msg': '获取失败：{}'.format(e)})
                 elif key == 'commit':
                     branch = request.GET.get('branch')
+                    mode = request.GET.get('mode')
                     try:
                         if branch == 'trunk':
-                            commits = svn_tool.get_remote_commits(limit=30)
+                            commits = svn_tool.get_commits(versions=config.versions.split(','), mode=mode, limit=30)
                         else:
-                            commits = svn_tool.get_remote_commits('branch', model_name=branch, limit=30)
+                            commits = svn_tool.get_commits(versions=config.versions.split(','), repo_model='branch',
+                                                           model_name=branch, mode=mode, limit=30)
                         return JsonResponse({'code': 200, 'data': commits, 'msg': '获取成功！'})
                     except Exception as e:
                         return JsonResponse({'code': 500, 'msg': '获取失败：{}'.format(e)})
