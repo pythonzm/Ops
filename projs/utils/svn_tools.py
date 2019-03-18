@@ -67,19 +67,21 @@ class SVNTools:
         branches = [branch.rstrip('/') for branch in branch_list]
         return branches
 
-    @property
-    def tags(self):
+    def tags(self, versions, mode='deploy'):
+        tags= None
         tag_list = self.__remote_repo.list(rel_path='tags')
-        tags = [tag.rstrip('/') for tag in tag_list]
+        if mode == 'deploy':
+            tags = [tag.rstrip('/') for tag in tag_list if tag.rstrip('/') not in versions]
+        elif mode == 'rollback':
+            tags = [tag.rstrip('/') for tag in tag_list if tag.rstrip('/') in versions]
         return tags
 
     def remote_repo(self, url):
         return remote.RemoteClient(url, username=self.__username, password=self.__password)
 
-    @staticmethod
-    def run_cmd(cmds):
+    def run_cmd(self, cmds):
         """以子shell执行命令"""
-        c = ''
+        c = 'cd {} && '.format(self.proj_path)
         for cmd in cmds.split('\n'):
             if cmd.startswith('#'):
                 continue

@@ -73,10 +73,13 @@ class GitTools:
         branch_list = [i.name for i in self.repo.heads]
         return branch_list
 
-    @property
-    def tags(self):
+    def tags(self, versions, mode='deploy'):
         """获取所有tag"""
-        tag_list = [i.name for i in self.repo.tags]
+        tag_list = None
+        if mode == 'deploy':
+            tag_list = [i.name for i in self.repo.tags if i.name not in versions]
+        elif mode == 'rollback':
+            tag_list = [i.name for i in self.repo.tags if i.name in versions]
         return tag_list
 
     def checkout(self, name):
@@ -114,10 +117,9 @@ class GitTools:
         _git = self.__git
         _git.pull(self.remote_name, name)
 
-    @staticmethod
-    def run_cmd(cmds):
+    def run_cmd(self, cmds):
         """以子shell执行命令"""
-        c = ''
+        c = 'cd {} && '.format(self.proj_path)
         for cmd in cmds.split('\n'):
             if cmd.startswith('#'):
                 continue

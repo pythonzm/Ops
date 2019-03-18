@@ -128,17 +128,18 @@
         $(function () {
             // Initialize Select2 Elements
             $('.select2').select2();
-            $('[data-toggle="tooltip"]').tooltip();
             Pace.options.ajax.trackWebSockets = false;
 
             {% if mode == 'rollback' and config.repo == 'git' %}
                 $('.fresh, .commit').off('click').css({'cursor': 'auto'});
+            {% else %}
+                $('[data-toggle="tooltip"]').tooltip();
             {% endif %}
         });
 
         // 获取branch或tag
         $('.fresh').on('click', function () {
-            $.get("{% url 'deploy' pk %}", {key: "model"}, function (res) {
+            $.get("{% url 'deploy' pk %}", {key: "model", mode: "{{ mode }}"}, function (res) {
                 if (res.code === 200) {
                     let repo_model = $('#repo_model');
                     repo_model.empty();
@@ -165,8 +166,7 @@
         // 获取远程仓库最新的commits
         $('.commit').on('click', function () {
             let branch = $('#repo_model').val();
-            let ajax_data = {key: "commit", branch: branch, new_commit: true, mode: ''};
-            ajax_data.mode = ("{{ mode }}" === "rollback") ? "rollback" : "deploy";
+            let ajax_data = {key: "commit", branch: branch, new_commit: true, mode: "{{ mode }}"};
 
             $.get("{% url 'deploy' pk %}", ajax_data, function (res) {
                 let repo_release = $('#repo_release');
@@ -188,8 +188,7 @@
         $('#repo_model').on('change', function () {
             {% if config.repo_model == 'branch' and config.repo == 'git' %}
                 let branch = $(this).val();
-                let ajax_data = {key: "commit", branch: branch, mode: ''};
-                ajax_data.mode = ("{{ mode }}" === "rollback") ? "rollback" : "deploy";
+                let ajax_data = {key: "commit", branch: branch, mode: "{{ mode }}"};
 
                 $.get("{% url 'deploy' pk %}", ajax_data, function (res) {
                     let repo_release = $('#repo_release');

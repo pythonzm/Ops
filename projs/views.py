@@ -69,6 +69,7 @@ def deploy(request, pk):
     config = ProjectConfig.objects.select_related('project').get(id=pk)
     if request.method == 'GET':
         key = request.GET.get('key', None)
+        mode = request.GET.get('mode', 'deploy')
         if config.repo == 'git':
             git_tool = GitTools(repo_url=config.repo_url, path=config.src_dir, env=config.project.project_env)
             if key:
@@ -79,7 +80,7 @@ def deploy(request, pk):
                             branches = git_tool.remote_branches
                             return JsonResponse({'code': 200, 'models': branches, 'msg': '获取成功！'})
                         elif config.repo_model == 'tag':
-                            tags = git_tool.tags
+                            tags = git_tool.tags(versions=config.versions.split(','), mode=mode)
                             return JsonResponse({'code': 200, 'models': tags, 'msg': '获取成功！'})
                     except Exception as e:
                         return JsonResponse({'code': 500, 'msg': '获取失败：{}'.format(e)})
@@ -97,13 +98,8 @@ def deploy(request, pk):
             else:
                 if os.path.exists(git_tool.proj_path):
                     local_branches = git_tool.local_branches
-                    local_tags = git_tool.tags
-                mode = request.GET.get('mode', None)
-                if mode:
-                    return render(request, 'projs/deploy.html', locals())
-                else:
-                    mode = 'deploy'
-                    return render(request, 'projs/deploy.html', locals())
+                    local_tags = tags = git_tool.tags(versions=config.versions.split(','), mode=mode)
+                return render(request, 'projs/deploy.html', locals())
 
         elif config.repo == 'svn':
             svn_tool = SVNTools(repo_url=config.repo_url, path=config.src_dir, env=config.project.project_env,
@@ -115,13 +111,12 @@ def deploy(request, pk):
                             branches = svn_tool.branches
                             return JsonResponse({'code': 200, 'models': branches, 'msg': '获取成功！'})
                         elif config.repo_model == 'tag':
-                            tags = svn_tool.tags
+                            tags = svn_tool.tags(versions=config.versions.split(','), mode=mode)
                             return JsonResponse({'code': 200, 'models': tags, 'msg': '获取成功！'})
                     except Exception as e:
                         return JsonResponse({'code': 500, 'msg': '获取失败：{}'.format(e)})
                 elif key == 'commit':
                     branch = request.GET.get('branch')
-                    mode = request.GET.get('mode')
                     try:
                         if branch == 'trunk':
                             commits = svn_tool.get_commits(versions=config.versions.split(','), mode=mode, limit=30)
@@ -132,12 +127,7 @@ def deploy(request, pk):
                     except Exception as e:
                         return JsonResponse({'code': 500, 'msg': '获取失败：{}'.format(e)})
             else:
-                mode = request.GET.get('mode', None)
-                if mode is not None:
-                    return render(request, 'projs/deploy.html', locals())
-                else:
-                    mode = 'deploy'
-                    return render(request, 'projs/deploy.html', locals())
+                return render(request, 'projs/deploy.html', locals())
 
     elif request.method == 'POST':
         commit = request.POST.get('commit')

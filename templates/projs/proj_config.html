@@ -3,6 +3,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
     <style>
         #prev_deploy, #post_deploy, #prev_release, #post_release {
@@ -16,10 +17,6 @@
 
         .box-title {
             color: #00c0ef;
-        }
-
-        .tooltip-inner {
-            max-width: 100% !important;
         }
     </style>
 {% endblock %}
@@ -195,8 +192,9 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="post_deploy">代码检出后任务&nbsp;<span data-toggle="tooltip" title="如编译、清除文件等;测试环境代码目录在 检出目录/项目名称/test,仿真环境在检出目录/项目名称/fz,正式环境在检出目录/项目名称/prod">
+                            <label for="post_deploy">代码检出后任务&nbsp;<span data-toggle="tooltip" title="如编译、清除文件等">
                             <i class="fa fa-exclamation-circle"></i></span></label>
+                            <span class="text-red">系统默认会切换到代码路径，所以无需再手工切换目录</span>
                             <div id="post_deploy" name="post_deploy"></div>
                         </div>
 
@@ -205,6 +203,45 @@
                                                                        title="在目标服务器新版本服务切换后的操作，如删除缓存、启动服务等">
                             <i class="fa fa-exclamation-circle"></i></span></label>
                             <div id="post_release" name="post_release"></div>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">部署通知</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="cursor: pointer">
+                                <input type="checkbox" class="minimal" id="wx_notice">&nbsp;&nbsp;&nbsp;微信通知
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="cursor: pointer">
+                                <input type="checkbox" class="minimal" id="mail_notice">&nbsp;&nbsp;&nbsp;邮箱通知
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" id="mail_info" style="display: none">
+                        <div class="form-group">
+                            <label for="exclude">收件人</label>
+                            <textarea class="form-control" rows="2" id="to_mail" name="to_mail"
+                                      placeholder="多个邮箱用英文逗号隔开"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="exclude">抄送人</label>
+                            <textarea class="form-control" rows="2" id="cc_mail" name="cc_mail"
+                                      placeholder="多个邮箱用英文逗号隔开"></textarea>
                         </div>
                     </div>
                     <!-- /.col -->
@@ -227,6 +264,7 @@
     <script src="{% static 'ace/js/mode-sh.js' %}"></script>
     <script src="{% static 'ace/js/theme-tomorrow.js' %}"></script>
     <script src="{% static 'ace/js/ext-language_tools.js' %}"></script>
+    <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 
     <script>
@@ -239,7 +277,11 @@
                 allowClear: true
             });
 
-            init_editor(editors)
+            init_editor(editors);
+
+            $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+                checkboxClass: 'icheckbox_minimal-blue',
+            })
         });
 
         function init_editor(elements) {
@@ -255,6 +297,15 @@
                 })
             }
         }
+
+        $('#mail_notice').on('ifChecked', function () {
+            $('#mail_info').css('display', 'block');
+            $('#to_mail').attr('name', 'to_mail');
+            $('#cc_mail').attr('name', 'cc_mail');
+        }).on('ifUnchecked', function () {
+            $('#mail_info').css('display', 'none');
+            $('#to_mail, #cc_mail').removeAttr('name')
+        });
 
         $('#repo').on('change', function () {
             let repo = $(this).val();
@@ -273,7 +324,11 @@
         $('.add-conf').on('click', function () {
             let data = $('#project_config').serializeJson();
             let v = get_editor_value(editors);
-            Object.assign(data, v);
+            $.extend(data, v, {wx_notice: false});
+
+            let a = $('#wx_notice').is(':checked');
+            data.wx_notice = !!a;
+
 
             $.ajax({
                 url: '/api/project_config/',
@@ -296,6 +351,7 @@
                     })
                 }
             })
+
         });
 
         function get_editor_value(elements) {

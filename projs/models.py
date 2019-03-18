@@ -51,6 +51,9 @@ class ProjectConfig(models.Model):
     prev_release = models.TextField(blank=True, verbose_name='切换版本前操作', default='')
     post_release = models.TextField(blank=True, verbose_name='切换版本后操作', default='')
     versions = models.TextField(blank=True, verbose_name='存储部署过的版本', default='')
+    wx_notice = models.BooleanField(blank=True, verbose_name='是否开启微信通知', default=False)
+    to_mail = models.TextField(blank=True, default='', verbose_name='收件人邮箱')
+    cc_mail = models.TextField(blank=True, default='', verbose_name='抄送人邮箱')
 
     class Meta:
         db_table = 'ops_project_config'

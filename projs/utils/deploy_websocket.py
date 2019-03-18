@@ -2,6 +2,7 @@ import os
 import json
 from django.conf import settings
 from projs.tasks import deploy_log
+from conf.logger import deploy_logger
 from projs.models import ProjectConfig
 from utils.db.redis_ops import RedisOps
 from projs.utils.git_tools import GitTools
@@ -9,7 +10,7 @@ from projs.utils.svn_tools import SVNTools
 from ansible.plugins.callback import CallbackBase
 from task.utils import ansible_api_v2, gen_resource
 from channels.generic.websocket import WebsocketConsumer
-from projs.utils.deploy_notice import deploy_mail
+from projs.utils.deploy_notice import deploy_mail, deploy_wx
 
 
 class DeployConsumer(WebsocketConsumer):
@@ -18,6 +19,7 @@ class DeployConsumer(WebsocketConsumer):
         super(DeployConsumer, self).__init__(*args, **kwargs)
         self.redis_instance = RedisOps(settings.REDIS_HOST, settings.REDIS_PORT, 5)
         self.deploy_results = []
+        self.host_fail = []
         self.config = None
         self.d_type = None
         self.release_name = None
@@ -89,13 +91,33 @@ class DeployConsumer(WebsocketConsumer):
             self.redis_instance.delete(unique_key)
 
     def disconnect(self, close_code):
-        deploy_mail()
-        if '<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>' in self.deploy_results:
-            self.deploy_results = self.deploy_results[
-                                  :self.deploy_results.index('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>') + 1]
-        deploy_log.delay(project_config=self.config, deploy_user=self.scope['user'], d_type=self.d_type,
-                         branch_tag=self.branch_tag, release_name=self.release_name, release_desc=self.release_desc,
-                         result=self.deploy_results)
+        branch_tag = self.config.repo_model if self.release_name == self.release_desc else self.branch_tag
+        try:
+            if len(self.host_list) == 0:
+                status = '所有主机均部署失败，主机：{}'.format(', '.join(self.host_list))
+            elif len(self.host_fail) == 0:
+                status = '所有主机均部署成功，主机：{}'.format(', '.join(self.host_list))
+            else:
+                status = '主机：{} 部署成功；主机：{} 部署失败'.format(', '.join(self.host_list), ', '.join(self.host_fail))
+
+            d_type = '回滚' if self.d_type == 'rollback' else '部署'
+            paras = (self.config.project.project_name, self.config.project.get_project_env_display(), d_type,
+                     branch_tag, self.release_name, self.scope['user'].username, status)
+
+            if self.config.to_mail:
+                deploy_mail(self.config.to_mail, self.config.cc_mail, *paras)
+            if self.config.wx_notice:
+                deploy_wx(*paras)
+        except Exception as e:
+            deploy_logger.error('部署通知操作失败！{}'.format(e))
+        finally:
+            if '<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>' in self.deploy_results:
+                self.deploy_results = self.deploy_results[
+                                      :self.deploy_results.index('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>') + 1]
+
+            deploy_log.delay(project_config=self.config, deploy_user=self.scope['user'], d_type=self.d_type,
+                             branch_tag=branch_tag, release_name=self.release_name, release_desc=self.release_desc,
+                             result=self.deploy_results)
 
     def deploy(self, rollback, timeline_header, cmd_detail, timeline_body_green, timeline_body_red, ans, info, tool,
                repo='git', commit=None):
@@ -293,6 +315,7 @@ class DeployResultsCollector(CallbackBase):
     def chk_host_list(self, data, host):
         self.sock.send_save(data, send=self.send_msg)
         self.sock.host_list.remove(host)
+        self.sock.host_fail.append(host)
         if len(self.sock.host_list) == 0:
             self.sock.send('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>', close=True)
             self.sock.deploy_results.append('<p style="color: #FF0000">所有主机均部署失败！退出部署流程！</p>')
