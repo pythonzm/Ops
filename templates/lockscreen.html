@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>巨人运维系统 | Lockscreen</title>
+    <title>OPS运维系统 | Lockscreen</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
@@ -33,7 +33,7 @@
 <!-- Automatic element centering -->
 <div class="lockscreen-wrapper">
     <div class="lockscreen-logo">
-        <a href="javascript:void(0)"><b>巨人</b>运维管理系统</a>
+        <a href="javascript:void(0)"><b>OPS</b>运维管理系统</a>
     </div>
     <!-- User name -->
     <div class="lockscreen-name">{{ user.username }}</div>
@@ -47,13 +47,13 @@
         <!-- /.lockscreen-image -->
 
         <!-- lockscreen credentials (contains the form) -->
-        <form class="lockscreen-credentials" action="{% url 'lock_screen' %}" method="post">
+        <form class="lockscreen-credentials" action="{% url 'lock_screen' %}" method="post" id="lock_form">
             {% csrf_token %}
             <div class="input-group">
-                <input type="password" class="form-control" placeholder="password" name="pwd">
+                <input type="password" class="form-control pwd" placeholder="password" name="pwd">
 
                 <div class="input-group-btn">
-                    <button type="button" class="btn"><i class="fa fa-arrow-right text-muted"></i></button>
+                    <button type="submit" class="btn sub"><i class="fa fa-arrow-right text-muted"></i></button>
                 </div>
             </div>
         </form>
@@ -72,7 +72,7 @@
         <a href="{% url 'login' %}">使用另一个用户登录</a>
     </div>
     <div class="lockscreen-footer text-center">
-        Copyright &copy; 2014-2018 <b><a href="https://www.juren.com" class="text-black">巨人</a></b><br>
+        Copyright &copy; 2014-2018 <b><a href="javascript:void(0)" class="text-black">OPS</a></b><br>
         All rights reserved
     </div>
 </div>
@@ -82,13 +82,37 @@
 <script src="{% static 'AdminLTE/bower_components/jquery/dist/jquery.min.js' %}"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jsencrypt.min.js' %}"></script>
 
 <script language="javascript">
+    $(function () {
+        $('.sub').on('click', function () {
+            let pwd = $('.pwd');
+            let en_pwd = encry_pwd(pwd.val());
+            console.log(en_pwd);
+            pwd.val(en_pwd);
+            $('#lock_form').submit()
+        });
+    });
+
     //防止页面后退
     history.pushState(null, null, document.URL);
     window.addEventListener('popstate', function () {
         history.pushState(null, null, document.URL);
     });
+
+    function encry_pwd(pwd) {
+        let crypt = new JSEncrypt();
+        crypt.setKey("-----BEGIN PUBLIC KEY-----\n" +
+            "MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGhvDNv1H/3EGeNcS+ju3Ytx7QlW\n" +
+            "tvUi3KqV5U73md9G4Gyw+izQuvYYnZ/rDZrHocLB2fVcSZKKj8vNxkkpNqv00OJC\n" +
+            "GbwzGcOtXOpsRpiY2qhd0kvRwglnN84h9kWq8C6oMe/eWwZkpsCQJMmtiHeHdzSU\n" +
+            "xHkf4mpwxUfVDqF5AgMBAAE=\n" +
+            "-----END PUBLIC KEY-----");
+
+        // Encrypt the data with the public key.
+        return crypt.encrypt(pwd)
+    }
 </script>
 
 </body>

@@ -129,23 +129,6 @@ def deploy(request, pk):
             else:
                 return render(request, 'projs/deploy.html', locals())
 
-    elif request.method == 'POST':
-        commit = request.POST.get('commit')
-        mode = request.POST.get('mode')
-        version = commit if commit else request.POST.get('branch_tag')
-        db_versions = config.versions.split(',')
-
-        if mode == 'rollback':
-            if version in db_versions:
-                return JsonResponse({'code': 200, 'msg': '查询版本存在，可以执行回滚操作！'})
-            else:
-                return JsonResponse({'code': 403, 'msg': '查询版本不存在，无法执行回滚操作，请使用部署功能进行部署'})
-        elif mode == 'deploy':
-            if version not in db_versions:
-                return JsonResponse({'code': 200, 'msg': '查询版本不存在，可以执行部署操作！'})
-            else:
-                return JsonResponse({'code': 403, 'msg': '查询版本已存在，请使用回滚功能进行回滚操作'})
-
 
 @admin_auth
 def deploy_log(request):

@@ -10,15 +10,16 @@
                     2018/5/24:
 -------------------------------------------------
 """
-
-from Cryptodome.Cipher import AES
 import base64
+from Cryptodome.PublicKey import RSA
+from Cryptodome.Cipher import AES, PKCS1_v1_5
 
 
 class CryptPwd:
     """
     用于加密和解密密码,
     """
+
     def __init__(self):
         self.key = "juren"
         self.mode = AES.MODE_ECB
@@ -61,3 +62,36 @@ class CryptPwd:
         decrypt_base64 = base64.b64decode(encrypted_pwd.encode('utf-8'))
         decrypt_pwd = str(aes.decrypt(decrypt_base64), encoding='utf-8')
         return decrypt_pwd.rstrip()
+
+    @staticmethod
+    def de_js_encrypt(en_pwd):
+        """
+        解密通过jsencrypt.js文件加密的密码
+        :param en_pwd:
+        :return:
+        """
+
+        key = """-----BEGIN RSA PRIVATE KEY-----
+MIICWwIBAAKBgGhvDNv1H/3EGeNcS+ju3Ytx7QlWtvUi3KqV5U73md9G4Gyw+izQ
+uvYYnZ/rDZrHocLB2fVcSZKKj8vNxkkpNqv00OJCGbwzGcOtXOpsRpiY2qhd0kvR
+wglnN84h9kWq8C6oMe/eWwZkpsCQJMmtiHeHdzSUxHkf4mpwxUfVDqF5AgMBAAEC
+gYBKjjUs9qN/JDejJCohQh4xxgSGLTzyZpAIzHhnVsaoKs5faj1AL0e6Fzq4hzMw
+M6LdCk2TJ+5ySq97vQz5AA5B5nf0y4zokCwYn5vdFVVtZeyiVeY0LYSpEvBS0xHY
+G3SJWLjMEtql2k1xJ8/1jvFkMx5SJKzruFFTvkRKn4bRAQJBANAuL2HZDjgcqgeF
+M7pQOKR+MxJzkN0hWBap1yJ5HQnUPqsEyBD3/BIcffCk2rQkfxnMT7gbnbiWVUd7
+/Ioh+FkCQQCAbClrx7wQW26JMjRqSBVyHWm1RoYDi0/USs7B9mct2KNGkPVr8dAB
+nm/glt5Rs9ay2QHbI103TjSPP938xs4hAkB6oup4utQcjA5B1d8uH3nutQVDFl89
+VRo+Z5j7jttjYev09SEileOhi7VJIORRgLp7KRfBPkuAZNciAFE50l8pAkBYE9bE
+yRQ+07aX+grg6ddrkKizX08Cl0WFAFmVxf02AGLbPwhTpGFY+uUYT+DigEk8GIGh
+XjvMdqKtrMv/VgqBAkEAjqQqCyiK1R9INladDpt8PjAJZecr1PLVdulyzlHvMm2l
+CHd72qhDwZUKVQck56xLGpPVPBGyyMl+cjRhZ+mnIQ==
+-----END RSA PRIVATE KEY-----"""
+
+        rsakey = RSA.importKey(key)  # 导入私钥
+        cipher = PKCS1_v1_5.new(rsakey)  # 生成对象
+        missing_padding = len(en_pwd) % 4
+        if missing_padding:
+            en_pwd += b'=' * (4 - missing_padding)
+        text = cipher.decrypt(base64.b64decode(en_pwd.encode('utf-8')), "ERROR")  # 将密文解密成明文，返回的是一个bytes类型数据，需要自己转换成str
+
+        return text.decode('utf-8')

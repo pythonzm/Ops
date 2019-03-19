@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import random
 from django.contrib import auth
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
@@ -8,6 +9,7 @@ from users.models import UserProfile
 from projs.models import Project
 from fort.models import FortServer
 from utils.gen_random_code import generate
+from utils.crypt_pwd import CryptPwd
 from io import BytesIO
 from plan.tasks import get_login_info
 
@@ -35,6 +37,7 @@ def gen_code_img(request):
 
 def login(request):
     next_url = request.GET.get('next', None)
+    crypt = CryptPwd()
     if request.method == 'GET':
         if request.session.get('username') and request.session.get('lock'):
             del request.session['lock']
@@ -43,12 +46,13 @@ def login(request):
     elif request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        de_password = crypt.de_js_encrypt(password)
         login_ip = request.META.get('REMOTE_ADDR')
         # code = request.POST.get('code')
         remember_me = request.POST.get('remember_me')
         # if code.lower() != request.session.get('check_code', 'error').lower():
         #     return render(request, 'login.html', {"login_error_info": "验证码错误,请重新输入！"})
-        user = auth.authenticate(username=username, password=password)
+        user = auth.authenticate(username=username, password=de_password)
         if user and user.is_active:
             auth.login(request, user)
             request.session['username'] = username
@@ -95,7 +99,8 @@ def lock_screen(request):
             request.session['referer_url'] = request.META.get('HTTP_REFERER')
         return render(request, 'lockscreen.html', locals())
     elif request.method == 'POST':
-        user = auth.authenticate(username=request.session['username'], password=request.POST.get('pwd'))
+        de_password = CryptPwd().de_js_encrypt(request.POST.get('pwd'))
+        user = auth.authenticate(username=request.session['username'], password=de_password)
         if user:
             del request.session['lock']
             referer_url = request.session.get('referer_url')

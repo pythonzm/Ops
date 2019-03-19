@@ -46,14 +46,14 @@
             {% endif %}
         </p>
 
-        <form role="form" method="post">
+        <form role="form" method="post" id="login_form">
             {% csrf_token %}
             <div class="form-group has-feedback">
                 <input type="text" class="form-control" placeholder="用户名称" name="username">
                 <span class="glyphicon glyphicon-user form-control-feedback"></span>
             </div>
             <div class="form-group has-feedback">
-                <input type="password" class="form-control" placeholder="用户密码" name="password">
+                <input type="password" class="form-control pwd" placeholder="用户密码" name="password">
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
             </div>
             <div class="row">
@@ -66,7 +66,7 @@
                 </div>
                 <!-- /.col -->
                 <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">登录</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat sub">登录</button>
                 </div>
                 <!-- /.col -->
             </div>
@@ -83,6 +83,7 @@
 <script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
 <!-- iCheck -->
 <script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
+<script src="{% static 'js/jsencrypt.min.js' %}"></script>
 <script>
     $(function () {
         $('input').iCheck({
@@ -90,12 +91,33 @@
             radioClass: 'iradio_square-blue',
             increaseArea: '20%' /* optional */
         });
+
+        $('.sub').on('click', function () {
+            let pwd = $('.pwd');
+            let en_pwd = encry_pwd(pwd.val());
+            pwd.val(en_pwd);
+            $('#login_form').submit()
+        });
     });
+
     //防止页面后退
     history.pushState(null, null, document.URL);
     window.addEventListener('popstate', function () {
         history.pushState(null, null, document.URL);
     });
+
+    function encry_pwd(pwd) {
+        let crypt = new JSEncrypt();
+        crypt.setKey("-----BEGIN PUBLIC KEY-----\n" +
+            "MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGhvDNv1H/3EGeNcS+ju3Ytx7QlW\n" +
+            "tvUi3KqV5U73md9G4Gyw+izQuvYYnZ/rDZrHocLB2fVcSZKKj8vNxkkpNqv00OJC\n" +
+            "GbwzGcOtXOpsRpiY2qhd0kvRwglnN84h9kWq8C6oMe/eWwZkpsCQJMmtiHeHdzSU\n" +
+            "xHkf4mpwxUfVDqF5AgMBAAE=\n" +
+            "-----END PUBLIC KEY-----");
+
+        // Encrypt the data with the public key.
+        return crypt.encrypt(pwd)
+    }
 </script>
 </body>
 </html>
