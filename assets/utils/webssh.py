@@ -3,13 +3,13 @@ import paramiko
 import threading
 import time
 import os
-import logging
 from socket import timeout
 from assets.tasks import admin_file
 from channels.generic.websocket import WebsocketConsumer
 from assets.models import ServerAssets, AdminRecord
 from django.conf import settings
 from utils.crypt_pwd import CryptPwd
+from conf.logger import fort_logger
 
 
 class MyThread(threading.Thread):
@@ -81,7 +81,7 @@ class MyThread(threading.Thread):
                 admin_record_file=record_file_path.split('media/')[1]
             )
         except Exception as e:
-            logging.getLogger().error('数据库添加用户操作记录失败，原因：{}'.format(e))
+            fort_logger.error('数据库添加用户操作记录失败，原因：{}'.format(e))
 
 
 class SSHConsumer(WebsocketConsumer):
@@ -107,7 +107,7 @@ class SSHConsumer(WebsocketConsumer):
             self.ssh.connect(self.host_ip, int(self.server.port), username,
                              CryptPwd().decrypt_pwd(self.server.password), timeout=5)
         except Exception as e:
-            logging.getLogger().error('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
+            fort_logger.error('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
             self.send('用户{}通过webssh连接{}失败！原因：{}'.format(username, self.host_ip, e))
             self.close()
         self.chan = self.ssh.invoke_shell(term='xterm', width=self.width, height=self.height)

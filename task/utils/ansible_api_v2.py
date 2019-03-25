@@ -31,7 +31,7 @@ class ModuleResultsCollector(CallbackBase):
     直接执行模块命令的回调类
     """
 
-    def __init__(self, sock, *args, **kwargs):
+    def __init__(self, sock=None, *args, **kwargs):
         super(ModuleResultsCollector, self).__init__(*args, **kwargs)
         self.module_results = []
         self.sock = sock
@@ -47,7 +47,8 @@ class ModuleResultsCollector(CallbackBase):
                 stdout=json.dumps(
                     result._result,
                     indent=4))
-        self.sock.send(data)
+        if self.sock:
+            self.sock.send(data)
         self.module_results.append(data)
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
@@ -71,7 +72,8 @@ class ModuleResultsCollector(CallbackBase):
                 stdout=json.dumps(
                     result._result,
                     indent=4))
-        self.sock.send(data)
+        if self.sock:
+            self.sock.send(data)
         self.module_results.append(data)
 
     def v2_runner_on_failed(self, result, *args, **kwargs):
@@ -89,7 +91,8 @@ class ModuleResultsCollector(CallbackBase):
                 stdout=json.dumps(
                     result._result,
                     indent=4))
-        self.sock.send(data)
+        if self.sock:
+            self.sock.send(data)
         self.module_results.append(data)
 
 
@@ -269,7 +272,7 @@ class ANSRunner(object):
         run module from ansible ad-hoc.
         """
         self.callback = DeployResultsCollector(self.sock, send_msg=send_msg) if deploy else ModuleResultsCollector(
-            self.sock)
+            sock=self.sock)
 
         play_source = dict(
             name="Ansible Play",

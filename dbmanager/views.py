@@ -85,9 +85,15 @@ def db_exec(request):
                 user_dbs.append(db)
         return render(request, 'dbmanager/db_exec.html', {'user_dbs': user_dbs})
     elif request.method == 'POST':
-        sql = request.POST.get('sql')
         pk = request.POST.get('pk')
+        sql = request.POST.get('sql')
         sql_type = request.POST.get('sql_type')
+        sql_file = request.FILES.get('upload_file')
+        if sql_file:
+            sql = ''.join({chunk.decode('utf-8') for chunk in sql_file.chunks(chunk_size=1024)})
+            sql_file.close()
+            return JsonResponse({'code': 200, 'data': sql, 'msg': 'sql上传成功！'})
+
         db = DBConfig.objects.select_related('db_server').get(id=pk)
         try:
             conn = MysqlPool(db.db_server.service_asset.asset_management_ip, db.db_port, db.db_user,
@@ -97,16 +103,22 @@ def db_exec(request):
                 return JsonResponse({'code': 200, 'data': res, 'msg': 'sql执行成功！'})
             elif sql_type == 'select':
                 table_heads, res = conn.exec_select(sql)
-                db_log_id = sql_log(db_config=db, db_login_user=request.user, db_sql_content=sql, db_sql_res=res,
-                                    db_sql_res_thead=table_heads)
-                return JsonResponse(
-                    {'code': 200, 'table_heads': table_heads, 'data': res, 'db_log_id': db_log_id, 'msg': 'sql执行成功！'})
+
+                if isinstance(table_heads, list):
+                    db_log_id = sql_log(db_config=db, db_login_user=request.user, db_sql_content=sql, db_sql_res=res,
+                                        db_sql_res_thead=str(table_heads))
+                    return JsonResponse({'code': 200, 'table_heads': table_heads, 'data': res, 'db_log_id': db_log_id,
+                                         'msg': 'sql执行成功！'})
+                else:
+                    db_log_id = sql_log(db_config=db, db_login_user=request.user, db_sql_content=sql, db_sql_res=res)
+                    return JsonResponse({'code': 507, 'data': res, 'db_log_id': db_log_id, 'msg': 'sql执行失败！'})
             elif sql_type == 'sql-one':
                 res = conn.exec_sql_one(sql)
+                db_sql_res = '受影响的行数: {}'.format(res) if isinstance(res, int) else str(res)
                 db_log_id = sql_log(db_config=db, db_login_user=request.user, db_sql_content=sql,
-                                    db_sql_res='受影响的行数: {}'.format(res))
+                                    db_sql_res=db_sql_res)
                 return JsonResponse(
-                    {'code': 200, 'data': '受影响的行数: {}'.format(res), 'db_log_id': db_log_id, 'msg': 'sql执行成功！'})
+                    {'code': 200, 'data': db_sql_res, 'db_log_id': db_log_id, 'msg': 'sql执行成功！'})
             elif sql_type == 'sql-many':
                 sql_list = sql.split('args=')
                 run_sql = sql_list[0].rstrip()

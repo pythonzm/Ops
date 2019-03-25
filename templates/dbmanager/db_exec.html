@@ -6,6 +6,7 @@
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
 
     <style>
@@ -14,7 +15,7 @@
             height: 400px;
         }
 
-        .btn {
+        .sql-one, .sql-export, .sql-many, .sql-select {
             width: 10%;
             float: left;
             display: inline;
@@ -68,7 +69,7 @@
                             表名称
                         </h3>
                     </div>
-                    <div class="box-body table-names" style="overflow: auto;text-align: center;">
+                    <div class="box-body table-names" style="overflow: auto;text-align: center;height: 800px">
                         <table rules="all" frame="box" style="text-align: center; width: auto;display:inline-block;">
                             <tbody class="names">
 
@@ -79,10 +80,13 @@
             </div>
         </div>
 
-        <div class="col-md-8" style="width: 75%">
+        <div class="col-md-9">
             <div class="box">
                 <div class="box-header with-border">
-                    <h3 class="box-title">SQL内容</h3>
+                    <h3 class="box-title" style="padding-top: 8px;">SQL内容</h3>
+                    <div class="col-sm-6" style="float: right">
+                        <input type="file" id="upload_file" class="file" name="upload_file" required>
+                    </div>
                 </div>
                 <div class="box-body no-padding">
                     <div class="row" style="margin-right: 0; margin-left: 0;">
@@ -127,6 +131,7 @@
     <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
     <!-- Select2 -->
     <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
     <script src="{% static 'ace/js/ace.js' %}"></script>
     <script src="{% static 'ace/js/mode-mysql.js' %}"></script>
     <script src="{% static 'ace/js/theme-monokai.js' %}"></script>
@@ -145,11 +150,41 @@
             editor.setTheme("ace/theme/monokai");
             editor.session.setMode("ace/mode/mysql");
             editor.setShowPrintMargin(false);
+            editor.getSession().setUseWrapMode(true);
             editor.setOptions({
                 enableBasicAutocompletion: true,
                 enableSnippets: true,
                 enableLiveAutocompletion: true
             });
+        });
+
+        $("#upload_file").fileinput({
+            language: 'zh',
+            showUpload: true,
+            dropZoneEnabled: false,
+            msgPlaceholder: '只能上传后缀是.txt或.sql的文件',
+            allowedFileExtensions: ["txt", ".sql"],
+            showPreview: false,
+            showCaption: true,
+            maxFileSize: 10240,
+            uploadUrl: "{% url 'db_exec' %}",
+            mergeAjaxCallbacks: true,
+            ajaxSettings: {
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (response) {
+                    editor.setValue(response.data, -1)
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.msg,
+                    })
+                },
+            },
+            browseLabel: '浏览文件',
+            removeLabel: '删除',
+            uploadLabel: '上传',
         });
 
         // 连接数据库获取所有的表
@@ -200,11 +235,11 @@
                     type: 'red',
                     content: '请正确连接数据库',
                 })
-            } else if (sql.length === 0) {
+            } else if (sql.length === 0 && $('#upload_file').val().length === 0) {
                 $.alert({
                     title: 'Tips',
                     type: 'red',
-                    content: '请正确输入SQL语句',
+                    content: '请正确输入SQL语句或上传SQL文件',
                 })
             } else {
                 $.ajax({
@@ -243,6 +278,9 @@
 
                             sql_table.rows.add(res.data).draw();
 
+                        } else if (res.code === 507) {
+                            $('.sql-export').css('display', 'none');
+                            $('#sql-res').text('\n' + res.data);
                         } else {
                             $.alert({
                                 title: 'Tips',

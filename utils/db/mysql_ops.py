@@ -13,6 +13,7 @@
 from queue import Queue
 import logging
 import pymysql
+from pymysql.err import OperationalError, ProgrammingError
 from pymysql.connections import Connection
 
 
@@ -52,6 +53,10 @@ class MysqlPool:
                 res = cursor.execute(sql, args)
                 conn.commit()
                 return res
+        except OperationalError:
+            return '您无权执行该命令！'
+        except ProgrammingError as e:
+            return e
         except Exception as e:
             logging.getLogger().error('执行exec_sql失败：{}'.format(e))
             conn.rollback()
@@ -71,6 +76,8 @@ class MysqlPool:
                 res = cursor.fetchall()
                 table_heads = [des[0] for des in cursor.description]
                 return table_heads, res
+        except ProgrammingError as e:
+            return 'sql执行失败', str(e)
         except Exception as e:
             logging.getLogger().error('执行select语句失败：{}'.format(e))
         finally:
@@ -88,6 +95,10 @@ class MysqlPool:
                 res = cursor.executemany(sql, args)
                 conn.commit()
                 return res
+        except OperationalError:
+            return '您无权执行该命令！'
+        except ProgrammingError as e:
+            return e
         except Exception as e:
             logging.getLogger().error('执行exec_sql_many失败：{}'.format(e))
             conn.rollback()

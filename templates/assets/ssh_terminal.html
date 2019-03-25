@@ -69,7 +69,6 @@
 <script>
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
     let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/{{ group_name }}/?' + '{{ remote_ip }}');
-
     socket.onopen = function () {
         $("#terms").css("height", document.documentElement.clientHeight - 50);
         const term = new Terminal({
@@ -78,50 +77,35 @@
             cursorBlink: true,
         });
         term.open(document.getElementById('terms'));
-
         term.fit();
-
         let width1 = document.body.clientWidth;
         if (width1 <= 750) {
             let wrapper = $('.wrapper');
             term.on('focus', function () {
-
                 wrapper.css('position', 'relative');
                 wrapper.css('top', '-170px')
-
             });
-
-
             term.on('blur', function () {
-
                 wrapper.css('position', 'relative');
                 wrapper.css('top', '0')
-
             });
         }
-
         term.on('data', function (data) {
             socket.send(data);
         });
-
         socket.onmessage = function (msg) {
             term.write(msg.data);
         };
         socket.onerror = function (e) {
             alert(e);
         };
-
         socket.onclose = function () {
             // pass
         };
-
-
     };
-
     socket.onerror = function () {
         document.getElementById('terms').innerHTML = '<h3>连接失败！请查看日志！</h3>';
     };
-
     $("#upload_file").fileinput({
         language: 'zh',
         showUpload: true,
@@ -173,10 +157,8 @@
             '上传'
     })
     ;
-
     $('.download_file').on('click', function () {
         let download_file = $('#download_file').val();
-
         if (download_file.length !== 0) {
             location.href = '/assets/ssh/' + {{ pk }} +'/?download_file=' + download_file
         } else {
@@ -187,7 +169,6 @@
             })
         }
     });
-
 </script>
 
 </html>
