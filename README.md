@@ -98,6 +98,7 @@ python manage.py runserver 0.0.0.0:8000
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_list.png)
 
 ### 日程管理
+> 参考：https://github.com/RobbieHan/sandboxOA
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_plan.png)
 
 ### 添加用户以及分配用户权限(采用的django自带的权限系统)等，用户组同理
