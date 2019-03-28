@@ -91,7 +91,7 @@ CHd72qhDwZUKVQck56xLGpPVPBGyyMl+cjRhZ+mnIQ==
         cipher = PKCS1_v1_5.new(rsakey)  # 生成对象
         missing_padding = len(en_pwd) % 4
         if missing_padding:
-            en_pwd += b'=' * (4 - missing_padding)
+            en_pwd += '=' * (4 - missing_padding)
         text = cipher.decrypt(base64.b64decode(en_pwd.encode('utf-8')), "ERROR")  # 将密文解密成明文，返回的是一个bytes类型数据，需要自己转换成str
 
         return text.decode('utf-8')

@@ -128,13 +128,11 @@ def gen_fort_users(user):
 
     fort_server_users = FortServerUser.objects.prefetch_related('fort_belong_group').all()
 
-    fort_users = set()
+    fort_users = {i for i in FortServerUser.objects.prefetch_related('fort_belong_user').filter(fort_belong_user=user)}
+
     for fort_server_user in fort_server_users:
         if not set(fort_server_user.fort_belong_group.all()).isdisjoint(set(groups)):  # 判断fort_user的组与当前用户的组是否有交集
             fort_users.add(fort_server_user)
-
-    for i in FortServerUser.objects.prefetch_related('fort_belong_user').filter(fort_belong_user=user):
-        fort_users.add(i)
 
     fort_users = [user for user in fort_users if user.fort_server.server_status == 1 and user.fort_user_status == 1]
 

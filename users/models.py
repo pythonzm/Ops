@@ -29,3 +29,19 @@ class UserLog(models.Model):
         db_table = 'ops_users_log'
         verbose_name = '用户管理操作记录表'
         verbose_name_plural = '用户管理操作记录表'
+
+
+class UserPlan(models.Model):
+    user = models.ForeignKey('UserProfile', related_name='self_user', on_delete=models.CASCADE, verbose_name='创建者')
+    attention = models.ManyToManyField('UserProfile', related_name='attention_user', blank=True, verbose_name='关注者')
+    title = models.CharField(max_length=32, verbose_name='计划标题')
+    content = models.TextField(verbose_name='计划内容')
+    start_time = models.DateTimeField(default='', verbose_name='开始时间')
+    end_time = models.DateTimeField(default='', verbose_name='结束时间')
+    add_time = models.DateTimeField(auto_now_add=True, verbose_name="添加时间")
+
+    class Meta:
+        db_table = 'ops_users_plan'
+        verbose_name = '日程管理'
+        verbose_name_plural = verbose_name
+        unique_together = ('title', 'user')

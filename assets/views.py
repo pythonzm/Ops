@@ -22,7 +22,7 @@ from utils.decorators import admin_auth
 
 @permission_required('assets.add_assets', raise_exception=True)
 def get_assets_charts(request):
-    assets = Assets.objects.all()
+    assets_count = Assets.objects.all().count()
     online_assets_count = Assets.objects.filter(asset_status=0).count()
     break_assets_count = Assets.objects.filter(asset_status=2).count()
     unused_assets_count = Assets.objects.filter(asset_status=3).count()
@@ -71,8 +71,14 @@ def get_assets_charts(request):
 
 @permission_required('assets.add_assets', raise_exception=True)
 def get_assets_list(request):
-    assets = Assets.objects.all()
     asset_types = Assets.asset_types
+    asset_status = request.GET.get('asset_status')
+    assets = None
+    if asset_status:
+        db_status = tuple(filter(lambda x: x[1] == asset_status, Assets.asset_status_))[0][0]
+        assets = Assets.objects.filter(asset_status=db_status)
+    else:
+        assets = Assets.objects.all()
     return render(request, 'assets/assets_list.html', locals())
 
 
@@ -160,13 +166,6 @@ def get_assets_log(request):
             return JsonResponse({'code': 200, 'records': records})
         except Exception as e:
             return JsonResponse({'error': '查询失败：{}'.format(e)})
-
-
-@permission_required('assets.add_assets', raise_exception=True)
-def assets_search(request, key):
-    assets = Assets.objects.all()
-    asset_types = Assets.asset_types
-    return render(request, 'assets/assets_search.html', locals())
 
 
 @permission_required('assets.add_assets', raise_exception=True)
@@ -351,7 +350,7 @@ def ssh_terminal(request, pk):
     if request.method == 'GET':
         download_file = request.GET.get('download_file')
         if download_file:
-            download_file_path = os.path.join(settings.MEDIA_ROOT, 'fort_files', request.user.username, 'download',
+            download_file_path = os.path.join(settings.MEDIA_ROOT, 'admin_files', request.user.username, 'download',
                                               ssh_server_ip)
 
             sftp = SFTP(ssh_server_ip, server_obj.port, server_obj.username,
@@ -360,7 +359,6 @@ def ssh_terminal(request, pk):
             response = sftp.download_file(download_file, download_file_path)
             return response
         else:
-            group_name = str(uuid.uuid4())
             remote_ip = request.META.get('REMOTE_ADDR')
             return render(request, 'assets/ssh_terminal.html', locals())
     elif request.method == 'POST':
@@ -424,3 +422,19 @@ def admin_play(request, pk):
         return render(request, 'assets/ssh_play.html', locals())
     else:
         return render(request, 'assets/guacamole_play.html', locals())
+
+
+@admin_auth
+def update_pwd(request):
+    if request.method == 'POST':
+        pks = request.POST.getlist('pks')
+        pwd = request.POST.get('pwd')
+
+        try:
+            for pk in pks:
+                server = Assets.objects.get(id=pk).serverassets
+                server.password = CryptPwd().encrypt_pwd(pwd)
+                server.save()
+            return JsonResponse({'code': 200, 'msg': '更新完毕!'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'msg': '更新失败：{}'.format(e)})

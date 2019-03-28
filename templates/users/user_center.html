@@ -2,6 +2,12 @@
 {% load staticfiles %}
 
 {% block head %}
+    <!-- fullCalendar -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.css' %}">
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.print.min.css' %}"
+          media="print">
+
+    <link rel="stylesheet" href="{% static 'layer/skin/layer.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
     <link rel="stylesheet" href="{% static 'cropper/dist/cropper.min.css' %}">
 {% endblock %}
@@ -160,14 +166,95 @@
 {% endblock %}
 
 {% block js %}
+    <script src="{% static 'layer/layer.js' %}"></script>
+    <!-- fullCalendar -->
+    <script src="{% static 'AdminLTE/bower_components/moment/moment.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
-    <!-- jQuery UI 1.11.4 -->
-    <script src="{% static 'AdminLTE/bower_components/jquery-ui/jquery-ui.min.js' %}"></script>
     <!-- 输入验证 -->
     <script src="{% static 'parsley/dist/parsley.min.js' %}"></script>
     <!-- 修改头像 -->
     <script src="{% static 'cropper/dist/cropper.min.js' %}"></script>
-    <script>
+    <script type="text/javascript">
+        $(function () {
+            //初始化FullCalendar
+            $('#calendar').fullCalendar({
+                buttonText: {
+                    today: '今天',
+                    month: '月',
+                    week: '周',
+                    day: '日',
+                },
+                allDayText: "全天",
+                timeFormat: 'HH:mm',
+                views: {
+                    month: {titleFormat: 'YYYY年MMMM月'},
+                    week: {titleFormat: 'YYYY年MMMM月'},
+                    day: {titleFormat: 'YYYY年MMMM月D日'},
+                },
+                monthNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+                monthNamesShort: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+                dayNames: ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                dayNamesShort: ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                //defaultView: 'agendaWeek',
+                contentHeight: 650,
+                eventLimit: true, // allow "more" link when too many events
+                // 新增内容：自定义按钮
+                customButtons: {
+                    reportAddButton: {
+                        text: '添加',
+                        click: doCreate,
+                    },
+
+                },
+                header: {
+                    //日历头部左边：初始化切换按钮
+                    left: 'prev,next today reportAddButton',
+                    //日历头部中间：显示当前日期信息
+                    center: 'title',
+                    //日历头部右边：初始化视图
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                //设置是否显示周六和周日，设为false则不显示
+                weekends: true,
+                eventClick: function (calEvent, jsEvent, view) {
+                    layer.open({
+                        type: 2,
+                        title: '任务详情',
+                        shadeClose: false,
+                        maxmin: true,
+                        area: ['800px', '480px'],
+                        content: "/users/plan_info/" + calEvent.id + '/',
+
+                    });
+                },
+                events: [
+                    {% for my_plan in my_plans %}
+                        {
+                            id: '{{ my_plan.id }}',
+                            title: '{{ my_plan.title }}',
+                            start: '{{ my_plan.start_time|date:"Y-m-d H:i" }}',
+                            end: '{{ my_plan.end_time|date:"Y-m-d H:i" }}',
+                        },
+                    {% endfor %}
+                ],
+            });
+        });
+
+        function doCreate() {
+            layer.open({
+                type: 2,
+                title: '计划任务',
+                shadeClose: false,
+                maxmin: true,
+                area: ['800px', '480px'],
+                content: "{% url 'create_plan' %}",
+                end: function () {
+                    window.location.reload();
+                }
+            });
+        }
+
         // 修改密码
         function mod_password() {
             let obj = $('#mod_password');
@@ -219,12 +306,20 @@
                     type: 'POST',
                     data: obj.serialize(),
                     success: function (response) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'green',
-                            content: response['msg'],
-                        });
-                        $('#userMobile').html('手机：' + response['data'])
+                        if (response.code === 200) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: response.msg,
+                            });
+                            $('#userMobile').html('手机：' + response['data'])
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: response.msg,
+                            });
+                        }
                     },
                     error: function (response) {
                         $.alert({

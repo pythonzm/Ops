@@ -50,8 +50,49 @@
                 <i class="fa fa-exclamation-triangle"></i>
                 <span class="bigger-110">批量删除</span>
             </button>
+            <button class="btn btn-sm btn-danger pull-left" data-toggle="modal" data-target="#updatePWDModal"
+                    style="margin-left: 2px">
+                <i class="fa fa-exclamation-triangle"></i>
+                <span class="bigger-110">更新密码</span>
+            </button>
         </div>
 
+        <div class="modal fade" id="updatePWDModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">批量更新密码</h4>
+                    </div>
+                    {% if request.user.is_superuser %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="update_pwd" class="col-sm-2 control-label">输入密码</label>
+                                <div class="col-sm-6">
+                                    <input type="text" name="update_pwd" id="update_pwd"/>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="updatePWD">更新
+                                </button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="modal-body">
+                            抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
 
         <div class="modal fade" id="importAssetsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
              aria-hidden="true">
@@ -109,6 +150,7 @@
                             <th>管理IP</th>
                             <th>所属项目</th>
                             <th>设备状态</th>
+                            <th>资产备注</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -173,6 +215,7 @@
                                         <span class="label label-info">{{ asset.get_asset_status_display }}</span>
                                     {% endif %}
                                 </td>
+                                <td>{{ asset.asset_memo }}</td>
                                 <td>
                                     {% if asset.asset_type == 'server' %}
                                         <a href="{% url 'update_asset' asset_type='server' pk=asset.id %}">
@@ -189,7 +232,7 @@
                                     {% endif %}
                                     {% if perms.assets.change_assets %}
                                         <button type="button" class="btn btn-success btn-xs">更新</button></a>
-                                        {% if asset.asset_type == 'server' and asset.serverassets.system != 'windows' %}
+                                        {% if asset.asset_type == 'server' and 'in' not in asset.asset_memo %}
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-primary btn-xs">收集</button>
                                                 <button type="button" class="btn btn-primary btn-xs dropdown-toggle"
@@ -201,7 +244,7 @@
                                                     <li><a href="javascript:void(0)"
                                                            onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
                                                     </li>
-                                                    {% if asset.serverassets.get_server_type_display != '云主机' %}
+                                                    {% if asset.serverassets.server_type != 2 %}
                                                         <li><a href="javascript:void(0)"
                                                                onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
                                                         </li>
@@ -211,7 +254,7 @@
                                         {% endif %}
                                     {% endif %}
                                     {% if request.user.is_superuser and asset.asset_type == 'server' %}
-                                        {% if 'win' in asset.serverassets.system or 'Win' in asset.serverassets.system %}
+                                        {% if 'in' in asset.asset_memo %}
                                             <a href="{% url 'guacamole_terminal' asset.serverassets.id %}"
                                                target="_blank">
                                                 <button type="button" class="btn btn-info btn-xs"><i
@@ -556,6 +599,60 @@
                 }
             });
         }
+
+        // 更新密码
+        $('#updatePWD').on('click', function () {
+            let checkedID = checked();
+            if (checkedID.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请选择要更新的资产！',
+                })
+            } else {
+                $.confirm({
+                    title: 'Tips',
+                    content: '确定要更新这些资产么？',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            $.ajax({
+                                url: "{% url 'update_pwd' %}",
+                                type: 'POST',
+                                data: {pks: checkedID, pwd: $('#update_pwd').val()},
+                                traditional: true,
+                                dataType: 'json',
+                                success: function (res) {
+                                    if (res.code === 200) {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'green',
+                                            content: res.msg,
+                                        })
+                                    } else {
+                                        $.alert({
+                                            title: 'Tips',
+                                            type: 'red',
+                                            content: res.msg,
+                                        })
+                                    }
+                                },
+                                error: function (response) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: response.responseText,
+                                    })
+                                }
+                            })
+                        },
+                        Cancel: function () {
+                            // close
+                        }
+                    }
+                })
+            }
+        })
     </script>
 
 {% endblock %}

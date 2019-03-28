@@ -34,3 +34,7 @@ INFO 2019-03-25 17:45:50 _log [chan 2] Opened sftp connection (server version 3)
 INFO 2019-03-25 17:45:50 _log [chan 2] sftp session closed.
 INFO 2019-03-25 17:45:52 _log [chan 2] Opened sftp connection (server version 3)
 INFO 2019-03-25 17:45:54 _log [chan 2] sftp session closed.
+INFO 2019-03-26 10:23:05 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-26 10:23:05 _log Authentication (publickey) successful!
+INFO 2019-03-26 10:23:21 _log Connected (version 2.0, client OpenSSH_7.4)
+INFO 2019-03-26 10:23:21 _log Authentication (publickey) successful!

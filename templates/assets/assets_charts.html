@@ -7,7 +7,7 @@
             <!-- small box -->
             <div class="small-box bg-aqua">
                 <div class="inner">
-                    <h3>{{ assets.count }}</h3>
+                    <h3>{{ assets_count }}</h3>
 
                     <p>总资产</p>
                 </div>
@@ -24,13 +24,12 @@
                 <div class="inner">
                     <h3>{{ online_assets_count }}<sup style="font-size: 20px"></sup></h3>
 
-                    <p>已经上线</p>
+                    <p>已上线</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-check"></i>
                 </div>
-                <a href="{% url 'assets_search' key='已上线' %}" class="small-box-footer">查看所有 <i
-                        class="fa fa-arrow-circle-right"></i></a>
+                <a href="" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -45,8 +44,7 @@
                 <div class="icon">
                     <i class="fa fa-wrench"></i>
                 </div>
-                <a href="{% url 'assets_search' key='故障中' %}" class="small-box-footer">查看所有 <i
-                        class="fa fa-arrow-circle-right"></i></a>
+                <a href="" class="small-box-footer">查看所有 <i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -61,8 +59,7 @@
                 <div class="icon">
                     <i class="fa fa-close"></i>
                 </div>
-                <a href="{% url 'assets_search' key='未使用' %}" class="small-box-footer">查看所有<i
-                        class="fa fa-arrow-circle-right"></i></a>
+                <a href="" class="small-box-footer">查看所有<i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -129,6 +126,13 @@
     <script src="{% static 'js/echarts.common.min.js' %}"></script>
 
     <script>
+        $(function () {
+            $.each($('.col-lg-3').slice(1), function () {
+                let asset_status = $(this).find('p').text();
+                $(this).find('a').attr('href', '/assets/assets_list/?asset_status=' + asset_status)
+            })
+        });
+
         // 资产明细饼图
         function genData() {
             let legendData = [];

@@ -29,7 +29,7 @@ def db_list(request):
                 db_password=CryptPwd().encrypt_pwd(request.POST.get('db_password')),
                 db_memo=request.POST.get('db_memo')
             )
-            db.db_group.set(request.POST.get('db_group'))
+            db.db_group.set(request.POST.getlist('db_group'))
             return JsonResponse({'code': 200, 'data': None, 'msg': '数据库添加成功！'})
         except Exception as e:
             return JsonResponse({'code': 500, 'data': None, 'msg': '数据库添加失败！{}'.format(e)})
@@ -56,7 +56,7 @@ def db_edit(request, pk):
             db.db_user = request.POST.get('db_user')
             db.db_password = CryptPwd().encrypt_pwd(request.POST.get('db_password'))
             db.db_memo = request.POST.get('db_memo')
-            db.db_group.set(request.POST.get('db_group'))
+            db.db_group.set(request.POST.getlist('db_group'))
             db.save()
             return JsonResponse({'code': 200, 'data': None, 'msg': '数据库更新成功！'})
         except Exception as e:

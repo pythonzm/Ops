@@ -1,0 +1,116 @@
+{% extends 'users/base-layer.html' %}
+
+{% block main %}
+    <div class="box box-danger">
+        <form class="form-horizontal" id="addForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name='user' value="{{ request.user.id }}"/>
+            <div class="box-body">
+                <fieldset>
+                    <div class="form-group has-feedback">
+                        <label class="col-sm-2 control-label" for="start_time">开始时间</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control pull-right form_datetime" name="start_time"
+                                   id="start_time" readonly>
+                        </div>
+                        <label class="col-sm-2 control-label" for="end_time">结束时间</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control pull-right form_datetime" name="end_time"
+                                   id="end_time" readonly/>
+                        </div>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <label class="col-sm-2 control-label" for="title">任务标题</label>
+                        <div class="col-sm-3" style="width: 48%">
+                            <input type="text" class="form-control pull-right" name="title" id="title" required>
+                        </div>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <label class="col-sm-2 control-label" for="content">计划内容</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" name="content" id="content" rows="5"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group has-feedback">
+                        <label class="col-sm-2 control-label" for="multiple">添加关注</label>
+                        <div class="col-sm-3" style="width: 48%">
+                            <select class="form-control select2" multiple="multiple" name="attention" id="multiple"
+                                    data-placeholder="添加关注"
+                                    style="width: 100%;">
+                                {% for attention in users %}
+                                    <option value="{{ attention.id }}">{{ attention.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <span><small class="text-danger margin-l-5">* 关注人可以查看本条内容</small></span>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="box-footer ">
+
+                <div class="row span7 text-center ">
+                    <button type="button" id="btnCancel" class="btn btn-default margin-right ">重置</button>
+                    <button type="button" id="btnSave" class="btn btn-info margin-right ">保存</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        $("#btnSave").click(function () {
+            let data = $("#addForm").serialize();
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'create_plan' %}",
+                data: data,
+                traditional: true,
+                dataType: 'json',
+                cache: false,
+                success: function (res) {
+                    if (res.result) {
+                        layer.alert(res.msg, {icon: 1}, function () {
+                            parent.location.reload();
+                        });
+                    } else {
+                        layer.alert(res.msg, {icon: 5});
+                        //$('errorMessage').html(msg.message)
+                    }
+                }
+            });
+        });
+
+
+        /*点取消刷新新页面*/
+        $("#btnCancel").click(function () {
+            window.location.reload();
+
+        });
+
+        /*input 时间输入选择*/
+        $(".form_datetime").datetimepicker({
+            language: 'zh',
+            //minView: 'month',
+            weekStart: 1,
+            todayBtn: 1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            forceParse: 0,
+            //format: 'yyyy-mm-dd hh:ss'
+        }).on('changeDate', function () {
+            $(this).datetimepicker('hide');
+        });
+
+        // select2
+        $(function () {
+            //Initialize Select2 Elements
+            $(".select2").select2();
+        });
+    </script>
+
+{% endblock %}

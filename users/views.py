@@ -2,7 +2,7 @@ import datetime
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import render
-from users.models import UserProfile, UserLog
+from users.models import UserProfile, UserLog, UserPlan
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.decorators import permission_required
 
@@ -11,6 +11,11 @@ def user_center(request):
     user = UserProfile.objects.get(username=request.user)
 
     if request.method == 'GET':
+        my_plans = {my_create for my_create in UserPlan.objects.select_related('user').filter(user=user)}
+
+        for i in UserPlan.objects.prefetch_related('attention').all():
+            if user in i.attention.all():
+                my_plans.add(i)
         return render(request, 'users/user_center.html', locals())
 
     elif request.method == 'POST':
@@ -36,6 +41,54 @@ def user_center(request):
                 return JsonResponse({"code": 200, "data": None, "msg": "头像更新完毕！"})
             except Exception as e:
                 return JsonResponse({"code": 500, "data": None, "msg": "头像更新失败：%s" % str(e)})
+
+
+def create_plan(request):
+    if request.method == 'POST':
+        try:
+            user_plan = UserPlan.objects.create(
+                user=UserProfile.objects.get(id=request.POST.get('user')),
+                title=request.POST.get('title'),
+                content=request.POST.get('content'),
+                start_time=request.POST.get('start_time'),
+                end_time=request.POST.get('end_time'),
+            )
+            attention = request.POST.getlist('attention')
+            if attention:
+                user_plan.attention.set(attention)
+            return JsonResponse({'code': 200, 'result': True, 'msg': '数据保存成功！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'result': False, 'msg': '数据保存失败！{}'.format(e)})
+    users = UserProfile.objects.exclude(id__in=[request.user.id])
+    return render(request, 'users/create_plan.html', locals())
+
+
+def plan_info(request, pk):
+    user_plan = UserPlan.objects.prefetch_related('attention').get(id=pk)
+    if request.method == 'GET':
+        users = UserProfile.objects.exclude(id__in=[request.user.id])
+        return render(request, 'users/plan_info.html', locals())
+    elif request.method == 'POST':
+        try:
+            user_plan.title = request.POST.get('title')
+            user_plan.content = request.POST.get('content')
+            user_plan.start_time = request.POST.get('start_time')
+            user_plan.end_time = request.POST.get('end_time')
+            attention = request.POST.getlist('attention')
+            if attention:
+                user_plan.attention.set(attention)
+            else:
+                user_plan.attention.clear()
+            user_plan.save()
+            return JsonResponse({'code': 200, 'result': True, 'msg': '数据保存成功！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'result': False, 'msg': '数据保存失败！{}'.format(e)})
+    elif request.method == 'DELETE':
+        try:
+            user_plan.delete()
+            return JsonResponse({'code': 200, 'result': True, 'msg': '数据删除成功！'})
+        except Exception as e:
+            return JsonResponse({'code': 500, 'result': False, 'msg': '数据删除失败！{}'.format(e)})
 
 
 @permission_required('users.add_userprofile', raise_exception=True)
