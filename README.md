@@ -1,5 +1,5 @@
 # ops
-基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、CI/CD（支持git仓库和svn仓库）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
+基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、日程管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、CI/CD（支持git仓库和svn仓库）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
 
 ## 安装
 一、安装python3.6
@@ -10,9 +10,6 @@
 ```
 git clone https://github.com/pythonzm/Ops.git
 pip install -r requirements.txt
-
-// 可选： 因为playbook第一次执行都会执行gather facts任务，若想取消该任务，可在playbook中设置，也可以编辑ansible配置文件修改：gathering = explicit
-  
 
 // 因为django-celery-results的pip包与github上不一致，所以使用下面方法安装
 pip install https://github.com/celery/django-celery-results/zipball/master#egg=django-celery-results
@@ -75,7 +72,7 @@ cp conf/celerybeat.server /etc/init.d/celerybeat
 七、配置获取主机内存脚本
 
 ``` 
-cp conf/get_mem.py /path/to/your ansible library_path  ##可以使用ansbile --version命令查看路径
+cp conf/get_mem.py /path/to/your ansible python module location  ##可以使用ansbile --version命令查看路径
 ```
 
 八、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
@@ -88,7 +85,7 @@ cp conf/get_mem.py /path/to/your ansible library_path  ##可以使用ansbile --v
 九、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
 ```
-python manage.py makemigrations
+python manage.py makemigrations assets users dbmanager fort plan projs task wiki
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8000
@@ -99,6 +96,9 @@ python manage.py runserver 0.0.0.0:8000
 
 ### 用户管理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_list.png)
+
+### 日程管理
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_plan.png)
 
 ### 添加用户以及分配用户权限(采用的django自带的权限系统)等，用户组同理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/add_user.png)
@@ -193,3 +193,4 @@ python manage.py runserver 0.0.0.0:8000
   * guacamole-client：用于播放rdp和vnc录像的插件：<https://github.com/apache/guacamole-client/tree/master/doc/guacamole-playback-example>
   * xterm：用于前端生成webssh界面：<https://github.com/xtermjs/xterm.js>
   * dataTables：用于生成表格的插件：<https://github.com/DataTables/DataTables>
+  * fullCalendar:用于日程管理：https://github.com/fullcalendar/fullcalendar
