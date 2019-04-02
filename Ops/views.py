@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import random
 from django.contrib import auth
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse

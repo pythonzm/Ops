@@ -90,27 +90,6 @@
             window.location.reload();
 
         });
-
-        /*input 时间输入选择*/
-        $(".form_datetime").datetimepicker({
-            language: 'zh',
-            //minView: 'month',
-            weekStart: 1,
-            todayBtn: 1,
-            autoclose: 1,
-            todayHighlight: 1,
-            startView: 2,
-            forceParse: 0,
-            //format: 'yyyy-mm-dd hh:ss'
-        }).on('changeDate', function () {
-            $(this).datetimepicker('hide');
-        });
-
-        // select2
-        $(function () {
-            //Initialize Select2 Elements
-            $(".select2").select2();
-        });
     </script>
 
 {% endblock %}

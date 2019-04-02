@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load custom_tags %}
 <!DOCTYPE html>
 <!--
 This is a starter template page. Use this page to start your new project from
@@ -93,6 +94,37 @@ desired effect
             <div class="navbar-custom-menu">
                 <ul class="nav navbar-nav">
                     <!-- User Account Menu -->
+                    <li class="dropdown tasks-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-flag-o"></i>
+                            <span class="label label-danger">{{ user.self_user.all|union_user_plan:user.attention_user.all|user_plan_count }}</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="header">
+                                你有 {{ user.self_user.all|union_user_plan:user.attention_user.all|user_plan_count }}
+                                个任务计划未完成
+                            </li>
+                            <li>
+                                <!-- inner menu: contains the actual data -->
+                                <ul class="menu">
+                                    {% for foo in user.self_user.all|union_user_plan:user.attention_user.all %}
+                                        <li><!-- Task item -->
+                                            <a href="javascript:void(0)">
+                                                <h3>
+                                                    {{ foo.title }}
+                                                    <small class="pull-right">
+                                                        截止日期：{{ foo.end_time|date:"Y-m-d H:i:s" }}</small>
+                                                </h3>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li class="footer">
+                                <a href="{% url 'user_center' %}">查看所有</a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="dropdown user user-menu">
                         <!-- Menu Toggle Button -->
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">

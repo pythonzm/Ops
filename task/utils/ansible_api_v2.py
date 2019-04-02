@@ -40,13 +40,11 @@ class ModuleResultsCollector(CallbackBase):
         if 'msg' in result._result:
             data = '<code style="color: #FF0000">\n{host} | unreachable | rc={rc} >> \n{stdout}\n</code>'.format(
                 host=result._host.name, rc=result._result.get('rc'),
-                stdout=result._result.get('msg'))
+                stdout=result._result.get('msg').encode().decode('utf-8'))
         else:
             data = '<code style="color: #FF0000">\n{host} | unreachable >> \n{stdout}\n</code>'.format(
                 host=result._host.name,
-                stdout=json.dumps(
-                    result._result,
-                    indent=4))
+                stdout=json.dumps(result._result, indent=4))
         if self.sock:
             self.sock.send(data)
         self.module_results.append(data)
@@ -63,15 +61,11 @@ class ModuleResultsCollector(CallbackBase):
         elif 'module_stdout' in result._result and 'rc' in result._result:
             data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
                 host=result._host.name, rc=result._result.get('rc'),
-                stdout=result._result.get(
-                    'module_stdout').encode().decode(
-                    'utf-8'))
+                stdout=result._result.get('module_stdout').encode().decode('utf-8'))
         else:
             data = '<code style="color: #008000">\n{host} | success >> \n{stdout}\n</code>'.format(
                 host=result._host.name,
-                stdout=json.dumps(
-                    result._result,
-                    indent=4))
+                stdout=json.dumps(result._result, indent=4))
         if self.sock:
             self.sock.send(data)
         self.module_results.append(data)
@@ -80,17 +74,17 @@ class ModuleResultsCollector(CallbackBase):
         if 'stderr' in result._result:
             data = '<code style="color: #FF0000">\n{host} | failed | rc={rc} >> \n{stdout}\n</code>'.format(
                 host=result._host.name,
-                rc=result._result.get(
-                    'rc'),
-                stdout=result._result.get(
-                    'stderr').encode().decode(
-                    'utf-8'))
+                rc=result._result.get('rc'),
+                stdout=result._result.get('stderr').encode().decode('utf-8'))
+        elif 'module_stdout' in result._result:
+            data = '<code style="color: #FF0000">\n{host} | failed | rc={rc} >> \n{stdout}\n</code>'.format(
+                host=result._host.name,
+                rc=result._result.get('rc'),
+                stdout=result._result.get('module_stdout').encode().decode('utf-8'))
         else:
             data = '<code style="color: #FF0000">\n{host} | failed >> \n{stdout}\n</code>'.format(
                 host=result._host.name,
-                stdout=json.dumps(
-                    result._result,
-                    indent=4))
+                stdout=json.dumps(result._result, indent=4))
         if self.sock:
             self.sock.send(data)
         self.module_results.append(data)

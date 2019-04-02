@@ -32,10 +32,15 @@ class UserLog(models.Model):
 
 
 class UserPlan(models.Model):
+    plan_status = (
+        (0, '未完成'),
+        (1, '已完成')
+    )
     user = models.ForeignKey('UserProfile', related_name='self_user', on_delete=models.CASCADE, verbose_name='创建者')
     attention = models.ManyToManyField('UserProfile', related_name='attention_user', blank=True, verbose_name='关注者')
     title = models.CharField(max_length=32, verbose_name='计划标题')
     content = models.TextField(verbose_name='计划内容')
+    status = models.PositiveSmallIntegerField(choices=plan_status, verbose_name='任务状态', default=0)
     start_time = models.DateTimeField(default='', verbose_name='开始时间')
     end_time = models.DateTimeField(default='', verbose_name='结束时间')
     add_time = models.DateTimeField(auto_now_add=True, verbose_name="添加时间")

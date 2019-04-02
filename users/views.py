@@ -11,11 +11,7 @@ def user_center(request):
     user = UserProfile.objects.get(username=request.user)
 
     if request.method == 'GET':
-        my_plans = {my_create for my_create in UserPlan.objects.select_related('user').filter(user=user)}
-
-        for i in UserPlan.objects.prefetch_related('attention').all():
-            if user in i.attention.all():
-                my_plans.add(i)
+        my_plans = user.self_user.all() | user.attention_user.all()
         return render(request, 'users/user_center.html', locals())
 
     elif request.method == 'POST':
@@ -70,6 +66,7 @@ def plan_info(request, pk):
         return render(request, 'users/plan_info.html', locals())
     elif request.method == 'POST':
         try:
+            user_plan.status = 1 if request.POST.get('status') else 0
             user_plan.title = request.POST.get('title')
             user_plan.content = request.POST.get('content')
             user_plan.start_time = request.POST.get('start_time')

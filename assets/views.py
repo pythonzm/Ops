@@ -179,7 +179,7 @@ def server_facts(request):
                      "password": CryptPwd().decrypt_pwd(server_obj.password)}]
 
         try:
-            ans = ANSRunner(resource)
+            ans = ANSRunner(resource, become='yes', become_method='sudo', become_user='root')
             ans.run_module(host_list=[server_obj.assets.asset_management_ip], module_name=module, module_args="")
 
             for data in ans.get_module_results:

@@ -1,5 +1,6 @@
 {% extends 'users/base-layer.html' %}
 {% load staticfiles %}
+
 {% block main %}
     <div class="box box-danger">
         <div class="box-header with-border">
@@ -68,6 +69,13 @@
                         </div>
                         <span><small class="text-danger margin-l-5">* 关注人可以查看本条内容</small></span>
                     </div>
+
+                    <div class="form-group has-feedback">
+                        <label class="col-sm-2 control-label" for="status">是否完成</label>
+                        <div class="col-sm-3" style="padding-top: 7px; margin-bottom: 0">
+                            <input type="checkbox" class="form-control pull-right minimal" name="status" id="status">
+                        </div>
+                    </div>
                 </fieldset>
             </div>
             <div class="box-footer ">
@@ -88,8 +96,14 @@
 {% block javascripts %}
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script type="text/javascript">
+        $(function () {
+            {% if user_plan.status == 1 %}
+                $('#status').iCheck('check');
+            {% endif %}
+        });
         $("#btnSave").click(function () {
             let data = $("#addForm").serialize();
+
             $.ajax({
                 type: 'POST',
                 url: "{% url 'plan_info' pk %}",
@@ -107,6 +121,7 @@
                     }
                 }
             });
+
         });
 
         $('#btnDelete').on('click', function () {
@@ -147,27 +162,6 @@
         $("#btnCancel").click(function () {
             window.location.reload();
 
-        });
-
-        /*input 时间输入选择*/
-        $(".form_datetime").datetimepicker({
-            language: 'zh',
-            //minView: 'month',
-            weekStart: 1,
-            todayBtn: 1,
-            autoclose: 1,
-            todayHighlight: 1,
-            startView: 2,
-            forceParse: 0,
-            //format: 'yyyy-mm-dd hh:ss'
-        }).on('changeDate', function () {
-            $(this).datetimepicker('hide');
-        });
-
-        // select2
-        $(function () {
-            //Initialize Select2 Elements
-            $(".select2").select2();
         });
     </script>
 

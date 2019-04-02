@@ -12,7 +12,11 @@
     <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}">
     <link rel="stylesheet" href="{% static 'AdminLTE/dist/css/AdminLTE.min.css' %}">
+    <link rel="stylesheet" href="{% static 'AdminLTE/plugins/iCheck/all.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+    {% block header %}
+
+    {% endblock %}
 </head>
 
 <body>
@@ -23,6 +27,7 @@
 <script src="{% static 'layer/layer.js' %}"></script>
 <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
 <script src="{% static 'js/bootstrap-datetimepicker.js' %}"></script>
+<script src="{% static 'AdminLTE/plugins/iCheck/icheck.min.js' %}"></script>
 
 <script type="text/javascript">
     $(function () {
@@ -41,6 +46,10 @@
         });
 
         $(".select2").select2();
+
+        $('input[type="checkbox"].minimal').iCheck({
+            checkboxClass: 'icheckbox_minimal-blue',
+        })
     })
 </script>
 

@@ -30,3 +30,16 @@ def intranet_ip(ip):
 @register.filter
 def get_file_name(name):
     return name.split('/')[-1]
+
+
+@register.filter
+def union_user_plan(self_plan, attention_plan):
+    user_plans = self_plan | attention_plan
+    plan_list = [user_plan for user_plan in user_plans if user_plan.status == 0]
+
+    return plan_list
+
+
+@register.filter
+def user_plan_count(plan_list):
+    return len(plan_list)
