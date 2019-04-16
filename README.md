@@ -42,23 +42,7 @@ mysql>quit
 
 四、安装redis（略）
 
-五、安装rabbitmq，也可参考官网：<http://www.rabbitmq.com/install-rpm.html>
-```
-
-wget https://github.com/rabbitmq/erlang-rpm/releases/download/v20.1.7.1/erlang-20.1.7.1-1.el6.x86_64.rpm
-yum localinstall erlang-20.1.7.1-1.el6.x86_64.rpm
-wget https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.7/rabbitmq-server-3.7.7-1.el6.noarch.rpm
-yum localinstall rabbitmq-server-3.7.7-1.el6.noarch.rpm
-## 启动
-/etc/init.d/rabbitmq-server
-## 使用
-rabbitmqctl add_user myuser mypassword
-rabbitmqctl add_vhost myvhost
-rabbitmqctl set_user_tags myuser mytag
-rabbitmqctl set_permissions -p myvhost myuser ".*" ".*" ".*"
-```
-
-六、配置celery后台运行，或查看[官网](http://docs.celeryproject.org/en/latest/index.html)
+五、配置celery后台运行，或查看[官网](http://docs.celeryproject.org/en/latest/index.html)
 ```
 cp conf/celeryd.conf /etc/default/celeryd
 ### 将配置文件里的内容按照实际情况更改
@@ -69,20 +53,20 @@ cp conf/celerybeat.server /etc/init.d/celerybeat
 /etc/init.d/celerybeat start
 ```
 
-七、配置获取主机内存脚本
+六、配置获取主机内存脚本
 
 ``` 
 cp conf/get_mem.py /path/to/your ansible python module location  ##可以使用ansbile --version命令查看路径
 ```
 
-八、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
+七、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
 
    安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
     
     安装完成后，修改settings.py中的 GUACD_HOST和 GUACD_PORT，改为guac服务启动后监听的地址和端口
    功能实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
 
-九、启动服务
+八、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
 ```
 python manage.py makemigrations assets users dbmanager fort plan projs task wiki
