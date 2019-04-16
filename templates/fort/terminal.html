@@ -67,7 +67,7 @@
 <script>
 
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/{{ group_name }}/?' + '{{ remote_ip }}');
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/?' + '{{ remote_ip }}');
 
     socket.onopen = function () {
         $("#terms").css("height", document.documentElement.clientHeight - 50);

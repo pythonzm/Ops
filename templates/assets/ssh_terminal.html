@@ -68,7 +68,7 @@
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 <script>
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/{{ group_name }}/?' + '{{ remote_ip }}');
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/?' + '{{ remote_ip }}');
     socket.onopen = function () {
         $("#terms").css("height", document.documentElement.clientHeight - 50);
         const term = new Terminal({

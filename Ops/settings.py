@@ -35,7 +35,7 @@ CHANNEL_LAYERS = {
         # This example app uses the Redis channel layer implementation channels_redis
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [('10.1.19.10', 6379)],
+            "hosts": [('127.0.0.1', 6379)],
         },
     },
 }
@@ -56,13 +56,13 @@ CELERY_ROUTES = {
 }
 
 # 执行ansible命令使用的redis信息
-REDIS_HOST = '10.1.19.10'
+REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 REDIS_DB = 2
 REDIS_PASSWORD = None
 
 # mongodb配置信息
-MONGODB_HOST = '10.1.19.10'
+MONGODB_HOST = '127.0.0.1'
 MONGODB_PORT = 27017
 COMMANDS_DB = 'commands'
 
@@ -152,9 +152,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ops',
-        'USER': 'root',
-        'PASSWORD': 'Aa123456!',
-        'HOST': '10.1.19.10'
+        'USER': 'ops',
+        'PASSWORD': '123456',
+        'HOST': '127.0.0.1'
     }
 }
 
@@ -208,21 +208,22 @@ TIME_FORMAT = '%Y-%m-%d %X'
 
 # zabbix配置
 ZABBIX_INFO = {
-    'api_url': 'http://10.1.19.10/zabbix/api_jsonrpc.php',
-    'graph_url': 'http://10.1.19.10/zabbix/chart2.php',
-    'login_url': 'http://10.1.19.10/zabbix/index.php',
+    'api_url': 'http://127.0.0.1/zabbix/api_jsonrpc.php',
+    'graph_url': 'http://127.0.0.1/zabbix/chart2.php',
+    'login_url': 'http://127.0.0.1/zabbix/index.php',
     'username': 'admin',
     'password': '123456'
 }
 
-ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')
+# ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')
+ANSIBLE_ROLE_PATH = '/usr/share/ansible/roles'
 
-GUACD_HOST = '10.1.19.10'
+GUACD_HOST = '127.0.0.1'
 GUACD_PORT = 4822
 
 # email配置
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25
-EMAIL_HOST_USER = 'XXXXXXXXXXX'
-EMAIL_HOST_PASSWORD = 'XXXXXXXXXXXXXXXX'
+EMAIL_HOST_USER = 'XXXXXXXXXXXX'
+EMAIL_HOST_PASSWORD = 'XXXXXXXXXXX'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

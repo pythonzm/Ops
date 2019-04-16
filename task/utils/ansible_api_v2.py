@@ -44,7 +44,7 @@ class ModuleResultsCollector(CallbackBase):
         else:
             data = '<code style="color: #FF0000">\n{host} | unreachable >> \n{stdout}\n</code>'.format(
                 host=result._host.name,
-                stdout=json.dumps(result._result, indent=4))
+                stdout=json.dumps(result._result, indent=4, ensure_ascii=False))
         if self.sock:
             self.sock.send(data)
         self.module_results.append(data)
@@ -53,11 +53,11 @@ class ModuleResultsCollector(CallbackBase):
         if 'rc' in result._result and 'stdout' in result._result:
             data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
                 host=result._host.name, rc=result._result.get('rc'),
-                stdout=result._result.get('stdout'))
+                stdout=result._result.get('stdout').encode().decode('utf-8'))
         elif 'results' in result._result and 'rc' in result._result:
             data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
                 host=result._host.name, rc=result._result.get('rc'),
-                stdout=result._result.get('results')[0])
+                stdout=result._result.get('results')[0].encode().decode('utf-8'))
         elif 'module_stdout' in result._result and 'rc' in result._result:
             data = '<code style="color: #008000">\n{host} | success | rc={rc} >> \n{stdout}\n</code>'.format(
                 host=result._host.name, rc=result._result.get('rc'),
@@ -65,7 +65,7 @@ class ModuleResultsCollector(CallbackBase):
         else:
             data = '<code style="color: #008000">\n{host} | success >> \n{stdout}\n</code>'.format(
                 host=result._host.name,
-                stdout=json.dumps(result._result, indent=4))
+                stdout=json.dumps(result._result, indent=4, ensure_ascii=False))
         if self.sock:
             self.sock.send(data)
         self.module_results.append(data)
@@ -84,7 +84,7 @@ class ModuleResultsCollector(CallbackBase):
         else:
             data = '<code style="color: #FF0000">\n{host} | failed >> \n{stdout}\n</code>'.format(
                 host=result._host.name,
-                stdout=json.dumps(result._result, indent=4))
+                stdout=json.dumps(result._result, indent=4, ensure_ascii=False))
         if self.sock:
             self.sock.send(data)
         self.module_results.append(data)

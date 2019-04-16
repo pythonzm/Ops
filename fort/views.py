@@ -94,11 +94,11 @@ def terminal(request, server_id, fort_user_id):
             fort_users = gen_fort_users(request.user)
 
             if fort_user_obj in fort_users:
-                group_name = str(uuid.uuid4())
                 remote_ip = request.META.get('REMOTE_ADDR')
                 if fort_user_obj.fort_server.server_protocol == 'ssh':
                     return render(request, 'fort/terminal.html', locals())
                 else:
+                    group_name = str(uuid.uuid4())
                     return render(request, 'fort/guacamole.html', locals())
             else:
                 return HttpResponseForbidden('<h1>403！您无权连接此主机！</h1>')

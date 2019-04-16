@@ -20,26 +20,23 @@ class MyThread(threading.Thread):
         self.start_time = time.time()
         self.current_time = time.strftime(settings.TIME_FORMAT)
         self.stdout = []
-        self.read_lock = threading.RLock()
 
     def stop(self):
         self._stop_event.set()
 
     def run(self):
-        with self.read_lock:
-            while not self._stop_event.is_set():
-                time.sleep(0.1)
-                try:
-                    data = self.chan.chan.recv(1024)
-                    if data:
-                        str_data = bytes.decode(data)
-                        self.chan.send(str_data)
-                        self.stdout.append([time.time() - self.start_time, 'o', str_data])
-                except timeout:
-                    break
-            self.chan.send('\n由于长时间没有操作，连接已断开!')
-            self.stdout.append([time.time() - self.start_time, 'o', '\n由于长时间没有操作，连接已断开!'])
-            self.chan.close()
+        while not self._stop_event.is_set() or not self.chan.chan.exit_status_ready():
+            time.sleep(0.1)
+            try:
+                data = self.chan.chan.recv(1024)
+                if data:
+                    str_data = bytes.decode(data)
+                    self.chan.send(str_data)
+                    self.stdout.append([time.time() - self.start_time, 'o', str_data])
+            except timeout:
+                self.chan.send('\n由于长时间没有操作，连接已断开!', close=True)
+                self.stdout.append([time.time() - self.start_time, 'o', '\n由于长时间没有操作，连接已断开!'])
+                break
 
     def record(self):
         record_path = os.path.join(settings.MEDIA_ROOT, 'admin_ssh_records', self.chan.scope['user'].username,
@@ -88,7 +85,6 @@ class SSHConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super(SSHConsumer, self).__init__(*args, **kwargs)
         self.ssh = paramiko.SSHClient()
-        self.group_name = self.scope['url_route']['kwargs']['group_name']
         self.server = ServerAssets.objects.select_related('assets').get(id=self.scope['path'].split('/')[3])
         self.host_ip = self.server.assets.asset_management_ip
         self.width = 150
@@ -98,7 +94,10 @@ class SSHConsumer(WebsocketConsumer):
         self.chan = None
 
     def connect(self):
-        self.accept()
+        if self.scope["user"].is_anonymous:
+            self.close(code=1007)
+        else:
+            self.accept()
 
         username = self.server.username
         try:
@@ -122,6 +121,6 @@ class SSHConsumer(WebsocketConsumer):
     def disconnect(self, close_code):
         try:
             self.t1.record()
+            self.t1.stop()
         finally:
             self.ssh.close()
-            self.t1.stop()

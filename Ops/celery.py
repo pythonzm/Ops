@@ -17,7 +17,7 @@ from kombu import Queue, Exchange
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Ops.settings')
 
-app = Celery('Ops', broker='amqp://rabbitmq:rabbitmq@localhost:5672/myvhost')
+app = Celery('Ops', broker='redis://127.0.0.1:6379/0')
 
 app.conf.task_queues = (
     Queue('default', Exchange('default', type='direct'), routing_key='default'),

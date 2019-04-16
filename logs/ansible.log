@@ -1,1 +1,116 @@
-ERROR 2019-03-06 15:17:34 run_playbook 执行/testops/Ops/media/playbook/2018/12/18/test.yml失败，原因: __init__() missing 1 required positional argument: 'sock'
+ERROR 2019-04-15 14:24:53 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 6, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 14:25:14 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 6, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 14:27:10 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 6, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 14:28:39 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 7, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 14:33:49 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 7, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 14:44:59 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 6, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 14:49:27 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 6, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 14:55:32 run_playbook 执行/testops/Ops/media/playbook/2018/12/18/tomcat.yml失败，原因: the role 'tomcat' was not found in /testops/Ops/media/playbook/2018/12/18/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2018/12/18
+
+The error appears to have been in '/testops/Ops/media/playbook/2018/12/18/tomcat.yml': line 7, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - tomcat
+      ^ here
+
+ERROR 2019-04-15 15:02:03 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: the role 'nginx' was not found in /testops/Ops/media/playbook/2019/4/15/roles:/root/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/testops/Ops/media/playbook/2019/4/15
+
+The error appears to have been in '/testops/Ops/media/playbook/2019/4/15/install_nginx.yml': line 6, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  roles:
+    - nginx
+      ^ here
+
+ERROR 2019-04-15 17:47:08 run_playbook 执行/testops/Ops/media/playbook/2019/4/15/install_nginx.yml失败，原因: Syntax Error while loading YAML.
+
+
+The error appears to have been in '/usr/share/ansible/roles/nginx/defaults/main.yml': line 68, column 3, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+nginx_upstreams: []
+  - name: myapp1
+  ^ here
+
+exception type: <class 'yaml.parser.ParserError'>
+exception: while parsing a block mapping
+  in "<unicode string>", line 3, column 1
+did not find expected key
+  in "<unicode string>", line 68, column 3
