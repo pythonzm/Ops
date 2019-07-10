@@ -1,6 +1,23 @@
-INFO 2019-04-16 16:56:07 _log Connected (version 2.0, client OpenSSH_7.4)
-INFO 2019-04-16 16:56:07 _log Authentication (publickey) failed.
-INFO 2019-04-16 16:56:07 _log Authentication (password) successful!
-INFO 2019-04-16 17:13:54 _log Connected (version 2.0, client OpenSSH_5.3)
-INFO 2019-04-16 17:13:55 _log Authentication (publickey) failed.
-INFO 2019-04-16 17:13:55 _log Authentication (password) successful!
+INFO 2019-07-05 14:13:22 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-05 14:13:22 _log Authentication (publickey) successful!
+INFO 2019-07-05 14:15:00 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-05 14:15:00 _log Authentication (password) successful!
+INFO 2019-07-05 14:15:01 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2019-07-05 14:16:19 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-05 14:16:19 _log Authentication (password) successful!
+INFO 2019-07-05 14:16:19 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2019-07-05 14:16:24 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-05 14:16:25 _log Authentication (publickey) successful!
+INFO 2019-07-05 14:16:50 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-05 14:16:51 _log Authentication (password) successful!
+INFO 2019-07-05 14:16:51 _log [chan 0] Opened sftp connection (server version 3)
+INFO 2019-07-05 15:44:42 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-05 15:44:44 _log Authentication (publickey) successful!
+INFO 2019-07-05 15:44:47 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-07-05 15:44:48 _log [chan 2] sftp session closed.
+INFO 2019-07-05 15:48:27 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-05 15:48:27 _log Authentication (publickey) successful!
+INFO 2019-07-05 15:48:29 _log [chan 2] Opened sftp connection (server version 3)
+INFO 2019-07-05 15:48:31 _log [chan 2] sftp session closed.
+INFO 2019-07-06 10:49:14 _log Connected (version 2.0, client OpenSSH_5.3)
+INFO 2019-07-06 10:49:14 _log Authentication (publickey) successful!

@@ -16,8 +16,10 @@ from django.contrib.auth.decorators import permission_required
 def db_list(request):
     if request.method == 'GET':
         dbs = DBConfig.objects.select_related('db_server').all()
+
         services = Service.objects.select_related('project').select_related('service_asset').all()
         groups = Group.objects.all()
+        DBConfig.objects.prefetch_related('db_group').filter(db_group=Group.objects.get(name='admin'))
         return render(request, 'dbmanager/db_list.html', locals())
     elif request.method == 'POST':
         try:
@@ -29,6 +31,7 @@ def db_list(request):
                 db_password=CryptPwd().encrypt_pwd(request.POST.get('db_password')),
                 db_memo=request.POST.get('db_memo')
             )
+
             db.db_group.set(request.POST.getlist('db_group'))
             return JsonResponse({'code': 200, 'data': None, 'msg': '数据库添加成功！'})
         except Exception as e:

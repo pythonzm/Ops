@@ -90,24 +90,26 @@ def get_login_info(login_user, login_ip, login_status):
     :param login_status:
     :return:
     """
-    url = 'http://ip.taobao.com/service/getIpInfo.php?ip={}'.format(login_ip)
+    url = f'http://ip-api.com/json/{login_ip}?lang=zh-CN'
     r = requests.get(url=url)
+    wx = WxApi('xxxxxxxxxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
 
-    wx = WxApi('XXXXXXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-    try:
+    if r.status_code == 200:
         info = json.loads(r.text)
-        if info.get('code') == 0:
-            data = info.get('data')
+        if info.get('status') == 'fail':
+            content = '用户{}于{}尝试登录系统\n结果：{}\n登录IP：{}\n'.format(login_user,
+                                                               datetime.datetime.now().strftime(settings.TIME_FORMAT),
+                                                               login_status, login_ip)
+        else:
             content = '用户{}于{}尝试登录系统\n结果：{}\n登录IP：{}\n登录国家：{}\n登录省市：{}\n登录城市：{}\n'.format(login_user,
                                                                                           datetime.datetime.now().strftime(
                                                                                               settings.TIME_FORMAT),
                                                                                           login_status, login_ip,
-                                                                                          data.get('country'),
-                                                                                          data.get('region'),
-                                                                                          data.get('city'))
-            wx.send_msg(subject='系统ops.juren.com登录提醒【重要】', content=content)
-    except JSONDecodeError:
+                                                                                          info.get('country'),
+                                                                                          info.get('regionName'),
+                                                                                          info.get('city'))
+    else:
         content = '用户{}于{}尝试登录系统\n结果：{}\n登录IP：{}\n'.format(login_user,
                                                            datetime.datetime.now().strftime(settings.TIME_FORMAT),
-                                                           '未知', login_ip)
-        wx.send_msg(subject='系统ops.juren.com登录提醒【重要】', content=content)
+                                                           login_status, login_ip)
+    wx.send_msg(subject='系统ops.juren.com登录提醒【重要】', content=content)

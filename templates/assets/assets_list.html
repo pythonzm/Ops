@@ -146,7 +146,7 @@
                             <th></th>
                             <th>资产类型</th>
                             <th>资产编号</th>
-                            <th>资产型号</th>
+{#                            <th>资产型号</th>#}
                             <th>管理IP</th>
                             <th>所属项目</th>
                             <th>设备状态</th>
@@ -181,9 +181,9 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ asset.asset_nu }}</td>
-                                <td>
-                                    {{ asset.asset_model|default:'' }}
-                                </td>
+{#                                <td>#}
+{#                                    {{ asset.asset_model|default:'' }}#}
+{#                                </td>#}
                                 <td>
                                     {% if asset.asset_management_ip %}
                                         <ul class="list-unstyled" style="text-align: left">

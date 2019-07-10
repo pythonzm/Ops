@@ -19,18 +19,6 @@ class UserProfile(AbstractUser):
         verbose_name_plural = '用户表'
 
 
-class UserLog(models.Model):
-    user = models.ForeignKey('UserProfile', on_delete=models.CASCADE, verbose_name='操作用户')
-    remote_ip = models.GenericIPAddressField(verbose_name='操作用户IP')
-    content = models.CharField(max_length=100, verbose_name='操作内容')
-    c_time = models.DateTimeField(auto_now_add=True, verbose_name='操作时间')
-
-    class Meta:
-        db_table = 'ops_users_log'
-        verbose_name = '用户管理操作记录表'
-        verbose_name_plural = '用户管理操作记录表'
-
-
 class UserPlan(models.Model):
     plan_status = (
         (0, '未完成'),

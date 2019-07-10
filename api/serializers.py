@@ -3,7 +3,7 @@
 from task.models import AnsibleInventory
 from rest_framework import serializers
 from assets.models import *
-from users.models import UserProfile, UserLog
+from users.models import UserProfile
 from django.contrib.auth.models import Permission, Group
 from utils.crypt_pwd import CryptPwd
 from fort.models import *
@@ -192,18 +192,6 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ('id', 'name', 'user_set', 'permissions')
-
-
-class UserLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserLog
-        fields = '__all__'
-
-
-class AssetsLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AssetsLog
-        fields = '__all__'
 
 
 class InventorySerializer(serializers.ModelSerializer):

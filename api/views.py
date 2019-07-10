@@ -107,18 +107,6 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class UserLogViewSet(viewsets.ModelViewSet):
-    queryset = UserLog.objects.all().order_by('id')
-    serializer_class = UserLogSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-
-class AssetsLogViewSet(viewsets.ModelViewSet):
-    queryset = AssetsLog.objects.all().order_by('id')
-    serializer_class = AssetsLogSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-
 class FortViewSet(viewsets.ModelViewSet):
     queryset = FortServer.objects.all().order_by('id')
     serializer_class = FortSerializer

@@ -233,7 +233,7 @@
         $(function () {
             $('.select2').select2({
                 allowClear: true
-            })
+            });
         });
 
 
@@ -259,23 +259,32 @@
                             type: 'POST',
                             data: data,
                             success: function (res) {
-                                let user_info = res.data;
-                                let is_superuser = user_info.is_superuser === "1" ? '<span class="label label-success">是</span>' : '<span class="label label-danger">否</span>';
-                                let is_active = user_info.is_active === "1" ? '<span class="label label-success">已激活</span>' : '<span class="label label-danger">未激活</span>';
-                                $.alert({
-                                    title: 'Tips',
-                                    type: 'green',
-                                    content: res.msg,
-                                });
-                                user_table.row.add([
-                                    user_info.id,
-                                    user_info.username,
-                                    is_superuser,
-                                    groups,
-                                    is_active,
-                                    user_info.mobile,
-                                    `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${user_info.id}" data-target="#UserModal">详细/更新</button> <button type="button" class="btn btn-warning btn-xs change_pwd" data-id="${user_info.id}">重置密码</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${user_info.id}">删除</button>`
-                                ]).draw();
+                                if (res.code === 200) {
+                                    let user_info = res.data;
+                                    let is_superuser = user_info.is_superuser === "1" ? '<span class="label label-success">是</span>' : '<span class="label label-danger">否</span>';
+                                    let is_active = user_info.is_active === "1" ? '<span class="label label-success">已激活</span>' : '<span class="label label-danger">未激活</span>';
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'green',
+                                        content: res.msg,
+                                    });
+                                    user_table.row.add([
+                                        user_info.id,
+                                        user_info.username,
+                                        is_superuser,
+                                        groups,
+                                        is_active,
+                                        user_info.mobile,
+                                        `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${user_info.id}" data-target="#UserModal">详细/更新</button> <button type="button" class="btn btn-warning btn-xs change_pwd" data-id="${user_info.id}">重置密码</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${user_info.id}">删除</button>`
+                                    ]).draw();
+                                }
+                                else {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: res.msg,
+                                    })
+                                }
                             },
                             error: function (response) {
                                 $.alert({

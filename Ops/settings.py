@@ -53,6 +53,7 @@ CELERY_ROUTES = {
     'assets.tasks.*': {'queue': 'default', 'routing_key': 'default'},
     'task.tasks.*': {'queue': 'ansible', 'routing_key': 'ansible'},
     'fort.tasks.*': {'queue': 'fort', 'routing_key': 'fort'},
+    'commons.tasks.*': {'queue': 'commons', 'routing_key': 'commons'},
 }
 
 # 执行ansible命令使用的redis信息
@@ -62,9 +63,12 @@ REDIS_DB = 2
 REDIS_PASSWORD = None
 
 # mongodb配置信息
-MONGODB_HOST = '127.0.0.1'
+MONGODB_HOST = '10.1.7.198'
 MONGODB_PORT = 27017
-COMMANDS_DB = 'commands'
+MONGODB_USER = 'admin'
+MONGODB_PASS = '123456'
+RECORD_DB = 'records'
+RECORD_COLL = 'ops'
 
 # Application definition
 INSTALLED_APPS = [
@@ -88,6 +92,7 @@ INSTALLED_APPS = [
     'wiki.apps.WikiConfig',
     'haystack.apps.HaystackConfig',
     'dbmanager.apps.DbmanagerConfig',
+    'commons.apps.CommonsConfig',
 ]
 
 # 全局搜索配置

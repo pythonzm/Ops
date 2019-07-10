@@ -1,8 +1,7 @@
-import datetime
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import render
-from users.models import UserProfile, UserLog, UserPlan
+from users.models import UserProfile, UserPlan
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.decorators import permission_required
 
@@ -152,30 +151,3 @@ def get_group_list(request):
     users = UserProfile.objects.all().select_related()
     permissions = Permission.objects.all().select_related()
     return render(request, 'users/group_list.html', locals())
-
-
-@permission_required('users.add_userlog', raise_exception=True)
-def get_user_log(request):
-    if request.method == 'GET':
-        user_logs = UserLog.objects.all()
-        return render(request, 'users/user_log.html', locals())
-    elif request.method == 'POST':
-        start_time = request.POST.get('startTime')
-        end_time = request.POST.get('endTime')
-        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
-        end_time = new_end_time.strftime('%Y-%m-%d')
-        try:
-            records = []
-            user_logs = UserLog.objects.filter(c_time__gt=start_time, c_time__lt=end_time)
-            for user_log in user_logs:
-                record = {
-                    'id': user_log.id,
-                    'user': user_log.user.username,
-                    'remote_ip': user_log.remote_ip,
-                    'content': user_log.content,
-                    'c_time': user_log.c_time
-                }
-                records.append(record)
-            return JsonResponse({'code': 200, 'records': records})
-        except Exception as e:
-            return JsonResponse({'code': 500, 'error': '查询失败：{}'.format(e)})

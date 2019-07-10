@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #example1 > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #example1 > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        pre {
+            border: none;
+        }
+
+        .string {
+            color: green;
+        }
+
+        .number {
+            color: darkorange;
+        }
+
+        .boolean {
+            color: blue;
+        }
+
+        .null {
+            color: magenta;
+        }
+
+        .key {
+            color: red;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <br>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="systemLogStartTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="开始时间">
+                        <span class="input-group-addon">
+										                    <span class="glyphicon glyphicon-calendar"></span>
+										                </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="systemLogEndTime" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="结束时间">
+                        <span class="input-group-addon" onclick="searchUserLog()">
+										                    <span class="glyphicon glyphicon-search"
+                                                                  style="cursor: pointer"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>操作用户</th>
+                            <th>请求方法</th>
+                            <th>请求路径</th>
+                            <th>请求数据</th>
+                            <th>返回状态</th>
+                            <th>登录IP</th>
+                            <th>操作时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <div class="modal fade" id="modal-data-content">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">请求数据</h4>
+                    </div>
+                    <div class="modal-body" style="overflow: auto;word-wrap: break-word;max-height: 500px">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
+    <script>
+        $(function () {
+            table = $('#example1').DataTable({
+                "processing": true,
+                // "serverSide": true,------------服务端分页时使用
+                ajax: {
+                    url: "{% url 'get_system_log' %}",
+                    "dataSrc": function (d) {
+                        return d.data
+                    }
+                },
+                "deferRender": true,
+                "columns": [
+                    {data: 'username'},
+                    {data: 'method'},
+                    {data: 'path'},
+                    {
+                        data: 'request_data',
+                        render: function (data, type, full, meta) {
+                            return `<button type='button' class='result btn btn-default'
+                                            data-toggle='modal'
+                                            data-target='#modal-data-content'
+                                            data-result='<pre>${highLight(JSON.stringify(data, null, 4))}</pre>'><i
+                                            class='fa fa-fw fa-eye'></i>
+                                    </button>`
+                        }
+                    },
+                    {data: 'code'},
+                    {data: 'ip'},
+                    {data: 'datetime'},
+                ],
+                "order": [[6, "desc"]]
+            });
+
+            //Date picker
+            $('#systemLogStartTime, #systemLogEndTime').datepicker({
+                autoclose: true
+            });
+        });
+
+        // 查看请求数据
+        $('#modal-data-content').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget); // Button that triggered the modal
+            let data_content = button.data('result'); // Extract info from data-* attributes
+            let modal = $(this);
+            modal.find('.modal-body').html(data_content);
+            modal.scrollTop = modal.scrollHeight;
+        });
+
+        // 按日期搜索
+        function searchUserLog() {
+            let startTime = $('#systemLogStartTime').val();
+            let endTime = $('#systemLogEndTime').val();
+            if (startTime.length === 0 || endTime.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请选择起始时间！'
+                });
+                return false;
+            }
+            table.settings()[0].ajax.data = {"startTime": startTime, "endTime": endTime};
+            table.ajax.reload(function () {
+                $.alert({
+                    title: 'Tips',
+                    type: 'green',
+                    content: '查询完成！'
+                });
+            })
+            // table.ajax.url("/get_system_log/?startTime=" + startTime + "&endTime=" + endTime).load()
+        }
+
+        // 美化json数据展示
+        function highLight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+    </script>
+
+{% endblock %}
+

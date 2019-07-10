@@ -64,7 +64,7 @@ def get_assets_charts(request):
         if m.get('software_type') == n[0]:
             data_detail.append({'asset_type': n[1], 'dcount': m.get('dcount')})
 
-    asset_logs = AssetsLog.objects.select_related('user').all().order_by('-c_time')[:5]
+    admin_records = AdminRecord.objects.select_related('admin_login_user').all().order_by('-admin_start_time')[:5]
 
     return render(request, 'assets/assets_charts.html', locals())
 
@@ -117,8 +117,9 @@ def update_asset(request, asset_type, pk):
         asset_admins = UserProfile.objects.all()
         asset_providers = AssetProvider.objects.all()
         asset_idcs = IDC.objects.all()
-        password = CryptPwd().decrypt_pwd(asset.serverassets.password)
-        server_assets = ServerAssets.objects.select_related('assets')
+        if asset_type == 'server':
+            password = CryptPwd().decrypt_pwd(asset.serverassets.password)
+            server_assets = ServerAssets.objects.select_related('assets')
         return render(request, 'assets/update_asset.html', locals())
     elif request.method == 'POST':
         if asset_type == 'server':
@@ -139,33 +140,6 @@ def update_asset(request, asset_type, pk):
                 )
                 return JsonResponse({'code': 200, 'msg': '修改成功'})
         return JsonResponse({'code': 200, 'msg': '修改成功'})
-
-
-@permission_required('assets.add_assetslog', raise_exception=True)
-def get_assets_log(request):
-    if request.method == 'GET':
-        assets_logs = AssetsLog.objects.all()
-        return render(request, 'assets/assets_log.html', locals())
-    elif request.method == 'POST':
-        start_time = request.POST.get('startTime')
-        end_time = request.POST.get('endTime')
-        new_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
-        end_time = new_end_time.strftime('%Y-%m-%d')
-        try:
-            records = []
-            assets_logs = AssetsLog.objects.filter(c_time__gt=start_time, c_time__lt=end_time)
-            for assets_log in assets_logs:
-                record = {
-                    'id': assets_log.id,
-                    'user': assets_log.user.username,
-                    'remote_ip': assets_log.remote_ip,
-                    'content': assets_log.content,
-                    'c_time': assets_log.c_time
-                }
-                records.append(record)
-            return JsonResponse({'code': 200, 'records': records})
-        except Exception as e:
-            return JsonResponse({'error': '查询失败：{}'.format(e)})
 
 
 @permission_required('assets.add_assets', raise_exception=True)
@@ -384,6 +358,7 @@ def guacamole_terminal(request, pk):
     return render(request, 'assets/admin_guacamole.html', locals())
 
 
+# 已整合至系统日志
 @admin_auth
 def login_record(request):
     if request.method == 'GET':

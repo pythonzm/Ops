@@ -205,7 +205,7 @@
 
                 $.ajax({
                     url: "{% url 'get_file_content' %}",
-                    type: 'POST',
+                    type: 'GET',
                     data: {p_name: treeNode.p_name, name: treeNode.name},
                     success: function (res) {
                         relative_path.append(`<p class="text-green" style="text-align: center;margin-bottom: 0;float: left;">当前文件是：${res.relative_path}</p>------<button type="button" class="btn btn-primary btn-xs editor"> 启用编辑</button> <button type="button" class="btn btn-warning btn-xs save"> 确认修改</button>`);

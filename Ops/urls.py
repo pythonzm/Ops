@@ -16,7 +16,7 @@ Including another URLconf
 from django.urls import path, include, re_path
 from django.views.static import serve
 from django.conf import settings
-from Ops import views
+from commons import views
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -24,6 +24,8 @@ urlpatterns = [
     path(r'create_code/', views.gen_code_img, name='create_code'),
     path(r'logout/', views.logout, name='logout'),
     path(r'lock_screen/', views.lock_screen, name='lock_screen'),
+    path(r'system_log/', views.system_log, name='system_log'),
+    path(r'get_system_log/', views.get_system_log, name='get_system_log'),
     path(r'api/', include('api.urls')),
     path(r'run/', include('task.urls')),
     path(r'users/', include('users.urls')),

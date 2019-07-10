@@ -251,19 +251,6 @@ class Cabinet(models.Model):
         verbose_name_plural = '机柜表'
 
 
-class AssetsLog(models.Model):
-    user = models.ForeignKey('users.UserProfile', related_name='asset_log', verbose_name='操作用户',
-                             on_delete=models.PROTECT)
-    remote_ip = models.GenericIPAddressField(verbose_name='操作用户IP')
-    content = models.CharField(max_length=100, verbose_name='操作内容')
-    c_time = models.DateTimeField(auto_now_add=True, verbose_name='操作时间')
-
-    class Meta:
-        db_table = 'ops_assets_log'
-        verbose_name = '资产管理操作记录表'
-        verbose_name_plural = '资产管理操作记录表'
-
-
 class AdminRecord(models.Model):
     record_modes = (
         ('ssh', 'ssh'),

@@ -11,5 +11,4 @@ urlpatterns = [
     re_path(r'plan_info/(?P<pk>[0-9]+)/', views.plan_info, name='plan_info'),
     path(r'user_center/', views.user_center, name='user_center'),
     re_path(r'reset_password/(?P<pk>[0-9]+)/', views.reset_password, name='reset_password'),
-    path(r'user_log/', views.get_user_log, name='user_log'),
 ]

@@ -290,20 +290,19 @@ def role_add(request):
 
 @permission_required('task.add_ansiblerole', raise_exception=True)
 def get_file_content(request):
-    if request.method == 'POST':
-        p_name = request.POST.get('p_name')
-        name = request.POST.get('name')
-        file = os.path.join(p_name, name)
-        if os.path.exists(file):
-            content = ''
-            with open(file, 'r') as f:
-                for line in f.readlines():
-                    content = content + line
+    p_name = request.GET.get('p_name')
+    name = request.GET.get('name')
+    file = os.path.join(p_name, name)
+    if os.path.exists(file):
+        content = ''
+        with open(file, 'r') as f:
+            for line in f.readlines():
+                content = content + line
 
-            relative_path = p_name.split('{}/{}/'.format(settings.MEDIA_ROOT, 'roles'))[-1] + '/' + name
-            return JsonResponse({'code': 200, 'content': content, 'relative_path': relative_path})
-        else:
-            return JsonResponse({'code': 500, 'msg': 'No such file or dictionary!'})
+        relative_path = p_name.split('{}/{}/'.format(settings.MEDIA_ROOT, 'roles'))[-1] + '/' + name
+        return JsonResponse({'code': 200, 'content': content, 'relative_path': relative_path})
+    else:
+        return JsonResponse({'code': 500, 'msg': 'No such file or dictionary!'})
 
 
 @permission_required('task.addansiblerole', raise_exception=True)

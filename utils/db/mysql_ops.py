@@ -19,7 +19,7 @@ from pymysql.connections import Connection
 
 class MysqlPool:
 
-    def __init__(self, host, port, user, password, db, max_pool_size=50, charset='utf8'):
+    def __init__(self, host, port, user, password, db, max_pool_size=50, charset='utf8', timeout=5):
         self.host = host
         self.port = port
         self.user = user
@@ -27,6 +27,7 @@ class MysqlPool:
         self.db = db
         self.max_pool_size = max_pool_size
         self.charset = charset
+        self.timeout = timeout
         self.pool = None
         self.cursorclass = pymysql.cursors.DictCursor
         self._initialize_pool()
@@ -34,13 +35,9 @@ class MysqlPool:
     def _initialize_pool(self):
         self.pool = Queue(maxsize=self.max_pool_size)
         for i in range(self.max_pool_size):
-            try:
-                conn = Connection(host=self.host, port=self.port, user=self.user, password=self.password, db=self.db,
-                                  charset=self.charset)
-                self.pool.put_nowait(conn)
-            except Exception as e:
-                logging.getLogger().error('初始化mysql连接池失败：{}'.format(e))
-                break
+            conn = Connection(host=self.host, port=self.port, user=self.user, password=self.password, db=self.db,
+                              charset=self.charset, connect_timeout=self.timeout)
+            self.pool.put_nowait(conn)
 
     def exec_sql_one(self, sql, args=None):
         """
