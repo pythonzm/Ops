@@ -42,7 +42,9 @@ mysql>quit
 
 四、安装redis（略）
 
-五、配置celery后台运行，或查看[官网](http://docs.celeryproject.org/en/latest/index.html)
+五、安装mongodb（略）
+
+六、配置celery后台运行，或查看[官网](http://docs.celeryproject.org/en/latest/index.html)
 ```
 cp conf/celeryd.conf /etc/default/celeryd
 ### 将配置文件里的内容按照实际情况更改
@@ -53,30 +55,32 @@ cp conf/celerybeat.server /etc/init.d/celerybeat
 /etc/init.d/celerybeat start
 ```
 
-六、配置获取主机内存脚本
+七、配置获取主机内存脚本
 
 ``` 
 cp conf/get_mem.py /path/to/your ansible python module location  ##可以使用ansbile --version命令查看路径
 ```
 
-七、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
+八、安装Guacamole用于支持web端登录Windows服务器以及开启VNC的服务器（可选）
 
    安装步骤建议参考官方文档：<https://guacamole.apache.org/doc/gug/installing-guacamole.html>
     
     安装完成后，修改settings.py中的 GUACD_HOST和 GUACD_PORT，改为guac服务启动后监听的地址和端口
    功能实现参考：<https://github.com/mohabusama/pyguacamole>以及<https://github.com/jimmy201602/django-guacamole>
 
-八、启动服务
+九、启动服务
 > 需要将Ops目录中的settings.py celery.py按照实际情况更改
 ```
-python manage.py makemigrations assets users dbmanager fort plan projs task wiki
+python manage.py makemigrations users assets dbmanager fort plan projs task wiki
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8000
-若ansible结果返回时间过长，需额外添加参数：--http_timeout=600  表示超时时间设置为10分钟
 ```
 
 以下为部分截图：
+### 系统操作日志
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/system_log.png)
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/request_data.jpg)
 
 ### 用户管理
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/user_list.png)
