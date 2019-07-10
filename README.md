@@ -79,7 +79,7 @@ python manage.py runserver 0.0.0.0:8000
 
 以下为部分截图：
 ### 系统操作日志
-![image](https://github.com/pythonzm/Ops/blob/master/screenshots/system_log.png)
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/system_log.jpg)
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/request_data.jpg)
 
 ### 用户管理
