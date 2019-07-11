@@ -103,7 +103,7 @@
             } else {
                 $.ajax({
                     url: '{% url 'get_inventory_hosts' %}',
-                    type: 'POST',
+                    type: 'GET',
                     data: hostGroups.serialize(),
                     success: function (res) {
                         let hosts = res.hosts;

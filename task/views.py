@@ -15,10 +15,10 @@ from utils.decorators import admin_auth
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)
 def get_inventory_hosts(request):
-    if request.method == 'POST':
-        group_ids = request.POST.getlist('hostGroup')
-        hosts = GenResource().gen_host_dict(group_ids)
-        return JsonResponse({'code': 200, 'hosts': hosts})
+    group_ids = request.GET.getlist('hostGroup')
+    print(group_ids, type(group_ids))
+    hosts = GenResource().gen_host_dict(group_ids)
+    return JsonResponse({'code': 200, 'hosts': hosts})
 
 
 @permission_required('task.add_ansiblemodulelog', raise_exception=True)

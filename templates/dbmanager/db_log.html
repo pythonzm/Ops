@@ -158,7 +158,7 @@
     <script>
         $(function () {
             table = $('#db-log').DataTable({
-                'ordering': false,
+                'order': [5, 'desc']
             });
 
             //Date picker
@@ -172,7 +172,7 @@
             let button = $(event.relatedTarget); // Button that triggered the modal
             let sql_content = button.data('whatever'); // Extract info from data-* attributes
             let modal = $(this);
-            modal.find('.modal-body').text(sql_content);
+            modal.find('.modal-body').html('<pre style="border: none">' + sql_content + '</pre>');
             modal.scrollTop = modal.scrollHeight;
         });
 

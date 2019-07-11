@@ -8,7 +8,8 @@ from utils.db.mongo_ops import MongoOps
 from django.utils.deprecation import MiddlewareMixin
 
 pass_paths = ['/login/', '/logout/', '/lock_screen/', '/create_code/']  # 指定哪些路径不保存所有用户列表的session
-pass_keys = ['log', 'lock_screen', 'wiki', 'post', 'role_detail']  # 指定哪些路径的非get请求不进行记录
+pass_keys = ['log', 'lock_screen', 'wiki', 'post', 'role_detail', 'assets/ssh', 'fort/terminal',
+             'proj_list']  # 指定哪些路径的非get请求不进行记录
 
 
 class UserLoginMiddleware(MiddlewareMixin):
@@ -25,8 +26,17 @@ class UserLoginMiddleware(MiddlewareMixin):
 
 
 class RecordMiddleware(MiddlewareMixin):
-    @staticmethod
-    def process_response(request, response):
+    def __init__(self, *args, **kwargs):
+        super(RecordMiddleware, self).__init__(*args, **kwargs)
+        self.body = None
+
+    def process_request(self, request):
+        if request.POST.dict():
+            self.body = request.POST.dict()
+        else:
+            self.body = getattr(request, '_body', request.body)
+
+    def process_response(self, request, response):
         if request.method == 'GET' and request.path not in pass_paths and response.status_code == 200:
             user_infos = []
             users = UserProfile.objects.all()
@@ -41,10 +51,10 @@ class RecordMiddleware(MiddlewareMixin):
             request.session['user_infos'] = user_infos
 
         elif request.method != 'GET' and all([key not in request.path for key in pass_keys]):
-            if request.POST.dict():
-                data = request.POST.dict()
-            elif request.body:
-                data = json.loads(request.body.decode('utf-8'))
+            if isinstance(self.body, dict):
+                data = self.body
+            elif isinstance(self.body, bytes) and len(self.body) != 0:
+                data = json.loads(self.body.decode('utf-8'))
             else:
                 data = None
 
@@ -61,3 +71,4 @@ class RecordMiddleware(MiddlewareMixin):
                             'ip': request.META['REMOTE_ADDR'], 'datetime': datetime.datetime.now()}
             mongo.insert_one(request_data)
         return response
+

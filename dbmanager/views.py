@@ -1,4 +1,5 @@
 import csv
+import codecs
 import logging
 import datetime
 from utils.db.mysql_ops import MysqlPool
@@ -19,7 +20,6 @@ def db_list(request):
 
         services = Service.objects.select_related('project').select_related('service_asset').all()
         groups = Group.objects.all()
-        DBConfig.objects.prefetch_related('db_group').filter(db_group=Group.objects.get(name='admin'))
         return render(request, 'dbmanager/db_list.html', locals())
     elif request.method == 'POST':
         try:
@@ -196,7 +196,7 @@ def db_log_detail(request):
         filename = 'query_res.csv'
 
         try:
-            with open(filename, 'w', newline='') as csvfile:
+            with codecs.open(filename, 'w+', 'utf_8_sig') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(heads)
                 writer.writerows(data)
