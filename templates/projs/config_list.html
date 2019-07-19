@@ -21,9 +21,9 @@
 {% block content %}
 
     <div class="row">
-        <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px; margin-top: 3px; display: none">
             <a href="{% url 'proj_config' %}">
-                <button class="btn btn-sm btn-success pull-left" id="add-celery-task">
+                <button class="btn btn-sm btn-success pull-left" id="add-project_config">
                     <i class="fa fa-plus-square"></i>
                     <span class="bigger-110">新增项目配置</span>
                 </button>
@@ -96,6 +96,10 @@
             project_conf_table = $('#project-conf').DataTable({
                 'ordering': false,
             });
+
+            {% if request.user.is_superuser %}
+                $('#add-project_config').css('display', 'block');
+            {% endif %}
         });
 
         // 删除project-conf

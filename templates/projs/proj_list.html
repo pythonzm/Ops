@@ -44,6 +44,7 @@
                             <th>项目环境</th>
                             <th>项目网址</th>
                             <th>项目负责人</th>
+                            <th>项目成员</th>
                             <th>项目备注</th>
                             <th>操作</th>
                         </tr>
@@ -63,6 +64,7 @@
                                 </td>
                                 <td>{{ project.project_web|default:'' }}</td>
                                 <td>{{ project.project_admin.username }}</td>
+                                <td>{{ project.project_member.all|join:", " }}</td>
                                 <td>{{ project.project_memo }}</td>
                                 <td>
                                     <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
@@ -136,8 +138,21 @@
                                                 <select class="form-control select2" name="project_admin"
                                                         id="project_admin"
                                                         style="width: 100%;">
-                                                    {% for project_admin in project_admins %}
-                                                        <option value="{{ project_admin.id }}">{{ project_admin.username }}</option>
+                                                    {% for project_user in project_users %}
+                                                        <option value="{{ project_user.id }}">{{ project_user.username }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project_member" class="col-sm-2 control-label">项目成员</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control select2" name="project_member"
+                                                        multiple="multiple"
+                                                        id="project_member" style="width: 100%;">
+                                                    {% for project_user in project_users %}
+                                                        <option value="{{ project_user.id }}">{{ project_user.username }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
@@ -226,8 +241,6 @@
 
             proj_ops.unbind('click').on('click', function () {
                 let data = $('#proj_info').serializeJson();
-                let proj_env_text = $('#project_env option:selected').text();
-                let proj_admin = $('#project_admin option:selected').text();
 
                 $.ajax({
                     url: '/api/project/',
@@ -235,15 +248,8 @@
                     data: JSON.stringify(data),
                     dataType: 'json',
                     contentType: "application/json",
-                    success: function (res) {
-                        proj_table.row.add([
-                            res.project_name,
-                            proj_env_text,
-                            res.project_web,
-                            proj_admin,
-                            res.project_memo,
-                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${res.id}" data-target="#ProjectModal">详细/更新</button> <a href="/project/proj_list/${res.id}/" target="_blank"><button type="button" class="btn btn-info btn-xs">架构</button></a> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
-                        ]).draw();
+                    success: function () {
+                        location.reload()
                     },
                     error: function (response) {
                         $.alert({
@@ -259,7 +265,6 @@
         // 更新项目
         proj_tbody.on('click', '.modify', function () {
             let proj_id = $(this).attr('data-id');
-            let proj_td_obj = $(this).parents('tr').children();
             $('.modal-title').text('修改项目信息');
             proj_ops.text('确认修改');
             $.get('/api/project/' + proj_id + '/', function (data) {
@@ -267,6 +272,7 @@
                 $('#project_env').val(data.project_env).trigger('change');
                 $('#project_web').val(data.project_web);
                 $('#project_admin').val(data.project_admin).trigger('change');
+                $('#project_member').val(data.project_member).trigger('change');
                 $('#project_memo').val(data.project_memo);
             });
             $('#project_name').attr('readonly', true);
@@ -356,7 +362,12 @@
                             serializeObj[this.name] = [serializeObj[this.name], this.value];
                         }
                     } else {
-                        serializeObj[this.name] = this.value;
+                        if (this.name.indexOf('project_member') !== -1) {
+                            serializeObj[this.name] = [this.value];
+                        }
+                        else {
+                            serializeObj[this.name] = this.value;
+                        }
                     }
                 });
                 return serializeObj;

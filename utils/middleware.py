@@ -9,7 +9,7 @@ from django.utils.deprecation import MiddlewareMixin
 
 pass_paths = ['/login/', '/logout/', '/lock_screen/', '/create_code/']  # 指定哪些路径不保存所有用户列表的session
 pass_keys = ['log', 'lock_screen', 'wiki', 'post', 'role_detail', 'assets/ssh', 'fort/terminal',
-             'proj_list']  # 指定哪些路径的非get请求不进行记录
+             'proj_list', 'user_center']  # 指定哪些路径的非get请求不进行记录
 
 
 class UserLoginMiddleware(MiddlewareMixin):
@@ -71,4 +71,3 @@ class RecordMiddleware(MiddlewareMixin):
                             'ip': request.META['REMOTE_ADDR'], 'datetime': datetime.datetime.now()}
             mongo.insert_one(request_data)
         return response
-

@@ -320,6 +320,15 @@
 
                 user_ops.unbind('click').on('click', function () {
                     let data = $('#user_detail').serializeJson();
+                    let groups = $('#groups').val();
+                    let permissions = $('#user_permissions').val();
+                    if (groups.length === 0) {
+                        Object.assign(data, {'groups': groups})
+                    }
+                    if (permissions.length === 0) {
+                        Object.assign(data, {'user_permissions': permissions})
+                    }
+                    
                     $.ajax({
                         url: '/api/users/' + user_id + '/',
                         type: 'PUT',

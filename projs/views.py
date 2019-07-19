@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from projs.models import *
 from users.models import UserProfile
 from assets.models import Assets, ServerAssets
-from utils.decorators import admin_auth
+from utils.decorators import admin_auth, deploy_auth
 from projs.utils.git_tools import GitTools
 from projs.utils.svn_tools import SVNTools
 from django.contrib.auth.decorators import permission_required
@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import permission_required
 def proj_list(request):
     projects = Project.objects.select_related('project_admin').all()
     project_envs = Project.project_envs
-    project_admins = UserProfile.objects.all()
+    project_users = UserProfile.objects.all()
     return render(request, 'projs/proj_list.html', locals())
 
 
@@ -58,13 +58,16 @@ def proj_config(request):
         return render(request, 'projs/proj_config.html', locals())
 
 
-@admin_auth
+@permission_required('projs.deploy_project', raise_exception=True)
 def config_list(request):
-    configs = ProjectConfig.objects.select_related('project').all()
+    user = request.user
+    projects = user.proj_admin.all() | user.proj_member.all()
+    configs = ProjectConfig.objects.select_related('project').all() if user.is_superuser else \
+        [project.projectconfig for project in projects if hasattr(project, 'projectconfig')]
     return render(request, 'projs/config_list.html', locals())
 
 
-@admin_auth
+@deploy_auth
 def deploy(request, pk):
     config = ProjectConfig.objects.select_related('project').get(id=pk)
     if request.method == 'GET':

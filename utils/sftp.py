@@ -14,6 +14,7 @@ import os
 import logging
 import paramiko
 from django.http import FileResponse
+from django.utils.http import urlquote
 
 
 class SFTP:
@@ -73,7 +74,7 @@ class SFTP:
 
         response = FileResponse(open(local_file, 'rb'))
         response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=local_file_name)
+        response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=urlquote(local_file_name))
         return response
 
     def upload_file(self, upload_file, upload_file_path):

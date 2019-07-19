@@ -6,6 +6,7 @@
           href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
     <link rel="stylesheet"
           href="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static 'highlight/styles/monokai-sublime.css' %}">
     <style>
         /* dataTables列内容居中 */
         #db-log > tbody > tr > td {
@@ -74,7 +75,7 @@
                                     <button type="button" class="result btn btn-default"
                                             data-toggle="modal"
                                             data-target="#modal-sql-content"
-                                            data-whatever="{{ db_log.db_sql_content }}"><i
+                                            data-whatever='<pre style="border: none"><code>{{ db_log.db_sql_content }}</code></pre>'><i
                                             class="fa fa-fw fa-eye"></i>
                                     </button>
                                 </td>
@@ -153,6 +154,7 @@
     <!-- bootstrap datepicker -->
     <script src="{% static 'AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
 
+    <script src="{% static 'highlight/highlight.pack.js' %}"></script>
     <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
     <script src="{% static 'js/jquery-dateFormat.min.js' %}"></script>
     <script>
@@ -172,7 +174,10 @@
             let button = $(event.relatedTarget); // Button that triggered the modal
             let sql_content = button.data('whatever'); // Extract info from data-* attributes
             let modal = $(this);
-            modal.find('.modal-body').html('<pre style="border: none">' + sql_content + '</pre>');
+            modal.find('.modal-body').html(sql_content);
+            $('pre code').each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
             modal.scrollTop = modal.scrollHeight;
         });
 
@@ -318,4 +323,5 @@
     </script>
 
 {% endblock %}
+
 

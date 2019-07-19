@@ -1,6 +1,7 @@
 import os
 import markdown
 from django.utils.text import slugify
+from django.utils.http import urlquote
 from markdown.extensions.toc import TocExtension
 from django.shortcuts import render
 from wiki.models import *
@@ -126,5 +127,5 @@ def wiki_file_download(request, pk):
     file = open(file_obj.wiki_file.path, 'rb')
     response = FileResponse(file)
     response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=file_name)
+    response['Content-Disposition'] = 'attachment;filename="{filename}"'.format(filename=urlquote(file_name))
     return response

@@ -98,10 +98,12 @@ def get_user_list(request):
 @permission_required('users.add_userprofile', raise_exception=True)
 def create_user(request):
     if request.method == 'POST':
+        username = request.POST.get('username')
+        init_pass = username.capitalize() + '@123'
         try:
             user_obj = UserProfile.objects.create(
-                username=request.POST.get('username'),
-                password=make_password('123456'),
+                username=username,
+                password=make_password(init_pass),
                 is_superuser=request.POST.get('is_superuser'),
                 is_active=request.POST.get('is_active'),
                 mobile=request.POST.get('mobile')
@@ -117,17 +119,15 @@ def create_user(request):
 
             groups = request.POST.getlist('groups')
             if groups:
-                for i in groups:
-                    group = Group.objects.get(id=i)
-                    user_obj.groups.add(group)
+                user_obj.groups.set(groups)
 
             user_permissions = request.POST.getlist('user_permissions')
             if user_permissions:
-                for i in user_permissions:
-                    permission = Permission.objects.get(id=i)
-                    user_obj.user_permissions.add(permission)
+                user_obj.user_permissions.set(user_permissions)
 
-            return JsonResponse({"code": 200, "data": data, "msg": "用户添加成功！初始密码是123456"})
+            user_obj.save()
+
+            return JsonResponse({"code": 200, "data": data, "msg": "用户添加成功！初始密码是{}".format(init_pass)})
         except Exception as e:
             return JsonResponse({"code": 500, "data": None, "msg": "用户添加失败，原因：{}".format(e)})
 
@@ -136,11 +136,11 @@ def create_user(request):
 def reset_password(request, pk):
     if request.method == 'POST':
         try:
-            UserProfile.objects.filter(id=pk).update(
-                password=make_password('123456')
-            )
-
-            return JsonResponse({"code": 200, "data": None, "msg": "密码重置成功！密码为123456"})
+            user = UserProfile.objects.get(id=pk)
+            reset_pass = user.username.capitalize() + '@123'
+            user.password = make_password(reset_pass)
+            user.save()
+            return JsonResponse({"code": 200, "data": None, "msg": "密码重置成功！密码为{}".format(reset_pass)})
         except Exception as e:
             return JsonResponse({"code": 500, "data": None, "msg": "密码重置失败，原因：{}".format(e)})
 

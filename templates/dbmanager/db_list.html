@@ -113,7 +113,7 @@
                                                 <select class="form-control select2" name="db_server" id="db_server"
                                                         style="width: 100%;" required>
                                                     {% for service in services %}
-                                                        <option value="{{ service.id }}">{{ service.project.project_name }}|{{ service.project.get_project_env_display }}|{{ service.service_asset.asset_management_ip }}</option>
+                                                        <option value="{{ service.id }}">{{ service.project.project_name }}|{{ service.project.get_project_env_display }}|{{ service.service_asset.asset_management_ip }}|{{ service.service_name }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>

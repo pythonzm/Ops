@@ -12,12 +12,19 @@ class Project(models.Model):
     project_name = models.CharField(max_length=64, verbose_name='项目名称')
     project_env = models.CharField(max_length=4, choices=project_envs, verbose_name='项目环境', default='test')
     project_web = models.CharField(max_length=64, blank=True, verbose_name='项目网址', default='')
-    project_admin = models.ForeignKey('users.UserProfile', verbose_name='项目负责人', on_delete=models.PROTECT)
+    project_admin = models.ForeignKey('users.UserProfile', related_name='proj_admin', verbose_name='项目负责人',
+                                      on_delete=models.PROTECT)
+    project_member = models.ManyToManyField('users.UserProfile', related_name='proj_member', blank=True,
+                                            verbose_name='项目成员')
     project_org = models.TextField(blank=True, default='', verbose_name='项目架构JSON数据')
     project_memo = models.TextField(blank=True, verbose_name='项目描述', default='')
 
     class Meta:
         db_table = 'ops_project'
+        permissions = (
+            ("view_project", "读取项目列表权限"),
+            ("deploy_project", "代码发布权限"),
+        )
         verbose_name = '项目表'
         verbose_name_plural = '项目表'
         unique_together = ("project_env", "project_name")

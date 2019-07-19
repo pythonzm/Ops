@@ -18,7 +18,8 @@ def db_list(request):
     if request.method == 'GET':
         dbs = DBConfig.objects.select_related('db_server').all()
 
-        services = Service.objects.select_related('project').select_related('service_asset').all()
+        services = Service.objects.select_related('project').select_related('service_asset').filter(
+            service_name__icontains='mysql')
         groups = Group.objects.all()
         return render(request, 'dbmanager/db_list.html', locals())
     elif request.method == 'POST':
