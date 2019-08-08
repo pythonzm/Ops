@@ -105,23 +105,23 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/var/tmp/django_cache',
-    }
-}
-
-CACHE_MIDDLEWARE_KEY_PREFIX = ''
-CACHE_MIDDLEWARE_SECONDS = 30
-CACHE_MIDDLEWARE_ALIAS = 'default'
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+#         'LOCATION': '/var/tmp/django_cache',
+#     }
+# }
+#
+# CACHE_MIDDLEWARE_KEY_PREFIX = ''
+# CACHE_MIDDLEWARE_SECONDS = 30
+# CACHE_MIDDLEWARE_ALIAS = 'default'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.cache.UpdateCacheMiddleware',
+    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -245,3 +245,7 @@ EMAIL_PORT = 25
 EMAIL_HOST_USER = 'XXXXXXXXXXXX'
 EMAIL_HOST_PASSWORD = 'XXXXXXXXXXX'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# 数据库管理用户,该用户需要有grant option权限,并且只能赋予该用户所拥有的权限
+MYSQL_USER = 'cc'
+MYSQL_PASS = '123456'

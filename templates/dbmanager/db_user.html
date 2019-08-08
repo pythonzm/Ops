@@ -1,0 +1,590 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #db-user > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #db-user > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        .form-horizontal .form-group {
+            margin-right: -200px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="box">
+                <div class="box-body seach-db">
+
+                    <div class="form-group">
+                        <label for="db_server">选择数据库</label>
+                        <select class="form-control select2" name="db_server" id="db_server" style="width: 100%;">
+                            <option selected="selected">请选择数据库</option>
+                            {% for server_asset in server_assets %}
+                                <option value="{{ server_asset.id }}">{{ server_asset.assets.asset_management_ip }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="db_port">请输入端口</label>
+                        <input type="text" class="form-control" id="db_port" value=3306>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm connect" style="width: 100%">查询</button>
+                    <div class="db-name" style="display: none;">
+                        <div class="box-header with-border">
+                            <h3 class="box-title text-center" style="display: block">
+                                数据库名称
+                            </h3>
+                        </div>
+                        <div class="box-body db-names" style="overflow: auto;text-align: center;height: 800px">
+                            <table rules="all" frame="box"
+                                   style="text-align: center; width: auto;display:inline-block;">
+                                <tbody class="names">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-side" style="display: none">
+            <div class="col-sm-7 pull-left add-db-user-div" style="margin-bottom: 3px">
+                <button class="btn btn-sm btn-success pull-left add-db-user" data-toggle="modal"
+                        data-target="#DBUser">
+                    <i class="fa fa-plus-square"></i>
+                    <span class="bigger-110">新增用户</span>
+                </button>
+            </div>
+            <div class="col-md-9">
+                <div class="box">
+                    <div class="box-body">
+                        <table id="db-user" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>用户</th>
+                                <th>权限</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DBUserModal  -->
+        <div class="modal fade" id="DBUser" tabindex="-1" role="dialog"
+             aria-labelledby="DBUserLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="DBUserLabel">
+
+                        </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="db-user-detail" class="main form-horizontal">
+                            <fieldset>
+                                <div class="form-group user-div">
+                                    <label for="user" class="col-sm-2 control-label">用户</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="user" id="user"
+                                               placeholder="格式：username@hostip" required/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group password-div">
+                                    <label for="password" class="col-sm-2 control-label">密码</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="password" id="password"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group db-table-div">
+                                    <label for="db-table" class="col-sm-2 control-label">授权数据库</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="db-table" id="db-table"
+                                               placeholder="格式：dbname.tablename" required/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group privs-div">
+                                    <label for="privs" class="col-sm-2 control-label">权限</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" id="privs" name="privs" multiple
+                                                style="width: 100%;">
+                                            {% for k,v in privs.items %}
+                                                <option value="{{ k }}">{{ k }}:&nbsp;&nbsp;{{ v }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                id="db-user-ops"></button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            $("[data-toggle='tooltip']").tooltip();
+            // Initialize Select2 Elements
+            $('.select2').select2({
+                allowClear: true
+            });
+        });
+
+        // 连接数据库获取所有的数据库
+        $('.connect').on('click', function () {
+            let data = {
+                pk: $('#db_server').val(),
+                port: $('#db_port').val(),
+                action: "show databases"
+            };
+            $.ajax({
+                url: "{% url 'db_user' %}",
+                type: 'POST',
+                data: data,
+                success: function (res) {
+                    if (res.code === 200) {
+                        get_users();
+                        $('.table-side, .db-name').css('display', 'block');
+                        let names = res.data;
+                        let dbs = $('.names');
+                        dbs.html('');
+                        for (let i = 0; i < names.length; i++) {
+                            dbs.append(`<tr> <td>${names[i]}</td> </tr>`)
+                        }
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: res.msg,
+                        })
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        // 初始化表
+        function get_users() {
+            let db_user = $('#db-user');
+            let data = {
+                pk: $('#db_server').val(),
+                port: $('#db_port').val(),
+                action: "show users"
+            };
+            if (db_user.hasClass('dataTable')) {
+                table.settings()[0].ajax.data = {
+                    "pk": $('#db_server').val(),
+                    "port": $('#db_port').val(),
+                    "action": "show users"
+                };
+                table.ajax.reload()
+            }
+            table = db_user.DataTable({
+                "ordering": false,
+                retrieve: true,
+                ajax: {
+                    url: "{% url 'db_user' %}",
+                    data: data,
+                    method: "POST",
+                    "dataSrc": function (d) {
+                        return d.data
+                    }
+                },
+                "deferRender": true,
+                "columns": [
+                    {data: 'user'},
+                    {
+                        data: 'privs',
+                        render: function (data, type, full, meta) {
+                            return JSON.stringify(data, null, 4)
+                        }
+                    },
+                ],
+                columnDefs: [{
+                    targets: 2,
+                    render: function (data, type, row, meta) {
+                        return `<div class="btn-group">
+                  <button type="button" class="btn btn-warning btn-sm">修改</button>
+                  <button type="button" class="btn btn-warning dropdown-toggle btn-sm" data-toggle="dropdown">
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li data-user=${row.user} class="mod-user" data-toggle="modal" data-target="#DBUser"><a href="javascript:void(0)">修改用户</a></li>
+                    <li data-user=${row.user} class="mod-pass" data-toggle="modal" data-target="#DBUser"><a href="javascript:void(0)">修改密码</a></li>
+                    <li data-user=${row.user} class="add-priv" data-toggle="modal" data-target="#DBUser"><a href="javascript:void(0)">增加权限</a></li>
+                    <li data-user=${row.user} class="del-priv" data-toggle="modal" data-target="#DBUser"><a href="javascript:void(0)">删除权限</a></li>
+                  </ul>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm delete-user" data-user=${row.user}>
+                                        删除
+                                    </button>`;
+                    }
+                }]
+            });
+        }
+
+        let db_user_tbody = $('#db-user tbody');
+        let modal_title = $('.modal-title');
+        let db_user_ops = $('#db-user-ops');
+
+
+        // 添加用户
+        $('.add-db-user').on('click', function () {
+            modal_title.text('添加用户');
+            db_user_ops.text('添加');
+            $('.user-div, .password-div, .db-table-div, .privs-div').css('display', 'block');
+        });
+
+        db_user_ops.on('click', function () {
+            let data = {
+                pk: $('#db_server').val(),
+                port: $('#db_port').val(),
+                action: "add user",
+                user: $('#user').val(),
+                password: $('#password').val(),
+                db_table: $('#db-table').val(),
+                privs: $('#privs').val()
+            };
+            $.ajax({
+                url: '{% url "db_user" %}',
+                method: "POST",
+                data: data,
+                traditional: true,
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code === 200) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: res.msg,
+                        });
+                        table.ajax.reload();
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: res.msg,
+                        })
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        });
+
+        // 修改用户
+        db_user_tbody.on('click', '.mod-user', function () {
+            modal_title.text('修改用户');
+            db_user_ops.text('确认修改');
+            let user_obj = $('#user');
+            let db_user = $(this).attr('data-user');
+            $('.user-div').css('display', 'block');
+            $('.password-div, .db-table-div, .privs-div').css('display', 'none');
+            user_obj.val(db_user);
+
+            db_user_ops.unbind('click').on('click', function () {
+                let data = {
+                    pk: $('#db_server').val(),
+                    port: $('#db_port').val(),
+                    action: "mod user",
+                    old_user: db_user,
+                    new_user: user_obj.val()
+                };
+                $.ajax({
+                    url: '{% url "db_user" %}',
+                    method: "POST",
+                    data: data,
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: res.msg,
+                            });
+                            table.ajax.reload();
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (data) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: data.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 修改密码
+        db_user_tbody.on('click', '.mod-pass', function () {
+            modal_title.text('修改密码');
+            db_user_ops.text('确认修改');
+
+            let db_user = $(this).attr('data-user');
+            $('.password-div').css('display', 'block');
+            $('.user-div, .db-table-div, .privs-div').css('display', 'none');
+
+            db_user_ops.unbind('click').on('click', function () {
+                let data = {
+                    pk: $('#db_server').val(),
+                    port: $('#db_port').val(),
+                    action: "mod pass",
+                    user: db_user,
+                    password: $('#password').val()
+                };
+                $.ajax({
+                    url: '{% url "db_user" %}',
+                    method: "POST",
+                    data: data,
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: res.msg,
+                            });
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (data) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: data.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 增加权限
+        db_user_tbody.on('click', '.add-priv', function () {
+            modal_title.text('增加权限');
+            db_user_ops.text('确认修改');
+            let db_user = $(this).attr('data-user');
+            $('.db-table-div, .privs-div').css('display', 'block');
+            $('.user-div, .password-div').css('display', 'none');
+
+            db_user_ops.unbind('click').on('click', function () {
+                let data = {
+                    pk: $('#db_server').val(),
+                    port: $('#db_port').val(),
+                    action: "add priv",
+                    user: db_user,
+                    db_table: $('#db-table').val(),
+                    privs: $('#privs').val()
+                };
+                $.ajax({
+                    url: '{% url "db_user" %}',
+                    method: "POST",
+                    data: data,
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: res.msg,
+                            });
+                            table.ajax.reload();
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (data) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: data.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除权限
+        db_user_tbody.on('click', '.del-priv', function () {
+            modal_title.text('删除权限');
+            db_user_ops.text('确认修改');
+            let db_user = $(this).attr('data-user');
+            $('.db-table-div, .privs-div').css('display', 'block');
+            $('.user-div, .password-div').css('display', 'none');
+
+            db_user_ops.unbind('click').on('click', function () {
+                let data = {
+                    pk: $('#db_server').val(),
+                    port: $('#db_port').val(),
+                    action: "del priv",
+                    user: db_user,
+                    db_table: $('#db-table').val(),
+                    privs: $('#privs').val()
+                };
+                $.ajax({
+                    url: '{% url "db_user" %}',
+                    method: "POST",
+                    data: data,
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'green',
+                                content: res.msg,
+                            });
+                            table.ajax.reload();
+                        } else {
+                            $.alert({
+                                title: 'Tips',
+                                type: 'red',
+                                content: res.msg,
+                            })
+                        }
+                    },
+                    error: function (data) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: data.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除用户
+        db_user_tbody.on('click', '.delete-user', function () {
+            let db_user = $(this).attr('data-user');
+            let data = {
+                pk: $('#db_server').val(),
+                port: $('#db_port').val(),
+                action: "delete user",
+                user: db_user
+            };
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '{% url "db_user" %}',
+                            method: "POST",
+                            data: data,
+                            traditional: true,
+                            dataType: 'json',
+                            success: function (res) {
+                                if (res.code === 200) {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'green',
+                                        content: res.msg,
+                                    });
+                                    table.ajax.reload();
+                                } else {
+                                    $.alert({
+                                        title: 'Tips',
+                                        type: 'red',
+                                        content: res.msg,
+                                    })
+                                }
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        })
+
+    </script>
+
+{% endblock %}
+

@@ -9,7 +9,7 @@ from django.utils.deprecation import MiddlewareMixin
 
 pass_paths = ['/login/', '/logout/', '/lock_screen/', '/create_code/']  # 指定哪些路径不保存所有用户列表的session
 pass_keys = ['log', 'lock_screen', 'wiki', 'post', 'role_detail', 'assets/ssh', 'fort/terminal',
-             'proj_list', 'user_center']  # 指定哪些路径的非get请求不进行记录
+             'proj_list', 'user_center', 'db_exec']  # 指定哪些路径的非get请求不进行记录
 
 
 class UserLoginMiddleware(MiddlewareMixin):
@@ -31,8 +31,8 @@ class RecordMiddleware(MiddlewareMixin):
         self.body = None
 
     def process_request(self, request):
-        if request.POST.dict():
-            self.body = request.POST.dict()
+        if request.POST:
+            self.body = dict(request.POST)
         else:
             self.body = getattr(request, '_body', request.body)
 

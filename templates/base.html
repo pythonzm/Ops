@@ -316,7 +316,7 @@ desired effect
                 {% endif %}
 
 
-                {% if perms.plan.add_dblog %}
+                {% if perms.dbmanager.add_dblog %}
                     <li class="treeview">
                         <a href="#"><i class="fa fa-fw fa-database"></i> <span>数据库管理</span>
                             <span class="pull-right-container">
@@ -325,6 +325,7 @@ desired effect
                         </a>
                         <ul class="treeview-menu">
                             {% if user.is_superuser %}
+                                <li><a href="{% url 'db_user' %}"><i class="fa fa-users"></i> 数据库用户管理</a></li>
                                 <li><a href="{% url 'db_list' %}"><i class="fa fa-wrench"></i> 数据库配置</a></li>
                             {% endif %}
                             <li><a href="{% url 'db_exec' %}"><i class="fa fa-mouse-pointer"></i> 数据库连接</a></li>
