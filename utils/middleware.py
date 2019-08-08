@@ -32,7 +32,7 @@ class RecordMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         if request.POST:
-            self.body = dict(request.POST)
+            self.body = {k: v[0] if len(v) == 1 else v for k, v in request.POST.lists()}
         else:
             self.body = getattr(request, '_body', request.body)
 
