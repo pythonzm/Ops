@@ -22,12 +22,13 @@ VALID_PRIVS = {'CREATE': '允许创建数据库和表', 'DROP': '允许删除数
                'ALTER ROUTINE': '允许修改和删除存储过程', 'CREATE ROUTINE': '允许创建存储过程', 'EXECUTE': '允许执行存储过程',
                'FILE': '允许执行创建文件和读取文件相关操作', 'CREATE TABLESPACE': '允许创建、修改和删除表空间和日志文件组',
                'CREATE USER': '允许创建、删除、重命名用户和取消用户所有权限', 'PROCESS': '允许使用SHOW PROCESSLIST',
-               'PROXY': '允许用户代理(将用户权限代理给某个用户)', 'RELOAD': '允许使用FLUSH', 'REPLICATION CLIENT': '允许查看master和slave',
+               'RELOAD': '允许使用FLUSH', 'REPLICATION CLIENT': '允许查看master和slave',
                'REPLICATION SLAVE': '允许读取从master复制过来的binlog文件', 'SHOW DATABASES': '允许使用SHOW DATABASES',
-               'SHUTDOWN': '允许停止mysql服务',
-               'SUPER': '允许执行管理员命令，比如：CHANGE MASTER、KILL、PURGE BINARY LOGS、SET GLOBAL、debug',
-               'ALL PRIVILEGES': '允许所有权限', 'USAGE': '没有任何权限，只允许登录', }
+               'SHUTDOWN': '允许停止mysql服务', 'SUPER': '允许执行管理员命令，比如：CHANGE MASTER、KILL、PURGE BINARY LOGS、SET GLOBAL、debug',
+               'ALL PRIVILEGES': '允许所有权限', 'USAGE': '没有任何权限，只允许登录'}
 
+
+# 'PROXY': '允许用户代理(将用户权限代理给某个用户)
 
 @admin_auth
 def db_list(request):

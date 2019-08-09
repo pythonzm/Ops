@@ -103,13 +103,13 @@ class PlayBookResultsCollector(CallbackBase):
     def v2_playbook_on_play_start(self, play):
         name = play.get_name().strip()
         if not name:
-            msg = '<code style="color: #FFFFFF">\nPLAY {}\n</code>'.format('*' * 100)
+            msg = format('<code style="color: #FFFFFF">\nPLAY', '*<150') + ' \n</code>'
         else:
-            msg = '<code style="color: #FFFFFF">\nPLAY [{}] {}\n</code>'.format(name, '*' * 100)
+            msg = format(f'<code style="color: #FFFFFF">\nPLAY [{name}]', '*<150') + ' \n</code>'
         self.send_save(msg)
 
     def v2_playbook_on_task_start(self, task, is_conditional):
-        msg = '<code style="color: #FFFFFF">\nTASK [{}] {}\n</code>'.format(task.get_name(), '*' * 100)
+        msg = format(f'<code style="color: #FFFFFF">\nTASK [{task.get_name()}]', '*<150') + ' \n</code>'
         self.send_save(msg)
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
@@ -142,7 +142,7 @@ class PlayBookResultsCollector(CallbackBase):
 
     def v2_playbook_on_stats(self, stats):
         hosts = sorted(stats.processed.keys())
-        data = '<code style="color: #FFFFFF">\nPLAY RECAP {}\n'.format('*' * 100)
+        data = format('<code style="color: #FFFFFF">\nPLAY RECAP ', '*<150') + '\n'
         self.send_save(data)
         for h in hosts:
             s = stats.summarize(h)

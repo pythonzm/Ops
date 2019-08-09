@@ -121,8 +121,6 @@ def gen_fort_users(user):
     """
     生成当前用户下的所有可用的用户列表
     :param user: 当前用户，request.user
-    :return:
-    :rtype: list
     """
     groups = user.groups.all()
 
@@ -136,7 +134,8 @@ def gen_fort_users(user):
 
     fort_users = [user for user in fort_users if user.fort_server.server_status == 1 and user.fort_user_status == 1]
 
-    return fort_users
+    users = fort_server_users if user.is_superuser else fort_users
+    return users
 
 
 @admin_auth

@@ -17,6 +17,9 @@ import logging
 from pymysql.err import OperationalError, ProgrammingError
 from pymysql.connections import Connection
 
+GLOBAL_PRIVIS = {'CREATE TABLESPACE', 'CREATE USER', 'FILE', 'PROCESS', 'REPLICATION CLIENT', 'REPLICATION SLAVE',
+                 'SHOW DATABASES', 'SHUTDOWN', 'SUPER', 'RELOAD'}
+
 
 class MysqlPool:
 
@@ -107,6 +110,7 @@ class MysqlPool:
         except Exception as e:
             logging.getLogger().error('执行exec_sql_many失败：{}'.format(e))
             conn.rollback()
+            raise e
         finally:
             conn.close()
             self.pool.put_nowait(conn)
@@ -129,7 +133,7 @@ class MysqlPool:
 
     def get_all_users(self):
         users = self.exec_select("SELECT user,host FROM user")
-        return (user for user in users[1] if user[0] not in ['', 'root'])
+        return (user for user in users[1] if user[0] not in ['', 'root', ])
 
     def close_conn(self):
         for i in range(self.max_pool_size):
@@ -222,6 +226,8 @@ class MysqlPool:
         :type privs: tuple, list
         :return:
         """
+        if not set(privs).isdisjoint(GLOBAL_PRIVIS) and db_table != '*.*':
+            raise GlobalPrivilegeError("全局权限不能对单个库授权，需要指定*.*")
         db_table = db_table.replace('%', '%%')
         priv_string = ",".join([p for p in privs if p not in ('GRANT', 'REQUIRESSL')])
         query = ["GRANT %s ON %s" % (priv_string, db_table), "TO %s@%s"]
@@ -230,22 +236,24 @@ class MysqlPool:
         query = ' '.join(query)
         self.exec_sql_one(query, (user, host))
 
-    def privileges_revoke(self, user, host, db_table, priv, grant_option=False):
+    def privileges_revoke(self, user, host, db_table, privs, grant_option=False):
         """
         :param user:
         :param host:
         :param db_table: 格式：db_name.table_name
-        :param priv:
-        :type priv: list, tuple
+        :param privs:
+        :type privs: list, tuple
         :param grant_option:
         :return:
         """
+        if not set(privs).isdisjoint(GLOBAL_PRIVIS) and db_table != '*.*':
+            raise GlobalPrivilegeError("全局权限不能对单个库撤销权限，需要指定*.*")
         db_table = db_table.replace('%', '%%')
         if grant_option:
             query = ["REVOKE GRANT OPTION ON %s" % db_table, "FROM %s@%s"]
             query = ' '.join(query)
             self.exec_sql_one(query, (user, host))
-        priv_string = ",".join([p for p in priv if p not in ('GRANT', 'REQUIRESSL')])
+        priv_string = ",".join([p for p in privs if p not in ('GRANT', 'REQUIRESSL')])
         query = ["REVOKE %s ON %s" % (priv_string, db_table), "FROM %s@%s"]
         query = ' '.join(query)
         self.exec_sql_one(query, (user, host))
@@ -263,17 +271,21 @@ class UserExistError(Exception):
     pass
 
 
+class GlobalPrivilegeError(Exception):
+    pass
+
+
 if __name__ == '__main__':
     m = MysqlPool('10.1.7.198', 3306, 'cc', '123456', 'mysql')
 
-    a = m.user_all()
-    print(a)
+    # a = m.user_all()
+    # print(a)
     # m.user_mod('hello1', '10.%.%.%', new_user='world', new_host='%')
     # _, r = m.exec_select("SELECT VERSION()", one=True)
     # print(r[0])
     # m.user_delete('iamdcdb', '%')
     # m.user_add('hello', '%', '123456', 'blog.*', ['select'])
-    # m.privileges_grant('cmdb', '10.1.7.%', 'devops.*', ['insert', 'delete', 'update', 'select'])
+    m.privileges_grant('bb', '%', 'devops.*', ['RELOAD'])
     # o = m.privileges_get('jrops', '%')
     # print(o)
     # m.privileges_revoke('cmdb', '10.1.7.%', 'devops.*', ("update", "delete"))
