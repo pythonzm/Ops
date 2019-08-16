@@ -12,9 +12,15 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import sys
+try:
+    import ConfigParser as conf
+except ImportError as e:
+    import configparser as conf
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config = conf.ConfigParser()
+config.read(os.path.join(BASE_DIR, 'conf/ops.ini'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -23,7 +29,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'e02$n$tpsi&rvjj7=5y!pi7b2$ku-+@5+6%#va7=oypuglxkn#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.get('global', 'debug')
 
 ALLOWED_HOSTS = ['*']
 
@@ -35,7 +41,7 @@ CHANNEL_LAYERS = {
         # This example app uses the Redis channel layer implementation channels_redis
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [(config.get('redis', 'host'), config.get('redis', 'port'))],
         },
     },
 }
@@ -57,18 +63,18 @@ CELERY_ROUTES = {
 }
 
 # 执行ansible命令使用的redis信息
-REDIS_HOST = '127.0.0.1'
-REDIS_PORT = 6379
-REDIS_DB = 2
-REDIS_PASSWORD = None
+REDIS_HOST = config.get('redis', 'host')
+REDIS_PORT = config.get('redis', 'port')
+REDIS_DB = config.get('redis', 'ansible_db')
+REDIS_PASSWORD = config.get('redis', 'password')
 
 # mongodb配置信息
-MONGODB_HOST = '10.1.7.198'
-MONGODB_PORT = 27017
-MONGODB_USER = 'admin'
-MONGODB_PASS = '123456'
-RECORD_DB = 'records'
-RECORD_COLL = 'ops'
+MONGODB_HOST = config.get('mongodb', 'host')
+MONGODB_PORT = config.getint('mongodb', 'port')
+MONGODB_USER = config.get('mongodb', 'user')
+MONGODB_PASS = config.get('mongodb', 'password')
+RECORD_DB = config.get('mongodb', 'record_db')
+RECORD_COLL = config.get('mongodb', 'record_coll')
 
 # Application definition
 INSTALLED_APPS = [
@@ -169,10 +175,15 @@ WSGI_APPLICATION = 'Ops.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ops',
-        'USER': 'ops',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1'
+        'NAME': config.get('db', 'name'),
+        'USER': config.get('db', 'user'),
+        'PASSWORD': config.get('db', 'password'),
+        'HOST': config.get('db', 'host'),
+        'PORT': config.get('db', 'port'),
+        'OPTIONS':{
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
     }
 }
 
@@ -226,26 +237,26 @@ TIME_FORMAT = '%Y-%m-%d %X'
 
 # zabbix配置
 ZABBIX_INFO = {
-    'api_url': 'http://127.0.0.1/zabbix/api_jsonrpc.php',
-    'graph_url': 'http://127.0.0.1/zabbix/chart2.php',
-    'login_url': 'http://127.0.0.1/zabbix/index.php',
-    'username': 'admin',
-    'password': '123456'
+    'api_url': 'http://{host}:{port}/{api_url}'.format(host=config.get('zabbix', 'host'), port=config.get('zabbix', 'port'), api_url=config.get('zabbix', 'api_url')),
+    'graph_url': 'http://{host}:{port}/{graph_url}'.format(host=config.get('zabbix', 'host'), port=config.get('zabbix', 'port'), graph_url=config.get('zabbix', 'graph_url')),
+    'login_url': 'http://{host}:{port}/{login_url}'.format(host=config.get('zabbix', 'host'), port=config.get('zabbix', 'port'), login_url=config.get('zabbix', 'login_url')),
+    'username': '{username}'.format(username=config.get('zabbix', 'username')),
+    'password': '{password}'.format(password=config.get('zabbix', 'password'))
 }
 
 # ANSIBLE_ROLE_PATH = os.path.join(MEDIA_ROOT, 'roles')
-ANSIBLE_ROLE_PATH = '/usr/share/ansible/roles'
+ANSIBLE_ROLE_PATH = config.get('ansible', 'ansible_role_path')
 
-GUACD_HOST = '127.0.0.1'
-GUACD_PORT = 4822
+GUACD_HOST = config.get('cuacd', 'host')
+GUACD_PORT = config.get('cuacd', 'port')
 
 # email配置
-EMAIL_HOST = 'smtp.163.com'
-EMAIL_PORT = 25
-EMAIL_HOST_USER = 'XXXXXXXXXXXX'
-EMAIL_HOST_PASSWORD = 'XXXXXXXXXXX'
+EMAIL_HOST = config.get('email', 'smtp_host')
+EMAIL_PORT = config.get('email', 'smtp_port')
+EMAIL_HOST_USER = config.get('email', 'smtp_user')
+EMAIL_HOST_PASSWORD = config.get('email', 'smtp_passwd')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # 数据库管理用户,该用户需要有grant option权限,并且只能赋予该用户所拥有的权限
-MYSQL_USER = 'cc'
-MYSQL_PASS = '123456'
+MYSQL_USER = config.get('db', 'admin_user')
+MYSQL_PASS = config.get('db', 'admin_password')

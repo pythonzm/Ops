@@ -25,7 +25,7 @@ class Assets(models.Model):
     asset_status = models.SmallIntegerField(choices=asset_status_, default=0, verbose_name='状态')
     asset_management_ip = models.GenericIPAddressField(blank=True, null=True, verbose_name='管理IP')
     asset_admin = models.ForeignKey('users.UserProfile', related_name='assets', verbose_name='资产管理员',
-                                    on_delete=models.PROTECT)
+                                    on_delete=models.PROTECT, null=True)
     asset_idc = models.ForeignKey('IDC', related_name='assets', null=True, blank=True, verbose_name='所在机房',
                                   on_delete=models.PROTECT)
     asset_cabinet = models.ForeignKey('Cabinet', related_name='assets', null=True, blank=True, verbose_name='所在机柜',
@@ -36,7 +36,7 @@ class Assets(models.Model):
     asset_price = models.CharField(max_length=100, null=True, blank=True, verbose_name="价格(万元)")
 
     asset_create_time = models.DateTimeField(auto_now_add=True)
-    asset_update_time = models.DateTimeField(auto_now_add=True)
+    asset_update_time = models.DateTimeField(auto_now=True)
     asset_memo = models.TextField(null=True, blank=True, verbose_name='备注', help_text='配置说明或一些注意事项')
 
     class Meta:

@@ -13,11 +13,18 @@
 import os
 from celery import Celery
 from kombu import Queue, Exchange
+try:
+    import ConfigParser as conf
+except ImportError as e:
+    import configparser as conf
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Ops.settings')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config = conf.ConfigParser()
+config.read(os.path.join(BASE_DIR, 'conf/ops.ini'))
 
-app = Celery('Ops', broker='redis://127.0.0.1:6379/0')
+app = Celery('Ops', broker='redis://{host}:{port}/{db}'.format(host=config.get('redis', 'host'), port=config.get('redis', 'port'), db=config.get('redis', 'celery_db')))
 
 app.conf.task_queues = (
     Queue('default', Exchange('default', type='direct'), routing_key='default'),
