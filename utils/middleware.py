@@ -65,7 +65,7 @@ class RecordMiddleware(MiddlewareMixin):
             else:
                 code = None
 
-            mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
+            mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL, settings.MONGODB_USER, settings.MONGODB_PASS)
             request_data = {'username': request.user.username, 'path': request.path, 'method': request.method,
                             'request_data': data, 'code': code,
                             'ip': request.META['REMOTE_ADDR'], 'datetime': datetime.datetime.now()}
