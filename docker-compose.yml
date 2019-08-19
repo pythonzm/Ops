@@ -1,0 +1,81 @@
+version: '2.4'
+
+networks:
+  default:
+    external:
+      name: ops_net1
+
+services:
+  mysql:
+    image: mysql:5.6
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    command: --character-set-server=utf8 --collation-server=utf8_unicode_ci --lower_case_table_names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      - /data/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  redis:
+    image: redis:3.2
+    container_name: redis
+    hostname: redis
+    restart: always
+    volumes:
+      - /data/redis:/data
+
+  mongodb:
+    image: mongo:3.4.22
+    container_name: mongodb
+    hostname: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    volumes:
+      - /data/mongodb:/data/db
+
+  mongo-express:
+    image: mongo-express:0.49.0
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: 123456
+      ME_CONFIG_MONGODB_SERVER: mongodb
+
+  ops:
+    image: ops
+    container_name: ops
+    hostname: ops
+    restart: always
+    environment:
+      REDIS_HOST: redis
+      MONGODB_HOST: mongodb
+      MONGODB_USER: admin
+      MONGODB_PASSWD: 123456
+      DB_HOST: mysql
+      DB_USER: ops
+      DB_PASSWD: 123456
+      DB_ADMIN_PASSWD: 123456
+      DB_NAME: ops
+    volumes:
+      - /data/ops/initapp:/initapp
+      - /data/ops/ansible_roles:/usr/share/ansible/roles
+    ports:
+      - 8000:8000
+    depends_on:
+      - mysql
+      - redis
+      - mongodb
+      - guacd
+
+  guacd:
+    image: guacamole/guacd:1.0.0
+    container_name: guacd
+    hostname: guacd
+    restart: always

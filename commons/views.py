@@ -116,7 +116,7 @@ def system_log(request):
 # datatables客户端分页(一次性获取所有数据)
 @admin_auth
 def get_system_log(request):
-    mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
+    mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL, settings.MONGODB_USER, settings.MONGODB_PASS)
     start_time = request.GET.get('startTime')
     end_time = request.GET.get('endTime')
     try:
