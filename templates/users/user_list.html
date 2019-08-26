@@ -49,90 +49,76 @@
                         </h4>
                     </div>
 
-                    {% if perms.users.change_userprofile and perms.users.add_userprofile %}
-                        <div class="modal-body">
-                            <form id="user_detail" class="main form-horizontal">
-                                <fieldset>
-                                    <div class="form-group">
-                                        <label for="username" class="col-sm-2 control-label">用户名称</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="username" id="username"
-                                                   required/>
-                                        </div>
+                    <div class="modal-body">
+                        <form id="user_detail" class="main form-horizontal">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="username" class="col-sm-2 control-label">用户名称</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="username" id="username"
+                                               required/>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="mobile" class="col-sm-2 control-label">手机号码</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" name="mobile" id="mobile"/>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="mobile" class="col-sm-2 control-label">手机号码</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="mobile" id="mobile"/>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="is_superuser" class="col-sm-2 control-label">超级管理员</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" name="is_superuser" id="is_superuser"
-                                                    style="width: 100%;" required>
-                                                <option value="1">是</option>
-                                                <option value="0" selected>否</option>
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="is_superuser" class="col-sm-2 control-label">超级管理员</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" name="is_superuser" id="is_superuser"
+                                                style="width: 100%;" required>
+                                            <option value="1">是</option>
+                                            <option value="0" selected>否</option>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="is_active" class="col-sm-2 control-label">是否激活</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" name="is_active" id="is_active"
-                                                    style="width: 100%;" required>
-                                                <option value="1" selected>是</option>
-                                                <option value="0">否</option>
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="is_active" class="col-sm-2 control-label">是否激活</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" name="is_active" id="is_active"
+                                                style="width: 100%;" required>
+                                            <option value="1" selected>是</option>
+                                            <option value="0">否</option>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="groups" class="col-sm-2 control-label">所属组</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" multiple="multiple" name="groups"
-                                                    id="groups"
-                                                    style="width: 100%;">
-                                                {% for group in groups %}
-                                                    <option value="{{ group.id }}">{{ group.name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="groups" class="col-sm-2 control-label">所属组</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" multiple="multiple" name="groups"
+                                                id="groups" style="width: 100%;">
+                                            {% for group in groups %}
+                                                <option value="{{ group.id }}">{{ group.name }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="user_permissions" class="col-sm-2 control-label">用户权限</label>
-                                        <div class="col-sm-6">
-                                            <select class="form-control select2" multiple="multiple"
-                                                    name="user_permissions" id="user_permissions"
-                                                    style="width: 100%;">
-                                                {% for permission in permissions %}
-                                                    <option value="{{ permission.id }}">{{ permission }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="u_role" class="col-sm-2 control-label">用户角色</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select2" multiple="multiple"
+                                                name="u_role" id="u_role" style="width: 100%;">
+                                            {% for u_role in u_roles %}
+                                                <option value="{{ u_role.id }}">{{ u_role.user_role_name }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
-
-                                    <div class="space-24"></div>
-
-                                </fieldset>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                            <button type="button" class="btn btn-primary" id="user_ops"></button>
-                        </div>
-                    {% else %}
-                        <div class="modal-body">
-                            抱歉！您没有修改用户的权限！如有疑问，请联系管理员！
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
-                        </div>
-                    {% endif %}
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" id="user_ops"></button>
+                    </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal -->
         </div>
@@ -149,52 +135,13 @@
                             <th>用户名称</th>
                             <th>超级管理员</th>
                             <th>所属组</th>
+                            <th>拥有角色</th>
                             <th>是否激活</th>
                             <th>联系方式</th>
                             <th>操作</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for user in user_list %}
-
-                            <tr>
-                                <td>{{ user.id }}</td>
-                                <td>{{ user.username }}</td>
-                                <td>
-                                    {% if user.is_superuser %}
-                                        <span class="label label-success">是</span>
-                                    {% else %}
-                                        <span class="label label-danger">否</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% for group in user.groups.all %}
-                                        {{ group }}&nbsp;
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% if user.is_active %}
-                                        <span class="label label-success">已激活</span>
-                                    {% else %}
-                                        <span class="label label-danger">未激活</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ user.mobile|default:'' }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
-                                            data-id="{{ user.id }}" data-target="#UserModal">详细/更新
-                                    </button>
-                                    <button type="button" class="btn btn-warning btn-xs change_pwd"
-                                            data-id="{{ user.id }}">重置密码
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ user.id }}">
-                                        删除
-                                    </button>
-                                </td>
-                            </tr>
-
-                        {% endfor %}
-
                         </tbody>
                     </table>
                 </div>
@@ -221,11 +168,68 @@
     <script>
         $(function () {
             user_table = $('#user').DataTable({
+                "ordering": false,
+                retrieve: true,
+                ajax: {
+                    url: "{% url 'get_user' %}",
+                    method: "GET",
+                    "dataSrc": function (d) {
+                        return d.data
+                    }
+                },
+                "deferRender": true,
+                "columns": [
+                    {data: 'id'},
+                    {data: 'username'},
+                    {
+                        data: 'is_superuser',
+                        render: function (data, type, full, meta) {
+                            if (data) {
+                                return '<span class="label label-success">是</span>'
+                            } else {
+                                return '<span class="label label-danger">否</span>'
+                            }
+                        }
+                    },
+                    {
+                        data: 'groups',
+                        render: function (data, type, full, meta) {
+                            return data.join('<br>')
+                        }
+                    },
+                    {
+                        data: 'u_role',
+                        render: function (data, type, full, meta) {
+                            return data.join('<br>')
+                        }
+                    },
+                    {
+                        data: 'is_active',
+                        render: function (data, type, full, meta) {
+                            if (data) {
+                                return '<span class="label label-success">已启用</span>'
+                            } else {
+                                return '<span class="label label-danger">未启用</span>'
+                            }
+                        }
+                    },
+                    {data: 'mobile'},
+                ],
                 columnDefs: [{
-                    'targets': [-1],
-                    'orderable': false
-                }],
-                "order": [[0, "asc"]]
+                    targets: 7,
+                    render: function (data, type, row, meta) {
+                        return `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-id="${row.id}" data-target="#UserModal">更新
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-xs change_pwd"
+                                            data-id="${row.id}">重置密码
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="${row.id}">
+                                        删除
+                                    </button>
+                    `;
+                    }
+                }]
             });
         });
 
@@ -252,31 +256,21 @@
                     let status = obj.parsley().validate();
                     if (status) {
                         user_ops.attr('data-dismiss', 'modal');
-                        let groups = $('#groups option:selected').text();
-                        let data = obj.serialize();
+                        let data = obj.serializeJson();
                         $.ajax({
-                            url: '{% url 'create_user' %}',
+                            url: '{% url 'user_list' %}',
                             type: 'POST',
                             data: data,
+                            traditional: true,
+                            dataType: 'json',
                             success: function (res) {
                                 if (res.code === 200) {
-                                    let user_info = res.data;
-                                    let is_superuser = user_info.is_superuser === "1" ? '<span class="label label-success">是</span>' : '<span class="label label-danger">否</span>';
-                                    let is_active = user_info.is_active === "1" ? '<span class="label label-success">已激活</span>' : '<span class="label label-danger">未激活</span>';
                                     $.alert({
                                         title: 'Tips',
                                         type: 'green',
                                         content: res.msg,
                                     });
-                                    user_table.row.add([
-                                        user_info.id,
-                                        user_info.username,
-                                        is_superuser,
-                                        groups,
-                                        is_active,
-                                        user_info.mobile,
-                                        `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-id="${user_info.id}" data-target="#UserModal">详细/更新</button> <button type="button" class="btn btn-warning btn-xs change_pwd" data-id="${user_info.id}">重置密码</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${user_info.id}">删除</button>`
-                                    ]).draw();
+                                    user_table.ajax.reload()
                                 }
                                 else {
                                     $.alert({
@@ -302,144 +296,118 @@
 
         // 修改用户
         user_tbody.on('click', '.modify', function () {
-            {% if perms.users.change_userprofile %}
-                let user_id = $(this).attr('data-id');
-                $('.modal-title').text('修改用户');
-                user_ops.text('确认修改');
 
-                $.get('/api/users/' + user_id + '/', function (data) {
-                    let is_superuser = data.is_superuser ? "1" : "0";
-                    let is_active = data.is_active ? "1" : "0";
-                    $('#username').val(data.username);
-                    $('#mobile').val(data.mobile);
-                    $('#is_superuser').val(is_superuser).trigger('change');
-                    $('#is_active').val(is_active).trigger('change');
-                    $('#groups').val(data.groups).trigger('change');
-                    $('#user_permissions').val(data.user_permissions).trigger('change');
-                });
+            let user_id = $(this).attr('data-id');
+            $('.modal-title').text('修改用户');
+            user_ops.text('确认修改');
 
-                user_ops.unbind('click').on('click', function () {
-                    let data = $('#user_detail').serializeJson();
-                    let groups = $('#groups').val();
-                    let permissions = $('#user_permissions').val();
-                    if (groups.length === 0) {
-                        Object.assign(data, {'groups': groups})
+            $.get(`/users/edit_user/${user_id}/`, function (res) {
+                let data = res.data;
+                let is_superuser = data.is_superuser ? "1" : "0";
+                let is_active = data.is_active ? "1" : "0";
+                $('#username').val(data.username);
+                $('#mobile').val(data.mobile);
+                $('#is_superuser').val(is_superuser).trigger('change');
+                $('#is_active').val(is_active).trigger('change');
+                $('#groups').val(data.groups).trigger('change');
+                $('#u_role').val(data.u_role).trigger('change');
+            });
+            user_ops.attr('data-dismiss', 'modal');
+
+            user_ops.unbind('click').on('click', function () {
+                let data = $('#user_detail').serializeJson();
+
+                $.ajax({
+                    url: `/users/edit_user/${user_id}/`,
+                    type: 'POST',
+                    data: data,
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: res.msg,
+                        });
+                        user_table.ajax.reload()
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
                     }
-                    if (permissions.length === 0) {
-                        Object.assign(data, {'user_permissions': permissions})
-                    }
-                    
-                    $.ajax({
-                        url: '/api/users/' + user_id + '/',
-                        type: 'PUT',
-                        data: JSON.stringify(data),
-                        dataType: 'json',
-                        contentType: "application/json",
-                        success: function () {
-                            $.confirm({
-                                title: 'Tips!',
-                                content: '修改完成!',
-                                type: 'green',
-                                buttons: {
-                                    ok: function () {
-                                        window.location.reload()
-                                    }
-                                }
-                            });
-                        },
-                        error: function (response) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: response.responseText,
-                            })
-                        }
-                    })
-                });
-            {% endif %}
+                })
+            });
         });
 
         // 删除用户
         user_tbody.on('click', '.delete', function () {
-            {% if perms.auth.delete_userprofile %}
-                let pk = $(this).attr('data-id');
-                let tr_obj = $(this).parents('tr');
-                $.confirm({
-                    title: 'Tips',
-                    content: '确定要删除这条记录么？',
-                    type: 'red',
-                    buttons: {
-                        Ok: function () {
-                            $.ajax({
-                                url: '/api/users/' + pk + '/',
-                                method: 'DELETE',
-                                success: function () {
-                                    user_table.row(tr_obj).remove().draw();
-                                },
-                                error: function (data) {
-                                    $.alert({
-                                        title: 'Tips',
-                                        type: 'red',
-                                        content: '删除失败！' + data.responseText,
-                                    })
-                                }
-                            })
-                        },
-                        Cancel: function () {
-                            //
-                        }
+
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: `/users/delete_user/${pk}/`,
+                            method: 'DELETE',
+                            success: function () {
+                                user_table.row(tr_obj).remove().draw();
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
                     }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有删除用户的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+                }
+            });
         });
 
         // 重置密码
         user_tbody.on('click', '.change_pwd', function () {
-            {% if perms.auth.change_userprofile %}
-                let pk = $(this).attr('data-id');
-                $.confirm({
-                    title: 'Tips',
-                    content: '确定要为这个用户重置密码么？',
-                    type: 'red',
-                    buttons: {
-                        Ok: function () {
-                            $.ajax({
-                                url: '/users/reset_password/' + pk + '/',
-                                method: 'POST',
-                                success: function (res) {
-                                    $.alert({
-                                        title: 'Tips',
-                                        type: 'green',
-                                        content: res.msg,
-                                    })
-                                },
-                                error: function (res) {
-                                    $.alert({
-                                        title: 'Tips',
-                                        type: 'red',
-                                        content: res.msg,
-                                    })
-                                }
-                            })
-                        },
-                        Cancel: function () {
-                            // close
-                        }
+            let pk = $(this).attr('data-id');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要为这个用户重置密码么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/users/reset_password/' + pk + '/',
+                            method: 'POST',
+                            success: function (res) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'green',
+                                    content: res.msg,
+                                })
+                            },
+                            error: function (res) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: res.msg,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        // close
                     }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有修改用户的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+                }
+            });
         });
 
         // 将数据JSON化

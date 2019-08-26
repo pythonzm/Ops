@@ -49,64 +49,57 @@
 
                         </h4>
                     </div>
-                    {% if perms.auth.add_group and perms.auth.change_group %}
-                        <div class="modal-body">
-                            <form class="main form-horizontal" id="group_detail">
-                                <fieldset>
-                                    <div class="form-group">
-                                        <label for="name" class="col-sm-2 control-label">用户组名称</label>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control" id="name" name="name" required/>
-                                        </div>
+
+                    <div class="modal-body">
+                        <form class="main form-horizontal" id="group_detail">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="name" class="col-sm-2 control-label">用户组名称</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" id="name" name="name" required/>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="user_set" class="col-sm-2 control-label">组内用户</label>
-                                        <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="user_set" class="col-sm-2 control-label">组内用户</label>
+                                    <div class="col-sm-6">
 
-                                            <select class="form-control select2" multiple="multiple" id="user_set"
-                                                    name="user_set"
-                                                    style="width: 100%;">
-                                                {% for user in users %}
-                                                    <option value="{{ user.id }}">{{ user.username }}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <select class="form-control select2" multiple="multiple" id="user_set"
+                                                name="user_set"
+                                                style="width: 100%;">
+                                            {% for user in users %}
+                                                <option value="{{ user.id }}">{{ user.username }}</option>
+                                            {% endfor %}
+                                        </select>
 
-                                        </div>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label for="permissions" class="col-sm-2 control-label">用户组权限</label>
-                                        <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="group_role" class="col-sm-2 control-label">用户组角色</label>
+                                    <div class="col-sm-6">
 
-                                            <select class="form-control select2" multiple="multiple"
-                                                    id="permissions" name="permissions"
-                                                    style="width: 100%;">
-                                                {% for permission in permissions %}
-                                                    <option value="{{ permission.id }}">{{ permission }}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <select class="form-control select2" multiple="multiple"
+                                                id="group_role" name="group_role"
+                                                style="width: 100%;">
+                                            {% for group_role in group_roles %}
+                                                <option value="{{ group_role.id }}">{{ group_role.user_role_name }}</option>
+                                            {% endfor %}
+                                        </select>
 
-                                        </div>
                                     </div>
+                                </div>
 
-                                    <div class="space-24"></div>
-                                </fieldset>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                    id="group_ops"></button>
-                        </div>
-                    {% else %}
-                        <div class="modal-body">
-                            抱歉！您没有此操作的权限！如有疑问，请联系管理员！
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
-                        </div>
-                    {% endif %}
+                                <div class="space-24"></div>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                id="group_ops"></button>
+                    </div>
+
                 </div><!-- /.modal-content -->
             </div><!-- /.modal -->
         </div>
@@ -121,31 +114,11 @@
                         <tr>
                             <th>用户组名称</th>
                             <th>组内用户</th>
+                            <th>拥有角色</th>
                             <th>操作</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for group in groups %}
-
-                            <tr>
-                                <td>{{ group.name }}</td>
-                                <td>
-                                    {% for user in group.user_set.all %}
-                                        {{ user }}&nbsp;
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
-                                            data-target="#GroupModal" data-id="{{ group.id }}">详细/更新
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="{{ group.id }}">
-                                        删除
-                                    </button>
-                                </td>
-                            </tr>
-
-                        {% endfor %}
-
                         </tbody>
                     </table>
                 </div>
@@ -171,11 +144,43 @@
     <script>
         $(function () {
             group_table = $('#group').DataTable({
+                "ordering": false,
+                retrieve: true,
+                ajax: {
+                    url: "{% url 'get_group' %}",
+                    method: "GET",
+                    "dataSrc": function (d) {
+                        return d.data
+                    }
+                },
+                "deferRender": true,
+                "columns": [
+                    {data: 'group_name'},
+                    {
+                        data: 'users',
+                        render: function (data, type, full, meta) {
+                            return data.join('<br>')
+                        }
+                    },
+                    {
+                        data: 'group_role',
+                        render: function (data, type, full, meta) {
+                            return data.join('<br>')
+                        }
+                    },
+                ],
                 columnDefs: [{
-                    'targets': [-1],
-                    'orderable': false
-                }],
-                "order": [[0, "asc"]]
+                    targets: 3,
+                    render: function (data, type, row, meta) {
+                        return `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-target="#GroupModal" data-id="${row.id}">更新
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="${row.id}">
+                                        删除
+                                    </button>
+                    `;
+                    }
+                }]
             });
         });
 
@@ -195,20 +200,24 @@
             group_ops.text('添加');
 
             group_ops.unbind('click').on('click', function () {
-                let user_name = $('#user_set option:selected').text();
-                let data = $('#group_detail').serializeJson();
+                let data = {
+                    group_name: $('#name').val(),
+                    users: $('#user_set').val(),
+                    group_role: $('#group_role').val()
+                };
                 $.ajax({
-                    url: '/api/group/',
+                    url: "{% url 'group_list' %}",
                     type: 'POST',
-                    data: JSON.stringify(data),
+                    data: data,
+                    traditional: true,
                     dataType: 'json',
-                    contentType: "application/json",
                     success: function (res) {
-                        group_table.row.add([
-                            res.name,
-                            user_name,
-                            `<button type="button" class="btn btn-success btn-xs modify" data-toggle="modal" data-target="#GroupModal" data-id="${res.id}">详细/更新</button> <button type="button" class="btn btn-danger btn-xs delete" data-id="${res.id}">删除</button>`
-                        ]).draw();
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: res.msg
+                        });
+                        group_table.ajax.reload()
                     },
                     error: function (response) {
                         $.alert({
@@ -223,113 +232,81 @@
 
         // 更新组信息
         group_tbody.on('click', '.modify', function () {
-            {% if perms.auth.delete_group %}
-                let group_id = $(this).attr('data-id');
-                $('.modal-title').text('修改用户组');
-                group_ops.text('确认修改');
 
-                $.get('/api/group/' + group_id + '/', function (data) {
-                    $('#name').val(data.name);
-                    $('#user_set').val(data.user_set).trigger('change');
-                    $('#permissions').val(data.permissions).trigger('change');
-                });
+            let group_id = $(this).attr('data-id');
+            $('.modal-title').text('修改用户组');
+            group_ops.text('确认修改');
 
-                group_ops.unbind('click').on('click', function () {
-                    let data = $('#group_detail').serializeJson();
-                    $.ajax({
-                        url: '/api/group/' + group_id + '/',
-                        type: 'PUT',
-                        data: JSON.stringify(data),
-                        dataType: 'json',
-                        contentType: "application/json",
-                        success: function () {
-                            $.confirm({
-                                title: 'Tips!',
-                                content: '修改完成!',
-                                type: 'green',
-                                buttons: {
-                                    ok: function () {
-                                        window.location.reload()
-                                    }
-                                }
-                            });
-                        },
-                        error: function (response) {
-                            $.alert({
-                                title: 'Tips',
-                                type: 'red',
-                                content: response.responseText,
-                            })
-                        }
-                    })
-                });
-            {% endif %}
+            $.get(`/users/edit_group/${group_id}/`, function (res) {
+                let data = res.data;
+                $('#name').val(data.group_name);
+                $('#user_set').val(data.users).trigger('change');
+                $('#group_role').val(data.group_role).trigger('change');
+            });
+
+            group_ops.unbind('click').on('click', function () {
+                let data = {
+                    group_name: $('#name').val(),
+                    users: $('#user_set').val(),
+                    group_role: $('#group_role').val()
+                };
+                $.ajax({
+                    url: `/users/edit_group/${group_id}/`,
+                    type: 'POST',
+                    data: data,
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: res.msg
+                        });
+                        group_table.ajax.reload()
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
         });
 
         // 删除用户组
         group_tbody.on('click', '.delete', function () {
-            {% if perms.auth.delete_group %}
-                let pk = $(this).attr('data-id');
-                let tr_obj = $(this).parents('tr');
-                $.confirm({
-                    title: 'Tips',
-                    content: '确定要删除这条记录么？',
-                    type: 'red',
-                    buttons: {
-                        Ok: function () {
-                            $.ajax({
-                                url: '/api/group/' + pk + '/',
-                                method: 'DELETE',
-                                success: function () {
-                                    group_table.row(tr_obj).remove().draw();
-                                },
-                                error: function (data) {
-                                    $.alert({
-                                        title: 'Tips',
-                                        type: 'red',
-                                        content: '删除失败！' + data.responseText,
-                                    })
-                                }
-                            })
-                        },
-                        Cancel: function () {
-                            //
-                        }
+
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: `/users/delete_group/${pk}/`,
+                            method: 'DELETE',
+                            success: function () {
+                                group_table.row(tr_obj).remove().draw();
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
                     }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有删除用户组的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+                }
+            });
         });
-
-        // 将数据JSON化
-        (function ($) {
-            $.fn.serializeJson = function () {
-                let serializeObj = {};
-                let array = this.serializeArray();
-                $(array).each(function () {
-                    if (serializeObj[this.name]) {
-                        if ($.isArray(serializeObj[this.name])) {
-                            serializeObj[this.name].push(this.value);
-                        } else {
-                            serializeObj[this.name] = [serializeObj[this.name], this.value];
-                        }
-                    } else {
-                        if (this.name === 'name') {
-                            serializeObj[this.name] = this.value;
-                        } else {
-                            serializeObj[this.name] = [this.value];
-                        }
-                    }
-                });
-                return serializeObj;
-            };
-        })(jQuery);
-
     </script>
 
 {% endblock %}

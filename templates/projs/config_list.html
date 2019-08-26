@@ -56,18 +56,22 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'proj_config' %}?id={{ config.id }}" target="_blank">
-                                        <button type="button" class="btn btn-success btn-xs modify">配置明细</button>
-                                    </a>
+                                    {% if request.user.is_superuser %}
+                                        <a href="{% url 'proj_config' %}?id={{ config.id }}" target="_blank">
+                                            <button type="button" class="btn btn-success btn-xs modify">配置明细</button>
+                                        </a>
+                                    {% endif %}
                                     <a href="{% url 'deploy' pk=config.id %}" target="_blank">
                                         <button type="button" class="btn btn-info btn-xs">部署</button>
                                     </a>
                                     <a href="{% url 'rollback' pk=config.id %}?mode=rollback" target="_blank">
                                         <button type="button" class="btn btn-warning btn-xs">回滚</button>
                                     </a>
-                                    <button type="button" class="btn btn-danger btn-xs delete"
-                                            data-id="{{ config.id }}"> 删除配置
-                                    </button>
+                                    {% if request.user.is_superuser %}
+                                        <button type="button" class="btn btn-danger btn-xs delete"
+                                                data-id="{{ config.id }}"> 删除配置
+                                        </button>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -104,45 +108,36 @@
 
         // 删除project-conf
         $('#project-conf tbody').on('click', '.delete', function () {
-            {% if request.user.is_superuser %}
-                let pk = $(this).attr('data-id');
-                let tr_obj = $(this).parents('tr');
-                $.confirm({
-                    title: 'Tips',
-                    content: '确定要删除这条记录么？',
-                    type: 'red',
-                    buttons: {
-                        Ok: function () {
-                            $.ajax({
-                                url: '/api/project_config/' + pk + '/',
-                                method: 'DELETE',
-                                success: function () {
-                                    project_conf_table.row(tr_obj).remove().draw();
-                                },
-                                error: function (data) {
-                                    $.alert({
-                                        title: 'Tips',
-                                        type: 'red',
-                                        content: '删除失败！' + data.responseText,
-                                    })
-                                }
-                            })
-                        },
-                        Cancel: function () {
-                            //
-                        }
+
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/api/project_config/' + pk + '/',
+                            method: 'DELETE',
+                            success: function () {
+                                project_conf_table.row(tr_obj).remove().draw();
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
                     }
-                });
-            {% else %}
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: '抱歉！您没有删除项目配置的权限！如有疑问，请联系管理员！',
-                });
-            {% endif %}
+                }
+            });
         });
     </script>
 
 {% endblock %}
-
->

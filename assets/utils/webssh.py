@@ -30,7 +30,7 @@ class MyThread(threading.Thread):
             try:
                 data = self.chan.chan.recv(1024)
                 if data:
-                    str_data = bytes.decode(data)
+                    str_data = data.decode('utf-8', 'ignore')
                     self.chan.send(str_data)
                     self.stdout.append([time.time() - self.start_time, 'o', str_data])
             except timeout:

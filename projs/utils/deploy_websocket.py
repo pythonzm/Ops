@@ -1,5 +1,6 @@
 import os
 import json
+from collections import deque
 from django.conf import settings
 from projs.tasks import deploy_log
 from conf.logger import deploy_logger
@@ -41,7 +42,9 @@ class DeployConsumer(WebsocketConsumer):
             self.close()
         else:
             self.redis_instance.set(unique_key, 1)
-            timeline_header = '<li><i class="fa fa-flag bg-blue"></i><div class="timeline-item"><h3 class="timeline-header"><a href="javascript:void(0)">{}</a></h3><div class="timeline-body"></div></div></li>'
+            timeline_header = '<li><i class="fa fa-flag bg-blue"></i><div class="timeline-item"><h3 ' \
+                              'class="timeline-header"><a href="javascript:void(0)">{}</a></h3>' \
+                              '<div class="timeline-body"></div></div></li>'
             cmd_detail = '<p style="font-style: italic; color: grey;">{}</p>'
             timeline_body_green = '<p style="color: #008000">{}</p>'
             timeline_body_red = '<p style="color: #FF0000">{}</p>'
@@ -187,16 +190,22 @@ class DeployConsumer(WebsocketConsumer):
                                    deploy=True, send_msg=False)
 
                 # 将版本保存到数据库
-                if self.release_name not in self.config.versions.split(','):
-                    version = ',' + self.release_name if self.config.versions else self.release_name
-                    self.config.versions += version
+                if self.config.versions:
                     version_list = self.config.versions.split(',')
-                    if len(version_list) > self.config.releases_num:
-                        self.config.versions = ','.join(version_list[len(version_list) - self.config.releases_num:])
-                    self.config.save()
-                self.del_release(ans, self.host_list,
-                                 path=os.path.join(self.config.deploy_releases, tool.proj_name),
-                                 releases_num=self.config.releases_num)
+                    v = deque(version_list, self.config.releases_num)
+                    v.append(self.release_name)
+                    self.config.versions = ','.join(v)
+
+                    d = set(version_list) - set(v)
+                    if d:
+                        dir_name = ''.join(d)
+                        self.del_release(ans, self.host_list,
+                                         path=os.path.join(self.config.deploy_releases, tool.proj_name),
+                                         dir_name=dir_name)
+                else:
+                    self.config.versions = self.release_name
+                self.config.save()
+
             except Exception as e:
                 self.send_save(timeline_body_red.format('执行同步代码任务失败！{}'.format(e)), close=True)
 
@@ -263,12 +272,11 @@ class DeployConsumer(WebsocketConsumer):
         return des_dir
 
     @staticmethod
-    def del_release(ans, host_list, path, releases_num):
+    def del_release(ans, host_list, path, dir_name):
         """按照数据库设置的保留版本个数，删除最早的多余的版本"""
         ans.run_module(host_list, module_name='shell',
-                       module_args='cd {path} && rm -rf `ls -t | tail -n +{releases_num}`'.format(path=path,
-                                                                                                  releases_num=releases_num + 1),
-                       deploy=True, send_msg=False)
+                       module_args='cd {path} && rm -rf {dir_name}'.format(path=path, dir_name=dir_name), deploy=True,
+                       send_msg=False)
 
     def send_save(self, msg, close=False, send=True):
         if send:

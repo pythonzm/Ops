@@ -262,8 +262,11 @@ class MysqlPool:
         output = []
         users = self.get_all_users()
         for user in users:
-            grants = self.privileges_get(user[0], user[1])
-            output.append({'user': f'{user[0]}@{user[1]}', 'privs': grants})
+            try:
+                grants = self.privileges_get(user[0], user[1])
+                output.append({'user': f'{user[0]}@{user[1]}', 'privs': grants})
+            except TypeError:
+                output.append({'user': f'{user[0]}@{user[1]}', 'privs': ''})
         return output
 
 
@@ -278,14 +281,14 @@ class GlobalPrivilegeError(Exception):
 if __name__ == '__main__':
     m = MysqlPool('10.1.7.198', 3306, 'cc', '123456', 'mysql')
 
-    # a = m.user_all()
-    # print(a)
+    a = m.user_all()
+    print(a)
     # m.user_mod('hello1', '10.%.%.%', new_user='world', new_host='%')
     # _, r = m.exec_select("SELECT VERSION()", one=True)
     # print(r[0])
     # m.user_delete('iamdcdb', '%')
     # m.user_add('hello', '%', '123456', 'blog.*', ['select'])
-    m.privileges_grant('bb', '%', 'devops.*', ['RELOAD'])
+    # m.privileges_grant('bb', '%', 'devops.*', ['RELOAD'])
     # o = m.privileges_get('jrops', '%')
     # print(o)
     # m.privileges_revoke('cmdb', '10.1.7.%', 'devops.*', ("update", "delete"))

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #log {
+            width: 100%;
+            height: 580px;
+            border: 1px solid #7F9DB9;
+            background-color: #0c0c0c;
+            overflow-y: scroll;
+            white-space: pre-line;
+        }
+
+        pre {
+            margin: 0 0 0;
+            padding: 0;
+            border: hidden;
+            color: #a9a9a9;
+            white-space: pre-wrap; /*css-3*/
+            white-space: -moz-pre-wrap; /*Mozilla,since1999*/
+            white-space: -o-pre-wrap; /*Opera7*/
+            word-wrap: break-word; /*InternetExplorer5.5+*/
+        }
+    </style>
+</head>
+<body>
+<div id="log"></div>
+<script>
+    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/deploy_log/");
+
+    let scan_info = {
+        host: "{{ host }}",
+        port: {{ port }},
+        username: "{{ username }}",
+        password: "{{ password }}",
+        log_file: "/usr/local/tomcat/logs/catalina.out"
+    };
+
+    if ("WebSocket" in window) {
+        socket.onopen = function () {
+            let info = JSON.stringify(scan_info);
+            socket.send(info);
+        };
+
+        socket.onmessage = function (e) {
+            log(e.data);
+            let obje = document.getElementById("log");   //日志过多时清屏
+            let textlength = obje.scrollHeight;
+            if (textlength > 10000) {
+                obje.innerHTML = '';
+            }
+        };
+    }
+    else {
+        alert("您的浏览器不支持 WebSocket!");
+    }
+
+    function log(msg) {
+        let obje = document.getElementById("log");
+        obje.innerHTML += '<pre><code style="white-space: pre-line;">' + msg + '</code></pre>';
+        obje.scrollTop = obje.scrollHeight;   //滚动条显示最新数据
+    }
+</script>
+</body>
+</html>

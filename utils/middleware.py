@@ -60,7 +60,7 @@ class RecordMiddleware(MiddlewareMixin):
 
             if 'api' in request.path:
                 code = response.status_code
-            elif 'code' in json.loads(response.__dict__.get('_container')[0].decode('utf-8')):
+            elif '_container' in response.__dict__:
                 code = json.loads(response.__dict__.get('_container')[0].decode('utf-8')).get('code')
             else:
                 code = None

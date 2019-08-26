@@ -63,7 +63,8 @@ def config_list(request):
     user = request.user
     projects = user.proj_admin.all() | user.proj_member.all()
     configs = ProjectConfig.objects.select_related('project').all() if user.is_superuser else \
-        [project.projectconfig for project in projects if hasattr(project, 'projectconfig')]
+        [project.projectconfig for project in projects if
+         hasattr(project, 'projectconfig') and project.project_env != 'prod']
     return render(request, 'projs/config_list.html', locals())
 
 
@@ -167,3 +168,14 @@ def deploy_log(request):
     else:
         logs = DeployLog.objects.select_related('project_config').select_related('deploy_user').all()
         return render(request, 'projs/deploy_log.html', locals())
+
+
+def check_log(request, pk):
+    config = ProjectConfig.objects.prefetch_related('deploy_server').get(id=pk)
+    server = config.deploy_server.first()
+    host = server.assets.asset_management_ip
+    port = server.port
+    username = server.username
+    password = server.password
+    return render(request, 'projs/check_log.html',
+                  {'host': host, 'port': port, 'username': username, 'password': password})

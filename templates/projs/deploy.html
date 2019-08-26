@@ -96,6 +96,8 @@
                         {% elif mode == 'rollback' %}
                             <button type="button" class="btn btn-warning pull-right rollback">回滚</button>
                         {% endif %}
+                        <a onclick="window.open('{% url 'check_log' config.id %}','newwindow', 'height=600, width=1005, top=200, left=200, toolbar=no, menubar=no, scrollbars=no, location=no, status=no')"
+                           class="btn btn-primary pull-left check-log">查看tomcat日志</a>
                     </div>
                 </div>
                 <!-- /.col -->

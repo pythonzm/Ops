@@ -22,13 +22,17 @@
         .form-horizontal .form-group {
             margin-right: -200px;
         }
+
+        #db-user-detail .col-sm-6 {
+            width: 40%;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
 
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-3" style="width: 20%">
             <div class="box">
                 <div class="box-body seach-db">
 
@@ -73,7 +77,7 @@
                     <span class="bigger-110">新增用户</span>
                 </button>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-9" style="width: 80%">
                 <div class="box">
                     <div class="box-body">
                         <table id="db-user" class="table table-bordered table-striped">
@@ -123,6 +127,7 @@
                                     <div class="col-sm-6">
                                         <input type="text" class="form-control" name="password" id="password"/>
                                     </div>
+                                    <span><button type="button" class="btn btn-default gen-pass">生成随机密码</button></span>
                                 </div>
 
                                 <div class="form-group db-table-div">
@@ -257,7 +262,7 @@
                 columnDefs: [{
                     targets: 2,
                     render: function (data, type, row, meta) {
-                        return `<div class="btn-group">
+                        return `<div class="btn-group" style="width:140px">
                   <button type="button" class="btn btn-warning btn-sm">修改</button>
                   <button type="button" class="btn btn-warning dropdown-toggle btn-sm" data-toggle="dropdown">
                     <span class="caret"></span>
@@ -268,10 +273,8 @@
                     <li data-user=${row.user} class="add-priv" data-toggle="modal" data-target="#DBUser"><a href="javascript:void(0)">增加权限</a></li>
                     <li data-user=${row.user} class="del-priv" data-toggle="modal" data-target="#DBUser"><a href="javascript:void(0)">删除权限</a></li>
                   </ul>
-                </div>
-                <button type="button" class="btn btn-danger btn-sm delete-user" data-user=${row.user}>
-                                        删除
-                                    </button>`;
+                  <button type="button" class="btn btn-danger btn-sm delete-user" data-user=${row.user}>删除</button>
+                </div>`;
                     }
                 }]
             });
@@ -583,6 +586,23 @@
                 }
             });
         })
+
+        // 生成随机密码
+        $('.gen-pass').on('click', function () {
+            let pass = randomWord(20);
+            $('#password').val(pass)
+        });
+
+        function randomWord(num) {
+            let str = "",
+                arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+            for (let i = 0; i < num; i++) {
+                let pos = Math.round(Math.random() * (arr.length - 1));
+                str += arr[pos];
+            }
+            return str;
+        }
 
     </script>
 

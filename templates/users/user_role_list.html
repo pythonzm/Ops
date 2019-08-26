@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-duallistbox/bootstrap-duallistbox.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #role > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #role > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        .col-sm-2 {
+            width: unset;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#RoleModal"
+                    id="add-role">
+                <i class="fa fa-user-plus"></i>
+                <span class="bigger-110">新增角色</span>
+            </button>
+        </div>
+
+        <!-- RoleModal  -->
+        <div class="modal fade bd-example-modal-lg" id="RoleModal" tabindex="-1" role="dialog"
+             aria-labelledby="RoleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="RoleModalLabel">
+
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="main form-horizontal" id="role_detail">
+                            <div class="form-group">
+                                <label for="role-name" class="col-sm-2 control-label">角色名称</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="role-name" name="role-name" required/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-6" style="width: 100%">
+                                    <form>
+                                        <select multiple="multiple" name="permissions">
+                                            {% for permission in permissions %}
+                                                <option value="{{ permission.id }}">{{ permission }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="role_ops"></button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+                    <table id="role" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>角色名称</th>
+                            <th>权限</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'bootstrap-duallistbox/jquery.bootstrap-duallistbox.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            role_table = $('#role').DataTable({
+                "ordering": false,
+                retrieve: true,
+                ajax: {
+                    url: "{% url 'get_user_role' %}",
+                    method: "GET",
+                    "dataSrc": function (d) {
+                        return d.data
+                    }
+                },
+                "deferRender": true,
+                "columns": [
+                    {data: 'role_name'},
+                    {
+                        data: 'role_detail',
+                        render: function (data, type, full, meta) {
+                            return data.join('<br>')
+                        }
+                    },
+                ],
+                columnDefs: [{
+                    targets: 2,
+                    render: function (data, type, row, meta) {
+                        return `
+                  <button type="button" class="btn btn-warning btn-sm update-role" data-toggle="modal" data-target="#RoleModal" data-id=${row.id}>修改</button>
+                  <button type="button" class="btn btn-danger btn-sm delete-role" data-id=${row.id}>删除</button>
+                    `;
+                    }
+                }]
+            });
+
+            permission_box = $('select[name="permissions"]').bootstrapDualListbox({
+                moveOnSelect: false,
+                selectorMinimalHeight: 400,
+                selectedListLabel: '已选权限',
+                nonSelectedListLabel: '可选权限',
+                infoText: '',
+                infoTextEmpty: '',
+            });
+        });
+
+        let role_tbody = $('#role tbody');
+        let role_ops = $('#role_ops');
+        // 新增角色
+        $('#add-role').on('click', function () {
+            $(".select2").val('').trigger('change');
+            $('.modal-title').text('新增角色');
+            role_ops.text('添加');
+
+            role_ops.unbind('click').on('click', function () {
+
+                $.ajax({
+                    url: "{% url 'user_role_list' %}",
+                    type: 'POST',
+                    data: {
+                        user_role_name: $('#role-name').val(),
+                        user_role_permissions: $('[name="permissions"]').val()
+                    },
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: res.msg
+                        });
+                        role_table.ajax.reload()
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    },
+                })
+            })
+        });
+
+        // 更新角色信息
+        role_tbody.on('click', '.update-role', function () {
+            let role_id = $(this).attr('data-id');
+            $('.modal-title').text('修改角色');
+            role_ops.text('确认修改');
+
+            $('[name=duallistbox_demo1]').bootstrapDualListbox('refresh', true);
+            $.get(`/users/edit_user_role/${role_id}/`, function (res) {
+                res = res.data;
+                $('#role-name').val(res.user_role_name);
+                $('[name="permissions"] option').each(function () {
+                    let obj = $(this);
+                    obj.prop('selected', false);
+                    $.each(res.user_role_permissions, function (index, value) {
+                        if (obj.val() === value) {
+                            obj.prop('selected', true)
+                        }
+                    })
+                });
+                permission_box.bootstrapDualListbox('refresh');
+            });
+
+            role_ops.unbind('click').on('click', function () {
+                $.ajax({
+                    url: `/users/edit_user_role/${role_id}/`,
+                    type: 'POST',
+                    data: {
+                        user_role_name: $('#role-name').val(),
+                        user_role_permissions: $('[name="permissions"]').val()
+                    },
+                    traditional: true,
+                    dataType: 'json',
+                    success: function (res) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: res.msg
+                        });
+                        role_table.ajax.reload()
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除角色
+        role_tbody.on('click', '.delete-role', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: `/users/delete_user_role/${pk}/`,
+                            method: 'DELETE',
+                            success: function (res) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'green',
+                                    content: res.msg
+                                });
+                                role_table.row(tr_obj).remove().draw();
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        });
+
+    </script>
+
+{% endblock %}
+

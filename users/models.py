@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Permission
 
 
 class UserProfile(AbstractUser):
@@ -38,3 +38,15 @@ class UserPlan(models.Model):
         verbose_name = '日程管理'
         verbose_name_plural = verbose_name
         unique_together = ('title', 'user')
+
+
+class UserRole(models.Model):
+    user_role_name = models.CharField(max_length=32, unique=True, verbose_name='角色名称')
+    user_role_permissions = models.ManyToManyField('auth.Permission', verbose_name='角色拥有权限')
+    group_role = models.ManyToManyField('auth.Group', verbose_name='组角色')
+    u_role = models.ManyToManyField('UserProfile', verbose_name='用户角色')
+
+    class Meta:
+        db_table = 'ops_user_role'
+        verbose_name = '角色管理'
+        verbose_name_plural = verbose_name

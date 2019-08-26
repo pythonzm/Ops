@@ -3,8 +3,6 @@
 from task.models import AnsibleInventory
 from rest_framework import serializers
 from assets.models import *
-from users.models import UserProfile
-from django.contrib.auth.models import Permission, Group
 from utils.crypt_pwd import CryptPwd
 from fort.models import *
 from projs.models import *
@@ -172,26 +170,6 @@ class IDCSerializer(serializers.ModelSerializer):
     class Meta:
         model = IDC
         fields = ('id', 'idc_name', 'idc_address', 'idc_contact', 'idc_telephone', 'idc_memo', 'cabinet', 'assets')
-
-
-class UsersSerializer(serializers.ModelSerializer):
-    assets = AssetsSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = UserProfile
-        fields = ('id', 'username', 'mobile', 'is_superuser', 'is_active', 'groups', 'user_permissions', 'assets')
-
-
-class PermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permission
-        fields = ('id', 'name')
-
-
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = ('id', 'name', 'user_set', 'permissions')
 
 
 class InventorySerializer(serializers.ModelSerializer):
