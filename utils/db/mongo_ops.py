@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 -------------------------------------------------
-   File Name：      get_mongo_log
+   File Name：      mongo_ops
    Description:
-   Author:          Administrator
+   Author:          pythonzm
    date：           2018/6/3
 -------------------------------------------------
    Change Activity:
@@ -89,10 +89,8 @@ class MongoOps:
                 r = self.coll.find().skip(skip).limit(limit)
 
         results = [i for i in r]
-        return results
-
-    def count(self):
-        return self.coll.count()
+        count = len(results)
+        return results, count
 
     def delete(self, condition, del_all=True):
         """
@@ -118,13 +116,3 @@ class MongoOps:
         """
         res = JSONEncoder().encode(data)
         return res
-
-
-if __name__ == '__main__':
-    start_time = '2019-07-08'
-    end_time = '2019-07-09'
-    s = datetime.strptime(start_time, '%Y-%m-%d')
-    e = datetime.strptime(end_time, '%Y-%m-%d')
-    m = MongoOps('10.1.7.198', 27017, 'records', 'ops')
-    rs = m.find({"datetime": {"$gt": s, "$lt": e}})
-    print(rs)

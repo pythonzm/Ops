@@ -1,3 +1,4 @@
+import json
 import datetime
 import random
 from django.contrib import auth
@@ -114,49 +115,59 @@ def system_log(request):
 
 
 # datatables客户端分页(一次性获取所有数据)
-@admin_auth
-def get_system_log(request):
-    mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
-    start_time = request.GET.get('startTime')
-    end_time = request.GET.get('endTime')
-    try:
-        if start_time and end_time:
-            start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
-            end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
-            return_data = mongo.find({"datetime": {"$gt": start_time, "$lt": end_time}})
-        else:
-            return_data = mongo.find()
-        return JsonResponse({'code': 200, 'data': return_data, 'msg': '获取成功'}, encoder=JSONEncoder)
-    except Exception as e:
-        return JsonResponse({'code': 500, 'data': None, 'msg': '获取失败，{}'.format(e)})
-
-# datatables服务端分页
 # @admin_auth
 # def get_system_log(request):
 #     mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
-#     draw = int(request.GET.get('draw'))  # 记录操作次數
-#     start = int(request.GET.get('start'))  # 起始位置
-#     length = int(request.GET.get('length'))  # 每页长度
-#     search_key = request.GET.get('search[value]')  # 搜索关键字
-#     # order_column = request.GET.get('order[0][column]')  # 排序字段索引
-#     # order_column = request.GET.get('order[0][dir]')  # 排序规则：ase/desc
-#
+#     start_time = request.GET.get('startTime')
+#     end_time = request.GET.get('endTime')
 #     try:
-#         if search_key:
-#             searched_data = mongo.find({"path": {"$regex": f".*{search_key}.*"}}, start, length, sort_key='datetime',
-#                                        sort_method=-1)
-#             count = len(searched_data)
-#             return_data = searched_data[start:start + length]
+#         if start_time and end_time:
+#             start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
+#             end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+#             return_data = mongo.find({"datetime": {"$gt": start_time, "$lt": end_time}})
 #         else:
-#             count = mongo.count()
-#             return_data = mongo.find({}, start, length, sort_key='datetime', sort_method=-1)
-#
-#         dic = {
-#             'draw': draw,
-#             'recordsFiltered': count,
-#             'recordsTotal': count,
-#             'data': return_data
-#         }
-#         return HttpResponse(json.dumps(dic, cls=JSONEncoder), content_type='application/json')
+#             return_data = mongo.find()
+#         return JsonResponse({'code': 200, 'data': return_data, 'msg': '获取成功'}, encoder=JSONEncoder)
 #     except Exception as e:
-#         return JsonResponse({'code': 500, 'data': None, 'msg': '获取失败：{}'.format(e)})
+#         return JsonResponse({'code': 500, 'data': None, 'msg': '获取失败，{}'.format(e)})
+
+# datatables服务端分页
+@admin_auth
+def get_system_log(request):
+    mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
+    draw = int(request.GET.get('draw'))  # 记录操作次數
+    start = int(request.GET.get('start'))  # 起始位置
+    length = int(request.GET.get('length'))  # 每页长度
+    start_time = request.GET.get('startTime')
+    end_time = request.GET.get('endTime')
+    log_user = request.GET.get('logUser')
+    log_path = request.GET.get('logPath')
+
+    # search_key = request.GET.get('search[value]')  # 搜索关键字
+    # order_column = request.GET.get('order[0][column]')  # 排序字段索引
+    # order_column = request.GET.get('order[0][dir]')  # 排序规则：ase/desc
+
+    search_options = {}
+    try:
+        if log_user:
+            search_options.update({"username": {"$regex": f".*{log_user}.*"}})
+
+        if log_path:
+            search_options.update({"path": {"$regex": f".*{log_path}.*"}})
+
+        if start_time and end_time:
+            start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
+            end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(1)
+            search_options.update({"datetime": {"$gt": start_time, "$lt": end_time}})
+
+        searched_data, _ = mongo.find(search_options, start, length, sort_key='datetime', sort_method=-1)
+        _, count = mongo.find(search_options)
+        dic = {
+            'draw': draw,
+            'recordsFiltered': count,
+            'recordsTotal': count,
+            'data': searched_data
+        }
+        return HttpResponse(json.dumps(dic, cls=JSONEncoder), content_type='application/json')
+    except Exception as e:
+        return JsonResponse({'code': 500, 'data': None, 'msg': '获取失败：{}'.format(e)})

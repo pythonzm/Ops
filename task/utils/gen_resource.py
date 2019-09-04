@@ -49,15 +49,17 @@ class GenResource:
         :return:
         """
         resource = {}
+        group_names = []
         for group_id in group_ids:
             group_values = {}
             group_obj = AnsibleInventory.objects.prefetch_related('ans_group_hosts').get(id=group_id)
+            group_names.append(group_obj.ans_group_name)
             host_ids = [host.id for host in group_obj.ans_group_hosts.all()]
             group_values['hosts'] = self.gen_host_list(host_ids)
             if group_obj.ans_group_vars:
                 group_values['group_vars'] = eval(group_obj.ans_group_vars)
             resource[group_obj.ans_group_name] = group_values
-        return resource
+        return resource, group_names
 
     @staticmethod
     def gen_host_dict(group_ids):

@@ -48,10 +48,11 @@ class AnsModuleConsumer(WebsocketConsumer):
     def run_model(self, group_ids, host_ids, selected_module_name, custom_model_name, module_args):
         gen_resource = GenResource()
 
+        group_names = None
         if group_ids == ['custom'] or group_ids == ['all']:
             resource = gen_resource.gen_host_list(host_ids)
         else:
-            resource = gen_resource.gen_group_dict(group_ids)
+            resource, group_names = gen_resource.gen_group_dict(group_ids)
 
         host_list = [ServerAssets.objects.get(id=host_id).assets.asset_management_ip for host_id in host_ids]
 
@@ -66,12 +67,13 @@ class AnsModuleConsumer(WebsocketConsumer):
                 self.redis_instance.set(unique_key, 1)
                 ans = ANSRunner(resource, become='yes', become_method='sudo', become_user='root', sock=self)
                 ans.run_module(host_list=host_list, module_name=module_name, module_args=module_args)
+                ans_server = group_names if group_names else host_list
 
                 module_record.delay(ans_user=UserProfile.objects.get(id=self.ans_info['run_user']),
                                     ans_remote_ip=self.ans_info['remote_ip'],
                                     ans_module=module_name,
                                     ans_args=module_args,
-                                    ans_server=host_list, ans_result=ans.get_module_results)
+                                    ans_server=ans_server, ans_result=ans.get_module_results)
             except Exception as e:
                 self.send('<code style="color: #FF0000">\nansible执行模块出错：{}\n</code>'.format(str(e)))
             finally:

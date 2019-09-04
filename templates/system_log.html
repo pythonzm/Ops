@@ -40,6 +40,10 @@
         .key {
             color: red;
         }
+        .col-lg-12 .col-sm-2 {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
     </style>
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
 {% endblock %}
@@ -52,11 +56,24 @@
             <div class="col-sm-2">
                 <div class="form-group">
                     <div class="input-group">
+                        <input type="text" id="systemLogUser" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="操作用户">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="systemLogPath" class="form-control pull-right"
+                               data-date-format="yyyy-mm-dd" placeholder="请求路径">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
                         <input type="text" id="systemLogStartTime" class="form-control pull-right"
                                data-date-format="yyyy-mm-dd" placeholder="开始时间">
-                        <span class="input-group-addon">
-										                    <span class="glyphicon glyphicon-calendar"></span>
-										                </span>
                     </div>
                 </div>
             </div>
@@ -65,11 +82,11 @@
                     <div class="input-group">
                         <input type="text" id="systemLogEndTime" class="form-control pull-right"
                                data-date-format="yyyy-mm-dd" placeholder="结束时间">
-                        <span class="input-group-addon" onclick="searchUserLog()">
-										                    <span class="glyphicon glyphicon-search"
-                                                                  style="cursor: pointer"></span></span>
                     </div>
                 </div>
+            </div>
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-block btn-primary" style="width: unset" onclick="searchUserLog()">搜索</button>
             </div>
         </div>
         <div class="col-xs-12">
@@ -134,7 +151,9 @@
         $(function () {
             table = $('#example1').DataTable({
                 "processing": true,
-                // "serverSide": true,------------服务端分页时使用
+                "serverSide": true,  // 服务端分页时使用
+                searching: false,
+                ordering: false,
                 ajax: {
                     url: "{% url 'get_system_log' %}",
                     "dataSrc": function (d) {
@@ -161,7 +180,7 @@
                     {data: 'ip'},
                     {data: 'datetime'},
                 ],
-                "order": [[6, "desc"]]
+                // "order": [[6, "desc"]]
             });
 
             //Date picker
@@ -183,15 +202,25 @@
         function searchUserLog() {
             let startTime = $('#systemLogStartTime').val();
             let endTime = $('#systemLogEndTime').val();
-            if (startTime.length === 0 || endTime.length === 0) {
+            let logUser = $('#systemLogUser').val();
+            let logPath = $('#systemLogPath').val();
+            if ((startTime.length === 0 && endTime.length !== 0) || (startTime.length !== 0 && endTime.length === 0)) {
                 $.alert({
                     title: 'Tips',
                     type: 'red',
-                    content: '请选择起始时间！'
+                    content: '起始时间和截止时间必须同时选择或者同时不选！'
                 });
                 return false;
             }
-            table.settings()[0].ajax.data = {"startTime": startTime, "endTime": endTime};
+            if (startTime > endTime) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '起始时间不能大于截止时间！'
+                });
+                return false;
+            }
+            table.settings()[0].ajax.data = {"startTime": startTime, "endTime": endTime, "logUser": logUser, "logPath": logPath};
             table.ajax.reload(function () {
                 $.alert({
                     title: 'Tips',
