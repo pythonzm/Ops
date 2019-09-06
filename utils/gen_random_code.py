@@ -22,11 +22,11 @@ class GraphicVerificationCode(object):
 
     def __init__(self):
         self.chars = 'abcdefghjkmnpqrstuvwxyABCDEFGHJKMNPQRSTUVWXY3456789'
-        self.FONT_FILE = os.path.join(settings.BASE_DIR, "static", 'login', 'fonts', 'Arial.ttf')
+        self.FONT_FILE = os.path.join(settings.BASE_DIR, "static", 'Arial.ttf')
 
-    def generate(self, size=(105, 41), chars=None, mode='RGB', bg_color=(255, 255, 255),
-                 fg_color=(0, 0, 255), font_size=18, font_file=None, length=4, draw_lines=True, line_range=(1, 2),
-                 draw_points=True, point_chance=2):
+    def generate(self, size=(160, 34), chars=None, mode='RGB', bg_color=(255, 255, 255),
+                 fg_color=(0, 0, 255), font_size=25, font_file=None, length=4, draw_lines=True, line_range=(1, 2),
+                 draw_points=False, point_chance=2):
 
         """
         @param size: 图片的大小，格式（宽，高），默认为(105, 41)

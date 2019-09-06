@@ -50,10 +50,10 @@ def login(request):
         de_password = crypt.de_js_encrypt(password)
 
         login_ip = request.META.get('REMOTE_ADDR')
-        # code = request.POST.get('code')
+        code = request.POST.get('code')
         remember_me = request.POST.get('remember_me')
-        # if code.lower() != request.session.get('check_code', 'error').lower():
-        #     return render(request, 'login.html', {"login_error_info": "验证码错误,请重新输入！"})
+        if code.lower() != request.session.get('check_code', 'error').lower():
+            return render(request, 'login.html', {"login_error_info": "验证码错误,请重新输入！", 'public_key': crypt.gen_pri_pub_key})
         user = auth.authenticate(username=username, password=de_password)
         if user and user.is_active:
             auth.login(request, user)
@@ -91,6 +91,7 @@ def logout(request):
 
 
 def lock_screen(request):
+    crypt = CryptPwd()
     if request.method == 'GET':
         user = UserProfile.objects.get(username=request.user)
         UserProfile.objects.filter(username=request.user).update(
@@ -99,15 +100,17 @@ def lock_screen(request):
         request.session['lock'] = 'lock'
         if 'lock_screen' not in request.META.get('HTTP_REFERER'):
             request.session['referer_url'] = request.META.get('HTTP_REFERER')
+        public_key = crypt.gen_pri_pub_key
         return render(request, 'lockscreen.html', locals())
     elif request.method == 'POST':
-        de_password = CryptPwd().de_js_encrypt(request.POST.get('pwd'))
+        de_password = crypt.de_js_encrypt(request.POST.get('pwd'))
         user = auth.authenticate(username=request.session['username'], password=de_password)
         if user:
             del request.session['lock']
             referer_url = request.session.get('referer_url')
             return redirect(referer_url)
-        return render(request, 'lockscreen.html', {"login_error_info": "密码错误！请确认输入的密码是否正确！"}, )
+        return render(request, 'lockscreen.html',
+                      {"login_error_info": "密码错误！请确认输入的密码是否正确！", 'public_key': crypt.gen_pri_pub_key})
 
 
 @admin_auth
