@@ -43,11 +43,12 @@ def login(request):
         if request.session.get('username') and request.session.get('lock'):
             del request.session['lock']
             del request.session['username']
-        return render(request, 'login.html')
+        return render(request, 'login.html', {'public_key': crypt.gen_pri_pub_key})
     elif request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         de_password = crypt.de_js_encrypt(password)
+
         login_ip = request.META.get('REMOTE_ADDR')
         # code = request.POST.get('code')
         remember_me = request.POST.get('remember_me')
@@ -134,7 +135,8 @@ def system_log(request):
 # datatables服务端分页
 @admin_auth
 def get_system_log(request):
-    mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
+    mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL,
+                     settings.MONGODB_USER, settings.MONGODB_PASS)
     draw = int(request.GET.get('draw'))  # 记录操作次數
     start = int(request.GET.get('start'))  # 起始位置
     length = int(request.GET.get('length'))  # 每页长度

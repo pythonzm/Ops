@@ -108,12 +108,7 @@
 
     function encry_pwd(pwd) {
         let crypt = new JSEncrypt();
-        crypt.setKey("-----BEGIN PUBLIC KEY-----\n" +
-            "MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGhvDNv1H/3EGeNcS+ju3Ytx7QlW\n" +
-            "tvUi3KqV5U73md9G4Gyw+izQuvYYnZ/rDZrHocLB2fVcSZKKj8vNxkkpNqv00OJC\n" +
-            "GbwzGcOtXOpsRpiY2qhd0kvRwglnN84h9kWq8C6oMe/eWwZkpsCQJMmtiHeHdzSU\n" +
-            "xHkf4mpwxUfVDqF5AgMBAAE=\n" +
-            "-----END PUBLIC KEY-----");
+        crypt.setPublicKey(`{{ public_key }}`);
 
         // Encrypt the data with the public key.
         return crypt.encrypt(pwd)
