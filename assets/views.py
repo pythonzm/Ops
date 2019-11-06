@@ -358,7 +358,6 @@ def guacamole_terminal(request, pk):
     return render(request, 'assets/admin_guacamole.html', locals())
 
 
-# 已整合至系统日志
 @admin_auth
 def login_record(request):
     if request.method == 'GET':
@@ -382,7 +381,8 @@ def login_record(request):
                     'admin_remote_ip': search_record.admin_remote_ip,
                     'admin_start_time': search_record.admin_start_time,
                     'admin_login_status_time': search_record.admin_login_status_time,
-                    'admin_record_mode': search_record.get_admin_record_mode_display()
+                    'admin_record_mode': search_record.get_admin_record_mode_display(),
+                    'admin_record_cmds': search_record.admin_record_cmds
                 }
                 records.append(record)
             return JsonResponse({'code': 200, 'records': records})

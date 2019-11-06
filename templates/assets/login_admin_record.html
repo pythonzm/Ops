@@ -85,6 +85,11 @@
                                     {% if result.admin_record_mode == 'ssh' %}
                                         <a onclick="window.open('{% url 'admin_play' result.id %}','newwindow', 'height=500, width=1005, top=200, left=200, toolbar=no, menubar=no, scrollbars=no, location=no, status=no')"
                                            class="btn btn-xs btn-warning btn-replay">回放</a>
+                                        <button type="button" class="btn btn-xs btn-info"
+                                                data-toggle="modal"
+                                                data-target="#modal-cmds"
+                                                data-whatever="{{ result.admin_record_cmds }}">查看命令
+                                        </button>
                                     {% else %}
                                         <a onclick="window.open('{% url 'admin_play' result.id %}','newwindow')"
                                            class="btn btn-xs btn-warning btn-replay">回放</a>
@@ -98,6 +103,25 @@
                     </table>
                 </div>
                 <!-- /.box-body -->
+                <div class="modal fade" id="modal-cmds">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">命令内容</h4>
+                            </div>
+                            <div class="modal-body" style="overflow: auto;white-space: pre-line;max-height: 500px">
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
             </div>
             <!-- /.box -->
         </div>
@@ -129,6 +153,15 @@
             $('#loginLogStartTime, #loginLogEndTime').datepicker({
                 autoclose: true
             });
+        });
+
+        // 查看命令
+        $('#modal-cmds').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget); // Button that triggered the modal
+            let cmds = button.data('whatever'); // Extract info from data-* attributes
+            let modal = $(this);
+            modal.find('.modal-body').html(cmds);
+            modal.scrollTop = modal.scrollHeight;
         });
 
         // 按日期搜索
@@ -168,6 +201,7 @@
                         for (let i = 0; i < response.records.length; i++) {
                             let result = response.records[i];
                             let admin_record_mode = result['admin_record_mode'] === 'ssh' ? '<small class="label label-primary"> ssh</small>' : '<small class="label label-info"> guacamole</small>';
+                            let btn = result['admin_record_mode'] === 'ssh' ? '<a onclick="window.open(\'/assets/admin_play/' + result['id'] + '/' + '\',\'newwindow\', \'height=500, width=1005, top=200, left=200, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a><button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#modal-cmds" data-whatever="' + result['admin_record_cmds'] + '">查看命令</button>' : '<a onclick="window.open(\'/assets/admin_play/' + result['id'] + '/' + '\',\'newwindow\')" class="btn btn-xs btn-warning btn-replay">回放</a>';
                             table.row.add([
                                 result['admin_login_user'],
                                 result['admin_server'],
@@ -175,7 +209,7 @@
                                 result['admin_remote_ip'],
                                 result['admin_start_time'],
                                 result['admin_login_status_time'],
-                                '<a onclick="window.open(\'/assets/admin_play/' + result['id'] + '/' + '\',\'newwindow\', \'height=500, width=1005, top=200, left=200, toolbar=no, menubar=no, scrollbars=no, location=no, status=no\')" class="btn btn-xs btn-warning btn-replay">回放</a>'
+                                btn
                             ]).draw();
                         }
                     }

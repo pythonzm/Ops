@@ -3,7 +3,7 @@
 -------------------------------------------------
    File Name：      routing
    Description:
-   Author:          Administrator
+   Author:          pythonzm
    date：           2018/6/6
 -------------------------------------------------
    Change Activity:
@@ -14,10 +14,10 @@ from django.urls import path, re_path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from projs.utils.log_websocket import LogConsumer
-from fort.utils.webssh_websocket import FortConsumer
+from fort.utils.webssh import FortConsumer
 from assets.utils.webssh import SSHConsumer
-from fort.utils.guacamole_websocket import GuacamoleConsumer
-from assets.utils.guacamole import AdminGuacamole
+from fort.utils.webguacamole import GuacamoleConsumer
+from assets.utils.webguacamole import AdminGuacamole
 from task.utils.ans_module_websocket import AnsModuleConsumer
 from task.utils.ans_playbook_websocket import AnsPlaybookConsumer
 from projs.utils.deploy_websocket import DeployConsumer

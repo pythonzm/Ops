@@ -160,7 +160,8 @@ def login_fort_record(request):
                     'record_mode': search_record.get_record_mode_display(),
                     'remote_ip': search_record.remote_ip,
                     'start_time': search_record.start_time,
-                    'login_status_time': search_record.login_status_time
+                    'login_status_time': search_record.login_status_time,
+                    'record_cmds': search_record.record_cmds
                 }
                 records.append(record)
             return JsonResponse({'code': 200, 'records': records})

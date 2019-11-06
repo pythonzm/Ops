@@ -71,6 +71,7 @@ class FortRecord(models.Model):
     login_status_time = models.CharField(max_length=16, verbose_name='登录时长')
     record_file = models.CharField(max_length=256, verbose_name='操作记录')
     record_mode = models.CharField(max_length=10, choices=record_modes, verbose_name='登录协议', default='ssh')
+    record_cmds = models.TextField(verbose_name='命令记录', default='')
 
     class Meta:
         db_table = 'ops_fort_record'

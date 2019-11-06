@@ -97,7 +97,7 @@
                                 <div class="product-info">
                                     <a href="javascript:void(0)"
                                        class="product-title">{{ admin_record.admin_login_user.username }}登录主机：{{ admin_record.admin_server }}</a>
-                                    <span class="product-description">远端地址：{{ admin_record.admin_remote_ip }}&nbsp;&nbsp;&nbsp;&nbsp; 登录时长：{{ admin_record.admin_login_status_time }}</span>
+                                    <span class="product-description">远端地址：{{ admin_record.admin_remote_ip }}&nbsp;&nbsp;&nbsp;&nbsp; 登录时间： {{ admin_record.admin_start_time }}&nbsp;&nbsp;&nbsp;&nbsp; 登录时长：{{ admin_record.admin_login_status_time }}</span>
                                 </div>
                             </li>
                         {% endfor %}

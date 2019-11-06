@@ -29,6 +29,7 @@ class RecordMiddleware(MiddlewareMixin):
     def __init__(self, *args, **kwargs):
         super(RecordMiddleware, self).__init__(*args, **kwargs)
         self.body = None
+        self.mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
 
     def process_request(self, request):
         if request.POST:
@@ -65,9 +66,11 @@ class RecordMiddleware(MiddlewareMixin):
             else:
                 code = None
 
-            mongo = MongoOps(settings.MONGODB_HOST, settings.MONGODB_PORT, settings.RECORD_DB, settings.RECORD_COLL)
-            request_data = {'username': request.user.username, 'path': request.path, 'method': request.method,
-                            'request_data': data, 'code': code,
-                            'ip': request.META['REMOTE_ADDR'], 'datetime': datetime.datetime.now()}
-            mongo.insert_one(request_data)
+            if data and 'action' in data and 'show' in data.get('action'):
+                pass
+            else:
+                request_data = {'username': request.user.username, 'path': request.path, 'method': request.method,
+                                'request_data': data, 'code': code,
+                                'ip': request.META['REMOTE_ADDR'], 'datetime': datetime.datetime.now()}
+                self.mongo.insert_one(request_data)
         return response
