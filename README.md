@@ -125,6 +125,9 @@ python manage.py runserver 0.0.0.0:8000
 ### 登录日志查看
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/login_record.png)
 
+### webssh命令查看
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/webssh_command.png)
+
 ### 数据库用户管理，包括新增用户，修改用户，密码，权限
 >数据库管理用户,该用户需要有grant option权限,并且只能授权该用户所拥有的权限
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/mysql_user.png)
