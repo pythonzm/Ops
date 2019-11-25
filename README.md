@@ -101,6 +101,9 @@ python manage.py runserver 0.0.0.0:8000
 ### 资产详细，CPU等信息可以通过收集按钮自动获取
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_info.jpg)
 
+### 资产监控
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/monitor.png)
+
 ### ansible执行模块
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/ansible_module.png)
 
