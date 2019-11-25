@@ -11,7 +11,6 @@
 -------------------------------------------------
 """
 import json
-import re
 from ansible import constants as C
 from collections import namedtuple
 from ansible.parsing.dataloader import DataLoader
@@ -324,54 +323,3 @@ class ANSRunner(object):
     @property
     def get_playbook_results(self):
         return self.callback.playbook_results
-
-    @staticmethod
-    def handle_setup_data(data):
-        """处理setup模块数据，用于收集服务器信息功能"""
-        server_facts = {}
-        result = json.loads(data[data.index('{'): data.rindex('}') + 1])
-        facts = result['ansible_facts']
-        server_facts['hostname'] = facts['ansible_hostname']
-        server_facts['cpu_model'] = facts['ansible_processor'][-1]
-        server_facts['cpu_number'] = int(facts['ansible_processor_count'])
-        server_facts['vcpu_number'] = int(facts['ansible_processor_vcpus'])
-        server_facts['disk_total'], disk_size = 0, 0
-        for k, v in facts['ansible_devices'].items():
-            if k[0:2] in ['sd', 'hd', 'ss', 'vd']:
-                if 'G' in v['size']:
-                    disk_size = float(v['size'][0: v['size'].rindex('G') - 1])
-                elif 'T' in v['size']:
-                    disk_size = float(v['size'][0: v['size'].rindex('T') - 1]) * 1024
-                server_facts['disk_total'] += round(disk_size, 2)
-        server_facts['ram_total'] = round(int(facts['ansible_memtotal_mb']) / 1024)
-        server_facts['kernel'] = facts['ansible_kernel']
-        server_facts['system'] = '{} {} {}'.format(facts['ansible_distribution'],
-                                                   facts['ansible_distribution_version'],
-                                                   facts['ansible_userspace_bits'])
-        server_model = facts['ansible_product_name']
-
-        # 获取网卡信息
-        nks = []
-        for nk in facts.keys():
-            networkcard_facts = {}
-            if re.match(r"^ansible_(eth|bind|eno|ens|em)\d+?", nk):
-                networkcard_facts['network_card_name'] = facts.get(nk).get('device')
-                networkcard_facts['network_card_mac'] = facts.get(nk).get('macaddress')
-                networkcard_facts['network_card_ip'] = facts.get(nk).get('ipv4').get('address') if 'ipv4' in facts.get(
-                    nk) else 'unknown'
-                networkcard_facts['network_card_model'] = facts.get(nk).get('type')
-                networkcard_facts['network_card_mtu'] = facts.get(nk).get('mtu')
-                networkcard_facts['network_card_status'] = 1 if facts.get(nk).get('active') else 0
-                nks.append(networkcard_facts)
-        return server_facts, server_model, nks
-
-    @staticmethod
-    def handle_mem_data(data):
-        """
-        处理获取的内存信息
-        :param data: 通过ansible获取的内存信息
-        :return:
-        """
-        result = json.loads(data[data.index('{'): data.rindex('}') + 1])
-        facts = result['ansible_facts']
-        return facts['mem_info']

@@ -21,6 +21,10 @@
         .form-horizontal .form-group {
             margin-right: -200px;
         }
+
+        .col-sm-6 {
+            width: 45%
+        }
     </style>
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
 {% endblock %}
@@ -157,6 +161,7 @@
                                         <input type="password" class="form-control" name="fort_password"
                                                id="fort_password" required/>
                                     </div>
+                                    <span><button type="button" class="btn btn-default gen-pass">生成随机密码</button></span>
                                 </div>
 
                                 <div class="form-group" id="vnc_port">
@@ -827,6 +832,24 @@
                     }
                 });
             });
+        }
+
+
+        // 生成随机密码
+        $('.gen-pass').on('click', function () {
+            let pass = randomWord(20);
+            $('#fort_password').val(pass)
+        });
+
+        function randomWord(num) {
+            let str = "",
+                arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+            for (let i = 0; i < num; i++) {
+                let pos = Math.round(Math.random() * (arr.length - 1));
+                str += arr[pos];
+            }
+            return str;
         }
 
     </script>

@@ -18,4 +18,6 @@ urlpatterns = [
     re_path(r'guacamole/(?P<pk>[0-9]+)/', views.guacamole_terminal, name='guacamole_terminal'),
     path(r'login_record/', views.login_record, name='login_record'),
     re_path(r'admin_play/(?P<pk>[0-9]+)/', views.admin_play, name='admin_play'),
+    re_path(r'monitor/(?P<pk>[0-9]+)/', views.monitor, name='monitor'),
+    re_path(r'get_top_data/(?P<pk>[0-9]+)/', views.get_top_data, name='get_top_data'),
 ]

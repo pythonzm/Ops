@@ -471,7 +471,7 @@ desired effect
 
     $(document).ajaxStart(function () {
         let path = window.location.pathname;
-        if (path.indexOf('role_detail') === -1 && path.indexOf('system_log') === -1) {
+        if (path.indexOf('role_detail') === -1 && path.indexOf('system_log') === -1 && path.indexOf('monitor') === -1 ) {
             $('#loading-image').show();
         } else {
             // pass
@@ -520,7 +520,7 @@ desired effect
     });
 
     function hide_header() {
-        let paths = ['wiki_view', 'wiki_edit', 'wiki_search', 'playbook_info', 'role_detail', 'role_add', '/deploy/', 'rollback', 'system_log'];
+        let paths = ['wiki_view', 'wiki_edit', 'wiki_search', 'playbook_info', 'role_detail', 'role_add', '/deploy/', 'rollback', 'system_log', 'monitor'];
 
         for (let item of paths) {
             if (pathname.indexOf(item) !== -1) {

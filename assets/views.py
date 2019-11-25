@@ -2,6 +2,7 @@ import uuid
 import datetime
 import json
 import os
+import re
 import xlrd
 import xlwt
 import logging
@@ -159,7 +160,7 @@ def server_facts(request):
             for data in ans.get_module_results:
                 if module == 'setup':
                     if 'success' in data:
-                        server_info, server_model, nks = ans.handle_setup_data(data)
+                        server_info, server_model, nks = handle_setup_data(data)
                         Assets.objects.filter(id=server_obj.assets_id).update(
                             asset_model=server_model
                         )
@@ -175,7 +176,7 @@ def server_facts(request):
                         return JsonResponse({'code': 500, 'msg': '收集失败！{}'.format(data[data.index('>>') + 1:])})
                 elif module == 'get_mem':
                     if 'success' in data:
-                        mem_infos = ans.handle_mem_data(data)
+                        mem_infos = handle_mem_data(data)
 
                         asset = Assets.objects.get(id=server_obj.assets_id)
                         for mem_info in mem_infos:
@@ -413,3 +414,136 @@ def update_pwd(request):
             return JsonResponse({'code': 200, 'msg': '更新完毕!'})
         except Exception as e:
             return JsonResponse({'code': 500, 'msg': '更新失败：{}'.format(e)})
+
+
+@admin_auth
+def monitor(request, pk):
+    return render(request, 'assets/monitor.html', {'pk': pk})
+
+
+@admin_auth
+def get_top_data(request, pk):
+    server_obj = ServerAssets.objects.select_related('assets').get(id=pk)
+    resource = [{"ip": server_obj.assets.asset_management_ip, "port": int(server_obj.port),
+                 "username": server_obj.username,
+                 "password": CryptPwd().decrypt_pwd(server_obj.password)}]
+
+    ans = ANSRunner(resource, become='yes', become_method='sudo', become_user='root')
+    ans.run_module(host_list=[server_obj.assets.asset_management_ip], module_name='shell',
+                   module_args='export COLUMNS\=400 && top -bcn 1 && df -h -t ext3 -t ext4 -t xfs')
+    result = ans.get_module_results[0]
+    if 'success' in result:
+        load, tasks, cpu, mem, swap, heads, body, disk = handle_top_data(result)
+        return JsonResponse({'code': 200, 'data': {'load': load, 'tasks': tasks, 'cpu': cpu, 'mem': mem, 'swap': swap,
+                                                   'heads': heads, 'body': body, 'disk': disk}, 'msg': '收集成功！'})
+    else:
+        return JsonResponse({'code': 500, 'msg': '收集失败！{}'.format(result[result.index('>>') + 1:])})
+
+
+def handle_setup_data(data):
+    """处理setup模块数据，用于收集服务器信息功能"""
+    server_info = {}
+    result = json.loads(data[data.index('{'): data.rindex('}') + 1])
+    facts = result['ansible_facts']
+    server_info['hostname'] = facts['ansible_hostname']
+    server_info['cpu_model'] = facts['ansible_processor'][-1]
+    server_info['cpu_number'] = int(facts['ansible_processor_count'])
+    server_info['vcpu_number'] = int(facts['ansible_processor_vcpus'])
+    server_info['disk_total'], disk_size = 0, 0
+    for k, v in facts['ansible_devices'].items():
+        if k[0:2] in ['sd', 'hd', 'ss', 'vd']:
+            if 'G' in v['size']:
+                disk_size = float(v['size'][0: v['size'].rindex('G') - 1])
+            elif 'T' in v['size']:
+                disk_size = float(v['size'][0: v['size'].rindex('T') - 1]) * 1024
+            server_info['disk_total'] += round(disk_size, 2)
+    server_info['ram_total'] = round(int(facts['ansible_memtotal_mb']) / 1024)
+    server_info['kernel'] = facts['ansible_kernel']
+    server_info['system'] = '{} {} {}'.format(facts['ansible_distribution'],
+                                              facts['ansible_distribution_version'],
+                                              facts['ansible_userspace_bits'])
+    server_model = facts['ansible_product_name']
+
+    # 获取网卡信息
+    nks = []
+    for nk in facts.keys():
+        networkcard_facts = {}
+        if re.match(r"^ansible_(eth|bind|eno|ens|em)\d+?", nk):
+            networkcard_facts['network_card_name'] = facts.get(nk).get('device')
+            networkcard_facts['network_card_mac'] = facts.get(nk).get('macaddress')
+            networkcard_facts['network_card_ip'] = facts.get(nk).get('ipv4').get('address') if 'ipv4' in facts.get(
+                nk) else 'unknown'
+            networkcard_facts['network_card_model'] = facts.get(nk).get('type')
+            networkcard_facts['network_card_mtu'] = facts.get(nk).get('mtu')
+            networkcard_facts['network_card_status'] = 1 if facts.get(nk).get('active') else 0
+            nks.append(networkcard_facts)
+    return server_info, server_model, nks
+
+
+def handle_mem_data(data):
+    """
+    处理获取的内存信息
+    :param data: 通过ansible获取的内存信息
+    :return:
+    """
+    result = json.loads(data[data.index('{'): data.rindex('}') + 1])
+    facts = result['ansible_facts']
+    return facts['mem_info']
+
+
+def handle_top_data(data):
+    """
+    处理获取的top命令信息
+    :param data: 通过ansible获取的top命令信息
+    :return:
+    """
+    result = data[data.index('top'): data.index('</code>')]
+    r = [i for i in result.split('\n') if len(i) > 0]
+
+    load = [i.strip() for i in r[0].split('load average:')[1].split(',')]
+
+    t = r[1].split(':')[1]
+    tasks = ((n for n in m.split()) for m in t.split(','))
+    tasks = dict((y, x) for x, y in tasks)
+
+    c = r[2].split(':')[1]
+    cpu = ((n for n in m.replace('%', ' ').split()) for m in c.split(','))
+    cpu = dict((y, x) for x, y in cpu)
+
+    m = r[3].split(':')[1]
+    mem = ((n for n in re.sub('k', '', i).split()) for i in m.split(','))
+    mem = dict((y, x) for x, y in mem)
+
+    s = re.sub('avail Mem', 'availableMem', r[4].split(':')[1])
+    swap = ((n for n in re.sub('k', '', i).split()) for i in re.sub(r'\.', ',', s).split(','))
+    swap = dict((y, x) for x, y in swap)
+
+    heads = None
+    for i in r:
+        if i.lstrip().startswith('P'):
+            heads = [h for h in i.split()]
+            break
+
+    p = [d.strip() for d in r if d.lstrip()[0].isdigit() and d.rstrip()[-1] != ']']
+    body = [[n for n in x.split()[:len(heads) - 1] + [' '.join(x.split()[len(heads) - 1:])]] for x in p]
+
+    d = [i for i in r if i.lstrip().startswith('/') and 'boot' not in i]
+    disk = [['disk', '总容量', '已用', '可用']]
+    for i in d:
+        # disk = [f'{i.split()[0]}({(i.split()[-1])})'].extend(i.split()[1:-2])
+        temp = [format_size(n) for n in i.split()[1:-2]]
+        temp.insert(0, f'{i.split()[0]}({(i.split()[-1])})')
+        disk.append(temp)
+
+    return load, tasks, cpu, mem, swap, heads, body, disk
+
+
+def format_size(size):
+    if size.endswith('M'):
+        size = round(int(size[:-1]) / 1024, 2)
+    elif size.endswith('T'):
+        size = int(size[:-1]) * 1024
+    else:
+        size = float(size[:-1])
+
+    return size
