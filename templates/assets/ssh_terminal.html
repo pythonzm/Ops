@@ -67,45 +67,54 @@
 <script src="{% static 'js/fit.js' %}"></script>
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
 <script>
+    let cols = get_term_size().cols;
+    let rows = get_term_size().rows;
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/?' + '{{ remote_ip }}');
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/?remote_ip={{ remote_ip }}' + '&width=' + cols + '&height=' + rows);
+
+    let term = new Terminal({
+        screenKeys: true,
+        useStyle: true,
+        cursorBlink: true,
+        cols: cols,
+        rows: rows
+    });
+
+
     socket.onopen = function () {
-        $("#terms").css("height", document.documentElement.clientHeight - 50);
-        const term = new Terminal({
-            screenKeys: true,
-            useStyle: true,
-            cursorBlink: true,
-        });
-        term.open(document.getElementById('terms'));
-        term.fit();
-        let width1 = document.body.clientWidth;
-        if (width1 <= 750) {
-            let wrapper = $('.wrapper');
-            term.on('focus', function () {
-                wrapper.css('position', 'relative');
-                wrapper.css('top', '-170px')
-            });
-            term.on('blur', function () {
-                wrapper.css('position', 'relative');
-                wrapper.css('top', '0')
-            });
-        }
-        term.on('data', function (data) {
-            socket.send(data);
-        });
-        socket.onmessage = function (msg) {
-            term.write(msg.data);
-        };
-        socket.onerror = function (e) {
-            alert(e);
-        };
-        socket.onclose = function () {
-            // pass
-        };
+        // $("#terms").css("height", document.documentElement.clientHeight - $('.main-header').height());
+        term.open(document.getElementById('terms'), true);
+        // term.fit();
+    };
+
+    term.on('data', function (data) {
+        socket.send(data);
+    });
+
+    socket.onmessage = function (msg) {
+        term.write(msg.data);
+
     };
     socket.onerror = function () {
         document.getElementById('terms').innerHTML = '<h3>连接失败！请查看日志！</h3>';
     };
+    socket.onclose = function () {
+        // pass
+    };
+
+    function get_term_size() {
+        let init_width = 10;
+        let init_height = 20;
+
+        let windows_width = $(window).width();
+        let windows_height = document.documentElement.clientHeight - $('.main-header').height();
+
+        return {
+            cols: Math.floor(windows_width / init_width),
+            rows: Math.floor(windows_height / init_height),
+        }
+    }
+
     $("#upload_file").fileinput({
         language: 'zh',
         showUpload: true,

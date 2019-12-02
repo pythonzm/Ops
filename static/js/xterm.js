@@ -1,1 +1,8907 @@
-!function(t){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{("undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this).Terminal=t()}}(function(){return function t(e,i,r){function s(o,a){if(!i[o]){if(!e[o]){var l="function"==typeof require&&require;if(!a&&l)return l(o,!0);if(n)return n(o,!0);var h=new Error("Cannot find module '"+o+"'");throw h.code="MODULE_NOT_FOUND",h}var c=i[o]={exports:{}};e[o][0].call(c.exports,function(t){var i=e[o][1][t];return s(i||t)},c,c.exports,t,e,i,r)}return i[o].exports}for(var n="function"==typeof require&&require,o=0;o<r.length;o++)s(r[o]);return s}({1:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=t("./utils/CircularList"),s=function(){function t(t){this._terminal=t,this.clear()}return Object.defineProperty(t.prototype,"lines",{get:function(){return this._lines},enumerable:!0,configurable:!0}),t.prototype.fillViewportRows=function(){if(0===this._lines.length)for(var t=this._terminal.rows;t--;)this.lines.push(this._terminal.blankLine())},t.prototype.clear=function(){this.ydisp=0,this.ybase=0,this.y=0,this.x=0,this.scrollBottom=0,this.scrollTop=0,this.tabs={},this._lines=new r.CircularList(this._terminal.scrollback),this.scrollBottom=this._terminal.rows-1},t.prototype.resize=function(t,e){if(0!==this._lines.length){if(this._terminal.cols<t)for(var i=[this._terminal.defAttr," ",1],r=0;r<this._lines.length;r++)for(void 0===this._lines.get(r)&&this._lines.set(r,this._terminal.blankLine(void 0,void 0,t));this._lines.get(r).length<t;)this._lines.get(r).push(i);var s=0;if(this._terminal.rows<e)for(n=this._terminal.rows;n<e;n++)this._lines.length<e+this.ybase&&(this.ybase>0&&this._lines.length<=this.ybase+this.y+s+1?(this.ybase--,s++,this.ydisp>0&&this.ydisp--):this._lines.push(this._terminal.blankLine(void 0,void 0,t)));else for(var n=this._terminal.rows;n>e;n--)this._lines.length>e+this.ybase&&(this._lines.length>this.ybase+this.y+1?this._lines.pop():(this.ybase++,this.ydisp++));this.y>=e&&(this.y=e-1),s&&(this.y+=s),this.x>=t&&(this.x=t-1),this.scrollTop=0,this.scrollBottom=e-1}},t}();i.Buffer=s},{"./utils/CircularList":18}],2:[function(t,e,i){"use strict";var r=this&&this.__extends||function(){var t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])};return function(e,i){function r(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(r.prototype=i.prototype,new r)}}();Object.defineProperty(i,"__esModule",{value:!0});var s=t("./Buffer"),n=function(t){function e(e){var i=t.call(this)||this;return i._terminal=e,i._normal=new s.Buffer(i._terminal),i._normal.fillViewportRows(),i._alt=new s.Buffer(i._terminal),i._activeBuffer=i._normal,i}return r(e,t),Object.defineProperty(e.prototype,"alt",{get:function(){return this._alt},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"active",{get:function(){return this._activeBuffer},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"normal",{get:function(){return this._normal},enumerable:!0,configurable:!0}),e.prototype.activateNormalBuffer=function(){this._alt.clear(),this._activeBuffer=this._normal,this.emit("activate",this._normal)},e.prototype.activateAltBuffer=function(){this._alt.fillViewportRows(),this._activeBuffer=this._alt,this.emit("activate",this._alt)},e.prototype.resize=function(t,e){this._normal.resize(t,e),this._alt.resize(t,e)},e}(t("./EventEmitter").EventEmitter);i.BufferSet=n},{"./Buffer":1,"./EventEmitter":6}],3:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0}),i.CHARSETS={},i.DEFAULT_CHARSET=i.CHARSETS.B,i.CHARSETS[0]={"`":"◆",a:"▒",b:"\t",c:"\f",d:"\r",e:"\n",f:"°",g:"±",h:"␤",i:"\v",j:"┘",k:"┐",l:"┌",m:"└",n:"┼",o:"⎺",p:"⎻",q:"─",r:"⎼",s:"⎽",t:"├",u:"┤",v:"┴",w:"┬",x:"│",y:"≤",z:"≥","{":"π","|":"≠","}":"£","~":"·"},i.CHARSETS.A={"#":"£"},i.CHARSETS.B=null,i.CHARSETS[4]={"#":"£","@":"¾","[":"ij","\\":"½","]":"|","{":"¨","|":"f","}":"¼","~":"´"},i.CHARSETS.C=i.CHARSETS[5]={"[":"Ä","\\":"Ö","]":"Å","^":"Ü","`":"é","{":"ä","|":"ö","}":"å","~":"ü"},i.CHARSETS.R={"#":"£","@":"à","[":"°","\\":"ç","]":"§","{":"é","|":"ù","}":"è","~":"¨"},i.CHARSETS.Q={"@":"à","[":"â","\\":"ç","]":"ê","^":"î","`":"ô","{":"é","|":"ù","}":"è","~":"û"},i.CHARSETS.K={"@":"§","[":"Ä","\\":"Ö","]":"Ü","{":"ä","|":"ö","}":"ü","~":"ß"},i.CHARSETS.Y={"#":"£","@":"§","[":"°","\\":"ç","]":"é","`":"ù","{":"à","|":"ò","}":"è","~":"ì"},i.CHARSETS.E=i.CHARSETS[6]={"@":"Ä","[":"Æ","\\":"Ø","]":"Å","^":"Ü","`":"ä","{":"æ","|":"ø","}":"å","~":"ü"},i.CHARSETS.Z={"#":"£","@":"§","[":"¡","\\":"Ñ","]":"¿","{":"°","|":"ñ","}":"ç"},i.CHARSETS.H=i.CHARSETS[7]={"@":"É","[":"Ä","\\":"Ö","]":"Å","^":"Ü","`":"é","{":"ä","|":"ö","}":"å","~":"ü"},i.CHARSETS["="]={"#":"ù","@":"à","[":"é","\\":"ç","]":"ê","^":"î",_:"è","`":"ô","{":"ä","|":"ö","}":"ü","~":"û"}},{}],4:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=function(){function t(t,e,i){this.textarea=t,this.compositionView=e,this.terminal=i,this.isComposing=!1,this.isSendingComposition=!1,this.compositionPosition={start:null,end:null}}return t.prototype.compositionstart=function(){this.isComposing=!0,this.compositionPosition.start=this.textarea.value.length,this.compositionView.textContent="",this.compositionView.classList.add("active")},t.prototype.compositionupdate=function(t){var e=this;this.compositionView.textContent=t.data,this.updateCompositionElements(),setTimeout(function(){e.compositionPosition.end=e.textarea.value.length},0)},t.prototype.compositionend=function(){this.finalizeComposition(!0)},t.prototype.keydown=function(t){if(this.isComposing||this.isSendingComposition){if(229===t.keyCode)return!1;if(16===t.keyCode||17===t.keyCode||18===t.keyCode)return!1;this.finalizeComposition(!1)}return 229!==t.keyCode||(this.handleAnyTextareaChanges(),!1)},t.prototype.finalizeComposition=function(t){var e=this;if(this.compositionView.classList.remove("active"),this.isComposing=!1,this.clearTextareaPosition(),t){var i={start:this.compositionPosition.start,end:this.compositionPosition.end};this.isSendingComposition=!0,setTimeout(function(){if(e.isSendingComposition){e.isSendingComposition=!1;var t=void 0;t=e.isComposing?e.textarea.value.substring(i.start,i.end):e.textarea.value.substring(i.start),e.terminal.handler(t)}},0)}else{this.isSendingComposition=!1;var r=this.textarea.value.substring(this.compositionPosition.start,this.compositionPosition.end);this.terminal.handler(r)}},t.prototype.handleAnyTextareaChanges=function(){var t=this,e=this.textarea.value;setTimeout(function(){if(!t.isComposing){var i=t.textarea.value.replace(e,"");i.length>0&&t.terminal.handler(i)}},0)},t.prototype.updateCompositionElements=function(t){var e=this;if(this.isComposing){var i=this.terminal.element.querySelector(".terminal-cursor");if(i){var r=this.terminal.element.querySelector(".xterm-rows").offsetTop+i.offsetTop;this.compositionView.style.left=i.offsetLeft+"px",this.compositionView.style.top=r+"px",this.compositionView.style.height=i.offsetHeight+"px",this.compositionView.style.lineHeight=i.offsetHeight+"px";var s=this.compositionView.getBoundingClientRect();this.textarea.style.left=i.offsetLeft+"px",this.textarea.style.top=r+"px",this.textarea.style.width=s.width+"px",this.textarea.style.height=s.height+"px",this.textarea.style.lineHeight=s.height+"px"}t||setTimeout(function(){return e.updateCompositionElements(!0)},0)}},t.prototype.clearTextareaPosition=function(){this.textarea.style.left="",this.textarea.style.top=""},t}();i.CompositionHelper=r},{}],5:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});!function(t){t.NUL="\0",t.SOH="",t.STX="",t.ETX="",t.EOT="",t.ENQ="",t.ACK="",t.BEL="",t.BS="\b",t.HT="\t",t.LF="\n",t.VT="\v",t.FF="\f",t.CR="\r",t.SO="",t.SI="",t.DLE="",t.DC1="",t.DC2="",t.DC3="",t.DC4="",t.NAK="",t.SYN="",t.ETB="",t.CAN="",t.EM="",t.SUB="",t.ESC="",t.FS="",t.GS="",t.RS="",t.US="",t.SP=" ",t.DEL=""}(i.C0||(i.C0={}))},{}],6:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=function(){function t(){this._events=this._events||{}}return t.prototype.on=function(t,e){this._events[t]=this._events[t]||[],this._events[t].push(e)},t.prototype.off=function(t,e){if(this._events[t])for(var i=this._events[t],r=i.length;r--;)if(i[r]===e||i[r].listener===e)return void i.splice(r,1)},t.prototype.removeAllListeners=function(t){this._events[t]&&delete this._events[t]},t.prototype.once=function(t,e){function i(){var r=Array.prototype.slice.call(arguments);return this.off(t,i),e.apply(this,r)}return i.listener=e,this.on(t,i)},t.prototype.emit=function(t){for(var e=[],i=1;i<arguments.length;i++)e[i-1]=arguments[i];if(this._events[t])for(var r=this._events[t],s=0;s<r.length;s++)r[s].apply(this,e)},t.prototype.listeners=function(t){return this._events[t]||[]},t}();i.EventEmitter=r},{}],7:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=t("./EscapeSequences"),s=t("./Charsets"),n=function(){function t(t){this._terminal=t}return t.prototype.addChar=function(t,e){if(t>=" "){var r=i.wcwidth(e);this._terminal.charset&&this._terminal.charset[t]&&(t=this._terminal.charset[t]);var s=this._terminal.buffer.y+this._terminal.buffer.ybase;if(!r&&this._terminal.buffer.x)return void(this._terminal.buffer.lines.get(s)[this._terminal.buffer.x-1]&&(this._terminal.buffer.lines.get(s)[this._terminal.buffer.x-1][2]?this._terminal.buffer.lines.get(s)[this._terminal.buffer.x-1][1]+=t:this._terminal.buffer.lines.get(s)[this._terminal.buffer.x-2]&&(this._terminal.buffer.lines.get(s)[this._terminal.buffer.x-2][1]+=t),this._terminal.updateRange(this._terminal.buffer.y)));if(this._terminal.buffer.x+r-1>=this._terminal.cols)if(this._terminal.wraparoundMode)this._terminal.buffer.x=0,++this._terminal.buffer.y>this._terminal.buffer.scrollBottom?(this._terminal.buffer.y--,this._terminal.scroll(!0)):this._terminal.buffer.lines.get(this._terminal.buffer.y).isWrapped=!0;else if(2===r)return;if(s=this._terminal.buffer.y+this._terminal.buffer.ybase,this._terminal.insertMode)for(var n=0;n<r;++n)0===this._terminal.buffer.lines.get(this._terminal.buffer.y+this._terminal.buffer.ybase).pop()[2]&&this._terminal.buffer.lines.get(s)[this._terminal.cols-2]&&2===this._terminal.buffer.lines.get(s)[this._terminal.cols-2][2]&&(this._terminal.buffer.lines.get(s)[this._terminal.cols-2]=[this._terminal.curAttr," ",1]),this._terminal.buffer.lines.get(s).splice(this._terminal.buffer.x,0,[this._terminal.curAttr," ",1]);this._terminal.buffer.lines.get(s)[this._terminal.buffer.x]=[this._terminal.curAttr,t,r],this._terminal.buffer.x++,this._terminal.updateRange(this._terminal.buffer.y),2===r&&(this._terminal.buffer.lines.get(s)[this._terminal.buffer.x]=[this._terminal.curAttr,"",0],this._terminal.buffer.x++)}},t.prototype.bell=function(){var t=this;this._terminal.visualBell&&(this._terminal.element.style.borderColor="white",setTimeout(function(){return t._terminal.element.style.borderColor=""},10),this._terminal.popOnBell&&this._terminal.focus())},t.prototype.lineFeed=function(){this._terminal.convertEol&&(this._terminal.buffer.x=0),++this._terminal.buffer.y>this._terminal.buffer.scrollBottom&&(this._terminal.buffer.y--,this._terminal.scroll()),this._terminal.buffer.x>=this._terminal.cols&&this._terminal.buffer.x--,this._terminal.emit("lineFeed")},t.prototype.carriageReturn=function(){this._terminal.buffer.x=0},t.prototype.backspace=function(){this._terminal.buffer.x>0&&this._terminal.buffer.x--},t.prototype.tab=function(){this._terminal.buffer.x=this._terminal.nextStop()},t.prototype.shiftOut=function(){this._terminal.setgLevel(1)},t.prototype.shiftIn=function(){this._terminal.setgLevel(0)},t.prototype.insertChars=function(t){var e,i,r,s;for((e=t[0])<1&&(e=1),i=this._terminal.buffer.y+this._terminal.buffer.ybase,r=this._terminal.buffer.x,s=[this._terminal.eraseAttr()," ",1];e--&&r<this._terminal.cols;)this._terminal.buffer.lines.get(i).splice(r++,0,s),this._terminal.buffer.lines.get(i).pop()},t.prototype.cursorUp=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.y-=e,this._terminal.buffer.y<0&&(this._terminal.buffer.y=0)},t.prototype.cursorDown=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.y+=e,this._terminal.buffer.y>=this._terminal.rows&&(this._terminal.buffer.y=this._terminal.rows-1),this._terminal.buffer.x>=this._terminal.cols&&this._terminal.buffer.x--},t.prototype.cursorForward=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.x+=e,this._terminal.buffer.x>=this._terminal.cols&&(this._terminal.buffer.x=this._terminal.cols-1)},t.prototype.cursorBackward=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.x>=this._terminal.cols&&this._terminal.buffer.x--,this._terminal.buffer.x-=e,this._terminal.buffer.x<0&&(this._terminal.buffer.x=0)},t.prototype.cursorNextLine=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.y+=e,this._terminal.buffer.y>=this._terminal.rows&&(this._terminal.buffer.y=this._terminal.rows-1),this._terminal.buffer.x=0},t.prototype.cursorPrecedingLine=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.y-=e,this._terminal.buffer.y<0&&(this._terminal.buffer.y=0),this._terminal.buffer.x=0},t.prototype.cursorCharAbsolute=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.x=e-1},t.prototype.cursorPosition=function(t){var e,i;e=t[0]-1,i=t.length>=2?t[1]-1:0,e<0?e=0:e>=this._terminal.rows&&(e=this._terminal.rows-1),i<0?i=0:i>=this._terminal.cols&&(i=this._terminal.cols-1),this._terminal.buffer.x=i,this._terminal.buffer.y=e},t.prototype.cursorForwardTab=function(t){for(var e=t[0]||1;e--;)this._terminal.buffer.x=this._terminal.nextStop()},t.prototype.eraseInDisplay=function(t){var e;switch(t[0]){case 0:for(this._terminal.eraseRight(this._terminal.buffer.x,this._terminal.buffer.y),e=this._terminal.buffer.y+1;e<this._terminal.rows;e++)this._terminal.eraseLine(e);break;case 1:for(this._terminal.eraseLeft(this._terminal.buffer.x,this._terminal.buffer.y),e=this._terminal.buffer.y;e--;)this._terminal.eraseLine(e);break;case 2:for(e=this._terminal.rows;e--;)this._terminal.eraseLine(e);break;case 3:var i=this._terminal.buffer.lines.length-this._terminal.rows;i>0&&(this._terminal.buffer.lines.trimStart(i),this._terminal.buffer.ybase=Math.max(this._terminal.buffer.ybase-i,0),this._terminal.buffer.ydisp=Math.max(this._terminal.buffer.ydisp-i,0),this._terminal.emit("scroll",0))}},t.prototype.eraseInLine=function(t){switch(t[0]){case 0:this._terminal.eraseRight(this._terminal.buffer.x,this._terminal.buffer.y);break;case 1:this._terminal.eraseLeft(this._terminal.buffer.x,this._terminal.buffer.y);break;case 2:this._terminal.eraseLine(this._terminal.buffer.y)}},t.prototype.insertLines=function(t){var e,i,r;for((e=t[0])<1&&(e=1),i=this._terminal.buffer.y+this._terminal.buffer.ybase,r=this._terminal.rows-1-this._terminal.buffer.scrollBottom,r=this._terminal.rows-1+this._terminal.buffer.ybase-r+1;e--;)this._terminal.buffer.lines.length===this._terminal.buffer.lines.maxLength&&(this._terminal.buffer.lines.trimStart(1),this._terminal.buffer.ybase--,this._terminal.buffer.ydisp--,i--,r--),this._terminal.buffer.lines.splice(i,0,this._terminal.blankLine(!0)),this._terminal.buffer.lines.splice(r,1);this._terminal.updateRange(this._terminal.buffer.y),this._terminal.updateRange(this._terminal.buffer.scrollBottom)},t.prototype.deleteLines=function(t){var e,i,r;for((e=t[0])<1&&(e=1),i=this._terminal.buffer.y+this._terminal.buffer.ybase,r=this._terminal.rows-1-this._terminal.buffer.scrollBottom,r=this._terminal.rows-1+this._terminal.buffer.ybase-r;e--;)this._terminal.buffer.lines.length===this._terminal.buffer.lines.maxLength&&(this._terminal.buffer.lines.trimStart(1),this._terminal.buffer.ybase-=1,this._terminal.buffer.ydisp-=1),this._terminal.buffer.lines.splice(r+1,0,this._terminal.blankLine(!0)),this._terminal.buffer.lines.splice(i,1);this._terminal.updateRange(this._terminal.buffer.y),this._terminal.updateRange(this._terminal.buffer.scrollBottom)},t.prototype.deleteChars=function(t){var e,i,r;for((e=t[0])<1&&(e=1),i=this._terminal.buffer.y+this._terminal.buffer.ybase,r=[this._terminal.eraseAttr()," ",1];e--;)this._terminal.buffer.lines.get(i).splice(this._terminal.buffer.x,1),this._terminal.buffer.lines.get(i).push(r)},t.prototype.scrollUp=function(t){for(var e=t[0]||1;e--;)this._terminal.buffer.lines.splice(this._terminal.buffer.ybase+this._terminal.buffer.scrollTop,1),this._terminal.buffer.lines.splice(this._terminal.buffer.ybase+this._terminal.buffer.scrollBottom,0,this._terminal.blankLine());this._terminal.updateRange(this._terminal.buffer.scrollTop),this._terminal.updateRange(this._terminal.buffer.scrollBottom)},t.prototype.scrollDown=function(t){for(var e=t[0]||1;e--;)this._terminal.buffer.lines.splice(this._terminal.buffer.ybase+this._terminal.buffer.scrollBottom,1),this._terminal.buffer.lines.splice(this._terminal.buffer.ybase+this._terminal.buffer.scrollTop,0,this._terminal.blankLine());this._terminal.updateRange(this._terminal.buffer.scrollTop),this._terminal.updateRange(this._terminal.buffer.scrollBottom)},t.prototype.eraseChars=function(t){var e,i,r,s;for((e=t[0])<1&&(e=1),i=this._terminal.buffer.y+this._terminal.buffer.ybase,r=this._terminal.buffer.x,s=[this._terminal.eraseAttr()," ",1];e--&&r<this._terminal.cols;)this._terminal.buffer.lines.get(i)[r++]=s},t.prototype.cursorBackwardTab=function(t){for(var e=t[0]||1;e--;)this._terminal.buffer.x=this._terminal.prevStop()},t.prototype.charPosAbsolute=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.x=e-1,this._terminal.buffer.x>=this._terminal.cols&&(this._terminal.buffer.x=this._terminal.cols-1)},t.prototype.HPositionRelative=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.x+=e,this._terminal.buffer.x>=this._terminal.cols&&(this._terminal.buffer.x=this._terminal.cols-1)},t.prototype.repeatPrecedingCharacter=function(t){for(var e=t[0]||1,i=this._terminal.buffer.lines.get(this._terminal.buffer.ybase+this._terminal.buffer.y),r=i[this._terminal.buffer.x-1]||[this._terminal.defAttr," ",1];e--;)i[this._terminal.buffer.x++]=r},t.prototype.sendDeviceAttributes=function(t){t[0]>0||(this._terminal.prefix?">"===this._terminal.prefix&&(this._terminal.is("xterm")?this._terminal.send(r.C0.ESC+"[>0;276;0c"):this._terminal.is("rxvt-unicode")?this._terminal.send(r.C0.ESC+"[>85;95;0c"):this._terminal.is("linux")?this._terminal.send(t[0]+"c"):this._terminal.is("screen")&&this._terminal.send(r.C0.ESC+"[>83;40003;0c")):this._terminal.is("xterm")||this._terminal.is("rxvt-unicode")||this._terminal.is("screen")?this._terminal.send(r.C0.ESC+"[?1;2c"):this._terminal.is("linux")&&this._terminal.send(r.C0.ESC+"[?6c"))},t.prototype.linePosAbsolute=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.y=e-1,this._terminal.buffer.y>=this._terminal.rows&&(this._terminal.buffer.y=this._terminal.rows-1)},t.prototype.VPositionRelative=function(t){var e=t[0];e<1&&(e=1),this._terminal.buffer.y+=e,this._terminal.buffer.y>=this._terminal.rows&&(this._terminal.buffer.y=this._terminal.rows-1),this._terminal.buffer.x>=this._terminal.cols&&this._terminal.buffer.x--},t.prototype.HVPosition=function(t){t[0]<1&&(t[0]=1),t[1]<1&&(t[1]=1),this._terminal.buffer.y=t[0]-1,this._terminal.buffer.y>=this._terminal.rows&&(this._terminal.buffer.y=this._terminal.rows-1),this._terminal.buffer.x=t[1]-1,this._terminal.buffer.x>=this._terminal.cols&&(this._terminal.buffer.x=this._terminal.cols-1)},t.prototype.tabClear=function(t){var e=t[0];e<=0?delete this._terminal.buffer.tabs[this._terminal.buffer.x]:3===e&&(this._terminal.buffer.tabs={})},t.prototype.setMode=function(t){if(t.length>1)for(var e=0;e<t.length;e++)this.setMode([t[e]]);else if(this._terminal.prefix){if("?"===this._terminal.prefix)switch(t[0]){case 1:this._terminal.applicationCursor=!0;break;case 2:this._terminal.setgCharset(0,s.DEFAULT_CHARSET),this._terminal.setgCharset(1,s.DEFAULT_CHARSET),this._terminal.setgCharset(2,s.DEFAULT_CHARSET),this._terminal.setgCharset(3,s.DEFAULT_CHARSET);break;case 3:this._terminal.savedCols=this._terminal.cols,this._terminal.resize(132,this._terminal.rows);break;case 6:this._terminal.originMode=!0;break;case 7:this._terminal.wraparoundMode=!0;break;case 12:break;case 66:this._terminal.log("Serial port requested application keypad."),this._terminal.applicationKeypad=!0,this._terminal.viewport.syncScrollArea();break;case 9:case 1e3:case 1002:case 1003:this._terminal.x10Mouse=9===t[0],this._terminal.vt200Mouse=1e3===t[0],this._terminal.normalMouse=t[0]>1e3,this._terminal.mouseEvents=!0,this._terminal.element.classList.add("enable-mouse-events"),this._terminal.selectionManager.disable(),this._terminal.log("Binding to mouse events.");break;case 1004:this._terminal.sendFocus=!0;break;case 1005:this._terminal.utfMouse=!0;break;case 1006:this._terminal.sgrMouse=!0;break;case 1015:this._terminal.urxvtMouse=!0;break;case 25:this._terminal.cursorHidden=!1;break;case 1049:case 47:case 1047:this._terminal.buffers.activateAltBuffer(),this._terminal.viewport.syncScrollArea(),this._terminal.showCursor()}}else switch(t[0]){case 4:this._terminal.insertMode=!0}},t.prototype.resetMode=function(t){if(t.length>1)for(var e=0;e<t.length;e++)this.resetMode([t[e]]);else if(this._terminal.prefix){if("?"===this._terminal.prefix)switch(t[0]){case 1:this._terminal.applicationCursor=!1;break;case 3:132===this._terminal.cols&&this._terminal.savedCols&&this._terminal.resize(this._terminal.savedCols,this._terminal.rows),delete this._terminal.savedCols;break;case 6:this._terminal.originMode=!1;break;case 7:this._terminal.wraparoundMode=!1;break;case 12:break;case 66:this._terminal.log("Switching back to normal keypad."),this._terminal.applicationKeypad=!1,this._terminal.viewport.syncScrollArea();break;case 9:case 1e3:case 1002:case 1003:this._terminal.x10Mouse=!1,this._terminal.vt200Mouse=!1,this._terminal.normalMouse=!1,this._terminal.mouseEvents=!1,this._terminal.element.classList.remove("enable-mouse-events"),this._terminal.selectionManager.enable();break;case 1004:this._terminal.sendFocus=!1;break;case 1005:this._terminal.utfMouse=!1;break;case 1006:this._terminal.sgrMouse=!1;break;case 1015:this._terminal.urxvtMouse=!1;break;case 25:this._terminal.cursorHidden=!0;break;case 1049:case 47:case 1047:this._terminal.buffers.activateNormalBuffer(),this._terminal.selectionManager.setBuffer(this._terminal.buffer.lines),this._terminal.refresh(0,this._terminal.rows-1),this._terminal.viewport.syncScrollArea(),this._terminal.showCursor()}}else switch(t[0]){case 4:this._terminal.insertMode=!1}},t.prototype.charAttributes=function(t){if(1!==t.length||0!==t[0]){for(var e,i=t.length,r=0,s=this._terminal.curAttr>>18,n=this._terminal.curAttr>>9&511,o=511&this._terminal.curAttr;r<i;r++)(e=t[r])>=30&&e<=37?n=e-30:e>=40&&e<=47?o=e-40:e>=90&&e<=97?n=(e+=8)-90:e>=100&&e<=107?o=(e+=8)-100:0===e?(s=this._terminal.defAttr>>18,n=this._terminal.defAttr>>9&511,o=511&this._terminal.defAttr):1===e?s|=1:4===e?s|=2:5===e?s|=4:7===e?s|=8:8===e?s|=16:22===e?s&=-2:24===e?s&=-3:25===e?s&=-5:27===e?s&=-9:28===e?s&=-17:39===e?n=this._terminal.defAttr>>9&511:49===e?o=511&this._terminal.defAttr:38===e?2===t[r+1]?(r+=2,-1===(n=this._terminal.matchColor(255&t[r],255&t[r+1],255&t[r+2]))&&(n=511),r+=2):5===t[r+1]&&(n=e=255&t[r+=2]):48===e?2===t[r+1]?(r+=2,-1===(o=this._terminal.matchColor(255&t[r],255&t[r+1],255&t[r+2]))&&(o=511),r+=2):5===t[r+1]&&(o=e=255&t[r+=2]):100===e?(n=this._terminal.defAttr>>9&511,o=511&this._terminal.defAttr):this._terminal.error("Unknown SGR attribute: %d.",e);this._terminal.curAttr=s<<18|n<<9|o}else this._terminal.curAttr=this._terminal.defAttr},t.prototype.deviceStatus=function(t){if(this._terminal.prefix){if("?"===this._terminal.prefix)switch(t[0]){case 6:this._terminal.send(r.C0.ESC+"[?"+(this._terminal.buffer.y+1)+";"+(this._terminal.buffer.x+1)+"R")}}else switch(t[0]){case 5:this._terminal.send(r.C0.ESC+"[0n");break;case 6:this._terminal.send(r.C0.ESC+"["+(this._terminal.buffer.y+1)+";"+(this._terminal.buffer.x+1)+"R")}},t.prototype.softReset=function(t){this._terminal.cursorHidden=!1,this._terminal.insertMode=!1,this._terminal.originMode=!1,this._terminal.wraparoundMode=!0,this._terminal.applicationKeypad=!1,this._terminal.viewport.syncScrollArea(),this._terminal.applicationCursor=!1,this._terminal.buffer.scrollTop=0,this._terminal.buffer.scrollBottom=this._terminal.rows-1,this._terminal.curAttr=this._terminal.defAttr,this._terminal.buffer.x=this._terminal.buffer.y=0,this._terminal.charset=null,this._terminal.glevel=0,this._terminal.charsets=[null]},t.prototype.setCursorStyle=function(t){var e=t[0]<1?1:t[0];switch(e){case 1:case 2:this._terminal.setOption("cursorStyle","block");break;case 3:case 4:this._terminal.setOption("cursorStyle","underline");break;case 5:case 6:this._terminal.setOption("cursorStyle","bar")}var i=e%2==1;this._terminal.setOption("cursorBlink",i)},t.prototype.setScrollRegion=function(t){this._terminal.prefix||(this._terminal.buffer.scrollTop=(t[0]||1)-1,this._terminal.buffer.scrollBottom=(t[1]&&t[1]<=this._terminal.rows?t[1]:this._terminal.rows)-1,this._terminal.buffer.x=0,this._terminal.buffer.y=0)},t.prototype.saveCursor=function(t){this._terminal.buffer.savedX=this._terminal.buffer.x,this._terminal.buffer.savedY=this._terminal.buffer.y},t.prototype.restoreCursor=function(t){this._terminal.buffer.x=this._terminal.buffer.savedX||0,this._terminal.buffer.y=this._terminal.buffer.savedY||0},t}();i.InputHandler=n,i.wcwidth=function(t){function e(t,e){var i,r=0,s=e.length-1;if(t<e[0][0]||t>e[s][1])return!1;for(;s>=r;)if(i=r+s>>1,t>e[i][1])r=i+1;else{if(!(t<e[i][0]))return!0;s=i-1}return!1}function i(i){return 0===i?t.nul:i<32||i>=127&&i<160?t.control:e(i,o)?0:r(i)?2:1}function r(t){return t>=4352&&(t<=4447||9001===t||9002===t||t>=11904&&t<=42191&&12351!==t||t>=44032&&t<=55203||t>=63744&&t<=64255||t>=65040&&t<=65049||t>=65072&&t<=65135||t>=65280&&t<=65376||t>=65504&&t<=65510)}function s(t){return e(t,a)?0:t>=131072&&t<=196605||t>=196608&&t<=262141?2:1}function n(){h="undefined"==typeof Uint32Array?new Array(4096):new Uint32Array(4096);for(var t=0;t<4096;++t){for(var e=0,r=16;r--;)e=e<<2|i(16*t+r);h[t]=e}return h}var o=[[768,879],[1155,1158],[1160,1161],[1425,1469],[1471,1471],[1473,1474],[1476,1477],[1479,1479],[1536,1539],[1552,1557],[1611,1630],[1648,1648],[1750,1764],[1767,1768],[1770,1773],[1807,1807],[1809,1809],[1840,1866],[1958,1968],[2027,2035],[2305,2306],[2364,2364],[2369,2376],[2381,2381],[2385,2388],[2402,2403],[2433,2433],[2492,2492],[2497,2500],[2509,2509],[2530,2531],[2561,2562],[2620,2620],[2625,2626],[2631,2632],[2635,2637],[2672,2673],[2689,2690],[2748,2748],[2753,2757],[2759,2760],[2765,2765],[2786,2787],[2817,2817],[2876,2876],[2879,2879],[2881,2883],[2893,2893],[2902,2902],[2946,2946],[3008,3008],[3021,3021],[3134,3136],[3142,3144],[3146,3149],[3157,3158],[3260,3260],[3263,3263],[3270,3270],[3276,3277],[3298,3299],[3393,3395],[3405,3405],[3530,3530],[3538,3540],[3542,3542],[3633,3633],[3636,3642],[3655,3662],[3761,3761],[3764,3769],[3771,3772],[3784,3789],[3864,3865],[3893,3893],[3895,3895],[3897,3897],[3953,3966],[3968,3972],[3974,3975],[3984,3991],[3993,4028],[4038,4038],[4141,4144],[4146,4146],[4150,4151],[4153,4153],[4184,4185],[4448,4607],[4959,4959],[5906,5908],[5938,5940],[5970,5971],[6002,6003],[6068,6069],[6071,6077],[6086,6086],[6089,6099],[6109,6109],[6155,6157],[6313,6313],[6432,6434],[6439,6440],[6450,6450],[6457,6459],[6679,6680],[6912,6915],[6964,6964],[6966,6970],[6972,6972],[6978,6978],[7019,7027],[7616,7626],[7678,7679],[8203,8207],[8234,8238],[8288,8291],[8298,8303],[8400,8431],[12330,12335],[12441,12442],[43014,43014],[43019,43019],[43045,43046],[64286,64286],[65024,65039],[65056,65059],[65279,65279],[65529,65531]],a=[[68097,68099],[68101,68102],[68108,68111],[68152,68154],[68159,68159],[119143,119145],[119155,119170],[119173,119179],[119210,119213],[119362,119364],[917505,917505],[917536,917631],[917760,917999]],l=0|t.control,h=null;return function(t){if((t|=0)<32)return 0|l;if(t<127)return 1;var e=h||n();return t<65536?e[t>>4]>>((15&t)<<1)&3:s(t)}}({nul:0,control:0})},{"./Charsets":3,"./EscapeSequences":5}],8:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=new RegExp("(?:^|[^\\da-z\\.-]+)((https?:\\/\\/)((([\\da-z\\.-]+)\\.([a-z\\.]{2,6}))|((\\d{1,3}\\.){3}\\d{1,3})|(localhost))(:\\d{1,5})?(\\/[\\/\\w\\.\\-%~]*)*(\\?[0-9\\w\\[\\]\\(\\)\\/\\?\\!#@$%&'*+,:;~\\=\\.\\-]*)?(#[0-9\\w\\[\\]\\(\\)\\/\\?\\!#@$%&'*+,:;~\\=\\.\\-]*)?)($|[^\\/\\w\\.\\-%]+)"),s=0,n=function(){function t(){this._nextLinkMatcherId=s,this._rowTimeoutIds=[],this._linkMatchers=[],this.registerLinkMatcher(r,null,{matchIndex:1})}return t.prototype.attachToDom=function(t,e){this._document=t,this._rows=e},t.prototype.linkifyRow=function(e){if(this._document){var i=this._rowTimeoutIds[e];i&&clearTimeout(i),this._rowTimeoutIds[e]=setTimeout(this._linkifyRow.bind(this,e),t.TIME_BEFORE_LINKIFY)}},t.prototype.setHypertextLinkHandler=function(t){this._linkMatchers[s].handler=t},t.prototype.setHypertextValidationCallback=function(t){this._linkMatchers[s].validationCallback=t},t.prototype.registerLinkMatcher=function(t,e,i){if(void 0===i&&(i={}),this._nextLinkMatcherId!==s&&!e)throw new Error("handler must be defined");var r={id:this._nextLinkMatcherId++,regex:t,handler:e,matchIndex:i.matchIndex,validationCallback:i.validationCallback,priority:i.priority||0};return this._addLinkMatcherToList(r),r.id},t.prototype._addLinkMatcherToList=function(t){if(0!==this._linkMatchers.length){for(var e=this._linkMatchers.length-1;e>=0;e--)if(t.priority<=this._linkMatchers[e].priority)return void this._linkMatchers.splice(e+1,0,t);this._linkMatchers.splice(0,0,t)}else this._linkMatchers.push(t)},t.prototype.deregisterLinkMatcher=function(t){for(var e=1;e<this._linkMatchers.length;e++)if(this._linkMatchers[e].id===t)return this._linkMatchers.splice(e,1),!0;return!1},t.prototype._linkifyRow=function(t){var e=this._rows[t];if(e){e.textContent;for(var i=0;i<this._linkMatchers.length;i++){var r=this._linkMatchers[i],s=this._doLinkifyRow(e,r);if(s.length>0){if(r.validationCallback)for(var n=0;n<s.length;n++)!function(t){var e=s[t];r.validationCallback(e.textContent,e,function(t){t||e.classList.add("xterm-invalid-link")})}(n);return}}}},t.prototype._doLinkifyRow=function(t,e){var i=[],r=e.id===s,n=t.childNodes,o=t.textContent.match(e.regex);if(!o||0===o.length)return i;for(var a=o["number"!=typeof e.matchIndex?0:e.matchIndex],l=o.index+a.length,h=0;h<n.length;h++){var c=n[h],u=c.textContent.indexOf(a);if(u>=0){var f=this._createAnchorElement(a,e.handler,r);if(c.textContent.length===a.length)if(3===c.nodeType)this._replaceNode(c,f);else{var m=c;if("A"===m.nodeName)return i;m.innerHTML="",m.appendChild(f)}else if(c.childNodes.length>1)for(var p=0;p<c.childNodes.length;p++){var d=c.childNodes[p],_=d.textContent.indexOf(a);if(-1!==_){this._replaceNodeSubstringWithNode(d,f,a,_);break}}else h+=this._replaceNodeSubstringWithNode(c,f,a,u);if(i.push(f),!(o=t.textContent.substring(l).match(e.regex))||0===o.length)return i;a=o["number"!=typeof e.matchIndex?0:e.matchIndex],l+=o.index+a.length}}return i},t.prototype._createAnchorElement=function(t,e,i){var r=this._document.createElement("a");return r.textContent=t,r.draggable=!1,i?(r.href=t,r.target="_blank",r.addEventListener("click",function(i){if(e)return e(i,t)})):r.addEventListener("click",function(i){if(!r.classList.contains("xterm-invalid-link"))return e(i,t)}),r},t.prototype._replaceNode=function(t){for(var e=[],i=1;i<arguments.length;i++)e[i-1]=arguments[i];for(var r=t.parentNode,s=0;s<e.length;s++)r.insertBefore(e[s],t);r.removeChild(t)},t.prototype._replaceNodeSubstringWithNode=function(t,e,i,r){if(1===t.childNodes.length&&(t=t.childNodes[0]),3!==t.nodeType)throw new Error("targetNode must be a text node or only contain a single text node");var s=t.textContent;if(0===r){var n=s.substring(i.length),o=this._document.createTextNode(n);return this._replaceNode(t,e,o),0}if(r===t.textContent.length-i.length){var a=s.substring(0,r),l=this._document.createTextNode(a);return this._replaceNode(t,l,e),0}var h=s.substring(0,r),c=this._document.createTextNode(h),u=s.substring(r+i.length),f=this._document.createTextNode(u);return this._replaceNode(t,c,e,f),1},t}();n.TIME_BEFORE_LINKIFY=200,i.Linkifier=n},{}],9:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=t("./EscapeSequences"),s=t("./Charsets"),n={};n[r.C0.BEL]=function(t,e){return e.bell()},n[r.C0.LF]=function(t,e){return e.lineFeed()},n[r.C0.VT]=n[r.C0.LF],n[r.C0.FF]=n[r.C0.LF],n[r.C0.CR]=function(t,e){return e.carriageReturn()},n[r.C0.BS]=function(t,e){return e.backspace()},n[r.C0.HT]=function(t,e){return e.tab()},n[r.C0.SO]=function(t,e){return e.shiftOut()},n[r.C0.SI]=function(t,e){return e.shiftIn()},n[r.C0.ESC]=function(t,e){return t.setState(h.ESCAPED)};var o={};o["["]=function(t,e){e.params=[],e.currentParam=0,t.setState(h.CSI_PARAM)},o["]"]=function(t,e){e.params=[],e.currentParam=0,t.setState(h.OSC)},o.P=function(t,e){e.params=[],e.currentParam=0,t.setState(h.DCS)},o._=function(t,e){t.setState(h.IGNORE)},o["^"]=function(t,e){t.setState(h.IGNORE)},o.c=function(t,e){e.reset()},o.E=function(t,e){e.buffer.x=0,e.index(),t.setState(h.NORMAL)},o.D=function(t,e){e.index(),t.setState(h.NORMAL)},o.M=function(t,e){e.reverseIndex(),t.setState(h.NORMAL)},o["%"]=function(t,e){e.setgLevel(0),e.setgCharset(0,s.DEFAULT_CHARSET),t.setState(h.NORMAL),t.skipNextChar()},o[r.C0.CAN]=function(t){return t.setState(h.NORMAL)};var a={};a["?"]=function(t){return t.setPrefix("?")},a[">"]=function(t){return t.setPrefix(">")},a["!"]=function(t){return t.setPrefix("!")},a[0]=function(t){return t.setParam(10*t.getParam())},a[1]=function(t){return t.setParam(10*t.getParam()+1)},a[2]=function(t){return t.setParam(10*t.getParam()+2)},a[3]=function(t){return t.setParam(10*t.getParam()+3)},a[4]=function(t){return t.setParam(10*t.getParam()+4)},a[5]=function(t){return t.setParam(10*t.getParam()+5)},a[6]=function(t){return t.setParam(10*t.getParam()+6)},a[7]=function(t){return t.setParam(10*t.getParam()+7)},a[8]=function(t){return t.setParam(10*t.getParam()+8)},a[9]=function(t){return t.setParam(10*t.getParam()+9)},a.$=function(t){return t.setPostfix("$")},a['"']=function(t){return t.setPostfix('"')},a[" "]=function(t){return t.setPostfix(" ")},a["'"]=function(t){return t.setPostfix("'")},a[";"]=function(t){return t.finalizeParam()},a[r.C0.CAN]=function(t){return t.setState(h.NORMAL)};var l={};l["@"]=function(t,e,i){return t.insertChars(e)},l.A=function(t,e,i){return t.cursorUp(e)},l.B=function(t,e,i){return t.cursorDown(e)},l.C=function(t,e,i){return t.cursorForward(e)},l.D=function(t,e,i){return t.cursorBackward(e)},l.E=function(t,e,i){return t.cursorNextLine(e)},l.F=function(t,e,i){return t.cursorPrecedingLine(e)},l.G=function(t,e,i){return t.cursorCharAbsolute(e)},l.H=function(t,e,i){return t.cursorPosition(e)},l.I=function(t,e,i){return t.cursorForwardTab(e)},l.J=function(t,e,i){return t.eraseInDisplay(e)},l.K=function(t,e,i){return t.eraseInLine(e)},l.L=function(t,e,i){return t.insertLines(e)},l.M=function(t,e,i){return t.deleteLines(e)},l.P=function(t,e,i){return t.deleteChars(e)},l.S=function(t,e,i){return t.scrollUp(e)},l.T=function(t,e,i){e.length<2&&!i&&t.scrollDown(e)},l.X=function(t,e,i){return t.eraseChars(e)},l.Z=function(t,e,i){return t.cursorBackwardTab(e)},l["`"]=function(t,e,i){return t.charPosAbsolute(e)},l.a=function(t,e,i){return t.HPositionRelative(e)},l.b=function(t,e,i){return t.repeatPrecedingCharacter(e)},l.c=function(t,e,i){return t.sendDeviceAttributes(e)},l.d=function(t,e,i){return t.linePosAbsolute(e)},l.e=function(t,e,i){return t.VPositionRelative(e)},l.f=function(t,e,i){return t.HVPosition(e)},l.g=function(t,e,i){return t.tabClear(e)},l.h=function(t,e,i){return t.setMode(e)},l.l=function(t,e,i){return t.resetMode(e)},l.m=function(t,e,i){return t.charAttributes(e)},l.n=function(t,e,i){return t.deviceStatus(e)},l.p=function(t,e,i){switch(i){case"!":t.softReset(e)}},l.q=function(t,e,i,r){" "===r&&t.setCursorStyle(e)},l.r=function(t,e){return t.setScrollRegion(e)},l.s=function(t,e){return t.saveCursor(e)},l.u=function(t,e){return t.restoreCursor(e)},l[r.C0.CAN]=function(t,e,i,r,s){return s.setState(h.NORMAL)};var h;!function(t){t[t.NORMAL=0]="NORMAL",t[t.ESCAPED=1]="ESCAPED",t[t.CSI_PARAM=2]="CSI_PARAM",t[t.CSI=3]="CSI",t[t.OSC=4]="OSC",t[t.CHARSET=5]="CHARSET",t[t.DCS=6]="DCS",t[t.IGNORE=7]="IGNORE"}(h||(h={}));var c=function(){function t(t,e){this._inputHandler=t,this._terminal=e,this._state=h.NORMAL}return t.prototype.parse=function(t){var e,i,c,u,f=t.length;for(this._terminal.debug&&this._terminal.log("data: "+t),this._position=0,this._terminal.surrogate_high&&(t=this._terminal.surrogate_high+t,this._terminal.surrogate_high="");this._position<f;this._position++){if(i=t[this._position],55296<=(c=t.charCodeAt(this._position))&&c<=56319){if(u=t.charCodeAt(this._position+1),isNaN(u)){this._terminal.surrogate_high=i;continue}c=1024*(c-55296)+(u-56320)+65536,i+=t.charAt(this._position+1)}if(!(56320<=c&&c<=57343))switch(this._state){case h.NORMAL:i in n?n[i](this,this._inputHandler):this._inputHandler.addChar(i,c);break;case h.ESCAPED:if(i in o){o[i](this,this._terminal);break}switch(i){case"(":case")":case"*":case"+":case"-":case".":switch(i){case"(":this._terminal.gcharset=0;break;case")":this._terminal.gcharset=1;break;case"*":this._terminal.gcharset=2;break;case"+":this._terminal.gcharset=3;break;case"-":this._terminal.gcharset=1;break;case".":this._terminal.gcharset=2}this._state=h.CHARSET;break;case"/":this._terminal.gcharset=3,this._state=h.CHARSET,this._position--;break;case"N":case"O":break;case"n":this._terminal.setgLevel(2);break;case"o":case"|":this._terminal.setgLevel(3);break;case"}":this._terminal.setgLevel(2);break;case"~":this._terminal.setgLevel(1);break;case"7":this._inputHandler.saveCursor(),this._state=h.NORMAL;break;case"8":this._inputHandler.restoreCursor(),this._state=h.NORMAL;break;case"#":this._state=h.NORMAL,this._position++;break;case"H":this._terminal.tabSet(),this._state=h.NORMAL;break;case"=":this._terminal.log("Serial port requested application keypad."),this._terminal.applicationKeypad=!0,this._terminal.viewport.syncScrollArea(),this._state=h.NORMAL;break;case">":this._terminal.log("Switching back to normal keypad."),this._terminal.applicationKeypad=!1,this._terminal.viewport.syncScrollArea(),this._state=h.NORMAL;break;default:this._state=h.NORMAL,this._terminal.error("Unknown ESC control: %s.",i)}break;case h.CHARSET:i in s.CHARSETS?(e=s.CHARSETS[i],"/"===i&&this.skipNextChar()):e=s.DEFAULT_CHARSET,this._terminal.setgCharset(this._terminal.gcharset,e),this._terminal.gcharset=null,this._state=h.NORMAL;break;case h.OSC:if(i===r.C0.ESC||i===r.C0.BEL){switch(i===r.C0.ESC&&this._position++,this._terminal.params.push(this._terminal.currentParam),this._terminal.params[0]){case 0:case 1:case 2:this._terminal.params[1]&&(this._terminal.title=this._terminal.params[1],this._terminal.handleTitle(this._terminal.title))}this._terminal.params=[],this._terminal.currentParam=0,this._state=h.NORMAL}else this._terminal.params.length?this._terminal.currentParam+=i:i>="0"&&i<="9"?this._terminal.currentParam=10*this._terminal.currentParam+i.charCodeAt(0)-48:";"===i&&(this._terminal.params.push(this._terminal.currentParam),this._terminal.currentParam="");break;case h.CSI_PARAM:if(i in a){a[i](this);break}this.finalizeParam(),this._state=h.CSI;case h.CSI:i in l?(this._terminal.debug&&this._terminal.log("CSI "+(this._terminal.prefix?this._terminal.prefix:"")+" "+(this._terminal.params?this._terminal.params.join(";"):"")+" "+(this._terminal.postfix?this._terminal.postfix:"")+" "+i),l[i](this._inputHandler,this._terminal.params,this._terminal.prefix,this._terminal.postfix,this)):this._terminal.error("Unknown CSI code: %s.",i),this._state=h.NORMAL,this._terminal.prefix="",this._terminal.postfix="";break;case h.DCS:if(i===r.C0.ESC||i===r.C0.BEL){i===r.C0.ESC&&this._position++;var m=void 0,p=void 0;switch(this._terminal.prefix){case"":break;case"$q":switch(m=this._terminal.currentParam,p=!1,m){case'"q':m='0"q';break;case'"p':m='61"p';break;case"r":m=this._terminal.buffer.scrollTop+1+";"+(this._terminal.buffer.scrollBottom+1)+"r";break;case"m":m="0m";break;default:this._terminal.error("Unknown DCS Pt: %s.",m),m=""}this._terminal.send(r.C0.ESC+"P"+ +p+"$r"+m+r.C0.ESC+"\\");break;case"+p":break;case"+q":m=this._terminal.currentParam,p=!1,this._terminal.send(r.C0.ESC+"P"+ +p+"+r"+m+r.C0.ESC+"\\");break;default:this._terminal.error("Unknown DCS prefix: %s.",this._terminal.prefix)}this._terminal.currentParam=0,this._terminal.prefix="",this._state=h.NORMAL}else this._terminal.currentParam?this._terminal.currentParam+=i:this._terminal.prefix||"$"===i||"+"===i?2===this._terminal.prefix.length?this._terminal.currentParam=i:this._terminal.prefix+=i:this._terminal.currentParam=i;break;case h.IGNORE:i!==r.C0.ESC&&i!==r.C0.BEL||(i===r.C0.ESC&&this._position++,this._state=h.NORMAL)}}return this._state},t.prototype.setState=function(t){this._state=t},t.prototype.setPrefix=function(t){this._terminal.prefix=t},t.prototype.setPostfix=function(t){this._terminal.postfix=t},t.prototype.setParam=function(t){this._terminal.currentParam=t},t.prototype.getParam=function(){return this._terminal.currentParam},t.prototype.finalizeParam=function(){this._terminal.params.push(this._terminal.currentParam),this._terminal.currentParam=0},t.prototype.skipNextChar=function(){this._position++},t}();i.Parser=c},{"./Charsets":3,"./EscapeSequences":5}],10:[function(t,e,i){"use strict";function r(t){var e=t.ownerDocument.createElement("span");e.innerHTML="hello world",t.appendChild(e);var i=e.offsetWidth,r=e.offsetHeight;e.style.fontWeight="bold";var s=e.offsetWidth,n=e.offsetHeight;return t.removeChild(e),i!==s||r!==n}Object.defineProperty(i,"__esModule",{value:!0});var s,n=t("./utils/DomElementObjectPool");!function(t){t[t.BOLD=1]="BOLD",t[t.UNDERLINE=2]="UNDERLINE",t[t.BLINK=4]="BLINK",t[t.INVERSE=8]="INVERSE",t[t.INVISIBLE=16]="INVISIBLE"}(s||(s={}));var o=null,a=function(){function t(t){this._terminal=t,this._refreshRowsQueue=[],this._refreshFramesSkipped=0,this._refreshAnimationFrame=null,this._spanElementObjectPool=new n.DomElementObjectPool("span"),null===o&&(o=r(this._terminal.element)),this._spanElementObjectPool=new n.DomElementObjectPool("span")}return t.prototype.queueRefresh=function(t,e){this._refreshRowsQueue.push({start:t,end:e}),this._refreshAnimationFrame||(this._refreshAnimationFrame=window.requestAnimationFrame(this._refreshLoop.bind(this)))},t.prototype._refreshLoop=function(){if(this._terminal.writeBuffer.length>0&&this._refreshFramesSkipped++<=5)this._refreshAnimationFrame=window.requestAnimationFrame(this._refreshLoop.bind(this));else{this._refreshFramesSkipped=0;var t,e;if(this._refreshRowsQueue.length>4)t=0,e=this._terminal.rows-1;else{t=this._refreshRowsQueue[0].start,e=this._refreshRowsQueue[0].end;for(var i=1;i<this._refreshRowsQueue.length;i++)this._refreshRowsQueue[i].start<t&&(t=this._refreshRowsQueue[i].start),this._refreshRowsQueue[i].end>e&&(e=this._refreshRowsQueue[i].end)}this._refreshRowsQueue=[],this._refreshAnimationFrame=null,this._refresh(t,e)}},t.prototype._refresh=function(t,e){var i;e-t>=this._terminal.rows/2&&(i=this._terminal.element.parentNode)&&this._terminal.element.removeChild(this._terminal.rowContainer);var r=this._terminal.cols,n=t;for(e>=this._terminal.rows&&(this._terminal.log("`end` is too large. Most likely a bad CSR."),e=this._terminal.rows-1);n<=e;n++){var a=n+this._terminal.buffer.ydisp,l=this._terminal.buffer.lines.get(a),h=void 0;h=this._terminal.buffer.y===n-(this._terminal.buffer.ybase-this._terminal.buffer.ydisp)&&this._terminal.cursorState&&!this._terminal.cursorHidden?this._terminal.buffer.x:-1;for(var c=this._terminal.defAttr,u=document.createDocumentFragment(),f="",m=void 0;this._terminal.children[n].children.length;){var p=this._terminal.children[n].children[0];this._terminal.children[n].removeChild(p),this._spanElementObjectPool.release(p)}for(var d=0;d<r;d++){var _=l[d][0],y=l[d][1],b=l[d][2],C=d===h;if(b){if((_!==c||C)&&(c===this._terminal.defAttr||C||(f&&(m.innerHTML=f,f=""),u.appendChild(m),m=null),_!==this._terminal.defAttr||C)){f&&!m&&(m=this._spanElementObjectPool.acquire()),m&&(f&&(m.innerHTML=f,f=""),u.appendChild(m)),m=this._spanElementObjectPool.acquire();var g=511&_,v=_>>9&511,S=_>>18;if(C&&(m.classList.add("reverse-video"),m.classList.add("terminal-cursor")),S&s.BOLD&&(o||m.classList.add("xterm-bold"),v<8&&(v+=8)),S&s.UNDERLINE&&m.classList.add("xterm-underline"),S&s.BLINK&&m.classList.add("xterm-blink"),S&s.INVERSE){var w=g;g=v,v=w,1&S&&v<8&&(v+=8)}S&s.INVISIBLE&&!C&&m.classList.add("xterm-hidden"),S&s.INVERSE&&(257===g&&(g=15),256===v&&(v=0)),g<256&&m.classList.add("xterm-bg-color-"+g),v<256&&m.classList.add("xterm-color-"+v)}if(2===b)f+='<span class="xterm-wide-char">'+y+"</span>";else if(y.charCodeAt(0)>255)f+='<span class="xterm-normal-char">'+y+"</span>";else switch(y){case"&":f+="&amp;";break;case"<":f+="&lt;";break;case">":f+="&gt;";break;default:f+=y<=" "?"&nbsp;":y}c=C?-1:_}}f&&!m&&(m=this._spanElementObjectPool.acquire()),m&&(f&&(m.innerHTML=f,f=""),u.appendChild(m),m=null),this._terminal.children[n].appendChild(u)}i&&this._terminal.element.appendChild(this._terminal.rowContainer),this._terminal.emit("refresh",{element:this._terminal.element,start:t,end:e})},t.prototype.refreshSelection=function(t,e){for(;this._terminal.selectionContainer.children.length;)this._terminal.selectionContainer.removeChild(this._terminal.selectionContainer.children[0]);if(t&&e){var i=t[1]-this._terminal.buffer.ydisp,r=e[1]-this._terminal.buffer.ydisp,s=Math.max(i,0),n=Math.min(r,this._terminal.rows-1);if(!(s>=this._terminal.rows||n<0)){var o=document.createDocumentFragment(),a=i===s?t[0]:0,l=s===n?e[0]:this._terminal.cols;o.appendChild(this._createSelectionElement(s,a,l));var h=n-s-1;if(o.appendChild(this._createSelectionElement(s+1,0,this._terminal.cols,h)),s!==n){var c=r===n?e[0]:this._terminal.cols;o.appendChild(this._createSelectionElement(n,0,c))}this._terminal.selectionContainer.appendChild(o)}}},t.prototype._createSelectionElement=function(t,e,i,r){void 0===r&&(r=1);var s=document.createElement("div");return s.style.height=r*this._terminal.charMeasure.height+"px",s.style.top=t*this._terminal.charMeasure.height+"px",s.style.left=e*this._terminal.charMeasure.width+"px",s.style.width=this._terminal.charMeasure.width*(i-e)+"px",s},t}();i.Renderer=a},{"./utils/DomElementObjectPool":19}],11:[function(t,e,i){"use strict";var r=this&&this.__extends||function(){var t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])};return function(e,i){function r(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(r.prototype=i.prototype,new r)}}();Object.defineProperty(i,"__esModule",{value:!0});var s,n=t("./utils/Mouse"),o=t("./utils/Browser"),a=t("./EventEmitter"),l=t("./SelectionModel"),h=t("./utils/BufferLine"),c=String.fromCharCode(160),u=new RegExp(c,"g");!function(t){t[t.NORMAL=0]="NORMAL",t[t.WORD=1]="WORD",t[t.LINE=2]="LINE"}(s||(s={}));var f=function(t){function e(e,i,r,n){var o=t.call(this)||this;return o._terminal=e,o._buffer=i,o._rowContainer=r,o._charMeasure=n,o._enabled=!0,o._initListeners(),o.enable(),o._model=new l.SelectionModel(e),o._activeSelectionMode=s.NORMAL,o}return r(e,t),e.prototype._initListeners=function(){var t=this;this._mouseMoveListener=function(e){return t._onMouseMove(e)},this._mouseUpListener=function(e){return t._onMouseUp(e)},this._rowContainer.addEventListener("mousedown",function(e){return t._onMouseDown(e)}),this._buffer.on("trim",function(e){return t._onTrim(e)})},e.prototype.disable=function(){this.clearSelection(),this._enabled=!1},e.prototype.enable=function(){this._enabled=!0},e.prototype.setBuffer=function(t){this._buffer=t,this.clearSelection()},Object.defineProperty(e.prototype,"selectionStart",{get:function(){return this._model.finalSelectionStart},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"selectionEnd",{get:function(){return this._model.finalSelectionEnd},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"hasSelection",{get:function(){var t=this._model.finalSelectionStart,e=this._model.finalSelectionEnd;return!(!t||!e)&&(t[0]!==e[0]||t[1]!==e[1])},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"selectionText",{get:function(){var t=this._model.finalSelectionStart,e=this._model.finalSelectionEnd;if(!t||!e)return"";var i=t[1]===e[1]?e[0]:null,r=[];r.push(h.translateBufferLineToString(this._buffer.get(t[1]),!0,t[0],i));for(var s=t[1]+1;s<=e[1]-1;s++){var n=this._buffer.get(s),a=h.translateBufferLineToString(n,!0);n.isWrapped?r[r.length-1]+=a:r.push(a)}if(t[1]!==e[1]){var n=this._buffer.get(e[1]),a=h.translateBufferLineToString(n,!0,0,e[0]);n.isWrapped?r[r.length-1]+=a:r.push(a)}return r.map(function(t){return t.replace(u," ")}).join(o.isMSWindows?"\r\n":"\n")},enumerable:!0,configurable:!0}),e.prototype.clearSelection=function(){this._model.clearSelection(),this._removeMouseDownListeners(),this.refresh()},e.prototype.refresh=function(t){var e=this;this._refreshAnimationFrame||(this._refreshAnimationFrame=window.requestAnimationFrame(function(){return e._refresh()})),o.isLinux&&t&&this.selectionText.length&&this.emit("newselection",this.selectionText)},e.prototype._refresh=function(){this._refreshAnimationFrame=null,this.emit("refresh",{start:this._model.finalSelectionStart,end:this._model.finalSelectionEnd})},e.prototype.selectAll=function(){this._model.isSelectAllActive=!0,this.refresh()},e.prototype._onTrim=function(t){this._model.onTrim(t)&&this.refresh()},e.prototype._getMouseBufferCoords=function(t){var e=n.getCoords(t,this._rowContainer,this._charMeasure,this._terminal.cols,this._terminal.rows,!0);return e?(e[0]--,e[1]--,e[1]+=this._terminal.buffer.ydisp,e):null},e.prototype._getMouseEventScrollAmount=function(t){var e=n.getCoordsRelativeToElement(t,this._rowContainer)[1],i=this._terminal.rows*this._charMeasure.height;return e>=0&&e<=i?0:(e>i&&(e-=i),e=Math.min(Math.max(e,-50),50),(e/=50)/Math.abs(e)+Math.round(14*e))},e.prototype._onMouseDown=function(t){if(2===t.button&&this.hasSelection)t.stopPropagation();else if(0===t.button){if(!this._enabled){if(!(o.isMac&&t.altKey))return;t.stopPropagation()}t.preventDefault(),this._dragScrollAmount=0,this._enabled&&t.shiftKey?this._onIncrementalClick(t):1===t.detail?this._onSingleClick(t):2===t.detail?this._onDoubleClick(t):3===t.detail&&this._onTripleClick(t),this._addMouseDownListeners(),this.refresh(!0)}},e.prototype._addMouseDownListeners=function(){var t=this;this._rowContainer.ownerDocument.addEventListener("mousemove",this._mouseMoveListener),this._rowContainer.ownerDocument.addEventListener("mouseup",this._mouseUpListener),this._dragScrollIntervalTimer=setInterval(function(){return t._dragScroll()},50)},e.prototype._removeMouseDownListeners=function(){this._rowContainer.ownerDocument.removeEventListener("mousemove",this._mouseMoveListener),this._rowContainer.ownerDocument.removeEventListener("mouseup",this._mouseUpListener),clearInterval(this._dragScrollIntervalTimer),this._dragScrollIntervalTimer=null},e.prototype._onIncrementalClick=function(t){this._model.selectionStart&&(this._model.selectionEnd=this._getMouseBufferCoords(t))},e.prototype._onSingleClick=function(t){if(this._model.selectionStartLength=0,this._model.isSelectAllActive=!1,this._activeSelectionMode=s.NORMAL,this._model.selectionStart=this._getMouseBufferCoords(t),this._model.selectionStart){this._model.selectionEnd=null;var e=this._buffer.get(this._model.selectionStart[1]);e&&0===e[this._model.selectionStart[0]][2]&&this._model.selectionStart[0]++}},e.prototype._onDoubleClick=function(t){var e=this._getMouseBufferCoords(t);e&&(this._activeSelectionMode=s.WORD,this._selectWordAt(e))},e.prototype._onTripleClick=function(t){var e=this._getMouseBufferCoords(t);e&&(this._activeSelectionMode=s.LINE,this._selectLineAt(e[1]))},e.prototype._onMouseMove=function(t){var e=this._model.selectionEnd?[this._model.selectionEnd[0],this._model.selectionEnd[1]]:null;if(this._model.selectionEnd=this._getMouseBufferCoords(t),this._model.selectionEnd){if(this._activeSelectionMode===s.LINE?this._model.selectionEnd[1]<this._model.selectionStart[1]?this._model.selectionEnd[0]=0:this._model.selectionEnd[0]=this._terminal.cols:this._activeSelectionMode===s.WORD&&this._selectToWordAt(this._model.selectionEnd),this._dragScrollAmount=this._getMouseEventScrollAmount(t),this._dragScrollAmount>0?this._model.selectionEnd[0]=this._terminal.cols-1:this._dragScrollAmount<0&&(this._model.selectionEnd[0]=0),this._model.selectionEnd[1]<this._buffer.length){var i=this._buffer.get(this._model.selectionEnd[1])[this._model.selectionEnd[0]];i&&0===i[2]&&this._model.selectionEnd[0]++}e&&e[0]===this._model.selectionEnd[0]&&e[1]===this._model.selectionEnd[1]||this.refresh(!0)}else this.refresh(!0)},e.prototype._dragScroll=function(){this._dragScrollAmount&&(this._terminal.scrollDisp(this._dragScrollAmount,!1),this._dragScrollAmount>0?this._model.selectionEnd=[this._terminal.cols-1,this._terminal.buffer.ydisp+this._terminal.rows]:this._model.selectionEnd=[0,this._terminal.buffer.ydisp],this.refresh())},e.prototype._onMouseUp=function(t){this._removeMouseDownListeners()},e.prototype._convertViewportColToCharacterIndex=function(t,e){for(var i=e[0],r=0;e[0]>=r;r++)0===t[r][2]&&i--;return i},e.prototype.setSelection=function(t,e,i){this._model.clearSelection(),this._removeMouseDownListeners(),this._model.selectionStart=[t,e],this._model.selectionStartLength=i,this.refresh()},e.prototype._getWordAt=function(t){var e=this._buffer.get(t[1]);if(!e)return null;var i=h.translateBufferLineToString(e,!1),r=this._convertViewportColToCharacterIndex(e,t),s=r,n=t[0]-s,o=0,a=0;if(" "===i.charAt(s)){for(;s>0&&" "===i.charAt(s-1);)s--;for(;r<i.length&&" "===i.charAt(r+1);)r++}else{var l=t[0],c=t[0];for(0===e[l][2]&&(o++,l--),2===e[c][2]&&(a++,c++);s>0&&!this._isCharWordSeparator(i.charAt(s-1));)0===e[l-1][2]&&(o++,l--),s--,l--;for(;r+1<i.length&&!this._isCharWordSeparator(i.charAt(r+1));)2===e[c+1][2]&&(a++,c++),r++,c++}return{start:s+n-o,length:Math.min(r-s+o+a+1,this._terminal.cols)}},e.prototype._selectWordAt=function(t){var e=this._getWordAt(t);e&&(this._model.selectionStart=[e.start,t[1]],this._model.selectionStartLength=e.length)},e.prototype._selectToWordAt=function(t){var e=this._getWordAt(t);e&&(this._model.selectionEnd=[this._model.areSelectionValuesReversed()?e.start:e.start+e.length,t[1]])},e.prototype._isCharWordSeparator=function(t){return" ()[]{}'\"".indexOf(t)>=0},e.prototype._selectLineAt=function(t){this._model.selectionStart=[0,t],this._model.selectionStartLength=this._terminal.cols},e}(a.EventEmitter);i.SelectionManager=f},{"./EventEmitter":6,"./SelectionModel":12,"./utils/Browser":15,"./utils/BufferLine":16,"./utils/Mouse":21}],12:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=function(){function t(t){this._terminal=t,this.clearSelection()}return t.prototype.clearSelection=function(){this.selectionStart=null,this.selectionEnd=null,this.isSelectAllActive=!1,this.selectionStartLength=0},Object.defineProperty(t.prototype,"finalSelectionStart",{get:function(){return this.isSelectAllActive?[0,0]:this.selectionEnd&&this.selectionStart&&this.areSelectionValuesReversed()?this.selectionEnd:this.selectionStart},enumerable:!0,configurable:!0}),Object.defineProperty(t.prototype,"finalSelectionEnd",{get:function(){return this.isSelectAllActive?[this._terminal.cols,this._terminal.buffer.ybase+this._terminal.rows-1]:this.selectionStart?!this.selectionEnd||this.areSelectionValuesReversed()?[this.selectionStart[0]+this.selectionStartLength,this.selectionStart[1]]:this.selectionStartLength&&this.selectionEnd[1]===this.selectionStart[1]?[Math.max(this.selectionStart[0]+this.selectionStartLength,this.selectionEnd[0]),this.selectionEnd[1]]:this.selectionEnd:null},enumerable:!0,configurable:!0}),t.prototype.areSelectionValuesReversed=function(){var t=this.selectionStart,e=this.selectionEnd;return t[1]>e[1]||t[1]===e[1]&&t[0]>e[0]},t.prototype.onTrim=function(t){return this.selectionStart&&(this.selectionStart[1]-=t),this.selectionEnd&&(this.selectionEnd[1]-=t),this.selectionEnd&&this.selectionEnd[1]<0?(this.clearSelection(),!0):(this.selectionStart&&this.selectionStart[1]<0&&(this.selectionStart[1]=0),!1)},t}();i.SelectionModel=r},{}],13:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=function(){function t(t,e,i,r){var s=this;this.terminal=t,this.viewportElement=e,this.scrollArea=i,this.charMeasure=r,this.currentRowHeight=0,this.lastRecordedBufferLength=0,this.lastRecordedViewportHeight=0,this.terminal.on("scroll",this.syncScrollArea.bind(this)),this.terminal.on("resize",this.syncScrollArea.bind(this)),this.viewportElement.addEventListener("scroll",this.onScroll.bind(this)),setTimeout(function(){return s.syncScrollArea()},0)}return t.prototype.refresh=function(){if(this.charMeasure.height>0){var t=this.charMeasure.height!==this.currentRowHeight;t&&(this.currentRowHeight=this.charMeasure.height,this.viewportElement.style.lineHeight=this.charMeasure.height+"px",this.terminal.rowContainer.style.lineHeight=this.charMeasure.height+"px");var e=this.lastRecordedViewportHeight!==this.terminal.rows;(t||e)&&(this.lastRecordedViewportHeight=this.terminal.rows,this.viewportElement.style.height=this.charMeasure.height*this.terminal.rows+"px",this.terminal.selectionContainer.style.height=this.viewportElement.style.height),this.scrollArea.style.height=this.charMeasure.height*this.lastRecordedBufferLength+"px"}},t.prototype.syncScrollArea=function(){this.lastRecordedBufferLength!==this.terminal.buffer.lines.length?(this.lastRecordedBufferLength=this.terminal.buffer.lines.length,this.refresh()):this.lastRecordedViewportHeight!==this.terminal.rows?this.refresh():this.charMeasure.height!==this.currentRowHeight&&this.refresh();var t=this.terminal.buffer.ydisp*this.currentRowHeight;this.viewportElement.scrollTop!==t&&(this.viewportElement.scrollTop=t)},t.prototype.onScroll=function(t){var e=Math.round(this.viewportElement.scrollTop/this.currentRowHeight)-this.terminal.buffer.ydisp;this.terminal.scrollDisp(e,!0)},t.prototype.onWheel=function(t){if(0!==t.deltaY){var e=1;t.deltaMode===WheelEvent.DOM_DELTA_LINE?e=this.currentRowHeight:t.deltaMode===WheelEvent.DOM_DELTA_PAGE&&(e=this.currentRowHeight*this.terminal.rows),this.viewportElement.scrollTop+=t.deltaY*e,t.preventDefault()}},t.prototype.onTouchStart=function(t){this.lastTouchY=t.touches[0].pageY},t.prototype.onTouchMove=function(t){var e=this.lastTouchY-t.touches[0].pageY;this.lastTouchY=t.touches[0].pageY,0!==e&&(this.viewportElement.scrollTop+=e,t.preventDefault())},t}();i.Viewport=r},{}],14:[function(t,e,i){"use strict";function r(t,e){return e?t.replace(/\r?\n/g,"\r"):t}function s(t,e){e.style.position="fixed",e.style.width="20px",e.style.height="20px",e.style.left=t.clientX-10+"px",e.style.top=t.clientY-10+"px",e.style.zIndex="1000",e.focus(),setTimeout(function(){e.style.position=null,e.style.width=null,e.style.height=null,e.style.left=null,e.style.top=null,e.style.zIndex=null},4)}Object.defineProperty(i,"__esModule",{value:!0}),i.prepareTextForTerminal=r,i.copyHandler=function(t,e,i){e.browser.isMSIE?window.clipboardData.setData("Text",i.selectionText):t.clipboardData.setData("text/plain",i.selectionText),t.preventDefault()},i.pasteHandler=function(t,e){t.stopPropagation();var i=function(i){return i=r(i,e.browser.isMSWindows),e.handler(i),e.textarea.value="",e.emit("paste",i),e.cancel(t)};e.browser.isMSIE?window.clipboardData&&i(window.clipboardData.getData("Text")):t.clipboardData&&i(t.clipboardData.getData("text/plain"))},i.moveTextAreaUnderMouseCursor=s,i.rightClickHandler=function(t,e,i){s(t,e),e.value=i.selectionText,e.select()}},{}],15:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=t("./Generic"),s="undefined"==typeof navigator,n=s?"node":navigator.userAgent,o=s?"node":navigator.platform;i.isFirefox=!!~n.indexOf("Firefox"),i.isMSIE=!!~n.indexOf("MSIE")||!!~n.indexOf("Trident"),i.isMac=r.contains(["Macintosh","MacIntel","MacPPC","Mac68K"],o),i.isIpad="iPad"===o,i.isIphone="iPhone"===o,i.isMSWindows=r.contains(["Windows","Win16","Win32","WinCE"],o),i.isLinux=o.indexOf("Linux")>=0},{"./Generic":20}],16:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=1,s=2;i.translateBufferLineToString=function(t,e,i,n){void 0===i&&(i=0),void 0===n&&(n=null);for(var o="",a=i,l=n,h=0;h<t.length;h++){var c=t[h];o+=c[r],0===c[s]&&(i>=h&&a--,n>=h&&l--)}var u=l||t.length;if(e){var f=o.search(/\s+$/);if(-1!==f&&(u=Math.min(u,f)),u<=a)return""}return o.substring(a,u)}},{}],17:[function(t,e,i){"use strict";var r=this&&this.__extends||function(){var t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])};return function(e,i){function r(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(r.prototype=i.prototype,new r)}}();Object.defineProperty(i,"__esModule",{value:!0});var s=function(t){function e(e,i){var r=t.call(this)||this;return r._document=e,r._parentElement=i,r}return r(e,t),Object.defineProperty(e.prototype,"width",{get:function(){return this._width},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"height",{get:function(){return this._height},enumerable:!0,configurable:!0}),e.prototype.measure=function(){var t=this;this._measureElement?this._doMeasure():(this._measureElement=this._document.createElement("span"),this._measureElement.style.position="absolute",this._measureElement.style.top="0",this._measureElement.style.left="-9999em",this._measureElement.textContent="W",this._measureElement.setAttribute("aria-hidden","true"),this._parentElement.appendChild(this._measureElement),setTimeout(function(){return t._doMeasure()},0))},e.prototype._doMeasure=function(){var t=this._measureElement.getBoundingClientRect();0!==t.width&&0!==t.height&&(this._width===t.width&&this._height===t.height||(this._width=t.width,this._height=t.height,this.emit("charsizechanged")))},e}(t("../EventEmitter.js").EventEmitter);i.CharMeasure=s},{"../EventEmitter.js":6}],18:[function(t,e,i){"use strict";var r=this&&this.__extends||function(){var t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i])};return function(e,i){function r(){this.constructor=e}t(e,i),e.prototype=null===i?Object.create(i):(r.prototype=i.prototype,new r)}}();Object.defineProperty(i,"__esModule",{value:!0});var s=function(t){function e(e){var i=t.call(this)||this;return i._array=new Array(e),i._startIndex=0,i._length=0,i}return r(e,t),Object.defineProperty(e.prototype,"maxLength",{get:function(){return this._array.length},set:function(t){for(var e=new Array(t),i=0;i<Math.min(t,this.length);i++)e[i]=this._array[this._getCyclicIndex(i)];this._array=e,this._startIndex=0},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"length",{get:function(){return this._length},set:function(t){if(t>this._length)for(var e=this._length;e<t;e++)this._array[e]=void 0;this._length=t},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"forEach",{get:function(){var t=this;return function(e){for(var i=t.length,r=0;r<i;r++)e(t.get(r),r)}},enumerable:!0,configurable:!0}),e.prototype.get=function(t){return this._array[this._getCyclicIndex(t)]},e.prototype.set=function(t,e){this._array[this._getCyclicIndex(t)]=e},e.prototype.push=function(t){this._array[this._getCyclicIndex(this._length)]=t,this._length===this.maxLength?(++this._startIndex===this.maxLength&&(this._startIndex=0),this.emit("trim",1)):this._length++},e.prototype.pop=function(){return this._array[this._getCyclicIndex(this._length---1)]},e.prototype.splice=function(t,e){for(var i=[],r=2;r<arguments.length;r++)i[r-2]=arguments[r];if(e){for(s=t;s<this._length-e;s++)this._array[this._getCyclicIndex(s)]=this._array[this._getCyclicIndex(s+e)];this._length-=e}if(i&&i.length){for(s=this._length-1;s>=t;s--)this._array[this._getCyclicIndex(s+i.length)]=this._array[this._getCyclicIndex(s)];for(var s=0;s<i.length;s++)this._array[this._getCyclicIndex(t+s)]=i[s];if(this._length+i.length>this.maxLength){var n=this._length+i.length-this.maxLength;this._startIndex+=n,this._length=this.maxLength,this.emit("trim",n)}else this._length+=i.length}},e.prototype.trimStart=function(t){t>this._length&&(t=this._length),this._startIndex+=t,this._length-=t,this.emit("trim",t)},e.prototype.shiftElements=function(t,e,i){if(!(e<=0)){if(t<0||t>=this._length)throw new Error("start argument out of range");if(t+i<0)throw new Error("Cannot shift elements in list beyond index 0");if(i>0){for(s=e-1;s>=0;s--)this.set(t+s+i,this.get(t+s));var r=t+e+i-this._length;if(r>0)for(this._length+=r;this._length>this.maxLength;)this._length--,this._startIndex++,this.emit("trim",1)}else for(var s=0;s<e;s++)this.set(t+s+i,this.get(t+s))}},e.prototype._getCyclicIndex=function(t){return(this._startIndex+t)%this.maxLength},e}(t("../EventEmitter").EventEmitter);i.CircularList=s},{"../EventEmitter":6}],19:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0});var r=function(){function t(t){this.type=t,this._type=t,this._pool=[],this._inUse={}}return t.prototype.acquire=function(){var e;return e=0===this._pool.length?this._createNew():this._pool.pop(),this._inUse[e.getAttribute(t.OBJECT_ID_ATTRIBUTE)]=e,e},t.prototype.release=function(e){if(!this._inUse[e.getAttribute(t.OBJECT_ID_ATTRIBUTE)])throw new Error("Could not release an element not yet acquired");delete this._inUse[e.getAttribute(t.OBJECT_ID_ATTRIBUTE)],this._cleanElement(e),this._pool.push(e)},t.prototype._createNew=function(){var e=document.createElement(this._type),i=t._objectCount++;return e.setAttribute(t.OBJECT_ID_ATTRIBUTE,i.toString(10)),e},t.prototype._cleanElement=function(t){t.className="",t.innerHTML=""},t}();r.OBJECT_ID_ATTRIBUTE="data-obj-id",r._objectCount=0,i.DomElementObjectPool=r},{}],20:[function(t,e,i){"use strict";Object.defineProperty(i,"__esModule",{value:!0}),i.contains=function(t,e){return t.indexOf(e)>=0}},{}],21:[function(t,e,i){"use strict";function r(t,e){if(null==t.pageX)return null;for(var i=t.pageX,r=t.pageY;e&&e!==self.document.documentElement;)i-=e.offsetLeft,r-=e.offsetTop,e="offsetParent"in e?e.offsetParent:e.parentElement;return[i,r]}function s(t,e,i,s,n,o){if(!i.width||!i.height)return null;var a=r(t,e);return a?(a[0]=Math.ceil((a[0]+(o?i.width/2:0))/i.width),a[1]=Math.ceil(a[1]/i.height),a[0]=Math.min(Math.max(a[0],1),s+1),a[1]=Math.min(Math.max(a[1],1),n+1),a):null}Object.defineProperty(i,"__esModule",{value:!0}),i.getCoordsRelativeToElement=r,i.getCoords=s,i.getRawByteCoords=function(t,e,i,r,n){var o=s(t,e,i,r,n),a=o[0],l=o[1];return a+=32,l+=32,{x:a,y:l}}},{}],22:[function(t,e,i){"use strict";function r(t){var e=this;if(!(this instanceof r))return new r(arguments[0],arguments[1],arguments[2]);e.browser=S,e.cancel=r.cancel,f.EventEmitter.call(this),"number"==typeof t&&(t={cols:arguments[0],rows:arguments[1],handler:arguments[2]}),t=t||{},Object.keys(r.defaults).forEach(function(i){null==t[i]&&(t[i]=r.options[i],r[i]!==r.defaults[i]&&(t[i]=r[i])),e[i]=t[i]}),8===t.colors.length?t.colors=t.colors.concat(r._colors.slice(8)):16===t.colors.length?t.colors=t.colors.concat(r._colors.slice(16)):10===t.colors.length?t.colors=t.colors.slice(0,-2).concat(r._colors.slice(8,-2),t.colors.slice(-2)):18===t.colors.length&&(t.colors=t.colors.concat(r._colors.slice(16,-2),t.colors.slice(-2))),this.colors=t.colors,this.options=t,this.parent=t.body||t.parent||(x?x.getElementsByTagName("body")[0]:null),this.cols=t.cols||t.geometry[0],this.rows=t.rows||t.geometry[1],this.geometry=[this.cols,this.rows],t.handler&&this.on("data",t.handler),this.cursorState=0,this.cursorHidden=!1,this.convertEol,this.queue="",this.customKeyEventHandler=null,this.cursorBlinkInterval=null,this.applicationKeypad=!1,this.applicationCursor=!1,this.originMode=!1,this.insertMode=!1,this.wraparoundMode=!0,this.charset=null,this.gcharset=null,this.glevel=0,this.charsets=[null],this.decLocator,this.x10Mouse,this.vt200Mouse,this.vt300Mouse,this.normalMouse,this.mouseEvents,this.sendFocus,this.utfMouse,this.sgrMouse,this.urxvtMouse,this.element,this.children,this.refreshStart,this.refreshEnd,this.savedX,this.savedY,this.savedCols,this.readable=!0,this.writable=!0,this.defAttr=131840,this.curAttr=this.defAttr,this.params=[],this.currentParam=0,this.prefix="",this.postfix="",this.inputHandler=new _.InputHandler(this),this.parser=new y.Parser(this.inputHandler,this),this.renderer=this.renderer||null,this.selectionManager=this.selectionManager||null,this.linkifier=this.linkifier||new C.Linkifier,this.writeBuffer=[],this.writeInProgress=!1,this.xoffSentToCatchUp=!1,this.writeStopped=!1,this.surrogate_high="",this.buffers=new c.BufferSet(this),this.buffer=this.buffers.active,this.buffers.on("activate",function(t){this._terminal.buffer=t}),this.selectionManager&&this.selectionManager.setBuffer(this.buffer.lines),this.setupStops(),this.userScrolling=!1}function s(t,e,i,r){Array.isArray(t)||(t=[t]),t.forEach(function(t){t.addEventListener(e,i,r||!1)})}function n(t,e,i,r){t.removeEventListener(e,i,r||!1)}function o(t,e){function i(){this.constructor=t}i.prototype=e.prototype,t.prototype=new i}function a(t,e){var i=t.browser.isMac&&e.altKey&&!e.ctrlKey&&!e.metaKey||t.browser.isMSWindows&&e.altKey&&e.ctrlKey&&!e.metaKey;return"keypress"==e.type?i:i&&(!e.keyCode||e.keyCode>47)}function l(t,e,i){var s=t<<16|e<<8|i;if(null!=l._cache[s])return l._cache[s];for(var n,o,a,h,c,u=1/0,f=-1,m=0;m<r.vcolors.length;m++){if(n=r.vcolors[m],o=n[0],a=n[1],h=n[2],0===(c=l.distance(t,e,i,o,a,h))){f=m;break}c<u&&(u=c,f=m)}return l._cache[s]=f}function h(t){return 16===t.keyCode||17===t.keyCode||18===t.keyCode}Object.defineProperty(i,"__esModule",{value:!0});var c=t("./BufferSet"),u=t("./CompositionHelper"),f=t("./EventEmitter"),m=t("./Viewport"),p=t("./handlers/Clipboard"),d=t("./EscapeSequences"),_=t("./InputHandler"),y=t("./Parser"),b=t("./Renderer"),C=t("./Linkifier"),g=t("./SelectionManager"),v=t("./utils/CharMeasure"),S=t("./utils/Browser"),w=t("./utils/Mouse"),E=t("./utils/BufferLine"),x="undefined"!=typeof window?window.document:null;o(r,f.EventEmitter),r.prototype.eraseAttr=function(){return-512&this.defAttr|511&this.curAttr},r.tangoColors=["#2e3436","#cc0000","#4e9a06","#c4a000","#3465a4","#75507b","#06989a","#d3d7cf","#555753","#ef2929","#8ae234","#fce94f","#729fcf","#ad7fa8","#34e2e2","#eeeeec"],r.colors=function(){function t(t,i,r){s.push("#"+e(t)+e(i)+e(r))}function e(t){return(t=t.toString(16)).length<2?"0"+t:t}var i,s=r.tangoColors.slice(),n=[0,95,135,175,215,255];for(i=0;i<216;i++)t(n[i/36%6|0],n[i/6%6|0],n[i%6]);for(i=0;i<24;i++)t(n=8+10*i,n,n);return s}(),r._colors=r.colors.slice(),r.vcolors=function(){for(var t,e=[],i=r.colors,s=0;s<256;s++)t=parseInt(i[s].substring(1),16),e.push([t>>16&255,t>>8&255,255&t]);return e}(),r.defaults={colors:r.colors,theme:"default",convertEol:!1,termName:"xterm",geometry:[80,24],cursorBlink:!1,cursorStyle:"block",visualBell:!1,popOnBell:!1,scrollback:1e3,screenKeys:!1,debug:!1,cancelEvents:!1,disableStdin:!1,useFlowControl:!1,tabStopWidth:8},r.options={},r.focus=null,function(t,e,i){if(t.forEach)return t.forEach(e,i);for(var r=0;r<t.length;r++)e.call(i,t[r],r,t)}(function(t){if(Object.keys)return Object.keys(t);var e,i=[];for(e in t)Object.prototype.hasOwnProperty.call(t,e)&&i.push(e);return i}(r.defaults),function(t){r[t]=r.defaults[t],r.options[t]=r.defaults[t]}),r.prototype.focus=function(){return this.textarea.focus()},r.prototype.getOption=function(t){if(!(t in r.defaults))throw new Error('No option with key "'+t+'"');return void 0!==this.options[t]?this.options[t]:this[t]},r.prototype.setOption=function(t,e){if(!(t in r.defaults))throw new Error('No option with key "'+t+'"');switch(t){case"scrollback":if(e<this.rows){var i="Setting the scrollback value less than the number of rows ";return i+="("+this.rows+") is not allowed.",console.warn(i),!1}if(this.options[t]!==e){if(this.buffer.lines.length>e){var s=this.buffer.lines.length-e,n=this.buffer.ydisp-s<0;this.buffer.lines.trimStart(s),this.buffer.ybase=Math.max(this.buffer.ybase-s,0),this.buffer.ydisp=Math.max(this.buffer.ydisp-s,0),n&&this.refresh(0,this.rows-1)}this.buffer.lines.maxLength=e,this.viewport.syncScrollArea()}}switch(this[t]=e,this.options[t]=e,t){case"cursorBlink":this.setCursorBlinking(e);break;case"cursorStyle":this.element.classList.toggle("xterm-cursor-style-block","block"===e),this.element.classList.toggle("xterm-cursor-style-underline","underline"===e),this.element.classList.toggle("xterm-cursor-style-bar","bar"===e);break;case"tabStopWidth":this.setupStops()}},r.prototype.restartCursorBlinking=function(){this.setCursorBlinking(this.options.cursorBlink)},r.prototype.setCursorBlinking=function(t){if(this.element.classList.toggle("xterm-cursor-blink",t),this.clearCursorBlinkingInterval(),t){var e=this;this.cursorBlinkInterval=setInterval(function(){e.element.classList.toggle("xterm-cursor-blink-on")},600)}},r.prototype.clearCursorBlinkingInterval=function(){this.element.classList.remove("xterm-cursor-blink-on"),this.cursorBlinkInterval&&(clearInterval(this.cursorBlinkInterval),this.cursorBlinkInterval=null)},r.bindFocus=function(t){s(t.textarea,"focus",function(e){t.sendFocus&&t.send(d.C0.ESC+"[I"),t.element.classList.add("focus"),t.showCursor(),t.restartCursorBlinking.apply(t),r.focus=t,t.emit("focus",{terminal:t})})},r.prototype.blur=function(){return this.textarea.blur()},r.bindBlur=function(t){s(t.textarea,"blur",function(e){t.refresh(t.buffer.y,t.buffer.y),t.sendFocus&&t.send(d.C0.ESC+"[O"),t.element.classList.remove("focus"),t.clearCursorBlinkingInterval.apply(t),r.focus=null,t.emit("blur",{terminal:t})})},r.prototype.initGlobal=function(){var t=this,e=this;r.bindKeys(this),r.bindFocus(this),r.bindBlur(this),s(this.element,"copy",function(i){e.hasSelection()&&p.copyHandler(i,e,t.selectionManager)});var i=function(t){return p.pasteHandler(t,e)};s(this.textarea,"paste",i),s(this.element,"paste",i),e.browser.isFirefox?s(this.element,"mousedown",function(e){2==e.button&&p.rightClickHandler(e,t.textarea,t.selectionManager)}):s(this.element,"contextmenu",function(e){p.rightClickHandler(e,t.textarea,t.selectionManager)}),e.browser.isLinux&&s(this.element,"auxclick",function(e){1===e.button&&p.moveTextAreaUnderMouseCursor(e,t.textarea,t.selectionManager)})},r.bindKeys=function(t){s(t.element,"keydown",function(e){x.activeElement==this&&t.keyDown(e)},!0),s(t.element,"keypress",function(e){x.activeElement==this&&t.keyPress(e)},!0),s(t.element,"keyup",function(e){h(e)||t.focus(t)},!0),s(t.textarea,"keydown",function(e){t.keyDown(e)},!0),s(t.textarea,"keypress",function(e){t.keyPress(e),this.value=""},!0),s(t.textarea,"compositionstart",t.compositionHelper.compositionstart.bind(t.compositionHelper)),s(t.textarea,"compositionupdate",t.compositionHelper.compositionupdate.bind(t.compositionHelper)),s(t.textarea,"compositionend",t.compositionHelper.compositionend.bind(t.compositionHelper)),t.on("refresh",t.compositionHelper.updateCompositionElements.bind(t.compositionHelper)),t.on("refresh",function(e){t.queueLinkification(e.start,e.end)})},r.prototype.insertRow=function(t){return"object"!=typeof t&&(t=x.createElement("div")),this.rowContainer.appendChild(t),this.children.push(t),t},r.prototype.open=function(t,e){var i=this,r=this,s=0;if(this.parent=t||this.parent,!this.parent)throw new Error("Terminal requires a parent element.");for(this.context=this.parent.ownerDocument.defaultView,this.document=this.parent.ownerDocument,this.body=this.document.getElementsByTagName("body")[0],this.element=this.document.createElement("div"),this.element.classList.add("terminal"),this.element.classList.add("xterm"),this.element.classList.add("xterm-theme-"+this.theme),this.element.classList.add("xterm-cursor-style-"+this.options.cursorStyle),this.setCursorBlinking(this.options.cursorBlink),this.element.setAttribute("tabindex",0),this.viewportElement=x.createElement("div"),this.viewportElement.classList.add("xterm-viewport"),this.element.appendChild(this.viewportElement),this.viewportScrollArea=x.createElement("div"),this.viewportScrollArea.classList.add("xterm-scroll-area"),this.viewportElement.appendChild(this.viewportScrollArea),this.selectionContainer=x.createElement("div"),this.selectionContainer.classList.add("xterm-selection"),this.element.appendChild(this.selectionContainer),this.rowContainer=x.createElement("div"),this.rowContainer.classList.add("xterm-rows"),this.element.appendChild(this.rowContainer),this.children=[],this.linkifier.attachToDom(x,this.children),this.helperContainer=x.createElement("div"),this.helperContainer.classList.add("xterm-helpers"),this.element.appendChild(this.helperContainer),this.textarea=x.createElement("textarea"),this.textarea.classList.add("xterm-helper-textarea"),this.textarea.setAttribute("autocorrect","off"),this.textarea.setAttribute("autocapitalize","off"),this.textarea.setAttribute("spellcheck","false"),this.textarea.tabIndex=0,this.textarea.addEventListener("focus",function(){r.emit("focus",{terminal:r})}),this.textarea.addEventListener("blur",function(){r.emit("blur",{terminal:r})}),this.helperContainer.appendChild(this.textarea),this.compositionView=x.createElement("div"),this.compositionView.classList.add("composition-view"),this.compositionHelper=new u.CompositionHelper(this.textarea,this.compositionView,this),this.helperContainer.appendChild(this.compositionView),this.charSizeStyleElement=x.createElement("style"),this.helperContainer.appendChild(this.charSizeStyleElement);s<this.rows;s++)this.insertRow();if(this.parent.appendChild(this.element),this.charMeasure=new v.CharMeasure(x,this.helperContainer),this.charMeasure.on("charsizechanged",function(){r.updateCharSizeStyles()}),this.charMeasure.measure(),this.viewport=new m.Viewport(this,this.viewportElement,this.viewportScrollArea,this.charMeasure),this.renderer=new b.Renderer(this),this.selectionManager=new g.SelectionManager(this,this.buffer.lines,this.rowContainer,this.charMeasure),this.selectionManager.on("refresh",function(t){i.renderer.refreshSelection(t.start,t.end)}),this.selectionManager.on("newselection",function(t){i.textarea.value=t,i.textarea.focus(),i.textarea.select()}),this.on("scroll",function(){return i.selectionManager.refresh()}),this.viewportElement.addEventListener("scroll",function(){return i.selectionManager.refresh()}),this.refresh(0,this.rows-1),this.initGlobal(),void 0===e){var n="You did not pass the `focus` argument in `Terminal.prototype.open()`.\n";n+="The `focus` argument now defaults to `true` but starting with xterm.js 3.0 ",n+="it will default to `false`.",console.warn(n),e=!0}e&&this.focus(),this.bindMouse(),this.emit("open")},r.loadAddon=function(r,s){return"object"==typeof i&&"object"==typeof e?t("./addons/"+r+"/"+r):(console.error("Cannot load a module without a CommonJS or RequireJS environment."),!1)},r.prototype.updateCharSizeStyles=function(){this.charSizeStyleElement.textContent=".xterm-wide-char{width:"+2*this.charMeasure.width+"px;}.xterm-normal-char{width:"+this.charMeasure.width+"px;}.xterm-rows > div{height:"+this.charMeasure.height+"px;}"},r.prototype.bindMouse=function(){function t(t){var e,i;if(e=o(t),i=w.getRawByteCoords(t,l.rowContainer,l.charMeasure,l.cols,l.rows))switch(r(e,i),t.overrideType||t.type){case"mousedown":h=e;break;case"mouseup":h=32}}function e(t){var e,i=h;(e=w.getRawByteCoords(t,l.rowContainer,l.charMeasure,l.cols,l.rows))&&r(i+=32,e)}function i(t,e){if(l.utfMouse){if(2047===e)return t.push(0);e<127?t.push(e):(e>2047&&(e=2047),t.push(192|e>>6),t.push(128|63&e))}else{if(255===e)return t.push(0);e>127&&(e=127),t.push(e)}}function r(t,e){if(l.vt300Mouse){t&=3,e.x-=32,e.y-=32;var r=d.C0.ESC+"[24";if(0===t)r+="1";else if(1===t)r+="3";else if(2===t)r+="5";else{if(3===t)return;r+="0"}return r+="~["+e.x+","+e.y+"]\r",void l.send(r)}return l.decLocator?(t&=3,e.x-=32,e.y-=32,0===t?t=2:1===t?t=4:2===t?t=6:3===t&&(t=3),void l.send(d.C0.ESC+"["+t+";"+(3===t?4:0)+";"+e.y+";"+e.x+";"+(e.page||0)+"&w")):l.urxvtMouse?(e.x-=32,e.y-=32,e.x++,e.y++,void l.send(d.C0.ESC+"["+t+";"+e.x+";"+e.y+"M")):l.sgrMouse?(e.x-=32,e.y-=32,void l.send(d.C0.ESC+"[<"+((3==(3&t)?-4&t:t)-32)+";"+e.x+";"+e.y+(3==(3&t)?"m":"M"))):(i(r=[],t),i(r,e.x),i(r,e.y),void l.send(d.C0.ESC+"[M"+String.fromCharCode.apply(String,r)))}function o(t){var e,i,r,s,n;switch(t.overrideType||t.type){case"mousedown":e=null!=t.button?+t.button:null!=t.which?t.which-1:null,l.browser.isMSIE&&(e=1===e?0:4===e?1:e);break;case"mouseup":e=3;break;case"DOMMouseScroll":e=t.detail<0?64:65;break;case"wheel":e=t.wheelDeltaY>0?64:65}return i=t.shiftKey?4:0,r=t.metaKey?8:0,s=t.ctrlKey?16:0,n=i|r|s,l.vt200Mouse?n&=s:l.normalMouse||(n=0),e=32+(n<<2)+e}var a=this.element,l=this,h=32;s(a,"mousedown",function(i){if(i.preventDefault(),l.focus(),l.mouseEvents)return t(i),l.vt200Mouse?(i.overrideType="mouseup",t(i),l.cancel(i)):(l.normalMouse&&s(l.document,"mousemove",e),l.x10Mouse||s(l.document,"mouseup",function i(r){return t(r),l.normalMouse&&n(l.document,"mousemove",e),n(l.document,"mouseup",i),l.cancel(r)}),l.cancel(i))}),s(a,"wheel",function(e){if(l.mouseEvents&&!(l.x10Mouse||l.vt300Mouse||l.decLocator))return t(e),l.cancel(e)}),s(a,"wheel",function(t){if(!l.mouseEvents)return l.viewport.onWheel(t),l.cancel(t)}),s(a,"touchstart",function(t){if(!l.mouseEvents)return l.viewport.onTouchStart(t),l.cancel(t)}),s(a,"touchmove",function(t){if(!l.mouseEvents)return l.viewport.onTouchMove(t),l.cancel(t)})},r.prototype.destroy=function(){this.readable=!1,this.writable=!1,this._events={},this.handler=function(){},this.write=function(){},this.element&&this.element.parentNode&&this.element.parentNode.removeChild(this.element)},r.prototype.refresh=function(t,e){this.renderer&&this.renderer.queueRefresh(t,e)},r.prototype.queueLinkification=function(t,e){if(this.linkifier)for(var i=t;i<=e;i++)this.linkifier.linkifyRow(i)},r.prototype.showCursor=function(){this.cursorState||(this.cursorState=1,this.refresh(this.buffer.y,this.buffer.y))},r.prototype.scroll=function(t){var e;this.buffer.lines.length===this.buffer.lines.maxLength&&(this.buffer.lines.trimStart(1),this.buffer.ybase--,0!==this.buffer.ydisp&&this.buffer.ydisp--),this.buffer.ybase++,this.userScrolling||(this.buffer.ydisp=this.buffer.ybase),e=this.buffer.ybase+this.rows-1,(e-=this.rows-1-this.buffer.scrollBottom)===this.buffer.lines.length?this.buffer.lines.push(this.blankLine(void 0,t)):this.buffer.lines.splice(e,0,this.blankLine(void 0,t)),0!==this.buffer.scrollTop&&(0!==this.buffer.ybase&&(this.buffer.ybase--,this.userScrolling||(this.buffer.ydisp=this.buffer.ybase)),this.buffer.lines.splice(this.buffer.ybase+this.buffer.scrollTop,1)),this.updateRange(this.buffer.scrollTop),this.updateRange(this.buffer.scrollBottom),this.emit("scroll",this.buffer.ydisp)},r.prototype.scrollDisp=function(t,e){if(t<0){if(0===this.buffer.ydisp)return;this.userScrolling=!0}else t+this.buffer.ydisp>=this.buffer.ybase&&(this.userScrolling=!1);var i=this.buffer.ydisp;this.buffer.ydisp=Math.max(Math.min(this.buffer.ydisp+t,this.buffer.ybase),0),i!==this.buffer.ydisp&&(e||this.emit("scroll",this.buffer.ydisp),this.refresh(0,this.rows-1))},r.prototype.scrollPages=function(t){this.scrollDisp(t*(this.rows-1))},r.prototype.scrollToTop=function(){this.scrollDisp(-this.buffer.ydisp)},r.prototype.scrollToBottom=function(){this.scrollDisp(this.buffer.ybase-this.buffer.ydisp)},r.prototype.write=function(t){if(this.writeBuffer.push(t),this.options.useFlowControl&&!this.xoffSentToCatchUp&&this.writeBuffer.length>=5&&(this.send(d.C0.DC3),this.xoffSentToCatchUp=!0),!this.writeInProgress&&this.writeBuffer.length>0){this.writeInProgress=!0;var e=this;setTimeout(function(){e.innerWrite()})}},r.prototype.innerWrite=function(){for(var t=this.writeBuffer.splice(0,300);t.length>0;){var e=t.shift();e.length;this.xoffSentToCatchUp&&0===t.length&&0===this.writeBuffer.length&&(this.send(d.C0.DC1),this.xoffSentToCatchUp=!1),this.refreshStart=this.buffer.y,this.refreshEnd=this.buffer.y;var i=this.parser.parse(e);this.parser.setState(i),this.updateRange(this.buffer.y),this.refresh(this.refreshStart,this.refreshEnd)}if(this.writeBuffer.length>0){var r=this;setTimeout(function(){r.innerWrite()},0)}else this.writeInProgress=!1},r.prototype.writeln=function(t){this.write(t+"\r\n")},r.prototype.attachCustomKeydownHandler=function(t){console.warn("attachCustomKeydownHandler() is DEPRECATED and will be removed soon. Please use attachCustomKeyEventHandler() instead."),this.attachCustomKeyEventHandler(t)},r.prototype.attachCustomKeyEventHandler=function(t){this.customKeyEventHandler=t},r.prototype.setHypertextLinkHandler=function(t){if(!this.linkifier)throw new Error("Cannot attach a hypertext link handler before Terminal.open is called");this.linkifier.setHypertextLinkHandler(t),this.refresh(0,this.rows-1)},r.prototype.setHypertextValidationCallback=function(t){if(!this.linkifier)throw new Error("Cannot attach a hypertext validation callback before Terminal.open is called");this.linkifier.setHypertextValidationCallback(t),this.refresh(0,this.rows-1)},r.prototype.registerLinkMatcher=function(t,e,i){if(this.linkifier){var r=this.linkifier.registerLinkMatcher(t,e,i);return this.refresh(0,this.rows-1),r}},r.prototype.deregisterLinkMatcher=function(t){this.linkifier&&this.linkifier.deregisterLinkMatcher(t)&&this.refresh(0,this.rows-1)},r.prototype.hasSelection=function(){return!!this.selectionManager&&this.selectionManager.hasSelection},r.prototype.getSelection=function(){return this.selectionManager?this.selectionManager.selectionText:""},r.prototype.clearSelection=function(){this.selectionManager&&this.selectionManager.clearSelection()},r.prototype.selectAll=function(){this.selectionManager&&this.selectionManager.selectAll()},r.prototype.keyDown=function(t){if(this.customKeyEventHandler&&!1===this.customKeyEventHandler(t))return!1;if(this.restartCursorBlinking(),!this.compositionHelper.keydown.bind(this.compositionHelper)(t))return this.buffer.ybase!==this.buffer.ydisp&&this.scrollToBottom(),!1;var e=this.evaluateKeyEscapeSequence(t);return e.key===d.C0.DC3?this.writeStopped=!0:e.key===d.C0.DC1&&(this.writeStopped=!1),e.scrollDisp?(this.scrollDisp(e.scrollDisp),this.cancel(t,!0)):!!a(this,t)||(e.cancel&&this.cancel(t,!0),!e.key||(this.emit("keydown",t),this.emit("key",e.key,t),this.showCursor(),this.handler(e.key),this.cancel(t,!0)))},r.prototype.evaluateKeyEscapeSequence=function(t){var e={cancel:!1,key:void 0,scrollDisp:void 0},i=t.shiftKey<<0|t.altKey<<1|t.ctrlKey<<2|t.metaKey<<3;switch(t.keyCode){case 8:if(t.shiftKey){e.key=d.C0.BS;break}e.key=d.C0.DEL;break;case 9:if(t.shiftKey){e.key=d.C0.ESC+"[Z";break}e.key=d.C0.HT,e.cancel=!0;break;case 13:e.key=d.C0.CR,e.cancel=!0;break;case 27:e.key=d.C0.ESC,e.cancel=!0;break;case 37:i?(e.key=d.C0.ESC+"[1;"+(i+1)+"D",e.key==d.C0.ESC+"[1;3D"&&(e.key=this.browser.isMac?d.C0.ESC+"b":d.C0.ESC+"[1;5D")):this.applicationCursor?e.key=d.C0.ESC+"OD":e.key=d.C0.ESC+"[D";break;case 39:i?(e.key=d.C0.ESC+"[1;"+(i+1)+"C",e.key==d.C0.ESC+"[1;3C"&&(e.key=this.browser.isMac?d.C0.ESC+"f":d.C0.ESC+"[1;5C")):this.applicationCursor?e.key=d.C0.ESC+"OC":e.key=d.C0.ESC+"[C";break;case 38:i?(e.key=d.C0.ESC+"[1;"+(i+1)+"A",e.key==d.C0.ESC+"[1;3A"&&(e.key=d.C0.ESC+"[1;5A")):this.applicationCursor?e.key=d.C0.ESC+"OA":e.key=d.C0.ESC+"[A";break;case 40:i?(e.key=d.C0.ESC+"[1;"+(i+1)+"B",e.key==d.C0.ESC+"[1;3B"&&(e.key=d.C0.ESC+"[1;5B")):this.applicationCursor?e.key=d.C0.ESC+"OB":e.key=d.C0.ESC+"[B";break;case 45:t.shiftKey||t.ctrlKey||(e.key=d.C0.ESC+"[2~");break;case 46:e.key=i?d.C0.ESC+"[3;"+(i+1)+"~":d.C0.ESC+"[3~";break;case 36:i?e.key=d.C0.ESC+"[1;"+(i+1)+"H":this.applicationCursor?e.key=d.C0.ESC+"OH":e.key=d.C0.ESC+"[H";break;case 35:i?e.key=d.C0.ESC+"[1;"+(i+1)+"F":this.applicationCursor?e.key=d.C0.ESC+"OF":e.key=d.C0.ESC+"[F";break;case 33:t.shiftKey?e.scrollDisp=-(this.rows-1):e.key=d.C0.ESC+"[5~";break;case 34:t.shiftKey?e.scrollDisp=this.rows-1:e.key=d.C0.ESC+"[6~";break;case 112:e.key=i?d.C0.ESC+"[1;"+(i+1)+"P":d.C0.ESC+"OP";break;case 113:e.key=i?d.C0.ESC+"[1;"+(i+1)+"Q":d.C0.ESC+"OQ";break;case 114:e.key=i?d.C0.ESC+"[1;"+(i+1)+"R":d.C0.ESC+"OR";break;case 115:e.key=i?d.C0.ESC+"[1;"+(i+1)+"S":d.C0.ESC+"OS";break;case 116:e.key=i?d.C0.ESC+"[15;"+(i+1)+"~":d.C0.ESC+"[15~";break;case 117:e.key=i?d.C0.ESC+"[17;"+(i+1)+"~":d.C0.ESC+"[17~";break;case 118:e.key=i?d.C0.ESC+"[18;"+(i+1)+"~":d.C0.ESC+"[18~";break;case 119:e.key=i?d.C0.ESC+"[19;"+(i+1)+"~":d.C0.ESC+"[19~";break;case 120:e.key=i?d.C0.ESC+"[20;"+(i+1)+"~":d.C0.ESC+"[20~";break;case 121:e.key=i?d.C0.ESC+"[21;"+(i+1)+"~":d.C0.ESC+"[21~";break;case 122:e.key=i?d.C0.ESC+"[23;"+(i+1)+"~":d.C0.ESC+"[23~";break;case 123:e.key=i?d.C0.ESC+"[24;"+(i+1)+"~":d.C0.ESC+"[24~";break;default:!t.ctrlKey||t.shiftKey||t.altKey||t.metaKey?this.browser.isMac||!t.altKey||t.ctrlKey||t.metaKey?this.browser.isMac&&!t.altKey&&!t.ctrlKey&&t.metaKey&&65===t.keyCode&&this.selectAll():t.keyCode>=65&&t.keyCode<=90?e.key=d.C0.ESC+String.fromCharCode(t.keyCode+32):192===t.keyCode?e.key=d.C0.ESC+"`":t.keyCode>=48&&t.keyCode<=57&&(e.key=d.C0.ESC+(t.keyCode-48)):t.keyCode>=65&&t.keyCode<=90?e.key=String.fromCharCode(t.keyCode-64):32===t.keyCode?e.key=String.fromCharCode(0):t.keyCode>=51&&t.keyCode<=55?e.key=String.fromCharCode(t.keyCode-51+27):56===t.keyCode?e.key=String.fromCharCode(127):219===t.keyCode?e.key=String.fromCharCode(27):220===t.keyCode?e.key=String.fromCharCode(28):221===t.keyCode&&(e.key=String.fromCharCode(29))}return e},r.prototype.setgLevel=function(t){this.glevel=t,this.charset=this.charsets[t]},r.prototype.setgCharset=function(t,e){this.charsets[t]=e,this.glevel===t&&(this.charset=e)},r.prototype.keyPress=function(t){var e;if(this.customKeyEventHandler&&!1===this.customKeyEventHandler(t))return!1;if(this.cancel(t),t.charCode)e=t.charCode;else if(null==t.which)e=t.keyCode;else{if(0===t.which||0===t.charCode)return!1;e=t.which}return!(!e||(t.altKey||t.ctrlKey||t.metaKey)&&!a(this,t))&&(e=String.fromCharCode(e),this.emit("keypress",e,t),this.emit("key",e,t),this.showCursor(),this.handler(e),!0)},r.prototype.send=function(t){var e=this;this.queue||setTimeout(function(){e.handler(e.queue),e.queue=""},1),this.queue+=t},r.prototype.bell=function(){if(this.visualBell){var t=this;this.element.style.borderColor="white",setTimeout(function(){t.element.style.borderColor=""},10),this.popOnBell&&this.focus()}},r.prototype.log=function(){if(this.debug&&this.context.console&&this.context.console.log){var t=Array.prototype.slice.call(arguments);this.context.console.log.apply(this.context.console,t)}},r.prototype.error=function(){if(this.debug&&this.context.console&&this.context.console.error){var t=Array.prototype.slice.call(arguments);this.context.console.error.apply(this.context.console,t)}},r.prototype.resize=function(t,e){if(!isNaN(t)&&!isNaN(e)){e>this.getOption("scrollback")&&this.setOption("scrollback",e);var i;if(t!==this.cols||e!==this.rows){for(t<1&&(t=1),e<1&&(e=1),this.buffers.resize(t,e);this.children.length<e;)this.insertRow();for(;this.children.length>e;)(i=this.children.shift())&&i.parentNode.removeChild(i);this.cols=t,this.rows=e,this.setupStops(this.cols),this.charMeasure.measure(),this.refresh(0,this.rows-1),this.geometry=[this.cols,this.rows],this.emit("resize",{terminal:this,cols:t,rows:e})}else this.charMeasure.width&&this.charMeasure.height||this.charMeasure.measure()}},r.prototype.updateRange=function(t){t<this.refreshStart&&(this.refreshStart=t),t>this.refreshEnd&&(this.refreshEnd=t)},r.prototype.maxRange=function(){this.refreshStart=0,this.refreshEnd=this.rows-1},r.prototype.setupStops=function(t){for(null!=t?this.buffer.tabs[t]||(t=this.prevStop(t)):(this.buffer.tabs={},t=0);t<this.cols;t+=this.getOption("tabStopWidth"))this.buffer.tabs[t]=!0},r.prototype.prevStop=function(t){for(null==t&&(t=this.buffer.x);!this.buffer.tabs[--t]&&t>0;);return t>=this.cols?this.cols-1:t<0?0:t},r.prototype.nextStop=function(t){for(null==t&&(t=this.buffer.x);!this.buffer.tabs[++t]&&t<this.cols;);return t>=this.cols?this.cols-1:t<0?0:t},r.prototype.eraseRight=function(t,e){var i=this.buffer.lines.get(this.buffer.ybase+e);if(i){for(var r=[this.eraseAttr()," ",1];t<this.cols;t++)i[t]=r;this.updateRange(e)}},r.prototype.eraseLeft=function(t,e){var i=this.buffer.lines.get(this.buffer.ybase+e);if(i){var r=[this.eraseAttr()," ",1];for(t++;t--;)i[t]=r;this.updateRange(e)}},r.prototype.clear=function(){if(0!==this.buffer.ybase||0!==this.buffer.y){this.buffer.lines.set(0,this.buffer.lines.get(this.buffer.ybase+this.buffer.y)),this.buffer.lines.length=1,this.buffer.ydisp=0,this.buffer.ybase=0,this.buffer.y=0;for(var t=1;t<this.rows;t++)this.buffer.lines.push(this.blankLine());this.refresh(0,this.rows-1),this.emit("scroll",this.buffer.ydisp)}},r.prototype.eraseLine=function(t){this.eraseRight(0,t)},r.prototype.blankLine=function(t,e,i){var r=[t?this.eraseAttr():this.defAttr," ",1],s=[],n=0;for(e&&(s.isWrapped=e),i=i||this.cols;n<i;n++)s[n]=r;return s},r.prototype.ch=function(t){return t?[this.eraseAttr()," ",1]:[this.defAttr," ",1]},r.prototype.is=function(t){return 0===(this.termName+"").indexOf(t)},r.prototype.handler=function(t){this.options.disableStdin||(this.selectionManager&&this.selectionManager.hasSelection&&this.selectionManager.clearSelection(),this.buffer.ybase!==this.buffer.ydisp&&this.scrollToBottom(),this.emit("data",t))},r.prototype.handleTitle=function(t){this.emit("title",t)},r.prototype.index=function(){++this.buffer.y>this.buffer.scrollBottom&&(this.buffer.y--,this.scroll()),this.buffer.x>=this.cols&&this.buffer.x--},r.prototype.reverseIndex=function(){this.buffer.y===this.buffer.scrollTop?(this.buffer.lines.shiftElements(this.buffer.y+this.buffer.ybase,this.rows-1,1),this.buffer.lines.set(this.buffer.y+this.buffer.ybase,this.blankLine(!0)),this.updateRange(this.buffer.scrollTop),this.updateRange(this.buffer.scrollBottom)):this.buffer.y--},r.prototype.reset=function(){this.options.rows=this.rows,this.options.cols=this.cols;var t=this.customKeyEventHandler,e=this.cursorBlinkInterval,i=this.inputHandler;r.call(this,this.options),this.customKeyEventHandler=t,this.cursorBlinkInterval=e,this.inputHandler=i,this.refresh(0,this.rows-1),this.viewport.syncScrollArea()},r.prototype.tabSet=function(){this.buffer.tabs[this.buffer.x]=!0},r.prototype.matchColor=l,l._cache={},l.distance=function(t,e,i,r,s,n){return Math.pow(30*(t-r),2)+Math.pow(59*(e-s),2)+Math.pow(11*(i-n),2)},r.translateBufferLineToString=E.translateBufferLineToString,r.EventEmitter=f.EventEmitter,r.inherits=o,r.on=s,r.off=n,r.cancel=function(t,e){if(this.cancelEvents||e)return t.preventDefault(),t.stopPropagation(),!1},e.exports=r},{"./BufferSet":2,"./CompositionHelper":4,"./EscapeSequences":5,"./EventEmitter":6,"./InputHandler":7,"./Linkifier":8,"./Parser":9,"./Renderer":10,"./SelectionManager":11,"./Viewport":13,"./handlers/Clipboard":14,"./utils/Browser":15,"./utils/BufferLine":16,"./utils/CharMeasure":17,"./utils/Mouse":21}]},{},[22])(22)});
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Terminal = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Strings = require("./Strings");
+var Browser_1 = require("./shared/utils/Browser");
+var RenderDebouncer_1 = require("./ui/RenderDebouncer");
+var Lifecycle_1 = require("./ui/Lifecycle");
+var Lifecycle_2 = require("./common/Lifecycle");
+var MAX_ROWS_TO_READ = 20;
+var AccessibilityManager = (function (_super) {
+    __extends(AccessibilityManager, _super);
+    function AccessibilityManager(_terminal) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._liveRegionLineCount = 0;
+        _this._charsToConsume = [];
+        _this._accessibilityTreeRoot = document.createElement('div');
+        _this._accessibilityTreeRoot.classList.add('xterm-accessibility');
+        _this._rowContainer = document.createElement('div');
+        _this._rowContainer.classList.add('xterm-accessibility-tree');
+        _this._rowElements = [];
+        for (var i = 0; i < _this._terminal.rows; i++) {
+            _this._rowElements[i] = _this._createAccessibilityTreeNode();
+            _this._rowContainer.appendChild(_this._rowElements[i]);
+        }
+        _this._topBoundaryFocusListener = function (e) { return _this._onBoundaryFocus(e, 0); };
+        _this._bottomBoundaryFocusListener = function (e) { return _this._onBoundaryFocus(e, 1); };
+        _this._rowElements[0].addEventListener('focus', _this._topBoundaryFocusListener);
+        _this._rowElements[_this._rowElements.length - 1].addEventListener('focus', _this._bottomBoundaryFocusListener);
+        _this._refreshRowsDimensions();
+        _this._accessibilityTreeRoot.appendChild(_this._rowContainer);
+        _this._renderRowsDebouncer = new RenderDebouncer_1.RenderDebouncer(_this._terminal, _this._renderRows.bind(_this));
+        _this._refreshRows();
+        _this._liveRegion = document.createElement('div');
+        _this._liveRegion.classList.add('live-region');
+        _this._liveRegion.setAttribute('aria-live', 'assertive');
+        _this._accessibilityTreeRoot.appendChild(_this._liveRegion);
+        _this._terminal.element.insertAdjacentElement('afterbegin', _this._accessibilityTreeRoot);
+        _this.register(_this._renderRowsDebouncer);
+        _this.register(_this._terminal.addDisposableListener('resize', function (data) { return _this._onResize(data.rows); }));
+        _this.register(_this._terminal.addDisposableListener('refresh', function (data) { return _this._refreshRows(data.start, data.end); }));
+        _this.register(_this._terminal.addDisposableListener('scroll', function (data) { return _this._refreshRows(); }));
+        _this.register(_this._terminal.addDisposableListener('a11y.char', function (char) { return _this._onChar(char); }));
+        _this.register(_this._terminal.addDisposableListener('linefeed', function () { return _this._onChar('\n'); }));
+        _this.register(_this._terminal.addDisposableListener('a11y.tab', function (spaceCount) { return _this._onTab(spaceCount); }));
+        _this.register(_this._terminal.addDisposableListener('key', function (keyChar) { return _this._onKey(keyChar); }));
+        _this.register(_this._terminal.addDisposableListener('blur', function () { return _this._clearLiveRegion(); }));
+        _this.register(_this._terminal.addDisposableListener('dprchange', function () { return _this._refreshRowsDimensions(); }));
+        _this.register(_this._terminal.renderer.addDisposableListener('resize', function () { return _this._refreshRowsDimensions(); }));
+        _this.register(Lifecycle_1.addDisposableDomListener(window, 'resize', function () { return _this._refreshRowsDimensions(); }));
+        return _this;
+    }
+    AccessibilityManager.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this._terminal.element.removeChild(this._accessibilityTreeRoot);
+        this._rowElements.length = 0;
+    };
+    AccessibilityManager.prototype._onBoundaryFocus = function (e, position) {
+        var boundaryElement = e.target;
+        var beforeBoundaryElement = this._rowElements[position === 0 ? 1 : this._rowElements.length - 2];
+        var posInSet = boundaryElement.getAttribute('aria-posinset');
+        var lastRowPos = position === 0 ? '1' : "" + this._terminal.buffer.lines.length;
+        if (posInSet === lastRowPos) {
+            return;
+        }
+        if (e.relatedTarget !== beforeBoundaryElement) {
+            return;
+        }
+        var topBoundaryElement;
+        var bottomBoundaryElement;
+        if (position === 0) {
+            topBoundaryElement = boundaryElement;
+            bottomBoundaryElement = this._rowElements.pop();
+            this._rowContainer.removeChild(bottomBoundaryElement);
+        }
+        else {
+            topBoundaryElement = this._rowElements.shift();
+            bottomBoundaryElement = boundaryElement;
+            this._rowContainer.removeChild(topBoundaryElement);
+        }
+        topBoundaryElement.removeEventListener('focus', this._topBoundaryFocusListener);
+        bottomBoundaryElement.removeEventListener('focus', this._bottomBoundaryFocusListener);
+        if (position === 0) {
+            var newElement = this._createAccessibilityTreeNode();
+            this._rowElements.unshift(newElement);
+            this._rowContainer.insertAdjacentElement('afterbegin', newElement);
+        }
+        else {
+            var newElement = this._createAccessibilityTreeNode();
+            this._rowElements.push(newElement);
+            this._rowContainer.appendChild(newElement);
+        }
+        this._rowElements[0].addEventListener('focus', this._topBoundaryFocusListener);
+        this._rowElements[this._rowElements.length - 1].addEventListener('focus', this._bottomBoundaryFocusListener);
+        this._terminal.scrollLines(position === 0 ? -1 : 1);
+        this._rowElements[position === 0 ? 1 : this._rowElements.length - 2].focus();
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    };
+    AccessibilityManager.prototype._onResize = function (rows) {
+        this._rowElements[this._rowElements.length - 1].removeEventListener('focus', this._bottomBoundaryFocusListener);
+        for (var i = this._rowContainer.children.length; i < this._terminal.rows; i++) {
+            this._rowElements[i] = this._createAccessibilityTreeNode();
+            this._rowContainer.appendChild(this._rowElements[i]);
+        }
+        while (this._rowElements.length > rows) {
+            this._rowContainer.removeChild(this._rowElements.pop());
+        }
+        this._rowElements[this._rowElements.length - 1].addEventListener('focus', this._bottomBoundaryFocusListener);
+        this._refreshRowsDimensions();
+    };
+    AccessibilityManager.prototype._createAccessibilityTreeNode = function () {
+        var element = document.createElement('div');
+        element.setAttribute('role', 'listitem');
+        element.tabIndex = -1;
+        this._refreshRowDimensions(element);
+        return element;
+    };
+    AccessibilityManager.prototype._onTab = function (spaceCount) {
+        for (var i = 0; i < spaceCount; i++) {
+            this._onChar(' ');
+        }
+    };
+    AccessibilityManager.prototype._onChar = function (char) {
+        var _this = this;
+        if (this._liveRegionLineCount < MAX_ROWS_TO_READ + 1) {
+            if (this._charsToConsume.length > 0) {
+                var shiftedChar = this._charsToConsume.shift();
+                if (shiftedChar !== char) {
+                    this._announceCharacter(char);
+                }
+            }
+            else {
+                this._announceCharacter(char);
+            }
+            if (char === '\n') {
+                this._liveRegionLineCount++;
+                if (this._liveRegionLineCount === MAX_ROWS_TO_READ + 1) {
+                    this._liveRegion.textContent += Strings.tooMuchOutput;
+                }
+            }
+            if (Browser_1.isMac) {
+                if (this._liveRegion.textContent && this._liveRegion.textContent.length > 0 && !this._liveRegion.parentNode) {
+                    setTimeout(function () {
+                        _this._accessibilityTreeRoot.appendChild(_this._liveRegion);
+                    }, 0);
+                }
+            }
+        }
+    };
+    AccessibilityManager.prototype._clearLiveRegion = function () {
+        this._liveRegion.textContent = '';
+        this._liveRegionLineCount = 0;
+        if (Browser_1.isMac) {
+            if (this._liveRegion.parentNode) {
+                this._accessibilityTreeRoot.removeChild(this._liveRegion);
+            }
+        }
+    };
+    AccessibilityManager.prototype._onKey = function (keyChar) {
+        this._clearLiveRegion();
+        this._charsToConsume.push(keyChar);
+    };
+    AccessibilityManager.prototype._refreshRows = function (start, end) {
+        this._renderRowsDebouncer.refresh(start, end);
+    };
+    AccessibilityManager.prototype._renderRows = function (start, end) {
+        var buffer = this._terminal.buffer;
+        var setSize = buffer.lines.length.toString();
+        for (var i = start; i <= end; i++) {
+            var lineData = buffer.translateBufferLineToString(buffer.ydisp + i, true);
+            var posInSet = (buffer.ydisp + i + 1).toString();
+            var element = this._rowElements[i];
+            element.textContent = lineData.length === 0 ? Strings.blankLine : lineData;
+            element.setAttribute('aria-posinset', posInSet);
+            element.setAttribute('aria-setsize', setSize);
+        }
+    };
+    AccessibilityManager.prototype._refreshRowsDimensions = function () {
+        if (!this._terminal.renderer.dimensions.actualCellHeight) {
+            return;
+        }
+        if (this._rowElements.length !== this._terminal.rows) {
+            this._onResize(this._terminal.rows);
+        }
+        for (var i = 0; i < this._terminal.rows; i++) {
+            this._refreshRowDimensions(this._rowElements[i]);
+        }
+    };
+    AccessibilityManager.prototype._refreshRowDimensions = function (element) {
+        element.style.height = this._terminal.renderer.dimensions.actualCellHeight + "px";
+    };
+    AccessibilityManager.prototype._announceCharacter = function (char) {
+        if (char === ' ') {
+            this._liveRegion.innerHTML += '&nbsp;';
+        }
+        else {
+            this._liveRegion.textContent += char;
+        }
+    };
+    return AccessibilityManager;
+}(Lifecycle_2.Disposable));
+exports.AccessibilityManager = AccessibilityManager;
+
+},{"./Strings":13,"./common/Lifecycle":18,"./shared/utils/Browser":46,"./ui/Lifecycle":48,"./ui/RenderDebouncer":50}],2:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var CircularList_1 = require("./common/CircularList");
+var EventEmitter_1 = require("./common/EventEmitter");
+var BufferLine_1 = require("./BufferLine");
+exports.DEFAULT_ATTR = (0 << 18) | (257 << 9) | (256 << 0);
+exports.CHAR_DATA_ATTR_INDEX = 0;
+exports.CHAR_DATA_CHAR_INDEX = 1;
+exports.CHAR_DATA_WIDTH_INDEX = 2;
+exports.CHAR_DATA_CODE_INDEX = 3;
+exports.MAX_BUFFER_SIZE = 4294967295;
+exports.NULL_CELL_CHAR = ' ';
+exports.NULL_CELL_WIDTH = 1;
+exports.NULL_CELL_CODE = 32;
+var Buffer = (function () {
+    function Buffer(_terminal, _hasScrollback) {
+        this._terminal = _terminal;
+        this._hasScrollback = _hasScrollback;
+        this.markers = [];
+        this.clear();
+    }
+    Object.defineProperty(Buffer.prototype, "hasScrollback", {
+        get: function () {
+            return this._hasScrollback && this.lines.maxLength > this._terminal.rows;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Buffer.prototype, "isCursorInViewport", {
+        get: function () {
+            var absoluteY = this.ybase + this.y;
+            var relativeY = absoluteY - this.ydisp;
+            return (relativeY >= 0 && relativeY < this._terminal.rows);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Buffer.prototype._getCorrectBufferLength = function (rows) {
+        if (!this._hasScrollback) {
+            return rows;
+        }
+        var correctBufferLength = rows + this._terminal.options.scrollback;
+        return correctBufferLength > exports.MAX_BUFFER_SIZE ? exports.MAX_BUFFER_SIZE : correctBufferLength;
+    };
+    Buffer.prototype.fillViewportRows = function () {
+        if (this.lines.length === 0) {
+            var i = this._terminal.rows;
+            while (i--) {
+                this.lines.push(BufferLine_1.BufferLine.blankLine(this._terminal.cols, exports.DEFAULT_ATTR));
+            }
+        }
+    };
+    Buffer.prototype.clear = function () {
+        this.ydisp = 0;
+        this.ybase = 0;
+        this.y = 0;
+        this.x = 0;
+        this.lines = new CircularList_1.CircularList(this._getCorrectBufferLength(this._terminal.rows));
+        this.scrollTop = 0;
+        this.scrollBottom = this._terminal.rows - 1;
+        this.setupTabStops();
+    };
+    Buffer.prototype.resize = function (newCols, newRows) {
+        var newMaxLength = this._getCorrectBufferLength(newRows);
+        if (newMaxLength > this.lines.maxLength) {
+            this.lines.maxLength = newMaxLength;
+        }
+        if (this.lines.length > 0) {
+            if (this._terminal.cols < newCols) {
+                var ch = [exports.DEFAULT_ATTR, exports.NULL_CELL_CHAR, exports.NULL_CELL_WIDTH, exports.NULL_CELL_CODE];
+                for (var i = 0; i < this.lines.length; i++) {
+                    while (this.lines.get(i).length < newCols) {
+                        this.lines.get(i).push(ch);
+                    }
+                }
+            }
+            var addToY = 0;
+            if (this._terminal.rows < newRows) {
+                for (var y = this._terminal.rows; y < newRows; y++) {
+                    if (this.lines.length < newRows + this.ybase) {
+                        if (this.ybase > 0 && this.lines.length <= this.ybase + this.y + addToY + 1) {
+                            this.ybase--;
+                            addToY++;
+                            if (this.ydisp > 0) {
+                                this.ydisp--;
+                            }
+                        }
+                        else {
+                            this.lines.push(BufferLine_1.BufferLine.blankLine(newCols, exports.DEFAULT_ATTR));
+                        }
+                    }
+                }
+            }
+            else {
+                for (var y = this._terminal.rows; y > newRows; y--) {
+                    if (this.lines.length > newRows + this.ybase) {
+                        if (this.lines.length > this.ybase + this.y + 1) {
+                            this.lines.pop();
+                        }
+                        else {
+                            this.ybase++;
+                            this.ydisp++;
+                        }
+                    }
+                }
+            }
+            if (newMaxLength < this.lines.maxLength) {
+                var amountToTrim = this.lines.length - newMaxLength;
+                if (amountToTrim > 0) {
+                    this.lines.trimStart(amountToTrim);
+                    this.ybase = Math.max(this.ybase - amountToTrim, 0);
+                    this.ydisp = Math.max(this.ydisp - amountToTrim, 0);
+                }
+                this.lines.maxLength = newMaxLength;
+            }
+            this.x = Math.min(this.x, newCols - 1);
+            this.y = Math.min(this.y, newRows - 1);
+            if (addToY) {
+                this.y += addToY;
+            }
+            this.savedY = Math.min(this.savedY, newRows - 1);
+            this.savedX = Math.min(this.savedX, newCols - 1);
+            this.scrollTop = 0;
+        }
+        this.scrollBottom = newRows - 1;
+    };
+    Buffer.prototype.stringIndexToBufferIndex = function (lineIndex, stringIndex) {
+        while (stringIndex) {
+            var line = this.lines.get(lineIndex);
+            if (!line) {
+                [-1, -1];
+            }
+            for (var i = 0; i < line.length; ++i) {
+                stringIndex -= line.get(i)[exports.CHAR_DATA_CHAR_INDEX].length;
+                if (stringIndex < 0) {
+                    return [lineIndex, i];
+                }
+            }
+            lineIndex++;
+        }
+        return [lineIndex, 0];
+    };
+    Buffer.prototype.translateBufferLineToString = function (lineIndex, trimRight, startCol, endCol) {
+        if (startCol === void 0) { startCol = 0; }
+        if (endCol === void 0) { endCol = null; }
+        var lineString = '';
+        var line = this.lines.get(lineIndex);
+        if (!line) {
+            return '';
+        }
+        var startIndex = startCol;
+        if (endCol === null) {
+            endCol = line.length;
+        }
+        var endIndex = endCol;
+        for (var i = 0; i < line.length; i++) {
+            var char = line.get(i);
+            lineString += char[exports.CHAR_DATA_CHAR_INDEX];
+            if (char[exports.CHAR_DATA_WIDTH_INDEX] === 0) {
+                if (startCol >= i) {
+                    startIndex--;
+                }
+                if (endCol > i) {
+                    endIndex--;
+                }
+            }
+            else {
+                if (char[exports.CHAR_DATA_CHAR_INDEX].length > 1) {
+                    if (startCol > i) {
+                        startIndex += char[exports.CHAR_DATA_CHAR_INDEX].length - 1;
+                    }
+                    if (endCol > i) {
+                        endIndex += char[exports.CHAR_DATA_CHAR_INDEX].length - 1;
+                    }
+                }
+            }
+        }
+        if (trimRight) {
+            var rightWhitespaceIndex = lineString.search(/\s+$/);
+            if (rightWhitespaceIndex !== -1) {
+                endIndex = Math.min(endIndex, rightWhitespaceIndex);
+            }
+            if (endIndex <= startIndex) {
+                return '';
+            }
+        }
+        return lineString.substring(startIndex, endIndex);
+    };
+    Buffer.prototype.getWrappedRangeForLine = function (y) {
+        var first = y;
+        var last = y;
+        while (first > 0 && this.lines.get(first).isWrapped) {
+            first--;
+        }
+        while (last + 1 < this.lines.length && this.lines.get(last + 1).isWrapped) {
+            last++;
+        }
+        return { first: first, last: last };
+    };
+    Buffer.prototype.setupTabStops = function (i) {
+        if (i !== null && i !== undefined) {
+            if (!this.tabs[i]) {
+                i = this.prevStop(i);
+            }
+        }
+        else {
+            this.tabs = {};
+            i = 0;
+        }
+        for (; i < this._terminal.cols; i += this._terminal.options.tabStopWidth) {
+            this.tabs[i] = true;
+        }
+    };
+    Buffer.prototype.prevStop = function (x) {
+        if (x === null || x === undefined) {
+            x = this.x;
+        }
+        while (!this.tabs[--x] && x > 0)
+            ;
+        return x >= this._terminal.cols ? this._terminal.cols - 1 : x < 0 ? 0 : x;
+    };
+    Buffer.prototype.nextStop = function (x) {
+        if (x === null || x === undefined) {
+            x = this.x;
+        }
+        while (!this.tabs[++x] && x < this._terminal.cols)
+            ;
+        return x >= this._terminal.cols ? this._terminal.cols - 1 : x < 0 ? 0 : x;
+    };
+    Buffer.prototype.addMarker = function (y) {
+        var _this = this;
+        var marker = new Marker(y);
+        this.markers.push(marker);
+        marker.register(this.lines.addDisposableListener('trim', function (amount) {
+            marker.line -= amount;
+            if (marker.line < 0) {
+                marker.dispose();
+            }
+        }));
+        marker.register(marker.addDisposableListener('dispose', function () { return _this._removeMarker(marker); }));
+        return marker;
+    };
+    Buffer.prototype._removeMarker = function (marker) {
+        this.markers.splice(this.markers.indexOf(marker), 1);
+    };
+    Buffer.prototype.iterator = function (trimRight, startIndex, endIndex, startOverscan, endOverscan) {
+        return new BufferStringIterator(this, trimRight, startIndex, endIndex, startOverscan, endOverscan);
+    };
+    return Buffer;
+}());
+exports.Buffer = Buffer;
+var Marker = (function (_super) {
+    __extends(Marker, _super);
+    function Marker(line) {
+        var _this = _super.call(this) || this;
+        _this.line = line;
+        _this._id = Marker._nextId++;
+        _this.isDisposed = false;
+        return _this;
+    }
+    Object.defineProperty(Marker.prototype, "id", {
+        get: function () { return this._id; },
+        enumerable: true,
+        configurable: true
+    });
+    Marker.prototype.dispose = function () {
+        if (this.isDisposed) {
+            return;
+        }
+        this.isDisposed = true;
+        this.emit('dispose');
+        _super.prototype.dispose.call(this);
+    };
+    Marker._nextId = 1;
+    return Marker;
+}(EventEmitter_1.EventEmitter));
+exports.Marker = Marker;
+var BufferStringIterator = (function () {
+    function BufferStringIterator(_buffer, _trimRight, _startIndex, _endIndex, _startOverscan, _endOverscan) {
+        if (_startIndex === void 0) { _startIndex = 0; }
+        if (_endIndex === void 0) { _endIndex = _buffer.lines.length; }
+        if (_startOverscan === void 0) { _startOverscan = 0; }
+        if (_endOverscan === void 0) { _endOverscan = 0; }
+        this._buffer = _buffer;
+        this._trimRight = _trimRight;
+        this._startIndex = _startIndex;
+        this._endIndex = _endIndex;
+        this._startOverscan = _startOverscan;
+        this._endOverscan = _endOverscan;
+        if (this._startIndex < 0) {
+            this._startIndex = 0;
+        }
+        if (this._endIndex > this._buffer.lines.length) {
+            this._endIndex = this._buffer.lines.length;
+        }
+        this._current = this._startIndex;
+    }
+    BufferStringIterator.prototype.hasNext = function () {
+        return this._current < this._endIndex;
+    };
+    BufferStringIterator.prototype.next = function () {
+        var range = this._buffer.getWrappedRangeForLine(this._current);
+        if (range.first < this._startIndex - this._startOverscan) {
+            range.first = this._startIndex - this._startOverscan;
+        }
+        if (range.last > this._endIndex + this._endOverscan) {
+            range.last = this._endIndex + this._endOverscan;
+        }
+        range.first = Math.max(range.first, 0);
+        range.last = Math.min(range.last, this._buffer.lines.length);
+        var result = '';
+        for (var i = range.first; i <= range.last; ++i) {
+            result += this._buffer.translateBufferLineToString(i, (this._trimRight) ? i === range.last : false);
+        }
+        this._current = range.last + 1;
+        return { range: range, content: result };
+    };
+    return BufferStringIterator;
+}());
+exports.BufferStringIterator = BufferStringIterator;
+
+},{"./BufferLine":3,"./common/CircularList":16,"./common/EventEmitter":17}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Buffer_1 = require("./Buffer");
+var BufferLine = (function () {
+    function BufferLine(cols, ch, isWrapped) {
+        this.isWrapped = false;
+        this._data = [];
+        this.length = this._data.length;
+        if (cols) {
+            if (!ch) {
+                ch = [0, Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE];
+            }
+            for (var i = 0; i < cols; i++) {
+                this.push(ch);
+            }
+        }
+        if (isWrapped) {
+            this.isWrapped = true;
+        }
+    }
+    BufferLine.blankLine = function (cols, attr, isWrapped) {
+        var ch = [attr, Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE];
+        return new BufferLine(cols, ch, isWrapped);
+    };
+    BufferLine.prototype.get = function (index) {
+        return this._data[index];
+    };
+    BufferLine.prototype.set = function (index, data) {
+        this._data[index] = data;
+    };
+    BufferLine.prototype.pop = function () {
+        var data = this._data.pop();
+        this.length = this._data.length;
+        return data;
+    };
+    BufferLine.prototype.push = function (data) {
+        this._data.push(data);
+        this.length = this._data.length;
+    };
+    BufferLine.prototype.splice = function (start, deleteCount) {
+        var items = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            items[_i - 2] = arguments[_i];
+        }
+        var _a;
+        var removed = (_a = this._data).splice.apply(_a, [start, deleteCount].concat(items));
+        this.length = this._data.length;
+        return removed;
+    };
+    BufferLine.prototype.insertCells = function (pos, n, ch) {
+        while (n--) {
+            this.splice(pos, 0, ch);
+            this.pop();
+        }
+    };
+    BufferLine.prototype.deleteCells = function (pos, n, fill) {
+        while (n--) {
+            this.splice(pos, 1);
+            this.push(fill);
+        }
+    };
+    BufferLine.prototype.replaceCells = function (start, end, fill) {
+        while (start < end && start < this.length) {
+            this.set(start++, fill);
+        }
+    };
+    return BufferLine;
+}());
+exports.BufferLine = BufferLine;
+
+},{"./Buffer":2}],4:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Buffer_1 = require("./Buffer");
+var EventEmitter_1 = require("./common/EventEmitter");
+var BufferSet = (function (_super) {
+    __extends(BufferSet, _super);
+    function BufferSet(_terminal) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._normal = new Buffer_1.Buffer(_this._terminal, true);
+        _this._normal.fillViewportRows();
+        _this._alt = new Buffer_1.Buffer(_this._terminal, false);
+        _this._activeBuffer = _this._normal;
+        _this.setupTabStops();
+        return _this;
+    }
+    Object.defineProperty(BufferSet.prototype, "alt", {
+        get: function () {
+            return this._alt;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BufferSet.prototype, "active", {
+        get: function () {
+            return this._activeBuffer;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BufferSet.prototype, "normal", {
+        get: function () {
+            return this._normal;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    BufferSet.prototype.activateNormalBuffer = function () {
+        if (this._activeBuffer === this._normal) {
+            return;
+        }
+        this._alt.clear();
+        this._activeBuffer = this._normal;
+        this.emit('activate', {
+            activeBuffer: this._normal,
+            inactiveBuffer: this._alt
+        });
+    };
+    BufferSet.prototype.activateAltBuffer = function () {
+        if (this._activeBuffer === this._alt) {
+            return;
+        }
+        this._alt.fillViewportRows();
+        this._activeBuffer = this._alt;
+        this.emit('activate', {
+            activeBuffer: this._alt,
+            inactiveBuffer: this._normal
+        });
+    };
+    BufferSet.prototype.resize = function (newCols, newRows) {
+        this._normal.resize(newCols, newRows);
+        this._alt.resize(newCols, newRows);
+    };
+    BufferSet.prototype.setupTabStops = function (i) {
+        this._normal.setupTabStops(i);
+        this._alt.setupTabStops(i);
+    };
+    return BufferSet;
+}(EventEmitter_1.EventEmitter));
+exports.BufferSet = BufferSet;
+
+},{"./Buffer":2,"./common/EventEmitter":17}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.wcwidth = (function (opts) {
+    var COMBINING_BMP = [
+        [0x0300, 0x036F], [0x0483, 0x0486], [0x0488, 0x0489],
+        [0x0591, 0x05BD], [0x05BF, 0x05BF], [0x05C1, 0x05C2],
+        [0x05C4, 0x05C5], [0x05C7, 0x05C7], [0x0600, 0x0603],
+        [0x0610, 0x0615], [0x064B, 0x065E], [0x0670, 0x0670],
+        [0x06D6, 0x06E4], [0x06E7, 0x06E8], [0x06EA, 0x06ED],
+        [0x070F, 0x070F], [0x0711, 0x0711], [0x0730, 0x074A],
+        [0x07A6, 0x07B0], [0x07EB, 0x07F3], [0x0901, 0x0902],
+        [0x093C, 0x093C], [0x0941, 0x0948], [0x094D, 0x094D],
+        [0x0951, 0x0954], [0x0962, 0x0963], [0x0981, 0x0981],
+        [0x09BC, 0x09BC], [0x09C1, 0x09C4], [0x09CD, 0x09CD],
+        [0x09E2, 0x09E3], [0x0A01, 0x0A02], [0x0A3C, 0x0A3C],
+        [0x0A41, 0x0A42], [0x0A47, 0x0A48], [0x0A4B, 0x0A4D],
+        [0x0A70, 0x0A71], [0x0A81, 0x0A82], [0x0ABC, 0x0ABC],
+        [0x0AC1, 0x0AC5], [0x0AC7, 0x0AC8], [0x0ACD, 0x0ACD],
+        [0x0AE2, 0x0AE3], [0x0B01, 0x0B01], [0x0B3C, 0x0B3C],
+        [0x0B3F, 0x0B3F], [0x0B41, 0x0B43], [0x0B4D, 0x0B4D],
+        [0x0B56, 0x0B56], [0x0B82, 0x0B82], [0x0BC0, 0x0BC0],
+        [0x0BCD, 0x0BCD], [0x0C3E, 0x0C40], [0x0C46, 0x0C48],
+        [0x0C4A, 0x0C4D], [0x0C55, 0x0C56], [0x0CBC, 0x0CBC],
+        [0x0CBF, 0x0CBF], [0x0CC6, 0x0CC6], [0x0CCC, 0x0CCD],
+        [0x0CE2, 0x0CE3], [0x0D41, 0x0D43], [0x0D4D, 0x0D4D],
+        [0x0DCA, 0x0DCA], [0x0DD2, 0x0DD4], [0x0DD6, 0x0DD6],
+        [0x0E31, 0x0E31], [0x0E34, 0x0E3A], [0x0E47, 0x0E4E],
+        [0x0EB1, 0x0EB1], [0x0EB4, 0x0EB9], [0x0EBB, 0x0EBC],
+        [0x0EC8, 0x0ECD], [0x0F18, 0x0F19], [0x0F35, 0x0F35],
+        [0x0F37, 0x0F37], [0x0F39, 0x0F39], [0x0F71, 0x0F7E],
+        [0x0F80, 0x0F84], [0x0F86, 0x0F87], [0x0F90, 0x0F97],
+        [0x0F99, 0x0FBC], [0x0FC6, 0x0FC6], [0x102D, 0x1030],
+        [0x1032, 0x1032], [0x1036, 0x1037], [0x1039, 0x1039],
+        [0x1058, 0x1059], [0x1160, 0x11FF], [0x135F, 0x135F],
+        [0x1712, 0x1714], [0x1732, 0x1734], [0x1752, 0x1753],
+        [0x1772, 0x1773], [0x17B4, 0x17B5], [0x17B7, 0x17BD],
+        [0x17C6, 0x17C6], [0x17C9, 0x17D3], [0x17DD, 0x17DD],
+        [0x180B, 0x180D], [0x18A9, 0x18A9], [0x1920, 0x1922],
+        [0x1927, 0x1928], [0x1932, 0x1932], [0x1939, 0x193B],
+        [0x1A17, 0x1A18], [0x1B00, 0x1B03], [0x1B34, 0x1B34],
+        [0x1B36, 0x1B3A], [0x1B3C, 0x1B3C], [0x1B42, 0x1B42],
+        [0x1B6B, 0x1B73], [0x1DC0, 0x1DCA], [0x1DFE, 0x1DFF],
+        [0x200B, 0x200F], [0x202A, 0x202E], [0x2060, 0x2063],
+        [0x206A, 0x206F], [0x20D0, 0x20EF], [0x302A, 0x302F],
+        [0x3099, 0x309A], [0xA806, 0xA806], [0xA80B, 0xA80B],
+        [0xA825, 0xA826], [0xFB1E, 0xFB1E], [0xFE00, 0xFE0F],
+        [0xFE20, 0xFE23], [0xFEFF, 0xFEFF], [0xFFF9, 0xFFFB]
+    ];
+    var COMBINING_HIGH = [
+        [0x10A01, 0x10A03], [0x10A05, 0x10A06], [0x10A0C, 0x10A0F],
+        [0x10A38, 0x10A3A], [0x10A3F, 0x10A3F], [0x1D167, 0x1D169],
+        [0x1D173, 0x1D182], [0x1D185, 0x1D18B], [0x1D1AA, 0x1D1AD],
+        [0x1D242, 0x1D244], [0xE0001, 0xE0001], [0xE0020, 0xE007F],
+        [0xE0100, 0xE01EF]
+    ];
+    function bisearch(ucs, data) {
+        var min = 0;
+        var max = data.length - 1;
+        var mid;
+        if (ucs < data[0][0] || ucs > data[max][1]) {
+            return false;
+        }
+        while (max >= min) {
+            mid = (min + max) >> 1;
+            if (ucs > data[mid][1]) {
+                min = mid + 1;
+            }
+            else if (ucs < data[mid][0]) {
+                max = mid - 1;
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
+    }
+    function wcwidthBMP(ucs) {
+        if (ucs === 0) {
+            return opts.nul;
+        }
+        if (ucs < 32 || (ucs >= 0x7f && ucs < 0xa0)) {
+            return opts.control;
+        }
+        if (bisearch(ucs, COMBINING_BMP)) {
+            return 0;
+        }
+        if (isWideBMP(ucs)) {
+            return 2;
+        }
+        return 1;
+    }
+    function isWideBMP(ucs) {
+        return (ucs >= 0x1100 && (ucs <= 0x115f ||
+            ucs === 0x2329 ||
+            ucs === 0x232a ||
+            (ucs >= 0x2e80 && ucs <= 0xa4cf && ucs !== 0x303f) ||
+            (ucs >= 0xac00 && ucs <= 0xd7a3) ||
+            (ucs >= 0xf900 && ucs <= 0xfaff) ||
+            (ucs >= 0xfe10 && ucs <= 0xfe19) ||
+            (ucs >= 0xfe30 && ucs <= 0xfe6f) ||
+            (ucs >= 0xff00 && ucs <= 0xff60) ||
+            (ucs >= 0xffe0 && ucs <= 0xffe6)));
+    }
+    function wcwidthHigh(ucs) {
+        if (bisearch(ucs, COMBINING_HIGH)) {
+            return 0;
+        }
+        if ((ucs >= 0x20000 && ucs <= 0x2fffd) || (ucs >= 0x30000 && ucs <= 0x3fffd)) {
+            return 2;
+        }
+        return 1;
+    }
+    var control = opts.control | 0;
+    var table = null;
+    function initTable() {
+        var CODEPOINTS = 65536;
+        var BITWIDTH = 2;
+        var ITEMSIZE = 32;
+        var CONTAINERSIZE = CODEPOINTS * BITWIDTH / ITEMSIZE;
+        var CODEPOINTS_PER_ITEM = ITEMSIZE / BITWIDTH;
+        table = (typeof Uint32Array === 'undefined')
+            ? new Array(CONTAINERSIZE)
+            : new Uint32Array(CONTAINERSIZE);
+        for (var i = 0; i < CONTAINERSIZE; ++i) {
+            var num = 0;
+            var pos = CODEPOINTS_PER_ITEM;
+            while (pos--) {
+                num = (num << 2) | wcwidthBMP(CODEPOINTS_PER_ITEM * i + pos);
+            }
+            table[i] = num;
+        }
+        return table;
+    }
+    return function (num) {
+        num = num | 0;
+        if (num < 32) {
+            return control | 0;
+        }
+        if (num < 127) {
+            return 1;
+        }
+        var t = table || initTable();
+        if (num < 65536) {
+            return t[num >> 4] >> ((num & 15) << 1) & 3;
+        }
+        return wcwidthHigh(num);
+    };
+})({ nul: 0, control: 0 });
+function getStringCellWidth(s) {
+    var result = 0;
+    for (var i = 0; i < s.length; ++i) {
+        var code = s.charCodeAt(i);
+        if (0xD800 <= code && code <= 0xDBFF) {
+            var low = s.charCodeAt(i + 1);
+            if (isNaN(low)) {
+                return result;
+            }
+            code = ((code - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
+        }
+        if (0xDC00 <= code && code <= 0xDFFF) {
+            continue;
+        }
+        result += exports.wcwidth(code);
+    }
+    return result;
+}
+exports.getStringCellWidth = getStringCellWidth;
+
+},{}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var CompositionHelper = (function () {
+    function CompositionHelper(_textarea, _compositionView, _terminal) {
+        this._textarea = _textarea;
+        this._compositionView = _compositionView;
+        this._terminal = _terminal;
+        this._isComposing = false;
+        this._isSendingComposition = false;
+        this._compositionPosition = { start: null, end: null };
+    }
+    CompositionHelper.prototype.compositionstart = function () {
+        this._isComposing = true;
+        this._compositionPosition.start = this._textarea.value.length;
+        this._compositionView.textContent = '';
+        this._compositionView.classList.add('active');
+    };
+    CompositionHelper.prototype.compositionupdate = function (ev) {
+        var _this = this;
+        this._compositionView.textContent = ev.data;
+        this.updateCompositionElements();
+        setTimeout(function () {
+            _this._compositionPosition.end = _this._textarea.value.length;
+        }, 0);
+    };
+    CompositionHelper.prototype.compositionend = function () {
+        this._finalizeComposition(true);
+    };
+    CompositionHelper.prototype.keydown = function (ev) {
+        if (this._isComposing || this._isSendingComposition) {
+            if (ev.keyCode === 229) {
+                return false;
+            }
+            else if (ev.keyCode === 16 || ev.keyCode === 17 || ev.keyCode === 18) {
+                return false;
+            }
+            this._finalizeComposition(false);
+        }
+        if (ev.keyCode === 229) {
+            this._handleAnyTextareaChanges();
+            return false;
+        }
+        return true;
+    };
+    CompositionHelper.prototype._finalizeComposition = function (waitForPropogation) {
+        var _this = this;
+        this._compositionView.classList.remove('active');
+        this._isComposing = false;
+        this._clearTextareaPosition();
+        if (!waitForPropogation) {
+            this._isSendingComposition = false;
+            var input = this._textarea.value.substring(this._compositionPosition.start, this._compositionPosition.end);
+            this._terminal.handler(input);
+        }
+        else {
+            var currentCompositionPosition_1 = {
+                start: this._compositionPosition.start,
+                end: this._compositionPosition.end
+            };
+            this._isSendingComposition = true;
+            setTimeout(function () {
+                if (_this._isSendingComposition) {
+                    _this._isSendingComposition = false;
+                    var input = void 0;
+                    if (_this._isComposing) {
+                        input = _this._textarea.value.substring(currentCompositionPosition_1.start, currentCompositionPosition_1.end);
+                    }
+                    else {
+                        input = _this._textarea.value.substring(currentCompositionPosition_1.start);
+                    }
+                    _this._terminal.handler(input);
+                }
+            }, 0);
+        }
+    };
+    CompositionHelper.prototype._handleAnyTextareaChanges = function () {
+        var _this = this;
+        var oldValue = this._textarea.value;
+        setTimeout(function () {
+            if (!_this._isComposing) {
+                var newValue = _this._textarea.value;
+                var diff = newValue.replace(oldValue, '');
+                if (diff.length > 0) {
+                    _this._terminal.handler(diff);
+                }
+            }
+        }, 0);
+    };
+    CompositionHelper.prototype.updateCompositionElements = function (dontRecurse) {
+        var _this = this;
+        if (!this._isComposing) {
+            return;
+        }
+        if (this._terminal.buffer.isCursorInViewport) {
+            var cellHeight = Math.ceil(this._terminal.charMeasure.height * this._terminal.options.lineHeight);
+            var cursorTop = this._terminal.buffer.y * cellHeight;
+            var cursorLeft = this._terminal.buffer.x * this._terminal.charMeasure.width;
+            this._compositionView.style.left = cursorLeft + 'px';
+            this._compositionView.style.top = cursorTop + 'px';
+            this._compositionView.style.height = cellHeight + 'px';
+            this._compositionView.style.lineHeight = cellHeight + 'px';
+            var compositionViewBounds = this._compositionView.getBoundingClientRect();
+            this._textarea.style.left = cursorLeft + 'px';
+            this._textarea.style.top = cursorTop + 'px';
+            this._textarea.style.width = compositionViewBounds.width + 'px';
+            this._textarea.style.height = compositionViewBounds.height + 'px';
+            this._textarea.style.lineHeight = compositionViewBounds.height + 'px';
+        }
+        if (!dontRecurse) {
+            setTimeout(function () { return _this.updateCompositionElements(true); }, 0);
+        }
+    };
+    CompositionHelper.prototype._clearTextareaPosition = function () {
+        this._textarea.style.left = '';
+        this._textarea.style.top = '';
+    };
+    return CompositionHelper;
+}());
+exports.CompositionHelper = CompositionHelper;
+
+},{}],7:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Lifecycle_1 = require("./common/Lifecycle");
+function r(low, high) {
+    var c = high - low;
+    var arr = new Array(c);
+    while (c--) {
+        arr[c] = --high;
+    }
+    return arr;
+}
+var TransitionTable = (function () {
+    function TransitionTable(length) {
+        this.table = (typeof Uint8Array === 'undefined')
+            ? new Array(length)
+            : new Uint8Array(length);
+    }
+    TransitionTable.prototype.add = function (code, state, action, next) {
+        this.table[state << 8 | code] = ((action | 0) << 4) | ((next === undefined) ? state : next);
+    };
+    TransitionTable.prototype.addMany = function (codes, state, action, next) {
+        for (var i = 0; i < codes.length; i++) {
+            this.add(codes[i], state, action, next);
+        }
+    };
+    return TransitionTable;
+}());
+exports.TransitionTable = TransitionTable;
+var PRINTABLES = r(0x20, 0x7f);
+var EXECUTABLES = r(0x00, 0x18);
+EXECUTABLES.push(0x19);
+EXECUTABLES.concat(r(0x1c, 0x20));
+var DEFAULT_TRANSITION = 1 << 4 | 0;
+exports.VT500_TRANSITION_TABLE = (function () {
+    var table = new TransitionTable(4095);
+    var states = r(0, 13 + 1);
+    var state;
+    for (state in states) {
+        for (var code = 0; code < 160; ++code) {
+            table.add(code, state, 1, 0);
+        }
+    }
+    table.addMany(PRINTABLES, 0, 2, 0);
+    for (state in states) {
+        table.addMany([0x18, 0x1a, 0x99, 0x9a], state, 3, 0);
+        table.addMany(r(0x80, 0x90), state, 3, 0);
+        table.addMany(r(0x90, 0x98), state, 3, 0);
+        table.add(0x9c, state, 0, 0);
+        table.add(0x1b, state, 11, 1);
+        table.add(0x9d, state, 4, 8);
+        table.addMany([0x98, 0x9e, 0x9f], state, 0, 7);
+        table.add(0x9b, state, 11, 3);
+        table.add(0x90, state, 11, 9);
+    }
+    table.addMany(EXECUTABLES, 0, 3, 0);
+    table.addMany(EXECUTABLES, 1, 3, 1);
+    table.add(0x7f, 1, 0, 1);
+    table.addMany(EXECUTABLES, 8, 0, 8);
+    table.addMany(EXECUTABLES, 3, 3, 3);
+    table.add(0x7f, 3, 0, 3);
+    table.addMany(EXECUTABLES, 4, 3, 4);
+    table.add(0x7f, 4, 0, 4);
+    table.addMany(EXECUTABLES, 6, 3, 6);
+    table.addMany(EXECUTABLES, 5, 3, 5);
+    table.add(0x7f, 5, 0, 5);
+    table.addMany(EXECUTABLES, 2, 3, 2);
+    table.add(0x7f, 2, 0, 2);
+    table.add(0x5d, 1, 4, 8);
+    table.addMany(PRINTABLES, 8, 5, 8);
+    table.add(0x7f, 8, 5, 8);
+    table.addMany([0x9c, 0x1b, 0x18, 0x1a, 0x07], 8, 6, 0);
+    table.addMany(r(0x1c, 0x20), 8, 0, 8);
+    table.addMany([0x58, 0x5e, 0x5f], 1, 0, 7);
+    table.addMany(PRINTABLES, 7, 0, 7);
+    table.addMany(EXECUTABLES, 7, 0, 7);
+    table.add(0x9c, 7, 0, 0);
+    table.add(0x5b, 1, 11, 3);
+    table.addMany(r(0x40, 0x7f), 3, 7, 0);
+    table.addMany(r(0x30, 0x3a), 3, 8, 4);
+    table.add(0x3b, 3, 8, 4);
+    table.addMany([0x3c, 0x3d, 0x3e, 0x3f], 3, 9, 4);
+    table.addMany(r(0x30, 0x3a), 4, 8, 4);
+    table.add(0x3b, 4, 8, 4);
+    table.addMany(r(0x40, 0x7f), 4, 7, 0);
+    table.addMany([0x3a, 0x3c, 0x3d, 0x3e, 0x3f], 4, 0, 6);
+    table.addMany(r(0x20, 0x40), 6, 0, 6);
+    table.add(0x7f, 6, 0, 6);
+    table.addMany(r(0x40, 0x7f), 6, 0, 0);
+    table.add(0x3a, 3, 0, 6);
+    table.addMany(r(0x20, 0x30), 3, 9, 5);
+    table.addMany(r(0x20, 0x30), 5, 9, 5);
+    table.addMany(r(0x30, 0x40), 5, 0, 6);
+    table.addMany(r(0x40, 0x7f), 5, 7, 0);
+    table.addMany(r(0x20, 0x30), 4, 9, 5);
+    table.addMany(r(0x20, 0x30), 1, 9, 2);
+    table.addMany(r(0x20, 0x30), 2, 9, 2);
+    table.addMany(r(0x30, 0x7f), 2, 10, 0);
+    table.addMany(r(0x30, 0x50), 1, 10, 0);
+    table.addMany(r(0x51, 0x58), 1, 10, 0);
+    table.addMany([0x59, 0x5a, 0x5c], 1, 10, 0);
+    table.addMany(r(0x60, 0x7f), 1, 10, 0);
+    table.add(0x50, 1, 11, 9);
+    table.addMany(EXECUTABLES, 9, 0, 9);
+    table.add(0x7f, 9, 0, 9);
+    table.addMany(r(0x1c, 0x20), 9, 0, 9);
+    table.addMany(r(0x20, 0x30), 9, 9, 12);
+    table.add(0x3a, 9, 0, 11);
+    table.addMany(r(0x30, 0x3a), 9, 8, 10);
+    table.add(0x3b, 9, 8, 10);
+    table.addMany([0x3c, 0x3d, 0x3e, 0x3f], 9, 9, 10);
+    table.addMany(EXECUTABLES, 11, 0, 11);
+    table.addMany(r(0x20, 0x80), 11, 0, 11);
+    table.addMany(r(0x1c, 0x20), 11, 0, 11);
+    table.addMany(EXECUTABLES, 10, 0, 10);
+    table.add(0x7f, 10, 0, 10);
+    table.addMany(r(0x1c, 0x20), 10, 0, 10);
+    table.addMany(r(0x30, 0x3a), 10, 8, 10);
+    table.add(0x3b, 10, 8, 10);
+    table.addMany([0x3a, 0x3c, 0x3d, 0x3e, 0x3f], 10, 0, 11);
+    table.addMany(r(0x20, 0x30), 10, 9, 12);
+    table.addMany(EXECUTABLES, 12, 0, 12);
+    table.add(0x7f, 12, 0, 12);
+    table.addMany(r(0x1c, 0x20), 12, 0, 12);
+    table.addMany(r(0x20, 0x30), 12, 9, 12);
+    table.addMany(r(0x30, 0x40), 12, 0, 11);
+    table.addMany(r(0x40, 0x7f), 12, 12, 13);
+    table.addMany(r(0x40, 0x7f), 10, 12, 13);
+    table.addMany(r(0x40, 0x7f), 9, 12, 13);
+    table.addMany(EXECUTABLES, 13, 13, 13);
+    table.addMany(PRINTABLES, 13, 13, 13);
+    table.add(0x7f, 13, 0, 13);
+    table.addMany([0x1b, 0x9c], 13, 14, 0);
+    return table;
+})();
+var DcsDummy = (function () {
+    function DcsDummy() {
+    }
+    DcsDummy.prototype.hook = function (collect, params, flag) { };
+    DcsDummy.prototype.put = function (data, start, end) { };
+    DcsDummy.prototype.unhook = function () { };
+    return DcsDummy;
+}());
+var EscapeSequenceParser = (function (_super) {
+    __extends(EscapeSequenceParser, _super);
+    function EscapeSequenceParser(TRANSITIONS) {
+        if (TRANSITIONS === void 0) { TRANSITIONS = exports.VT500_TRANSITION_TABLE; }
+        var _this = _super.call(this) || this;
+        _this.TRANSITIONS = TRANSITIONS;
+        _this.initialState = 0;
+        _this.currentState = _this.initialState;
+        _this._osc = '';
+        _this._params = [0];
+        _this._collect = '';
+        _this._printHandlerFb = function (data, start, end) { };
+        _this._executeHandlerFb = function (code) { };
+        _this._csiHandlerFb = function (collect, params, flag) { };
+        _this._escHandlerFb = function (collect, flag) { };
+        _this._oscHandlerFb = function (identifier, data) { };
+        _this._dcsHandlerFb = new DcsDummy();
+        _this._errorHandlerFb = function (state) { return state; };
+        _this._printHandler = _this._printHandlerFb;
+        _this._executeHandlers = Object.create(null);
+        _this._csiHandlers = Object.create(null);
+        _this._escHandlers = Object.create(null);
+        _this._oscHandlers = Object.create(null);
+        _this._dcsHandlers = Object.create(null);
+        _this._activeDcsHandler = null;
+        _this._errorHandler = _this._errorHandlerFb;
+        return _this;
+    }
+    EscapeSequenceParser.prototype.dispose = function () {
+        this._printHandlerFb = null;
+        this._executeHandlerFb = null;
+        this._csiHandlerFb = null;
+        this._escHandlerFb = null;
+        this._oscHandlerFb = null;
+        this._dcsHandlerFb = null;
+        this._errorHandlerFb = null;
+        this._printHandler = null;
+        this._executeHandlers = null;
+        this._csiHandlers = null;
+        this._escHandlers = null;
+        this._oscHandlers = null;
+        this._dcsHandlers = null;
+        this._activeDcsHandler = null;
+        this._errorHandler = null;
+    };
+    EscapeSequenceParser.prototype.setPrintHandler = function (callback) {
+        this._printHandler = callback;
+    };
+    EscapeSequenceParser.prototype.clearPrintHandler = function () {
+        this._printHandler = this._printHandlerFb;
+    };
+    EscapeSequenceParser.prototype.setExecuteHandler = function (flag, callback) {
+        this._executeHandlers[flag.charCodeAt(0)] = callback;
+    };
+    EscapeSequenceParser.prototype.clearExecuteHandler = function (flag) {
+        if (this._executeHandlers[flag.charCodeAt(0)])
+            delete this._executeHandlers[flag.charCodeAt(0)];
+    };
+    EscapeSequenceParser.prototype.setExecuteHandlerFallback = function (callback) {
+        this._executeHandlerFb = callback;
+    };
+    EscapeSequenceParser.prototype.setCsiHandler = function (flag, callback) {
+        this._csiHandlers[flag.charCodeAt(0)] = callback;
+    };
+    EscapeSequenceParser.prototype.clearCsiHandler = function (flag) {
+        if (this._csiHandlers[flag.charCodeAt(0)])
+            delete this._csiHandlers[flag.charCodeAt(0)];
+    };
+    EscapeSequenceParser.prototype.setCsiHandlerFallback = function (callback) {
+        this._csiHandlerFb = callback;
+    };
+    EscapeSequenceParser.prototype.setEscHandler = function (collectAndFlag, callback) {
+        this._escHandlers[collectAndFlag] = callback;
+    };
+    EscapeSequenceParser.prototype.clearEscHandler = function (collectAndFlag) {
+        if (this._escHandlers[collectAndFlag])
+            delete this._escHandlers[collectAndFlag];
+    };
+    EscapeSequenceParser.prototype.setEscHandlerFallback = function (callback) {
+        this._escHandlerFb = callback;
+    };
+    EscapeSequenceParser.prototype.setOscHandler = function (ident, callback) {
+        this._oscHandlers[ident] = callback;
+    };
+    EscapeSequenceParser.prototype.clearOscHandler = function (ident) {
+        if (this._oscHandlers[ident])
+            delete this._oscHandlers[ident];
+    };
+    EscapeSequenceParser.prototype.setOscHandlerFallback = function (callback) {
+        this._oscHandlerFb = callback;
+    };
+    EscapeSequenceParser.prototype.setDcsHandler = function (collectAndFlag, handler) {
+        this._dcsHandlers[collectAndFlag] = handler;
+    };
+    EscapeSequenceParser.prototype.clearDcsHandler = function (collectAndFlag) {
+        if (this._dcsHandlers[collectAndFlag])
+            delete this._dcsHandlers[collectAndFlag];
+    };
+    EscapeSequenceParser.prototype.setDcsHandlerFallback = function (handler) {
+        this._dcsHandlerFb = handler;
+    };
+    EscapeSequenceParser.prototype.setErrorHandler = function (callback) {
+        this._errorHandler = callback;
+    };
+    EscapeSequenceParser.prototype.clearErrorHandler = function () {
+        this._errorHandler = this._errorHandlerFb;
+    };
+    EscapeSequenceParser.prototype.reset = function () {
+        this.currentState = this.initialState;
+        this._osc = '';
+        this._params = [0];
+        this._collect = '';
+        this._activeDcsHandler = null;
+    };
+    EscapeSequenceParser.prototype.parse = function (data) {
+        var code = 0;
+        var transition = 0;
+        var error = false;
+        var currentState = this.currentState;
+        var print = -1;
+        var dcs = -1;
+        var osc = this._osc;
+        var collect = this._collect;
+        var params = this._params;
+        var table = this.TRANSITIONS.table;
+        var dcsHandler = this._activeDcsHandler;
+        var callback = null;
+        var l = data.length;
+        for (var i = 0; i < l; ++i) {
+            code = data.charCodeAt(i);
+            if (currentState === 0 && code > 0x1f && code < 0x80) {
+                print = (~print) ? print : i;
+                do
+                    i++;
+                while (i < l && data.charCodeAt(i) > 0x1f && data.charCodeAt(i) < 0x80);
+                i--;
+                continue;
+            }
+            if (currentState === 4 && (code > 0x2f && code < 0x39)) {
+                params[params.length - 1] = params[params.length - 1] * 10 + code - 48;
+                continue;
+            }
+            transition = (code < 0xa0) ? (table[currentState << 8 | code]) : DEFAULT_TRANSITION;
+            switch (transition >> 4) {
+                case 2:
+                    print = (~print) ? print : i;
+                    break;
+                case 3:
+                    if (~print) {
+                        this._printHandler(data, print, i);
+                        print = -1;
+                    }
+                    callback = this._executeHandlers[code];
+                    if (callback)
+                        callback();
+                    else
+                        this._executeHandlerFb(code);
+                    break;
+                case 0:
+                    if (~print) {
+                        this._printHandler(data, print, i);
+                        print = -1;
+                    }
+                    else if (~dcs) {
+                        dcsHandler.put(data, dcs, i);
+                        dcs = -1;
+                    }
+                    break;
+                case 1:
+                    if (code > 0x9f) {
+                        switch (currentState) {
+                            case 0:
+                                print = (~print) ? print : i;
+                                break;
+                            case 8:
+                                osc += String.fromCharCode(code);
+                                transition |= 8;
+                                break;
+                            case 6:
+                                transition |= 6;
+                                break;
+                            case 11:
+                                transition |= 11;
+                                break;
+                            case 13:
+                                dcs = (~dcs) ? dcs : i;
+                                transition |= 13;
+                                break;
+                            default:
+                                error = true;
+                        }
+                    }
+                    else {
+                        error = true;
+                    }
+                    if (error) {
+                        var inject = this._errorHandler({
+                            position: i,
+                            code: code,
+                            currentState: currentState,
+                            print: print,
+                            dcs: dcs,
+                            osc: osc,
+                            collect: collect,
+                            params: params,
+                            abort: false
+                        });
+                        if (inject.abort)
+                            return;
+                        error = false;
+                    }
+                    break;
+                case 7:
+                    callback = this._csiHandlers[code];
+                    if (callback)
+                        callback(params, collect);
+                    else
+                        this._csiHandlerFb(collect, params, code);
+                    break;
+                case 8:
+                    if (code === 0x3b)
+                        params.push(0);
+                    else
+                        params[params.length - 1] = params[params.length - 1] * 10 + code - 48;
+                    break;
+                case 9:
+                    collect += String.fromCharCode(code);
+                    break;
+                case 10:
+                    callback = this._escHandlers[collect + String.fromCharCode(code)];
+                    if (callback)
+                        callback(collect, code);
+                    else
+                        this._escHandlerFb(collect, code);
+                    break;
+                case 11:
+                    if (~print) {
+                        this._printHandler(data, print, i);
+                        print = -1;
+                    }
+                    osc = '';
+                    params = [0];
+                    collect = '';
+                    dcs = -1;
+                    break;
+                case 12:
+                    dcsHandler = this._dcsHandlers[collect + String.fromCharCode(code)];
+                    if (!dcsHandler)
+                        dcsHandler = this._dcsHandlerFb;
+                    dcsHandler.hook(collect, params, code);
+                    break;
+                case 13:
+                    dcs = (~dcs) ? dcs : i;
+                    break;
+                case 14:
+                    if (dcsHandler) {
+                        if (~dcs)
+                            dcsHandler.put(data, dcs, i);
+                        dcsHandler.unhook();
+                        dcsHandler = null;
+                    }
+                    if (code === 0x1b)
+                        transition |= 1;
+                    osc = '';
+                    params = [0];
+                    collect = '';
+                    dcs = -1;
+                    break;
+                case 4:
+                    if (~print) {
+                        this._printHandler(data, print, i);
+                        print = -1;
+                    }
+                    osc = '';
+                    break;
+                case 5:
+                    osc += data.charAt(i);
+                    break;
+                case 6:
+                    if (osc && code !== 0x18 && code !== 0x1a) {
+                        var idx = osc.indexOf(';');
+                        if (idx === -1) {
+                            this._oscHandlerFb(-1, osc);
+                        }
+                        else {
+                            var identifier = parseInt(osc.substring(0, idx));
+                            var content = osc.substring(idx + 1);
+                            callback = this._oscHandlers[identifier];
+                            if (callback)
+                                callback(content);
+                            else
+                                this._oscHandlerFb(identifier, content);
+                        }
+                    }
+                    if (code === 0x1b)
+                        transition |= 1;
+                    osc = '';
+                    params = [0];
+                    collect = '';
+                    dcs = -1;
+                    break;
+            }
+            currentState = transition & 15;
+        }
+        if (currentState === 0 && ~print) {
+            this._printHandler(data, print, data.length);
+        }
+        else if (currentState === 13 && ~dcs && dcsHandler) {
+            dcsHandler.put(data, dcs, data.length);
+        }
+        this._osc = osc;
+        this._collect = collect;
+        this._params = params;
+        this._activeDcsHandler = dcsHandler;
+        this.currentState = currentState;
+    };
+    return EscapeSequenceParser;
+}(Lifecycle_1.Disposable));
+exports.EscapeSequenceParser = EscapeSequenceParser;
+
+},{"./common/Lifecycle":18}],8:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var EscapeSequences_1 = require("./common/data/EscapeSequences");
+var Charsets_1 = require("./core/data/Charsets");
+var Buffer_1 = require("./Buffer");
+var CharWidth_1 = require("./CharWidth");
+var EscapeSequenceParser_1 = require("./EscapeSequenceParser");
+var Lifecycle_1 = require("./common/Lifecycle");
+var BufferLine_1 = require("./BufferLine");
+var GLEVEL = { '(': 0, ')': 1, '*': 2, '+': 3, '-': 1, '.': 2 };
+var RequestTerminfo = (function () {
+    function RequestTerminfo(_terminal) {
+        this._terminal = _terminal;
+    }
+    RequestTerminfo.prototype.hook = function (collect, params, flag) {
+        this._data = '';
+    };
+    RequestTerminfo.prototype.put = function (data, start, end) {
+        this._data += data.substring(start, end);
+    };
+    RequestTerminfo.prototype.unhook = function () {
+        this._terminal.handler(EscapeSequences_1.C0.ESC + "P0+r" + this._data + EscapeSequences_1.C0.ESC + "\\");
+    };
+    return RequestTerminfo;
+}());
+var DECRQSS = (function () {
+    function DECRQSS(_terminal) {
+        this._terminal = _terminal;
+    }
+    DECRQSS.prototype.hook = function (collect, params, flag) {
+        this._data = '';
+    };
+    DECRQSS.prototype.put = function (data, start, end) {
+        this._data += data.substring(start, end);
+    };
+    DECRQSS.prototype.unhook = function () {
+        switch (this._data) {
+            case '"q':
+                return this._terminal.handler(EscapeSequences_1.C0.ESC + "P1$r0\"q" + EscapeSequences_1.C0.ESC + "\\");
+            case '"p':
+                return this._terminal.handler(EscapeSequences_1.C0.ESC + "P1$r61\"p" + EscapeSequences_1.C0.ESC + "\\");
+            case 'r':
+                var pt = '' + (this._terminal.buffer.scrollTop + 1) +
+                    ';' + (this._terminal.buffer.scrollBottom + 1) + 'r';
+                return this._terminal.handler(EscapeSequences_1.C0.ESC + "P1$r" + pt + EscapeSequences_1.C0.ESC + "\\");
+            case 'm':
+                return this._terminal.handler(EscapeSequences_1.C0.ESC + "P1$r0m" + EscapeSequences_1.C0.ESC + "\\");
+            case ' q':
+                var STYLES = { 'block': 2, 'underline': 4, 'bar': 6 };
+                var style = STYLES[this._terminal.getOption('cursorStyle')];
+                style -= this._terminal.getOption('cursorBlink');
+                return this._terminal.handler(EscapeSequences_1.C0.ESC + "P1$r" + style + " q" + EscapeSequences_1.C0.ESC + "\\");
+            default:
+                this._terminal.error('Unknown DCS $q %s', this._data);
+                this._terminal.handler(EscapeSequences_1.C0.ESC + "P0$r" + this._data + EscapeSequences_1.C0.ESC + "\\");
+        }
+    };
+    return DECRQSS;
+}());
+var InputHandler = (function (_super) {
+    __extends(InputHandler, _super);
+    function InputHandler(_terminal, _parser) {
+        if (_parser === void 0) { _parser = new EscapeSequenceParser_1.EscapeSequenceParser(); }
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._parser = _parser;
+        _this.register(_this._parser);
+        _this._surrogateHigh = '';
+        _this._parser.setCsiHandlerFallback(function (collect, params, flag) {
+            _this._terminal.error('Unknown CSI code: ', { collect: collect, params: params, flag: String.fromCharCode(flag) });
+        });
+        _this._parser.setEscHandlerFallback(function (collect, flag) {
+            _this._terminal.error('Unknown ESC code: ', { collect: collect, flag: String.fromCharCode(flag) });
+        });
+        _this._parser.setExecuteHandlerFallback(function (code) {
+            _this._terminal.error('Unknown EXECUTE code: ', { code: code });
+        });
+        _this._parser.setOscHandlerFallback(function (identifier, data) {
+            _this._terminal.error('Unknown OSC code: ', { identifier: identifier, data: data });
+        });
+        _this._parser.setPrintHandler(function (data, start, end) { return _this.print(data, start, end); });
+        _this._parser.setCsiHandler('@', function (params, collect) { return _this.insertChars(params); });
+        _this._parser.setCsiHandler('A', function (params, collect) { return _this.cursorUp(params); });
+        _this._parser.setCsiHandler('B', function (params, collect) { return _this.cursorDown(params); });
+        _this._parser.setCsiHandler('C', function (params, collect) { return _this.cursorForward(params); });
+        _this._parser.setCsiHandler('D', function (params, collect) { return _this.cursorBackward(params); });
+        _this._parser.setCsiHandler('E', function (params, collect) { return _this.cursorNextLine(params); });
+        _this._parser.setCsiHandler('F', function (params, collect) { return _this.cursorPrecedingLine(params); });
+        _this._parser.setCsiHandler('G', function (params, collect) { return _this.cursorCharAbsolute(params); });
+        _this._parser.setCsiHandler('H', function (params, collect) { return _this.cursorPosition(params); });
+        _this._parser.setCsiHandler('I', function (params, collect) { return _this.cursorForwardTab(params); });
+        _this._parser.setCsiHandler('J', function (params, collect) { return _this.eraseInDisplay(params); });
+        _this._parser.setCsiHandler('K', function (params, collect) { return _this.eraseInLine(params); });
+        _this._parser.setCsiHandler('L', function (params, collect) { return _this.insertLines(params); });
+        _this._parser.setCsiHandler('M', function (params, collect) { return _this.deleteLines(params); });
+        _this._parser.setCsiHandler('P', function (params, collect) { return _this.deleteChars(params); });
+        _this._parser.setCsiHandler('S', function (params, collect) { return _this.scrollUp(params); });
+        _this._parser.setCsiHandler('T', function (params, collect) { return _this.scrollDown(params, collect); });
+        _this._parser.setCsiHandler('X', function (params, collect) { return _this.eraseChars(params); });
+        _this._parser.setCsiHandler('Z', function (params, collect) { return _this.cursorBackwardTab(params); });
+        _this._parser.setCsiHandler('`', function (params, collect) { return _this.charPosAbsolute(params); });
+        _this._parser.setCsiHandler('a', function (params, collect) { return _this.hPositionRelative(params); });
+        _this._parser.setCsiHandler('b', function (params, collect) { return _this.repeatPrecedingCharacter(params); });
+        _this._parser.setCsiHandler('c', function (params, collect) { return _this.sendDeviceAttributes(params, collect); });
+        _this._parser.setCsiHandler('d', function (params, collect) { return _this.linePosAbsolute(params); });
+        _this._parser.setCsiHandler('e', function (params, collect) { return _this.vPositionRelative(params); });
+        _this._parser.setCsiHandler('f', function (params, collect) { return _this.hVPosition(params); });
+        _this._parser.setCsiHandler('g', function (params, collect) { return _this.tabClear(params); });
+        _this._parser.setCsiHandler('h', function (params, collect) { return _this.setMode(params, collect); });
+        _this._parser.setCsiHandler('l', function (params, collect) { return _this.resetMode(params, collect); });
+        _this._parser.setCsiHandler('m', function (params, collect) { return _this.charAttributes(params); });
+        _this._parser.setCsiHandler('n', function (params, collect) { return _this.deviceStatus(params, collect); });
+        _this._parser.setCsiHandler('p', function (params, collect) { return _this.softReset(params, collect); });
+        _this._parser.setCsiHandler('q', function (params, collect) { return _this.setCursorStyle(params, collect); });
+        _this._parser.setCsiHandler('r', function (params, collect) { return _this.setScrollRegion(params, collect); });
+        _this._parser.setCsiHandler('s', function (params, collect) { return _this.saveCursor(params); });
+        _this._parser.setCsiHandler('u', function (params, collect) { return _this.restoreCursor(params); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.BEL, function () { return _this.bell(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.LF, function () { return _this.lineFeed(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.VT, function () { return _this.lineFeed(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.FF, function () { return _this.lineFeed(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.CR, function () { return _this.carriageReturn(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.BS, function () { return _this.backspace(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.HT, function () { return _this.tab(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.SO, function () { return _this.shiftOut(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C0.SI, function () { return _this.shiftIn(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C1.IND, function () { return _this.index(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C1.NEL, function () { return _this.nextLine(); });
+        _this._parser.setExecuteHandler(EscapeSequences_1.C1.HTS, function () { return _this.tabSet(); });
+        _this._parser.setOscHandler(0, function (data) { return _this.setTitle(data); });
+        _this._parser.setOscHandler(2, function (data) { return _this.setTitle(data); });
+        _this._parser.setEscHandler('7', function () { return _this.saveCursor([]); });
+        _this._parser.setEscHandler('8', function () { return _this.restoreCursor([]); });
+        _this._parser.setEscHandler('D', function () { return _this.index(); });
+        _this._parser.setEscHandler('E', function () { return _this.nextLine(); });
+        _this._parser.setEscHandler('H', function () { return _this.tabSet(); });
+        _this._parser.setEscHandler('M', function () { return _this.reverseIndex(); });
+        _this._parser.setEscHandler('=', function () { return _this.keypadApplicationMode(); });
+        _this._parser.setEscHandler('>', function () { return _this.keypadNumericMode(); });
+        _this._parser.setEscHandler('c', function () { return _this.reset(); });
+        _this._parser.setEscHandler('n', function () { return _this.setgLevel(2); });
+        _this._parser.setEscHandler('o', function () { return _this.setgLevel(3); });
+        _this._parser.setEscHandler('|', function () { return _this.setgLevel(3); });
+        _this._parser.setEscHandler('}', function () { return _this.setgLevel(2); });
+        _this._parser.setEscHandler('~', function () { return _this.setgLevel(1); });
+        _this._parser.setEscHandler('%@', function () { return _this.selectDefaultCharset(); });
+        _this._parser.setEscHandler('%G', function () { return _this.selectDefaultCharset(); });
+        var _loop_1 = function (flag) {
+            this_1._parser.setEscHandler('(' + flag, function () { return _this.selectCharset('(' + flag); });
+            this_1._parser.setEscHandler(')' + flag, function () { return _this.selectCharset(')' + flag); });
+            this_1._parser.setEscHandler('*' + flag, function () { return _this.selectCharset('*' + flag); });
+            this_1._parser.setEscHandler('+' + flag, function () { return _this.selectCharset('+' + flag); });
+            this_1._parser.setEscHandler('-' + flag, function () { return _this.selectCharset('-' + flag); });
+            this_1._parser.setEscHandler('.' + flag, function () { return _this.selectCharset('.' + flag); });
+            this_1._parser.setEscHandler('/' + flag, function () { return _this.selectCharset('/' + flag); });
+        };
+        var this_1 = this;
+        for (var flag in Charsets_1.CHARSETS) {
+            _loop_1(flag);
+        }
+        _this._parser.setErrorHandler(function (state) {
+            _this._terminal.error('Parsing error: ', state);
+            return state;
+        });
+        _this._parser.setDcsHandler('$q', new DECRQSS(_this._terminal));
+        _this._parser.setDcsHandler('+q', new RequestTerminfo(_this._terminal));
+        return _this;
+    }
+    InputHandler.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this._terminal = null;
+    };
+    InputHandler.prototype.parse = function (data) {
+        if (!this._terminal) {
+            return;
+        }
+        var buffer = this._terminal.buffer;
+        var cursorStartX = buffer.x;
+        var cursorStartY = buffer.y;
+        if (this._terminal.debug) {
+            this._terminal.log('data: ' + data);
+        }
+        if (this._surrogateHigh) {
+            data = this._surrogateHigh + data;
+            this._surrogateHigh = '';
+        }
+        this._parser.parse(data);
+        buffer = this._terminal.buffer;
+        if (buffer.x !== cursorStartX || buffer.y !== cursorStartY) {
+            this._terminal.emit('cursormove');
+        }
+    };
+    InputHandler.prototype.print = function (data, start, end) {
+        var char;
+        var code;
+        var low;
+        var chWidth;
+        var buffer = this._terminal.buffer;
+        var charset = this._terminal.charset;
+        var screenReaderMode = this._terminal.options.screenReaderMode;
+        var cols = this._terminal.cols;
+        var wraparoundMode = this._terminal.wraparoundMode;
+        var insertMode = this._terminal.insertMode;
+        var curAttr = this._terminal.curAttr;
+        var bufferRow = buffer.lines.get(buffer.y + buffer.ybase);
+        this._terminal.updateRange(buffer.y);
+        for (var stringPosition = start; stringPosition < end; ++stringPosition) {
+            char = data.charAt(stringPosition);
+            code = data.charCodeAt(stringPosition);
+            if (0xD800 <= code && code <= 0xDBFF) {
+                low = data.charCodeAt(stringPosition + 1);
+                if (isNaN(low)) {
+                    this._surrogateHigh = char;
+                    continue;
+                }
+                code = ((code - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
+                char += data.charAt(stringPosition + 1);
+            }
+            if (0xDC00 <= code && code <= 0xDFFF) {
+                continue;
+            }
+            chWidth = CharWidth_1.wcwidth(code);
+            if (charset) {
+                char = charset[char] || char;
+                code = char.charCodeAt(0);
+            }
+            if (screenReaderMode) {
+                this._terminal.emit('a11y.char', char);
+            }
+            if (!chWidth && buffer.x) {
+                var chMinusOne = bufferRow.get(buffer.x - 1);
+                if (chMinusOne) {
+                    if (!chMinusOne[Buffer_1.CHAR_DATA_WIDTH_INDEX]) {
+                        var chMinusTwo = bufferRow.get(buffer.x - 2);
+                        if (chMinusTwo) {
+                            chMinusTwo[Buffer_1.CHAR_DATA_CHAR_INDEX] += char;
+                            chMinusTwo[Buffer_1.CHAR_DATA_CODE_INDEX] = code;
+                        }
+                    }
+                    else {
+                        chMinusOne[Buffer_1.CHAR_DATA_CHAR_INDEX] += char;
+                        chMinusOne[Buffer_1.CHAR_DATA_CODE_INDEX] = code;
+                    }
+                }
+                continue;
+            }
+            if (buffer.x + chWidth - 1 >= cols) {
+                if (wraparoundMode) {
+                    buffer.x = 0;
+                    buffer.y++;
+                    if (buffer.y > buffer.scrollBottom) {
+                        buffer.y--;
+                        this._terminal.scroll(true);
+                    }
+                    else {
+                        buffer.lines.get(buffer.y).isWrapped = true;
+                    }
+                    bufferRow = buffer.lines.get(buffer.y + buffer.ybase);
+                }
+                else {
+                    if (chWidth === 2) {
+                        continue;
+                    }
+                }
+            }
+            if (insertMode) {
+                for (var moves = 0; moves < chWidth; ++moves) {
+                    var removed = bufferRow.pop();
+                    var chMinusTwo = bufferRow.get(buffer.x - 2);
+                    if (removed[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 0
+                        && chMinusTwo
+                        && chMinusTwo[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 2) {
+                        bufferRow.set(this._terminal.cols - 2, [curAttr, Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE]);
+                    }
+                    bufferRow.splice(buffer.x, 0, [curAttr, Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE]);
+                }
+            }
+            bufferRow.set(buffer.x++, [curAttr, char, chWidth, code]);
+            if (chWidth === 2) {
+                bufferRow.set(buffer.x++, [curAttr, '', 0, undefined]);
+            }
+        }
+        this._terminal.updateRange(buffer.y);
+    };
+    InputHandler.prototype.bell = function () {
+        this._terminal.bell();
+    };
+    InputHandler.prototype.lineFeed = function () {
+        var buffer = this._terminal.buffer;
+        if (this._terminal.options.convertEol) {
+            buffer.x = 0;
+        }
+        buffer.y++;
+        if (buffer.y > buffer.scrollBottom) {
+            buffer.y--;
+            this._terminal.scroll();
+        }
+        if (buffer.x >= this._terminal.cols) {
+            buffer.x--;
+        }
+        this._terminal.emit('linefeed');
+    };
+    InputHandler.prototype.carriageReturn = function () {
+        this._terminal.buffer.x = 0;
+    };
+    InputHandler.prototype.backspace = function () {
+        if (this._terminal.buffer.x > 0) {
+            this._terminal.buffer.x--;
+        }
+    };
+    InputHandler.prototype.tab = function () {
+        var originalX = this._terminal.buffer.x;
+        this._terminal.buffer.x = this._terminal.buffer.nextStop();
+        if (this._terminal.options.screenReaderMode) {
+            this._terminal.emit('a11y.tab', this._terminal.buffer.x - originalX);
+        }
+    };
+    InputHandler.prototype.shiftOut = function () {
+        this._terminal.setgLevel(1);
+    };
+    InputHandler.prototype.shiftIn = function () {
+        this._terminal.setgLevel(0);
+    };
+    InputHandler.prototype.insertChars = function (params) {
+        this._terminal.buffer.lines.get(this._terminal.buffer.y + this._terminal.buffer.ybase).insertCells(this._terminal.buffer.x, params[0] || 1, [this._terminal.eraseAttr(), Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE]);
+        this._terminal.updateRange(this._terminal.buffer.y);
+    };
+    InputHandler.prototype.cursorUp = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.y -= param;
+        if (this._terminal.buffer.y < 0) {
+            this._terminal.buffer.y = 0;
+        }
+    };
+    InputHandler.prototype.cursorDown = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.y += param;
+        if (this._terminal.buffer.y >= this._terminal.rows) {
+            this._terminal.buffer.y = this._terminal.rows - 1;
+        }
+        if (this._terminal.buffer.x >= this._terminal.cols) {
+            this._terminal.buffer.x--;
+        }
+    };
+    InputHandler.prototype.cursorForward = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.x += param;
+        if (this._terminal.buffer.x >= this._terminal.cols) {
+            this._terminal.buffer.x = this._terminal.cols - 1;
+        }
+    };
+    InputHandler.prototype.cursorBackward = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        if (this._terminal.buffer.x >= this._terminal.cols) {
+            this._terminal.buffer.x--;
+        }
+        this._terminal.buffer.x -= param;
+        if (this._terminal.buffer.x < 0) {
+            this._terminal.buffer.x = 0;
+        }
+    };
+    InputHandler.prototype.cursorNextLine = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.y += param;
+        if (this._terminal.buffer.y >= this._terminal.rows) {
+            this._terminal.buffer.y = this._terminal.rows - 1;
+        }
+        this._terminal.buffer.x = 0;
+    };
+    InputHandler.prototype.cursorPrecedingLine = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.y -= param;
+        if (this._terminal.buffer.y < 0) {
+            this._terminal.buffer.y = 0;
+        }
+        this._terminal.buffer.x = 0;
+    };
+    InputHandler.prototype.cursorCharAbsolute = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.x = param - 1;
+    };
+    InputHandler.prototype.cursorPosition = function (params) {
+        var col;
+        var row = params[0] - 1;
+        if (params.length >= 2) {
+            col = params[1] - 1;
+        }
+        else {
+            col = 0;
+        }
+        if (row < 0) {
+            row = 0;
+        }
+        else if (row >= this._terminal.rows) {
+            row = this._terminal.rows - 1;
+        }
+        if (col < 0) {
+            col = 0;
+        }
+        else if (col >= this._terminal.cols) {
+            col = this._terminal.cols - 1;
+        }
+        this._terminal.buffer.x = col;
+        this._terminal.buffer.y = row;
+    };
+    InputHandler.prototype.cursorForwardTab = function (params) {
+        var param = params[0] || 1;
+        while (param--) {
+            this._terminal.buffer.x = this._terminal.buffer.nextStop();
+        }
+    };
+    InputHandler.prototype._eraseInBufferLine = function (y, start, end) {
+        this._terminal.buffer.lines.get(this._terminal.buffer.ybase + y).replaceCells(start, end, [this._terminal.eraseAttr(), Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE]);
+    };
+    InputHandler.prototype.eraseInDisplay = function (params) {
+        var j;
+        switch (params[0]) {
+            case 0:
+                j = this._terminal.buffer.y;
+                this._terminal.updateRange(j);
+                this._eraseInBufferLine(j++, this._terminal.buffer.x, this._terminal.cols);
+                for (; j < this._terminal.rows; j++) {
+                    this._eraseInBufferLine(j, 0, this._terminal.cols);
+                }
+                this._terminal.updateRange(j);
+                break;
+            case 1:
+                j = this._terminal.buffer.y;
+                this._terminal.updateRange(j);
+                this._eraseInBufferLine(j, 0, this._terminal.buffer.x + 1);
+                while (j--) {
+                    this._eraseInBufferLine(j, 0, this._terminal.cols);
+                }
+                this._terminal.updateRange(0);
+                break;
+            case 2:
+                j = this._terminal.rows;
+                this._terminal.updateRange(j - 1);
+                while (j--) {
+                    this._eraseInBufferLine(j, 0, this._terminal.cols);
+                }
+                this._terminal.updateRange(0);
+                break;
+            case 3:
+                var scrollBackSize = this._terminal.buffer.lines.length - this._terminal.rows;
+                if (scrollBackSize > 0) {
+                    this._terminal.buffer.lines.trimStart(scrollBackSize);
+                    this._terminal.buffer.ybase = Math.max(this._terminal.buffer.ybase - scrollBackSize, 0);
+                    this._terminal.buffer.ydisp = Math.max(this._terminal.buffer.ydisp - scrollBackSize, 0);
+                    this._terminal.emit('scroll', 0);
+                }
+                break;
+        }
+    };
+    InputHandler.prototype.eraseInLine = function (params) {
+        switch (params[0]) {
+            case 0:
+                this._eraseInBufferLine(this._terminal.buffer.y, this._terminal.buffer.x, this._terminal.cols);
+                break;
+            case 1:
+                this._eraseInBufferLine(this._terminal.buffer.y, 0, this._terminal.buffer.x + 1);
+                break;
+            case 2:
+                this._eraseInBufferLine(this._terminal.buffer.y, 0, this._terminal.cols);
+                break;
+        }
+        this._terminal.updateRange(this._terminal.buffer.y);
+    };
+    InputHandler.prototype.insertLines = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        var buffer = this._terminal.buffer;
+        var row = buffer.y + buffer.ybase;
+        var scrollBottomRowsOffset = this._terminal.rows - 1 - buffer.scrollBottom;
+        var scrollBottomAbsolute = this._terminal.rows - 1 + buffer.ybase - scrollBottomRowsOffset + 1;
+        while (param--) {
+            buffer.lines.splice(scrollBottomAbsolute - 1, 1);
+            buffer.lines.splice(row, 0, BufferLine_1.BufferLine.blankLine(this._terminal.cols, this._terminal.eraseAttr()));
+        }
+        this._terminal.updateRange(buffer.y);
+        this._terminal.updateRange(buffer.scrollBottom);
+    };
+    InputHandler.prototype.deleteLines = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        var buffer = this._terminal.buffer;
+        var row = buffer.y + buffer.ybase;
+        var j;
+        j = this._terminal.rows - 1 - buffer.scrollBottom;
+        j = this._terminal.rows - 1 + buffer.ybase - j;
+        while (param--) {
+            buffer.lines.splice(row, 1);
+            buffer.lines.splice(j, 0, BufferLine_1.BufferLine.blankLine(this._terminal.cols, this._terminal.eraseAttr()));
+        }
+        this._terminal.updateRange(buffer.y);
+        this._terminal.updateRange(buffer.scrollBottom);
+    };
+    InputHandler.prototype.deleteChars = function (params) {
+        this._terminal.buffer.lines.get(this._terminal.buffer.y + this._terminal.buffer.ybase).deleteCells(this._terminal.buffer.x, params[0] || 1, [this._terminal.eraseAttr(), Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE]);
+        this._terminal.updateRange(this._terminal.buffer.y);
+    };
+    InputHandler.prototype.scrollUp = function (params) {
+        var param = params[0] || 1;
+        var buffer = this._terminal.buffer;
+        while (param--) {
+            buffer.lines.splice(buffer.ybase + buffer.scrollTop, 1);
+            buffer.lines.splice(buffer.ybase + buffer.scrollBottom, 0, BufferLine_1.BufferLine.blankLine(this._terminal.cols, Buffer_1.DEFAULT_ATTR));
+        }
+        this._terminal.updateRange(buffer.scrollTop);
+        this._terminal.updateRange(buffer.scrollBottom);
+    };
+    InputHandler.prototype.scrollDown = function (params, collect) {
+        if (params.length < 2 && !collect) {
+            var param = params[0] || 1;
+            var buffer = this._terminal.buffer;
+            while (param--) {
+                buffer.lines.splice(buffer.ybase + buffer.scrollBottom, 1);
+                buffer.lines.splice(buffer.ybase + buffer.scrollBottom, 0, BufferLine_1.BufferLine.blankLine(this._terminal.cols, Buffer_1.DEFAULT_ATTR));
+            }
+            this._terminal.updateRange(buffer.scrollTop);
+            this._terminal.updateRange(buffer.scrollBottom);
+        }
+    };
+    InputHandler.prototype.eraseChars = function (params) {
+        this._terminal.buffer.lines.get(this._terminal.buffer.y + this._terminal.buffer.ybase).replaceCells(this._terminal.buffer.x, this._terminal.buffer.x + (params[0] || 1), [this._terminal.eraseAttr(), Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE]);
+    };
+    InputHandler.prototype.cursorBackwardTab = function (params) {
+        var param = params[0] || 1;
+        var buffer = this._terminal.buffer;
+        while (param--) {
+            buffer.x = buffer.prevStop();
+        }
+    };
+    InputHandler.prototype.charPosAbsolute = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.x = param - 1;
+        if (this._terminal.buffer.x >= this._terminal.cols) {
+            this._terminal.buffer.x = this._terminal.cols - 1;
+        }
+    };
+    InputHandler.prototype.hPositionRelative = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.x += param;
+        if (this._terminal.buffer.x >= this._terminal.cols) {
+            this._terminal.buffer.x = this._terminal.cols - 1;
+        }
+    };
+    InputHandler.prototype.repeatPrecedingCharacter = function (params) {
+        var buffer = this._terminal.buffer;
+        var line = buffer.lines.get(buffer.ybase + buffer.y);
+        line.replaceCells(buffer.x, buffer.x + (params[0] || 1), line.get(buffer.x - 1) || [Buffer_1.DEFAULT_ATTR, Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE]);
+    };
+    InputHandler.prototype.sendDeviceAttributes = function (params, collect) {
+        if (params[0] > 0) {
+            return;
+        }
+        if (!collect) {
+            if (this._terminal.is('xterm') || this._terminal.is('rxvt-unicode') || this._terminal.is('screen')) {
+                this._terminal.handler(EscapeSequences_1.C0.ESC + '[?1;2c');
+            }
+            else if (this._terminal.is('linux')) {
+                this._terminal.handler(EscapeSequences_1.C0.ESC + '[?6c');
+            }
+        }
+        else if (collect === '>') {
+            if (this._terminal.is('xterm')) {
+                this._terminal.handler(EscapeSequences_1.C0.ESC + '[>0;276;0c');
+            }
+            else if (this._terminal.is('rxvt-unicode')) {
+                this._terminal.handler(EscapeSequences_1.C0.ESC + '[>85;95;0c');
+            }
+            else if (this._terminal.is('linux')) {
+                this._terminal.handler(params[0] + 'c');
+            }
+            else if (this._terminal.is('screen')) {
+                this._terminal.handler(EscapeSequences_1.C0.ESC + '[>83;40003;0c');
+            }
+        }
+    };
+    InputHandler.prototype.linePosAbsolute = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.y = param - 1;
+        if (this._terminal.buffer.y >= this._terminal.rows) {
+            this._terminal.buffer.y = this._terminal.rows - 1;
+        }
+    };
+    InputHandler.prototype.vPositionRelative = function (params) {
+        var param = params[0];
+        if (param < 1) {
+            param = 1;
+        }
+        this._terminal.buffer.y += param;
+        if (this._terminal.buffer.y >= this._terminal.rows) {
+            this._terminal.buffer.y = this._terminal.rows - 1;
+        }
+        if (this._terminal.buffer.x >= this._terminal.cols) {
+            this._terminal.buffer.x--;
+        }
+    };
+    InputHandler.prototype.hVPosition = function (params) {
+        if (params[0] < 1)
+            params[0] = 1;
+        if (params[1] < 1)
+            params[1] = 1;
+        this._terminal.buffer.y = params[0] - 1;
+        if (this._terminal.buffer.y >= this._terminal.rows) {
+            this._terminal.buffer.y = this._terminal.rows - 1;
+        }
+        this._terminal.buffer.x = params[1] - 1;
+        if (this._terminal.buffer.x >= this._terminal.cols) {
+            this._terminal.buffer.x = this._terminal.cols - 1;
+        }
+    };
+    InputHandler.prototype.tabClear = function (params) {
+        var param = params[0];
+        if (param <= 0) {
+            delete this._terminal.buffer.tabs[this._terminal.buffer.x];
+        }
+        else if (param === 3) {
+            this._terminal.buffer.tabs = {};
+        }
+    };
+    InputHandler.prototype.setMode = function (params, collect) {
+        if (params.length > 1) {
+            for (var i = 0; i < params.length; i++) {
+                this.setMode([params[i]]);
+            }
+            return;
+        }
+        if (!collect) {
+            switch (params[0]) {
+                case 4:
+                    this._terminal.insertMode = true;
+                    break;
+                case 20:
+                    break;
+            }
+        }
+        else if (collect === '?') {
+            switch (params[0]) {
+                case 1:
+                    this._terminal.applicationCursor = true;
+                    break;
+                case 2:
+                    this._terminal.setgCharset(0, Charsets_1.DEFAULT_CHARSET);
+                    this._terminal.setgCharset(1, Charsets_1.DEFAULT_CHARSET);
+                    this._terminal.setgCharset(2, Charsets_1.DEFAULT_CHARSET);
+                    this._terminal.setgCharset(3, Charsets_1.DEFAULT_CHARSET);
+                    break;
+                case 3:
+                    this._terminal.savedCols = this._terminal.cols;
+                    this._terminal.resize(132, this._terminal.rows);
+                    break;
+                case 6:
+                    this._terminal.originMode = true;
+                    break;
+                case 7:
+                    this._terminal.wraparoundMode = true;
+                    break;
+                case 12:
+                    break;
+                case 66:
+                    this._terminal.log('Serial port requested application keypad.');
+                    this._terminal.applicationKeypad = true;
+                    this._terminal.viewport.syncScrollArea();
+                    break;
+                case 9:
+                case 1000:
+                case 1002:
+                case 1003:
+                    this._terminal.x10Mouse = params[0] === 9;
+                    this._terminal.vt200Mouse = params[0] === 1000;
+                    this._terminal.normalMouse = params[0] > 1000;
+                    this._terminal.mouseEvents = true;
+                    this._terminal.element.classList.add('enable-mouse-events');
+                    this._terminal.selectionManager.disable();
+                    this._terminal.log('Binding to mouse events.');
+                    break;
+                case 1004:
+                    this._terminal.sendFocus = true;
+                    break;
+                case 1005:
+                    this._terminal.utfMouse = true;
+                    break;
+                case 1006:
+                    this._terminal.sgrMouse = true;
+                    break;
+                case 1015:
+                    this._terminal.urxvtMouse = true;
+                    break;
+                case 25:
+                    this._terminal.cursorHidden = false;
+                    break;
+                case 1049:
+                case 47:
+                case 1047:
+                    this._terminal.buffers.activateAltBuffer();
+                    this._terminal.viewport.syncScrollArea();
+                    this._terminal.showCursor();
+                    break;
+                case 2004:
+                    this._terminal.bracketedPasteMode = true;
+                    break;
+            }
+        }
+    };
+    InputHandler.prototype.resetMode = function (params, collect) {
+        if (params.length > 1) {
+            for (var i = 0; i < params.length; i++) {
+                this.resetMode([params[i]]);
+            }
+            return;
+        }
+        if (!collect) {
+            switch (params[0]) {
+                case 4:
+                    this._terminal.insertMode = false;
+                    break;
+                case 20:
+                    break;
+            }
+        }
+        else if (collect === '?') {
+            switch (params[0]) {
+                case 1:
+                    this._terminal.applicationCursor = false;
+                    break;
+                case 3:
+                    if (this._terminal.cols === 132 && this._terminal.savedCols) {
+                        this._terminal.resize(this._terminal.savedCols, this._terminal.rows);
+                    }
+                    delete this._terminal.savedCols;
+                    break;
+                case 6:
+                    this._terminal.originMode = false;
+                    break;
+                case 7:
+                    this._terminal.wraparoundMode = false;
+                    break;
+                case 12:
+                    break;
+                case 66:
+                    this._terminal.log('Switching back to normal keypad.');
+                    this._terminal.applicationKeypad = false;
+                    this._terminal.viewport.syncScrollArea();
+                    break;
+                case 9:
+                case 1000:
+                case 1002:
+                case 1003:
+                    this._terminal.x10Mouse = false;
+                    this._terminal.vt200Mouse = false;
+                    this._terminal.normalMouse = false;
+                    this._terminal.mouseEvents = false;
+                    this._terminal.element.classList.remove('enable-mouse-events');
+                    this._terminal.selectionManager.enable();
+                    break;
+                case 1004:
+                    this._terminal.sendFocus = false;
+                    break;
+                case 1005:
+                    this._terminal.utfMouse = false;
+                    break;
+                case 1006:
+                    this._terminal.sgrMouse = false;
+                    break;
+                case 1015:
+                    this._terminal.urxvtMouse = false;
+                    break;
+                case 25:
+                    this._terminal.cursorHidden = true;
+                    break;
+                case 1049:
+                case 47:
+                case 1047:
+                    this._terminal.buffers.activateNormalBuffer();
+                    this._terminal.refresh(0, this._terminal.rows - 1);
+                    this._terminal.viewport.syncScrollArea();
+                    this._terminal.showCursor();
+                    break;
+                case 2004:
+                    this._terminal.bracketedPasteMode = false;
+                    break;
+            }
+        }
+    };
+    InputHandler.prototype.charAttributes = function (params) {
+        if (params.length === 1 && params[0] === 0) {
+            this._terminal.curAttr = Buffer_1.DEFAULT_ATTR;
+            return;
+        }
+        var l = params.length;
+        var flags = this._terminal.curAttr >> 18;
+        var fg = (this._terminal.curAttr >> 9) & 0x1ff;
+        var bg = this._terminal.curAttr & 0x1ff;
+        var p;
+        for (var i = 0; i < l; i++) {
+            p = params[i];
+            if (p >= 30 && p <= 37) {
+                fg = p - 30;
+            }
+            else if (p >= 40 && p <= 47) {
+                bg = p - 40;
+            }
+            else if (p >= 90 && p <= 97) {
+                p += 8;
+                fg = p - 90;
+            }
+            else if (p >= 100 && p <= 107) {
+                p += 8;
+                bg = p - 100;
+            }
+            else if (p === 0) {
+                flags = Buffer_1.DEFAULT_ATTR >> 18;
+                fg = (Buffer_1.DEFAULT_ATTR >> 9) & 0x1ff;
+                bg = Buffer_1.DEFAULT_ATTR & 0x1ff;
+            }
+            else if (p === 1) {
+                flags |= 1;
+            }
+            else if (p === 3) {
+                flags |= 64;
+            }
+            else if (p === 4) {
+                flags |= 2;
+            }
+            else if (p === 5) {
+                flags |= 4;
+            }
+            else if (p === 7) {
+                flags |= 8;
+            }
+            else if (p === 8) {
+                flags |= 16;
+            }
+            else if (p === 2) {
+                flags |= 32;
+            }
+            else if (p === 22) {
+                flags &= ~1;
+                flags &= ~32;
+            }
+            else if (p === 23) {
+                flags &= ~64;
+            }
+            else if (p === 24) {
+                flags &= ~2;
+            }
+            else if (p === 25) {
+                flags &= ~4;
+            }
+            else if (p === 27) {
+                flags &= ~8;
+            }
+            else if (p === 28) {
+                flags &= ~16;
+            }
+            else if (p === 39) {
+                fg = (Buffer_1.DEFAULT_ATTR >> 9) & 0x1ff;
+            }
+            else if (p === 49) {
+                bg = Buffer_1.DEFAULT_ATTR & 0x1ff;
+            }
+            else if (p === 38) {
+                if (params[i + 1] === 2) {
+                    i += 2;
+                    fg = this._terminal.matchColor(params[i] & 0xff, params[i + 1] & 0xff, params[i + 2] & 0xff);
+                    if (fg === -1)
+                        fg = 0x1ff;
+                    i += 2;
+                }
+                else if (params[i + 1] === 5) {
+                    i += 2;
+                    p = params[i] & 0xff;
+                    fg = p;
+                }
+            }
+            else if (p === 48) {
+                if (params[i + 1] === 2) {
+                    i += 2;
+                    bg = this._terminal.matchColor(params[i] & 0xff, params[i + 1] & 0xff, params[i + 2] & 0xff);
+                    if (bg === -1)
+                        bg = 0x1ff;
+                    i += 2;
+                }
+                else if (params[i + 1] === 5) {
+                    i += 2;
+                    p = params[i] & 0xff;
+                    bg = p;
+                }
+            }
+            else if (p === 100) {
+                fg = (Buffer_1.DEFAULT_ATTR >> 9) & 0x1ff;
+                bg = Buffer_1.DEFAULT_ATTR & 0x1ff;
+            }
+            else {
+                this._terminal.error('Unknown SGR attribute: %d.', p);
+            }
+        }
+        this._terminal.curAttr = (flags << 18) | (fg << 9) | bg;
+    };
+    InputHandler.prototype.deviceStatus = function (params, collect) {
+        if (!collect) {
+            switch (params[0]) {
+                case 5:
+                    this._terminal.emit('data', EscapeSequences_1.C0.ESC + "[0n");
+                    break;
+                case 6:
+                    var y = this._terminal.buffer.y + 1;
+                    var x = this._terminal.buffer.x + 1;
+                    this._terminal.emit('data', EscapeSequences_1.C0.ESC + "[" + y + ";" + x + "R");
+                    break;
+            }
+        }
+        else if (collect === '?') {
+            switch (params[0]) {
+                case 6:
+                    var y = this._terminal.buffer.y + 1;
+                    var x = this._terminal.buffer.x + 1;
+                    this._terminal.emit('data', EscapeSequences_1.C0.ESC + "[?" + y + ";" + x + "R");
+                    break;
+                case 15:
+                    break;
+                case 25:
+                    break;
+                case 26:
+                    break;
+                case 53:
+                    break;
+            }
+        }
+    };
+    InputHandler.prototype.softReset = function (params, collect) {
+        if (collect === '!') {
+            this._terminal.cursorHidden = false;
+            this._terminal.insertMode = false;
+            this._terminal.originMode = false;
+            this._terminal.wraparoundMode = true;
+            this._terminal.applicationKeypad = false;
+            this._terminal.viewport.syncScrollArea();
+            this._terminal.applicationCursor = false;
+            this._terminal.buffer.scrollTop = 0;
+            this._terminal.buffer.scrollBottom = this._terminal.rows - 1;
+            this._terminal.curAttr = Buffer_1.DEFAULT_ATTR;
+            this._terminal.buffer.x = this._terminal.buffer.y = 0;
+            this._terminal.charset = null;
+            this._terminal.glevel = 0;
+            this._terminal.charsets = [null];
+        }
+    };
+    InputHandler.prototype.setCursorStyle = function (params, collect) {
+        if (collect === ' ') {
+            var param = params[0] < 1 ? 1 : params[0];
+            switch (param) {
+                case 1:
+                case 2:
+                    this._terminal.setOption('cursorStyle', 'block');
+                    break;
+                case 3:
+                case 4:
+                    this._terminal.setOption('cursorStyle', 'underline');
+                    break;
+                case 5:
+                case 6:
+                    this._terminal.setOption('cursorStyle', 'bar');
+                    break;
+            }
+            var isBlinking = param % 2 === 1;
+            this._terminal.setOption('cursorBlink', isBlinking);
+        }
+    };
+    InputHandler.prototype.setScrollRegion = function (params, collect) {
+        if (collect)
+            return;
+        this._terminal.buffer.scrollTop = (params[0] || 1) - 1;
+        this._terminal.buffer.scrollBottom = (params[1] && params[1] <= this._terminal.rows ? params[1] : this._terminal.rows) - 1;
+        this._terminal.buffer.x = 0;
+        this._terminal.buffer.y = 0;
+    };
+    InputHandler.prototype.saveCursor = function (params) {
+        this._terminal.buffer.savedX = this._terminal.buffer.x;
+        this._terminal.buffer.savedY = this._terminal.buffer.y;
+        this._terminal.savedCurAttr = this._terminal.curAttr;
+    };
+    InputHandler.prototype.restoreCursor = function (params) {
+        this._terminal.buffer.x = this._terminal.buffer.savedX || 0;
+        this._terminal.buffer.y = this._terminal.buffer.savedY || 0;
+        this._terminal.curAttr = this._terminal.savedCurAttr || Buffer_1.DEFAULT_ATTR;
+    };
+    InputHandler.prototype.setTitle = function (data) {
+        this._terminal.handleTitle(data);
+    };
+    InputHandler.prototype.nextLine = function () {
+        this._terminal.buffer.x = 0;
+        this.index();
+    };
+    InputHandler.prototype.keypadApplicationMode = function () {
+        this._terminal.log('Serial port requested application keypad.');
+        this._terminal.applicationKeypad = true;
+        if (this._terminal.viewport) {
+            this._terminal.viewport.syncScrollArea();
+        }
+    };
+    InputHandler.prototype.keypadNumericMode = function () {
+        this._terminal.log('Switching back to normal keypad.');
+        this._terminal.applicationKeypad = false;
+        if (this._terminal.viewport) {
+            this._terminal.viewport.syncScrollArea();
+        }
+    };
+    InputHandler.prototype.selectDefaultCharset = function () {
+        this._terminal.setgLevel(0);
+        this._terminal.setgCharset(0, Charsets_1.DEFAULT_CHARSET);
+    };
+    InputHandler.prototype.selectCharset = function (collectAndFlag) {
+        if (collectAndFlag.length !== 2)
+            return this.selectDefaultCharset();
+        if (collectAndFlag[0] === '/')
+            return;
+        this._terminal.setgCharset(GLEVEL[collectAndFlag[0]], Charsets_1.CHARSETS[collectAndFlag[1]] || Charsets_1.DEFAULT_CHARSET);
+    };
+    InputHandler.prototype.index = function () {
+        this._terminal.index();
+    };
+    InputHandler.prototype.tabSet = function () {
+        this._terminal.tabSet();
+    };
+    InputHandler.prototype.reverseIndex = function () {
+        this._terminal.reverseIndex();
+    };
+    InputHandler.prototype.reset = function () {
+        this._parser.reset();
+        this._terminal.reset();
+    };
+    InputHandler.prototype.setgLevel = function (level) {
+        this._terminal.setgLevel(level);
+    };
+    return InputHandler;
+}(Lifecycle_1.Disposable));
+exports.InputHandler = InputHandler;
+
+},{"./Buffer":2,"./BufferLine":3,"./CharWidth":5,"./EscapeSequenceParser":7,"./common/Lifecycle":18,"./common/data/EscapeSequences":19,"./core/data/Charsets":20}],9:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var MouseZoneManager_1 = require("./ui/MouseZoneManager");
+var EventEmitter_1 = require("./common/EventEmitter");
+var Buffer_1 = require("./Buffer");
+var CharWidth_1 = require("./CharWidth");
+var Linkifier = (function (_super) {
+    __extends(Linkifier, _super);
+    function Linkifier(_terminal) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._linkMatchers = [];
+        _this._nextLinkMatcherId = 0;
+        _this._rowsToLinkify = {
+            start: null,
+            end: null
+        };
+        return _this;
+    }
+    Linkifier.prototype.attachToDom = function (mouseZoneManager) {
+        this._mouseZoneManager = mouseZoneManager;
+    };
+    Linkifier.prototype.linkifyRows = function (start, end) {
+        var _this = this;
+        if (!this._mouseZoneManager) {
+            return;
+        }
+        if (this._rowsToLinkify.start === null) {
+            this._rowsToLinkify.start = start;
+            this._rowsToLinkify.end = end;
+        }
+        else {
+            this._rowsToLinkify.start = Math.min(this._rowsToLinkify.start, start);
+            this._rowsToLinkify.end = Math.max(this._rowsToLinkify.end, end);
+        }
+        this._mouseZoneManager.clearAll(start, end);
+        if (this._rowsTimeoutId) {
+            clearTimeout(this._rowsTimeoutId);
+        }
+        this._rowsTimeoutId = setTimeout(function () { return _this._linkifyRows(); }, Linkifier.TIME_BEFORE_LINKIFY);
+    };
+    Linkifier.prototype._linkifyRows = function () {
+        this._rowsTimeoutId = null;
+        var buffer = this._terminal.buffer;
+        var absoluteRowIndexStart = buffer.ydisp + this._rowsToLinkify.start;
+        if (absoluteRowIndexStart >= buffer.lines.length) {
+            return;
+        }
+        var absoluteRowIndexEnd = buffer.ydisp + Math.min(this._rowsToLinkify.end, this._terminal.rows) + 1;
+        var overscanLineLimit = Math.ceil(Linkifier.OVERSCAN_CHAR_LIMIT / this._terminal.cols);
+        var iterator = this._terminal.buffer.iterator(false, absoluteRowIndexStart, absoluteRowIndexEnd, overscanLineLimit, overscanLineLimit);
+        while (iterator.hasNext()) {
+            var lineData = iterator.next();
+            for (var i = 0; i < this._linkMatchers.length; i++) {
+                this._doLinkifyRow(lineData.range.first, lineData.content, this._linkMatchers[i]);
+            }
+        }
+        this._rowsToLinkify.start = null;
+        this._rowsToLinkify.end = null;
+    };
+    Linkifier.prototype.registerLinkMatcher = function (regex, handler, options) {
+        if (options === void 0) { options = {}; }
+        if (!handler) {
+            throw new Error('handler must be defined');
+        }
+        var matcher = {
+            id: this._nextLinkMatcherId++,
+            regex: regex,
+            handler: handler,
+            matchIndex: options.matchIndex,
+            validationCallback: options.validationCallback,
+            hoverTooltipCallback: options.tooltipCallback,
+            hoverLeaveCallback: options.leaveCallback,
+            willLinkActivate: options.willLinkActivate,
+            priority: options.priority || 0
+        };
+        this._addLinkMatcherToList(matcher);
+        return matcher.id;
+    };
+    Linkifier.prototype._addLinkMatcherToList = function (matcher) {
+        if (this._linkMatchers.length === 0) {
+            this._linkMatchers.push(matcher);
+            return;
+        }
+        for (var i = this._linkMatchers.length - 1; i >= 0; i--) {
+            if (matcher.priority <= this._linkMatchers[i].priority) {
+                this._linkMatchers.splice(i + 1, 0, matcher);
+                return;
+            }
+        }
+        this._linkMatchers.splice(0, 0, matcher);
+    };
+    Linkifier.prototype.deregisterLinkMatcher = function (matcherId) {
+        for (var i = 0; i < this._linkMatchers.length; i++) {
+            if (this._linkMatchers[i].id === matcherId) {
+                this._linkMatchers.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    };
+    Linkifier.prototype._doLinkifyRow = function (rowIndex, text, matcher) {
+        var _this = this;
+        var rex = new RegExp(matcher.regex.source, matcher.regex.flags + 'g');
+        var match;
+        var stringIndex = -1;
+        var _loop_1 = function () {
+            var uri = match[typeof matcher.matchIndex !== 'number' ? 0 : matcher.matchIndex];
+            if (!uri) {
+                if (this_1._terminal.debug) {
+                    console.log({ match: match, matcher: matcher });
+                    throw new Error('match found without corresponding matchIndex');
+                }
+                return "break";
+            }
+            stringIndex = text.indexOf(uri, stringIndex + 1);
+            rex.lastIndex = stringIndex + uri.length;
+            var bufferIndex = this_1._terminal.buffer.stringIndexToBufferIndex(rowIndex, stringIndex);
+            var line = this_1._terminal.buffer.lines.get(bufferIndex[0]);
+            var char = line.get(bufferIndex[1]);
+            var fg;
+            if (char) {
+                var attr = char[Buffer_1.CHAR_DATA_ATTR_INDEX];
+                fg = (attr >> 9) & 0x1ff;
+            }
+            if (matcher.validationCallback) {
+                matcher.validationCallback(uri, function (isValid) {
+                    if (_this._rowsTimeoutId) {
+                        return;
+                    }
+                    if (isValid) {
+                        _this._addLink(bufferIndex[1], bufferIndex[0] - _this._terminal.buffer.ydisp, uri, matcher, fg);
+                    }
+                });
+            }
+            else {
+                this_1._addLink(bufferIndex[1], bufferIndex[0] - this_1._terminal.buffer.ydisp, uri, matcher, fg);
+            }
+        };
+        var this_1 = this;
+        while ((match = rex.exec(text)) !== null) {
+            var state_1 = _loop_1();
+            if (state_1 === "break")
+                break;
+        }
+    };
+    Linkifier.prototype._addLink = function (x, y, uri, matcher, fg) {
+        var _this = this;
+        var width = CharWidth_1.getStringCellWidth(uri);
+        var x1 = x % this._terminal.cols;
+        var y1 = y + Math.floor(x / this._terminal.cols);
+        var x2 = (x1 + width) % this._terminal.cols;
+        var y2 = y1 + Math.floor((x1 + width) / this._terminal.cols);
+        if (x2 === 0) {
+            x2 = this._terminal.cols;
+            y2--;
+        }
+        this._mouseZoneManager.add(new MouseZoneManager_1.MouseZone(x1 + 1, y1 + 1, x2 + 1, y2 + 1, function (e) {
+            if (matcher.handler) {
+                return matcher.handler(e, uri);
+            }
+            window.open(uri, '_blank');
+        }, function (e) {
+            _this.emit("linkhover", _this._createLinkHoverEvent(x1, y1, x2, y2, fg));
+            _this._terminal.element.classList.add('xterm-cursor-pointer');
+        }, function (e) {
+            _this.emit("linktooltip", _this._createLinkHoverEvent(x1, y1, x2, y2, fg));
+            if (matcher.hoverTooltipCallback) {
+                matcher.hoverTooltipCallback(e, uri);
+            }
+        }, function () {
+            _this.emit("linkleave", _this._createLinkHoverEvent(x1, y1, x2, y2, fg));
+            _this._terminal.element.classList.remove('xterm-cursor-pointer');
+            if (matcher.hoverLeaveCallback) {
+                matcher.hoverLeaveCallback();
+            }
+        }, function (e) {
+            if (matcher.willLinkActivate) {
+                return matcher.willLinkActivate(e, uri);
+            }
+            return true;
+        }));
+    };
+    Linkifier.prototype._createLinkHoverEvent = function (x1, y1, x2, y2, fg) {
+        return { x1: x1, y1: y1, x2: x2, y2: y2, cols: this._terminal.cols, fg: fg };
+    };
+    Linkifier.TIME_BEFORE_LINKIFY = 200;
+    Linkifier.OVERSCAN_CHAR_LIMIT = 2000;
+    return Linkifier;
+}(EventEmitter_1.EventEmitter));
+exports.Linkifier = Linkifier;
+
+},{"./Buffer":2,"./CharWidth":5,"./common/EventEmitter":17,"./ui/MouseZoneManager":49}],10:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var MouseHelper_1 = require("./utils/MouseHelper");
+var Browser = require("./shared/utils/Browser");
+var EventEmitter_1 = require("./common/EventEmitter");
+var SelectionModel_1 = require("./SelectionModel");
+var Buffer_1 = require("./Buffer");
+var AltClickHandler_1 = require("./handlers/AltClickHandler");
+var DRAG_SCROLL_MAX_THRESHOLD = 50;
+var DRAG_SCROLL_MAX_SPEED = 15;
+var DRAG_SCROLL_INTERVAL = 50;
+var ALT_CLICK_MOVE_CURSOR_TIME = 500;
+var WORD_SEPARATORS = ' ()[]{}\'"';
+var NON_BREAKING_SPACE_CHAR = String.fromCharCode(160);
+var ALL_NON_BREAKING_SPACE_REGEX = new RegExp(NON_BREAKING_SPACE_CHAR, 'g');
+var SelectionManager = (function (_super) {
+    __extends(SelectionManager, _super);
+    function SelectionManager(_terminal, _charMeasure) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._charMeasure = _charMeasure;
+        _this._enabled = true;
+        _this._initListeners();
+        _this.enable();
+        _this._model = new SelectionModel_1.SelectionModel(_terminal);
+        _this._activeSelectionMode = 0;
+        return _this;
+    }
+    SelectionManager.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this._removeMouseDownListeners();
+    };
+    Object.defineProperty(SelectionManager.prototype, "_buffer", {
+        get: function () {
+            return this._terminal.buffers.active;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    SelectionManager.prototype._initListeners = function () {
+        var _this = this;
+        this._mouseMoveListener = function (event) { return _this._onMouseMove(event); };
+        this._mouseUpListener = function (event) { return _this._onMouseUp(event); };
+        this._trimListener = function (amount) { return _this._onTrim(amount); };
+        this.initBuffersListeners();
+    };
+    SelectionManager.prototype.initBuffersListeners = function () {
+        var _this = this;
+        this._terminal.buffer.lines.on('trim', this._trimListener);
+        this._terminal.buffers.on('activate', function (e) { return _this._onBufferActivate(e); });
+    };
+    SelectionManager.prototype.disable = function () {
+        this.clearSelection();
+        this._enabled = false;
+    };
+    SelectionManager.prototype.enable = function () {
+        this._enabled = true;
+    };
+    Object.defineProperty(SelectionManager.prototype, "selectionStart", {
+        get: function () { return this._model.finalSelectionStart; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SelectionManager.prototype, "selectionEnd", {
+        get: function () { return this._model.finalSelectionEnd; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SelectionManager.prototype, "hasSelection", {
+        get: function () {
+            var start = this._model.finalSelectionStart;
+            var end = this._model.finalSelectionEnd;
+            if (!start || !end) {
+                return false;
+            }
+            return start[0] !== end[0] || start[1] !== end[1];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SelectionManager.prototype, "selectionText", {
+        get: function () {
+            var start = this._model.finalSelectionStart;
+            var end = this._model.finalSelectionEnd;
+            if (!start || !end) {
+                return '';
+            }
+            var result = [];
+            if (this._activeSelectionMode === 3) {
+                if (start[0] === end[0]) {
+                    return '';
+                }
+                for (var i = start[1]; i <= end[1]; i++) {
+                    var lineText = this._buffer.translateBufferLineToString(i, true, start[0], end[0]);
+                    result.push(lineText);
+                }
+            }
+            else {
+                var startRowEndCol = start[1] === end[1] ? end[0] : null;
+                result.push(this._buffer.translateBufferLineToString(start[1], true, start[0], startRowEndCol));
+                for (var i = start[1] + 1; i <= end[1] - 1; i++) {
+                    var bufferLine = this._buffer.lines.get(i);
+                    var lineText = this._buffer.translateBufferLineToString(i, true);
+                    if (bufferLine.isWrapped) {
+                        result[result.length - 1] += lineText;
+                    }
+                    else {
+                        result.push(lineText);
+                    }
+                }
+                if (start[1] !== end[1]) {
+                    var bufferLine = this._buffer.lines.get(end[1]);
+                    var lineText = this._buffer.translateBufferLineToString(end[1], true, 0, end[0]);
+                    if (bufferLine.isWrapped) {
+                        result[result.length - 1] += lineText;
+                    }
+                    else {
+                        result.push(lineText);
+                    }
+                }
+            }
+            var formattedResult = result.map(function (line) {
+                return line.replace(ALL_NON_BREAKING_SPACE_REGEX, ' ');
+            }).join(Browser.isMSWindows ? '\r\n' : '\n');
+            return formattedResult;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    SelectionManager.prototype.clearSelection = function () {
+        this._model.clearSelection();
+        this._removeMouseDownListeners();
+        this.refresh();
+    };
+    SelectionManager.prototype.refresh = function (isNewSelection) {
+        var _this = this;
+        if (!this._refreshAnimationFrame) {
+            this._refreshAnimationFrame = window.requestAnimationFrame(function () { return _this._refresh(); });
+        }
+        if (Browser.isLinux && isNewSelection) {
+            var selectionText = this.selectionText;
+            if (selectionText.length) {
+                this.emit('newselection', this.selectionText);
+            }
+        }
+    };
+    SelectionManager.prototype._refresh = function () {
+        this._refreshAnimationFrame = null;
+        this.emit('refresh', {
+            start: this._model.finalSelectionStart,
+            end: this._model.finalSelectionEnd,
+            columnSelectMode: this._activeSelectionMode === 3
+        });
+    };
+    SelectionManager.prototype.isClickInSelection = function (event) {
+        var coords = this._getMouseBufferCoords(event);
+        var start = this._model.finalSelectionStart;
+        var end = this._model.finalSelectionEnd;
+        if (!start || !end) {
+            return false;
+        }
+        return (coords[1] > start[1] && coords[1] < end[1]) ||
+            (start[1] === end[1] && coords[1] === start[1] && coords[0] > start[0] && coords[0] < end[0]) ||
+            (start[1] < end[1] && coords[1] === end[1] && coords[0] < end[0]);
+    };
+    SelectionManager.prototype.selectWordAtCursor = function (event) {
+        var coords = this._getMouseBufferCoords(event);
+        if (coords) {
+            this._selectWordAt(coords, false);
+            this._model.selectionEnd = null;
+            this.refresh(true);
+        }
+    };
+    SelectionManager.prototype.selectAll = function () {
+        this._model.isSelectAllActive = true;
+        this.refresh();
+        this._terminal.emit('selection');
+    };
+    SelectionManager.prototype.selectLines = function (start, end) {
+        this._model.clearSelection();
+        start = Math.max(start, 0);
+        end = Math.min(end, this._terminal.buffer.lines.length - 1);
+        this._model.selectionStart = [0, start];
+        this._model.selectionEnd = [this._terminal.cols, end];
+        this.refresh();
+        this._terminal.emit('selection');
+    };
+    SelectionManager.prototype._onTrim = function (amount) {
+        var needsRefresh = this._model.onTrim(amount);
+        if (needsRefresh) {
+            this.refresh();
+        }
+    };
+    SelectionManager.prototype._getMouseBufferCoords = function (event) {
+        var coords = this._terminal.mouseHelper.getCoords(event, this._terminal.screenElement, this._charMeasure, this._terminal.options.lineHeight, this._terminal.cols, this._terminal.rows, true);
+        if (!coords) {
+            return null;
+        }
+        coords[0]--;
+        coords[1]--;
+        coords[1] += this._terminal.buffer.ydisp;
+        return coords;
+    };
+    SelectionManager.prototype._getMouseEventScrollAmount = function (event) {
+        var offset = MouseHelper_1.MouseHelper.getCoordsRelativeToElement(event, this._terminal.screenElement)[1];
+        var terminalHeight = this._terminal.rows * Math.ceil(this._charMeasure.height * this._terminal.options.lineHeight);
+        if (offset >= 0 && offset <= terminalHeight) {
+            return 0;
+        }
+        if (offset > terminalHeight) {
+            offset -= terminalHeight;
+        }
+        offset = Math.min(Math.max(offset, -DRAG_SCROLL_MAX_THRESHOLD), DRAG_SCROLL_MAX_THRESHOLD);
+        offset /= DRAG_SCROLL_MAX_THRESHOLD;
+        return (offset / Math.abs(offset)) + Math.round(offset * (DRAG_SCROLL_MAX_SPEED - 1));
+    };
+    SelectionManager.prototype.shouldForceSelection = function (event) {
+        if (Browser.isMac) {
+            return event.altKey && this._terminal.options.macOptionClickForcesSelection;
+        }
+        return event.shiftKey;
+    };
+    SelectionManager.prototype.onMouseDown = function (event) {
+        this._mouseDownTimeStamp = event.timeStamp;
+        if (event.button === 2 && this.hasSelection) {
+            return;
+        }
+        if (event.button !== 0) {
+            return;
+        }
+        if (!this._enabled) {
+            if (!this.shouldForceSelection(event)) {
+                return;
+            }
+            event.stopPropagation();
+        }
+        event.preventDefault();
+        this._dragScrollAmount = 0;
+        if (this._enabled && event.shiftKey) {
+            this._onIncrementalClick(event);
+        }
+        else {
+            if (event.detail === 1) {
+                this._onSingleClick(event);
+            }
+            else if (event.detail === 2) {
+                this._onDoubleClick(event);
+            }
+            else if (event.detail === 3) {
+                this._onTripleClick(event);
+            }
+        }
+        this._addMouseDownListeners();
+        this.refresh(true);
+    };
+    SelectionManager.prototype._addMouseDownListeners = function () {
+        var _this = this;
+        this._terminal.element.ownerDocument.addEventListener('mousemove', this._mouseMoveListener);
+        this._terminal.element.ownerDocument.addEventListener('mouseup', this._mouseUpListener);
+        this._dragScrollIntervalTimer = setInterval(function () { return _this._dragScroll(); }, DRAG_SCROLL_INTERVAL);
+    };
+    SelectionManager.prototype._removeMouseDownListeners = function () {
+        if (this._terminal.element.ownerDocument) {
+            this._terminal.element.ownerDocument.removeEventListener('mousemove', this._mouseMoveListener);
+            this._terminal.element.ownerDocument.removeEventListener('mouseup', this._mouseUpListener);
+        }
+        clearInterval(this._dragScrollIntervalTimer);
+        this._dragScrollIntervalTimer = null;
+    };
+    SelectionManager.prototype._onIncrementalClick = function (event) {
+        if (this._model.selectionStart) {
+            this._model.selectionEnd = this._getMouseBufferCoords(event);
+        }
+    };
+    SelectionManager.prototype._onSingleClick = function (event) {
+        this._model.selectionStartLength = 0;
+        this._model.isSelectAllActive = false;
+        this._activeSelectionMode = this.shouldColumnSelect(event) ? 3 : 0;
+        this._model.selectionStart = this._getMouseBufferCoords(event);
+        if (!this._model.selectionStart) {
+            return;
+        }
+        this._model.selectionEnd = null;
+        var line = this._buffer.lines.get(this._model.selectionStart[1]);
+        if (!line) {
+            return;
+        }
+        if (line.length >= this._model.selectionStart[0]) {
+            return;
+        }
+        var char = line.get(this._model.selectionStart[0]);
+        if (char[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 0) {
+            this._model.selectionStart[0]++;
+        }
+    };
+    SelectionManager.prototype._onDoubleClick = function (event) {
+        var coords = this._getMouseBufferCoords(event);
+        if (coords) {
+            this._activeSelectionMode = 1;
+            this._selectWordAt(coords, true);
+        }
+    };
+    SelectionManager.prototype._onTripleClick = function (event) {
+        var coords = this._getMouseBufferCoords(event);
+        if (coords) {
+            this._activeSelectionMode = 2;
+            this._selectLineAt(coords[1]);
+        }
+    };
+    SelectionManager.prototype.shouldColumnSelect = function (event) {
+        return event.altKey && !(Browser.isMac && this._terminal.options.macOptionClickForcesSelection);
+    };
+    SelectionManager.prototype._onMouseMove = function (event) {
+        event.stopImmediatePropagation();
+        var previousSelectionEnd = this._model.selectionEnd ? [this._model.selectionEnd[0], this._model.selectionEnd[1]] : null;
+        this._model.selectionEnd = this._getMouseBufferCoords(event);
+        if (!this._model.selectionEnd) {
+            this.refresh(true);
+            return;
+        }
+        if (this._activeSelectionMode === 2) {
+            if (this._model.selectionEnd[1] < this._model.selectionStart[1]) {
+                this._model.selectionEnd[0] = 0;
+            }
+            else {
+                this._model.selectionEnd[0] = this._terminal.cols;
+            }
+        }
+        else if (this._activeSelectionMode === 1) {
+            this._selectToWordAt(this._model.selectionEnd);
+        }
+        this._dragScrollAmount = this._getMouseEventScrollAmount(event);
+        if (this._activeSelectionMode !== 3) {
+            if (this._dragScrollAmount > 0) {
+                this._model.selectionEnd[0] = this._terminal.cols;
+            }
+            else if (this._dragScrollAmount < 0) {
+                this._model.selectionEnd[0] = 0;
+            }
+        }
+        if (this._model.selectionEnd[1] < this._buffer.lines.length) {
+            var char = this._buffer.lines.get(this._model.selectionEnd[1]).get(this._model.selectionEnd[0]);
+            if (char && char[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 0) {
+                this._model.selectionEnd[0]++;
+            }
+        }
+        if (!previousSelectionEnd ||
+            previousSelectionEnd[0] !== this._model.selectionEnd[0] ||
+            previousSelectionEnd[1] !== this._model.selectionEnd[1]) {
+            this.refresh(true);
+        }
+    };
+    SelectionManager.prototype._dragScroll = function () {
+        if (this._dragScrollAmount) {
+            this._terminal.scrollLines(this._dragScrollAmount, false);
+            if (this._dragScrollAmount > 0) {
+                if (this._activeSelectionMode !== 3) {
+                    this._model.selectionEnd[0] = this._terminal.cols;
+                }
+                this._model.selectionEnd[1] = Math.min(this._terminal.buffer.ydisp + this._terminal.rows, this._terminal.buffer.lines.length - 1);
+            }
+            else {
+                if (this._activeSelectionMode !== 3) {
+                    this._model.selectionEnd[0] = 0;
+                }
+                this._model.selectionEnd[1] = this._terminal.buffer.ydisp;
+            }
+            this.refresh();
+        }
+    };
+    SelectionManager.prototype._onMouseUp = function (event) {
+        var timeElapsed = event.timeStamp - this._mouseDownTimeStamp;
+        this._removeMouseDownListeners();
+        if (this.selectionText.length <= 1 && timeElapsed < ALT_CLICK_MOVE_CURSOR_TIME) {
+            (new AltClickHandler_1.AltClickHandler(event, this._terminal)).move();
+        }
+        else if (this.hasSelection) {
+            this._terminal.emit('selection');
+        }
+    };
+    SelectionManager.prototype._onBufferActivate = function (e) {
+        this.clearSelection();
+        e.inactiveBuffer.lines.off('trim', this._trimListener);
+        e.activeBuffer.lines.on('trim', this._trimListener);
+    };
+    SelectionManager.prototype._convertViewportColToCharacterIndex = function (bufferLine, coords) {
+        var charIndex = coords[0];
+        for (var i = 0; coords[0] >= i; i++) {
+            var char = bufferLine.get(i);
+            if (char[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 0) {
+                charIndex--;
+            }
+            else if (char[Buffer_1.CHAR_DATA_CHAR_INDEX].length > 1 && coords[0] !== i) {
+                charIndex += char[Buffer_1.CHAR_DATA_CHAR_INDEX].length - 1;
+            }
+        }
+        return charIndex;
+    };
+    SelectionManager.prototype.setSelection = function (col, row, length) {
+        this._model.clearSelection();
+        this._removeMouseDownListeners();
+        this._model.selectionStart = [col, row];
+        this._model.selectionStartLength = length;
+        this.refresh();
+    };
+    SelectionManager.prototype._getWordAt = function (coords, allowWhitespaceOnlySelection, followWrappedLinesAbove, followWrappedLinesBelow) {
+        if (followWrappedLinesAbove === void 0) { followWrappedLinesAbove = true; }
+        if (followWrappedLinesBelow === void 0) { followWrappedLinesBelow = true; }
+        if (coords[0] >= this._terminal.cols) {
+            return null;
+        }
+        var bufferLine = this._buffer.lines.get(coords[1]);
+        if (!bufferLine) {
+            return null;
+        }
+        var line = this._buffer.translateBufferLineToString(coords[1], false);
+        var startIndex = this._convertViewportColToCharacterIndex(bufferLine, coords);
+        var endIndex = startIndex;
+        var charOffset = coords[0] - startIndex;
+        var leftWideCharCount = 0;
+        var rightWideCharCount = 0;
+        var leftLongCharOffset = 0;
+        var rightLongCharOffset = 0;
+        if (line.charAt(startIndex) === ' ') {
+            while (startIndex > 0 && line.charAt(startIndex - 1) === ' ') {
+                startIndex--;
+            }
+            while (endIndex < line.length && line.charAt(endIndex + 1) === ' ') {
+                endIndex++;
+            }
+        }
+        else {
+            var startCol = coords[0];
+            var endCol = coords[0];
+            if (bufferLine.get(startCol)[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 0) {
+                leftWideCharCount++;
+                startCol--;
+            }
+            if (bufferLine.get(endCol)[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 2) {
+                rightWideCharCount++;
+                endCol++;
+            }
+            if (bufferLine.get(endCol)[Buffer_1.CHAR_DATA_CHAR_INDEX].length > 1) {
+                rightLongCharOffset += bufferLine.get(endCol)[Buffer_1.CHAR_DATA_CHAR_INDEX].length - 1;
+                endIndex += bufferLine.get(endCol)[Buffer_1.CHAR_DATA_CHAR_INDEX].length - 1;
+            }
+            while (startCol > 0 && startIndex > 0 && !this._isCharWordSeparator(bufferLine.get(startCol - 1))) {
+                var char = bufferLine.get(startCol - 1);
+                if (char[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 0) {
+                    leftWideCharCount++;
+                    startCol--;
+                }
+                else if (char[Buffer_1.CHAR_DATA_CHAR_INDEX].length > 1) {
+                    leftLongCharOffset += char[Buffer_1.CHAR_DATA_CHAR_INDEX].length - 1;
+                    startIndex -= char[Buffer_1.CHAR_DATA_CHAR_INDEX].length - 1;
+                }
+                startIndex--;
+                startCol--;
+            }
+            while (endCol < bufferLine.length && endIndex + 1 < line.length && !this._isCharWordSeparator(bufferLine.get(endCol + 1))) {
+                var char = bufferLine.get(endCol + 1);
+                if (char[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 2) {
+                    rightWideCharCount++;
+                    endCol++;
+                }
+                else if (char[Buffer_1.CHAR_DATA_CHAR_INDEX].length > 1) {
+                    rightLongCharOffset += char[Buffer_1.CHAR_DATA_CHAR_INDEX].length - 1;
+                    endIndex += char[Buffer_1.CHAR_DATA_CHAR_INDEX].length - 1;
+                }
+                endIndex++;
+                endCol++;
+            }
+        }
+        endIndex++;
+        var start = startIndex
+            + charOffset
+            - leftWideCharCount
+            + leftLongCharOffset;
+        var length = Math.min(this._terminal.cols, endIndex
+            - startIndex
+            + leftWideCharCount
+            + rightWideCharCount
+            - leftLongCharOffset
+            - rightLongCharOffset);
+        if (!allowWhitespaceOnlySelection && line.slice(startIndex, endIndex).trim() === '') {
+            return null;
+        }
+        if (followWrappedLinesAbove) {
+            if (start === 0 && bufferLine.get(0)[Buffer_1.CHAR_DATA_CODE_INDEX] !== 32) {
+                var previousBufferLine = this._buffer.lines.get(coords[1] - 1);
+                if (previousBufferLine && bufferLine.isWrapped && previousBufferLine.get(this._terminal.cols - 1)[Buffer_1.CHAR_DATA_CODE_INDEX] !== 32) {
+                    var previousLineWordPosition = this._getWordAt([this._terminal.cols - 1, coords[1] - 1], false, true, false);
+                    if (previousLineWordPosition) {
+                        var offset = this._terminal.cols - previousLineWordPosition.start;
+                        start -= offset;
+                        length += offset;
+                    }
+                }
+            }
+        }
+        if (followWrappedLinesBelow) {
+            if (start + length === this._terminal.cols && bufferLine.get(this._terminal.cols - 1)[Buffer_1.CHAR_DATA_CODE_INDEX] !== 32) {
+                var nextBufferLine = this._buffer.lines.get(coords[1] + 1);
+                if (nextBufferLine && nextBufferLine.isWrapped && nextBufferLine.get(0)[Buffer_1.CHAR_DATA_CODE_INDEX] !== 32) {
+                    var nextLineWordPosition = this._getWordAt([0, coords[1] + 1], false, false, true);
+                    if (nextLineWordPosition) {
+                        length += nextLineWordPosition.length;
+                    }
+                }
+            }
+        }
+        return { start: start, length: length };
+    };
+    SelectionManager.prototype._selectWordAt = function (coords, allowWhitespaceOnlySelection) {
+        var wordPosition = this._getWordAt(coords, allowWhitespaceOnlySelection);
+        if (wordPosition) {
+            while (wordPosition.start < 0) {
+                wordPosition.start += this._terminal.cols;
+                coords[1]--;
+            }
+            this._model.selectionStart = [wordPosition.start, coords[1]];
+            this._model.selectionStartLength = wordPosition.length;
+        }
+    };
+    SelectionManager.prototype._selectToWordAt = function (coords) {
+        var wordPosition = this._getWordAt(coords, true);
+        if (wordPosition) {
+            var endRow = coords[1];
+            while (wordPosition.start < 0) {
+                wordPosition.start += this._terminal.cols;
+                endRow--;
+            }
+            if (!this._model.areSelectionValuesReversed()) {
+                while (wordPosition.start + wordPosition.length > this._terminal.cols) {
+                    wordPosition.length -= this._terminal.cols;
+                    endRow++;
+                }
+            }
+            this._model.selectionEnd = [this._model.areSelectionValuesReversed() ? wordPosition.start : wordPosition.start + wordPosition.length, endRow];
+        }
+    };
+    SelectionManager.prototype._isCharWordSeparator = function (charData) {
+        if (charData[Buffer_1.CHAR_DATA_WIDTH_INDEX] === 0) {
+            return false;
+        }
+        return WORD_SEPARATORS.indexOf(charData[Buffer_1.CHAR_DATA_CHAR_INDEX]) >= 0;
+    };
+    SelectionManager.prototype._selectLineAt = function (line) {
+        var wrappedRange = this._buffer.getWrappedRangeForLine(line);
+        this._model.selectionStart = [0, wrappedRange.first];
+        this._model.selectionEnd = [this._terminal.cols, wrappedRange.last];
+        this._model.selectionStartLength = 0;
+    };
+    return SelectionManager;
+}(EventEmitter_1.EventEmitter));
+exports.SelectionManager = SelectionManager;
+
+},{"./Buffer":2,"./SelectionModel":11,"./common/EventEmitter":17,"./handlers/AltClickHandler":22,"./shared/utils/Browser":46,"./utils/MouseHelper":53}],11:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var SelectionModel = (function () {
+    function SelectionModel(_terminal) {
+        this._terminal = _terminal;
+        this.clearSelection();
+    }
+    SelectionModel.prototype.clearSelection = function () {
+        this.selectionStart = null;
+        this.selectionEnd = null;
+        this.isSelectAllActive = false;
+        this.selectionStartLength = 0;
+    };
+    Object.defineProperty(SelectionModel.prototype, "finalSelectionStart", {
+        get: function () {
+            if (this.isSelectAllActive) {
+                return [0, 0];
+            }
+            if (!this.selectionEnd || !this.selectionStart) {
+                return this.selectionStart;
+            }
+            return this.areSelectionValuesReversed() ? this.selectionEnd : this.selectionStart;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SelectionModel.prototype, "finalSelectionEnd", {
+        get: function () {
+            if (this.isSelectAllActive) {
+                return [this._terminal.cols, this._terminal.buffer.ybase + this._terminal.rows - 1];
+            }
+            if (!this.selectionStart) {
+                return null;
+            }
+            if (!this.selectionEnd || this.areSelectionValuesReversed()) {
+                var startPlusLength = this.selectionStart[0] + this.selectionStartLength;
+                if (startPlusLength > this._terminal.cols) {
+                    return [startPlusLength % this._terminal.cols, this.selectionStart[1] + Math.floor(startPlusLength / this._terminal.cols)];
+                }
+                return [startPlusLength, this.selectionStart[1]];
+            }
+            if (this.selectionStartLength) {
+                if (this.selectionEnd[1] === this.selectionStart[1]) {
+                    return [Math.max(this.selectionStart[0] + this.selectionStartLength, this.selectionEnd[0]), this.selectionEnd[1]];
+                }
+            }
+            return this.selectionEnd;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    SelectionModel.prototype.areSelectionValuesReversed = function () {
+        var start = this.selectionStart;
+        var end = this.selectionEnd;
+        if (!start || !end) {
+            return false;
+        }
+        return start[1] > end[1] || (start[1] === end[1] && start[0] > end[0]);
+    };
+    SelectionModel.prototype.onTrim = function (amount) {
+        if (this.selectionStart) {
+            this.selectionStart[1] -= amount;
+        }
+        if (this.selectionEnd) {
+            this.selectionEnd[1] -= amount;
+        }
+        if (this.selectionEnd && this.selectionEnd[1] < 0) {
+            this.clearSelection();
+            return true;
+        }
+        if (this.selectionStart && this.selectionStart[1] < 0) {
+            this.selectionStart[1] = 0;
+        }
+        return false;
+    };
+    return SelectionModel;
+}());
+exports.SelectionModel = SelectionModel;
+
+},{}],12:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEFAULT_BELL_SOUND = 'data:audio/wav;base64,UklGRigBAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQBAADpAFgCwAMlBZoG/wdmCcoKRAypDQ8PbRDBEQQTOxRtFYcWlBePGIUZXhoiG88bcBz7HHIdzh0WHlMeZx51HmkeUx4WHs8dah0AHXwc3hs9G4saxRnyGBIYGBcQFv8U4RPAEoYRQBACD70NWwwHC6gJOwjWBloF7gOBAhABkf8b/qv8R/ve+Xf4Ife79W/0JfPZ8Z/wde9N7ijtE+wU6xvqM+lb6H7nw+YX5mrlxuQz5Mzje+Ma49fioeKD4nXiYeJy4pHitOL04j/jn+MN5IPkFOWs5U3mDefM55/ogOl36m7rdOyE7abuyu8D8Unyj/Pg9D/2qfcb+Yn6/vuK/Qj/lAAlAg==';
+var SoundManager = (function () {
+    function SoundManager(_terminal) {
+        this._terminal = _terminal;
+    }
+    SoundManager.prototype.playBellSound = function () {
+        var audioContextCtor = window.AudioContext || window.webkitAudioContext;
+        if (!this._audioContext && audioContextCtor) {
+            this._audioContext = new audioContextCtor();
+        }
+        if (this._audioContext) {
+            var bellAudioSource_1 = this._audioContext.createBufferSource();
+            var context_1 = this._audioContext;
+            this._audioContext.decodeAudioData(this._base64ToArrayBuffer(this._removeMimeType(this._terminal.options.bellSound)), function (buffer) {
+                bellAudioSource_1.buffer = buffer;
+                bellAudioSource_1.connect(context_1.destination);
+                bellAudioSource_1.start(0);
+            });
+        }
+        else {
+            console.warn('Sorry, but the Web Audio API is not supported by your browser. Please, consider upgrading to the latest version');
+        }
+    };
+    SoundManager.prototype._base64ToArrayBuffer = function (base64) {
+        var binaryString = window.atob(base64);
+        var len = binaryString.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    };
+    SoundManager.prototype._removeMimeType = function (dataURI) {
+        var splitUri = dataURI.split(',');
+        return splitUri[1];
+    };
+    return SoundManager;
+}());
+exports.SoundManager = SoundManager;
+
+},{}],13:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.blankLine = 'Blank line';
+exports.promptLabel = 'Terminal input';
+exports.tooMuchOutput = 'Too much output to announce, navigate to rows manually to read';
+
+},{}],14:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var BufferSet_1 = require("./BufferSet");
+var Buffer_1 = require("./Buffer");
+var CompositionHelper_1 = require("./CompositionHelper");
+var EventEmitter_1 = require("./common/EventEmitter");
+var Viewport_1 = require("./Viewport");
+var Clipboard_1 = require("./handlers/Clipboard");
+var EscapeSequences_1 = require("./common/data/EscapeSequences");
+var InputHandler_1 = require("./InputHandler");
+var Renderer_1 = require("./renderer/Renderer");
+var Linkifier_1 = require("./Linkifier");
+var SelectionManager_1 = require("./SelectionManager");
+var CharMeasure_1 = require("./ui/CharMeasure");
+var Browser = require("./shared/utils/Browser");
+var Lifecycle_1 = require("./ui/Lifecycle");
+var Strings = require("./Strings");
+var MouseHelper_1 = require("./utils/MouseHelper");
+var Clone_1 = require("./utils/Clone");
+var SoundManager_1 = require("./SoundManager");
+var ColorManager_1 = require("./renderer/ColorManager");
+var MouseZoneManager_1 = require("./ui/MouseZoneManager");
+var AccessibilityManager_1 = require("./AccessibilityManager");
+var ScreenDprMonitor_1 = require("./ui/ScreenDprMonitor");
+var CharAtlasCache_1 = require("./renderer/atlas/CharAtlasCache");
+var DomRenderer_1 = require("./renderer/dom/DomRenderer");
+var Keyboard_1 = require("./core/input/Keyboard");
+var BufferLine_1 = require("./BufferLine");
+var document = (typeof window !== 'undefined') ? window.document : null;
+var WRITE_BUFFER_PAUSE_THRESHOLD = 5;
+var WRITE_BATCH_SIZE = 300;
+var CONSTRUCTOR_ONLY_OPTIONS = ['cols', 'rows'];
+var DEFAULT_OPTIONS = {
+    cols: 80,
+    rows: 24,
+    convertEol: false,
+    termName: 'xterm',
+    cursorBlink: false,
+    cursorStyle: 'block',
+    bellSound: SoundManager_1.DEFAULT_BELL_SOUND,
+    bellStyle: 'none',
+    drawBoldTextInBrightColors: true,
+    enableBold: true,
+    experimentalCharAtlas: 'static',
+    fontFamily: 'courier-new, courier, monospace',
+    fontSize: 15,
+    fontWeight: 'normal',
+    fontWeightBold: 'bold',
+    lineHeight: 1.0,
+    letterSpacing: 0,
+    scrollback: 1000,
+    screenKeys: false,
+    screenReaderMode: false,
+    debug: false,
+    macOptionIsMeta: false,
+    macOptionClickForcesSelection: false,
+    cancelEvents: false,
+    disableStdin: false,
+    useFlowControl: false,
+    allowTransparency: false,
+    tabStopWidth: 8,
+    theme: null,
+    rightClickSelectsWord: Browser.isMac,
+    rendererType: 'canvas'
+};
+var Terminal = (function (_super) {
+    __extends(Terminal, _super);
+    function Terminal(options) {
+        if (options === void 0) { options = {}; }
+        var _this = _super.call(this) || this;
+        _this.browser = Browser;
+        _this.options = Clone_1.clone(options);
+        _this._setup();
+        return _this;
+    }
+    Terminal.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this._customKeyEventHandler = null;
+        CharAtlasCache_1.removeTerminalFromCache(this);
+        this.handler = function () { };
+        this.write = function () { };
+        if (this.element && this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    };
+    Terminal.prototype.destroy = function () {
+        this.dispose();
+    };
+    Terminal.prototype._setup = function () {
+        var _this = this;
+        Object.keys(DEFAULT_OPTIONS).forEach(function (key) {
+            if (_this.options[key] === null || _this.options[key] === undefined) {
+                _this.options[key] = DEFAULT_OPTIONS[key];
+            }
+        });
+        this._parent = document ? document.body : null;
+        this.cols = this.options.cols;
+        this.rows = this.options.rows;
+        if (this.options.handler) {
+            this.on('data', this.options.handler);
+        }
+        this.cursorState = 0;
+        this.cursorHidden = false;
+        this._customKeyEventHandler = null;
+        this.applicationKeypad = false;
+        this.applicationCursor = false;
+        this.originMode = false;
+        this.insertMode = false;
+        this.wraparoundMode = true;
+        this.bracketedPasteMode = false;
+        this.charset = null;
+        this.gcharset = null;
+        this.glevel = 0;
+        this.charsets = [null];
+        this.curAttr = Buffer_1.DEFAULT_ATTR;
+        this.params = [];
+        this.currentParam = 0;
+        this.writeBuffer = [];
+        this._writeInProgress = false;
+        this._xoffSentToCatchUp = false;
+        this._userScrolling = false;
+        this._inputHandler = new InputHandler_1.InputHandler(this);
+        this.register(this._inputHandler);
+        this.renderer = this.renderer || null;
+        this.selectionManager = this.selectionManager || null;
+        this.linkifier = this.linkifier || new Linkifier_1.Linkifier(this);
+        this._mouseZoneManager = this._mouseZoneManager || null;
+        this.soundManager = this.soundManager || new SoundManager_1.SoundManager(this);
+        this.buffers = new BufferSet_1.BufferSet(this);
+        if (this.selectionManager) {
+            this.selectionManager.clearSelection();
+            this.selectionManager.initBuffersListeners();
+        }
+    };
+    Object.defineProperty(Terminal.prototype, "buffer", {
+        get: function () {
+            return this.buffers.active;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Terminal.prototype.eraseAttr = function () {
+        return (Buffer_1.DEFAULT_ATTR & ~0x1ff) | (this.curAttr & 0x1ff);
+    };
+    Terminal.prototype.focus = function () {
+        if (this.textarea) {
+            this.textarea.focus();
+        }
+    };
+    Object.defineProperty(Terminal.prototype, "isFocused", {
+        get: function () {
+            return document.activeElement === this.textarea;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Terminal.prototype.getOption = function (key) {
+        if (!(key in DEFAULT_OPTIONS)) {
+            throw new Error('No option with key "' + key + '"');
+        }
+        return this.options[key];
+    };
+    Terminal.prototype.setOption = function (key, value) {
+        if (!(key in DEFAULT_OPTIONS)) {
+            throw new Error('No option with key "' + key + '"');
+        }
+        if (CONSTRUCTOR_ONLY_OPTIONS.indexOf(key) !== -1) {
+            console.error("Option \"" + key + "\" can only be set in the constructor");
+        }
+        if (this.options[key] === value) {
+            return;
+        }
+        switch (key) {
+            case 'bellStyle':
+                if (!value) {
+                    value = 'none';
+                }
+                break;
+            case 'cursorStyle':
+                if (!value) {
+                    value = 'block';
+                }
+                break;
+            case 'fontWeight':
+                if (!value) {
+                    value = 'normal';
+                }
+                break;
+            case 'fontWeightBold':
+                if (!value) {
+                    value = 'bold';
+                }
+                break;
+            case 'lineHeight':
+                if (value < 1) {
+                    console.warn(key + " cannot be less than 1, value: " + value);
+                    return;
+                }
+            case 'rendererType':
+                if (!value) {
+                    value = 'canvas';
+                }
+                break;
+            case 'tabStopWidth':
+                if (value < 1) {
+                    console.warn(key + " cannot be less than 1, value: " + value);
+                    return;
+                }
+                break;
+            case 'theme':
+                if (this.renderer) {
+                    this._setTheme(value);
+                    return;
+                }
+                break;
+            case 'scrollback':
+                value = Math.min(value, Buffer_1.MAX_BUFFER_SIZE);
+                if (value < 0) {
+                    console.warn(key + " cannot be less than 0, value: " + value);
+                    return;
+                }
+                if (this.options[key] !== value) {
+                    var newBufferLength = this.rows + value;
+                    if (this.buffer.lines.length > newBufferLength) {
+                        var amountToTrim = this.buffer.lines.length - newBufferLength;
+                        var needsRefresh = (this.buffer.ydisp - amountToTrim < 0);
+                        this.buffer.lines.trimStart(amountToTrim);
+                        this.buffer.ybase = Math.max(this.buffer.ybase - amountToTrim, 0);
+                        this.buffer.ydisp = Math.max(this.buffer.ydisp - amountToTrim, 0);
+                        if (needsRefresh) {
+                            this.refresh(0, this.rows - 1);
+                        }
+                    }
+                }
+                break;
+        }
+        this.options[key] = value;
+        switch (key) {
+            case 'fontFamily':
+            case 'fontSize':
+                if (this.renderer) {
+                    this.renderer.clear();
+                    this.charMeasure.measure(this.options);
+                }
+                break;
+            case 'drawBoldTextInBrightColors':
+            case 'experimentalCharAtlas':
+            case 'enableBold':
+            case 'letterSpacing':
+            case 'lineHeight':
+            case 'fontWeight':
+            case 'fontWeightBold':
+                if (this.renderer) {
+                    this.renderer.clear();
+                    this.renderer.onResize(this.cols, this.rows);
+                    this.refresh(0, this.rows - 1);
+                }
+            case 'rendererType':
+                if (this.renderer) {
+                    this.unregister(this.renderer);
+                    this.renderer.dispose();
+                    this.renderer = null;
+                }
+                this._setupRenderer();
+                this.renderer.onCharSizeChanged();
+                if (this._theme) {
+                    this.renderer.setTheme(this._theme);
+                }
+                break;
+            case 'scrollback':
+                this.buffers.resize(this.cols, this.rows);
+                if (this.viewport) {
+                    this.viewport.syncScrollArea();
+                }
+                break;
+            case 'screenReaderMode':
+                if (value) {
+                    if (!this._accessibilityManager) {
+                        this._accessibilityManager = new AccessibilityManager_1.AccessibilityManager(this);
+                    }
+                }
+                else {
+                    if (this._accessibilityManager) {
+                        this._accessibilityManager.dispose();
+                        this._accessibilityManager = null;
+                    }
+                }
+                break;
+            case 'tabStopWidth':
+                this.buffers.setupTabStops();
+                break;
+        }
+        if (this.renderer) {
+            this.renderer.onOptionsChanged();
+        }
+    };
+    Terminal.prototype._onTextAreaFocus = function (ev) {
+        if (this.sendFocus) {
+            this.handler(EscapeSequences_1.C0.ESC + '[I');
+        }
+        this.updateCursorStyle(ev);
+        this.element.classList.add('focus');
+        this.showCursor();
+        this.emit('focus');
+    };
+    Terminal.prototype.blur = function () {
+        return this.textarea.blur();
+    };
+    Terminal.prototype._onTextAreaBlur = function () {
+        this.textarea.value = '';
+        this.refresh(this.buffer.y, this.buffer.y);
+        if (this.sendFocus) {
+            this.handler(EscapeSequences_1.C0.ESC + '[O');
+        }
+        this.element.classList.remove('focus');
+        this.emit('blur');
+    };
+    Terminal.prototype._initGlobal = function () {
+        var _this = this;
+        this._bindKeys();
+        this.register(Lifecycle_1.addDisposableDomListener(this.element, 'copy', function (event) {
+            if (!_this.hasSelection()) {
+                return;
+            }
+            Clipboard_1.copyHandler(event, _this, _this.selectionManager);
+        }));
+        var pasteHandlerWrapper = function (event) { return Clipboard_1.pasteHandler(event, _this); };
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'paste', pasteHandlerWrapper));
+        this.register(Lifecycle_1.addDisposableDomListener(this.element, 'paste', pasteHandlerWrapper));
+        if (Browser.isFirefox) {
+            this.register(Lifecycle_1.addDisposableDomListener(this.element, 'mousedown', function (event) {
+                if (event.button === 2) {
+                    Clipboard_1.rightClickHandler(event, _this.textarea, _this.selectionManager, _this.options.rightClickSelectsWord);
+                }
+            }));
+        }
+        else {
+            this.register(Lifecycle_1.addDisposableDomListener(this.element, 'contextmenu', function (event) {
+                Clipboard_1.rightClickHandler(event, _this.textarea, _this.selectionManager, _this.options.rightClickSelectsWord);
+            }));
+        }
+        if (Browser.isLinux) {
+            this.register(Lifecycle_1.addDisposableDomListener(this.element, 'auxclick', function (event) {
+                if (event.button === 1) {
+                    Clipboard_1.moveTextAreaUnderMouseCursor(event, _this.textarea);
+                }
+            }));
+        }
+    };
+    Terminal.prototype._bindKeys = function () {
+        var _this = this;
+        var self = this;
+        this.register(Lifecycle_1.addDisposableDomListener(this.element, 'keydown', function (ev) {
+            if (document.activeElement !== this) {
+                return;
+            }
+            self._keyDown(ev);
+        }, true));
+        this.register(Lifecycle_1.addDisposableDomListener(this.element, 'keypress', function (ev) {
+            if (document.activeElement !== this) {
+                return;
+            }
+            self._keyPress(ev);
+        }, true));
+        this.register(Lifecycle_1.addDisposableDomListener(this.element, 'keyup', function (ev) {
+            if (!wasModifierKeyOnlyEvent(ev)) {
+                _this.focus();
+            }
+            self._keyUp(ev);
+        }, true));
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'keydown', function (ev) { return _this._keyDown(ev); }, true));
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'keypress', function (ev) { return _this._keyPress(ev); }, true));
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'compositionstart', function () { return _this._compositionHelper.compositionstart(); }));
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'compositionupdate', function (e) { return _this._compositionHelper.compositionupdate(e); }));
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'compositionend', function () { return _this._compositionHelper.compositionend(); }));
+        this.register(this.addDisposableListener('refresh', function () { return _this._compositionHelper.updateCompositionElements(); }));
+        this.register(this.addDisposableListener('refresh', function (data) { return _this._queueLinkification(data.start, data.end); }));
+    };
+    Terminal.prototype.open = function (parent) {
+        var _this = this;
+        this._parent = parent || this._parent;
+        if (!this._parent) {
+            throw new Error('Terminal requires a parent element.');
+        }
+        this._context = this._parent.ownerDocument.defaultView;
+        this._document = this._parent.ownerDocument;
+        this._screenDprMonitor = new ScreenDprMonitor_1.ScreenDprMonitor();
+        this._screenDprMonitor.setListener(function () { return _this.emit('dprchange', window.devicePixelRatio); });
+        this.register(this._screenDprMonitor);
+        this.element = this._document.createElement('div');
+        this.element.dir = 'ltr';
+        this.element.classList.add('terminal');
+        this.element.classList.add('xterm');
+        this.element.setAttribute('tabindex', '0');
+        this._parent.appendChild(this.element);
+        var fragment = document.createDocumentFragment();
+        this._viewportElement = document.createElement('div');
+        this._viewportElement.classList.add('xterm-viewport');
+        fragment.appendChild(this._viewportElement);
+        this._viewportScrollArea = document.createElement('div');
+        this._viewportScrollArea.classList.add('xterm-scroll-area');
+        this._viewportElement.appendChild(this._viewportScrollArea);
+        this.screenElement = document.createElement('div');
+        this.screenElement.classList.add('xterm-screen');
+        this._helperContainer = document.createElement('div');
+        this._helperContainer.classList.add('xterm-helpers');
+        this.screenElement.appendChild(this._helperContainer);
+        fragment.appendChild(this.screenElement);
+        this._mouseZoneManager = new MouseZoneManager_1.MouseZoneManager(this);
+        this.register(this._mouseZoneManager);
+        this.register(this.addDisposableListener('scroll', function () { return _this._mouseZoneManager.clearAll(); }));
+        this.linkifier.attachToDom(this._mouseZoneManager);
+        this.textarea = document.createElement('textarea');
+        this.textarea.classList.add('xterm-helper-textarea');
+        this.textarea.setAttribute('aria-label', Strings.promptLabel);
+        this.textarea.setAttribute('aria-multiline', 'false');
+        this.textarea.setAttribute('autocorrect', 'off');
+        this.textarea.setAttribute('autocapitalize', 'off');
+        this.textarea.setAttribute('spellcheck', 'false');
+        this.textarea.tabIndex = 0;
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'focus', function (ev) { return _this._onTextAreaFocus(ev); }));
+        this.register(Lifecycle_1.addDisposableDomListener(this.textarea, 'blur', function () { return _this._onTextAreaBlur(); }));
+        this._helperContainer.appendChild(this.textarea);
+        this._compositionView = document.createElement('div');
+        this._compositionView.classList.add('composition-view');
+        this._compositionHelper = new CompositionHelper_1.CompositionHelper(this.textarea, this._compositionView, this);
+        this._helperContainer.appendChild(this._compositionView);
+        this.charMeasure = new CharMeasure_1.CharMeasure(document, this._helperContainer);
+        this.element.appendChild(fragment);
+        this._setupRenderer();
+        this._theme = this.options.theme;
+        this.options.theme = null;
+        this.viewport = new Viewport_1.Viewport(this, this._viewportElement, this._viewportScrollArea, this.charMeasure);
+        this.viewport.onThemeChanged(this.renderer.colorManager.colors);
+        this.register(this.viewport);
+        this.register(this.addDisposableListener('cursormove', function () { return _this.renderer.onCursorMove(); }));
+        this.register(this.addDisposableListener('resize', function () { return _this.renderer.onResize(_this.cols, _this.rows); }));
+        this.register(this.addDisposableListener('blur', function () { return _this.renderer.onBlur(); }));
+        this.register(this.addDisposableListener('focus', function () { return _this.renderer.onFocus(); }));
+        this.register(this.addDisposableListener('dprchange', function () { return _this.renderer.onWindowResize(window.devicePixelRatio); }));
+        this.register(Lifecycle_1.addDisposableDomListener(window, 'resize', function () { return _this.renderer.onWindowResize(window.devicePixelRatio); }));
+        this.register(this.charMeasure.addDisposableListener('charsizechanged', function () { return _this.renderer.onCharSizeChanged(); }));
+        this.register(this.renderer.addDisposableListener('resize', function (dimensions) { return _this.viewport.syncScrollArea(); }));
+        this.selectionManager = new SelectionManager_1.SelectionManager(this, this.charMeasure);
+        this.register(Lifecycle_1.addDisposableDomListener(this.element, 'mousedown', function (e) { return _this.selectionManager.onMouseDown(e); }));
+        this.register(this.selectionManager.addDisposableListener('refresh', function (data) { return _this.renderer.onSelectionChanged(data.start, data.end, data.columnSelectMode); }));
+        this.register(this.selectionManager.addDisposableListener('newselection', function (text) {
+            _this.textarea.value = text;
+            _this.textarea.focus();
+            _this.textarea.select();
+        }));
+        this.register(this.addDisposableListener('scroll', function () {
+            _this.viewport.syncScrollArea();
+            _this.selectionManager.refresh();
+        }));
+        this.register(Lifecycle_1.addDisposableDomListener(this._viewportElement, 'scroll', function () { return _this.selectionManager.refresh(); }));
+        this.mouseHelper = new MouseHelper_1.MouseHelper(this.renderer);
+        if (this.options.screenReaderMode) {
+            this._accessibilityManager = new AccessibilityManager_1.AccessibilityManager(this);
+        }
+        this.charMeasure.measure(this.options);
+        this.refresh(0, this.rows - 1);
+        this._initGlobal();
+        this.bindMouse();
+    };
+    Terminal.prototype._setupRenderer = function () {
+        switch (this.options.rendererType) {
+            case 'canvas':
+                this.renderer = new Renderer_1.Renderer(this, this.options.theme);
+                break;
+            case 'dom':
+                this.renderer = new DomRenderer_1.DomRenderer(this, this.options.theme);
+                break;
+            default: throw new Error("Unrecognized rendererType \"" + this.options.rendererType + "\"");
+        }
+        this.register(this.renderer);
+    };
+    Terminal.prototype._setTheme = function (theme) {
+        this._theme = theme;
+        var colors = this.renderer.setTheme(theme);
+        if (this.viewport) {
+            this.viewport.onThemeChanged(colors);
+        }
+    };
+    Terminal.prototype.bindMouse = function () {
+        var _this = this;
+        var el = this.element;
+        var self = this;
+        var pressed = 32;
+        function sendButton(ev) {
+            var button;
+            var pos;
+            button = getButton(ev);
+            pos = self.mouseHelper.getRawByteCoords(ev, self.screenElement, self.charMeasure, self.options.lineHeight, self.cols, self.rows);
+            if (!pos)
+                return;
+            sendEvent(button, pos);
+            switch (ev.overrideType || ev.type) {
+                case 'mousedown':
+                    pressed = button;
+                    break;
+                case 'mouseup':
+                    pressed = 32;
+                    break;
+                case 'wheel':
+                    break;
+            }
+        }
+        function sendMove(ev) {
+            var button = pressed;
+            var pos = self.mouseHelper.getRawByteCoords(ev, self.screenElement, self.charMeasure, self.options.lineHeight, self.cols, self.rows);
+            if (!pos)
+                return;
+            button += 32;
+            sendEvent(button, pos);
+        }
+        function encode(data, ch) {
+            if (!self.utfMouse) {
+                if (ch === 255) {
+                    data.push(0);
+                    return;
+                }
+                if (ch > 127)
+                    ch = 127;
+                data.push(ch);
+            }
+            else {
+                if (ch === 2047) {
+                    data.push(0);
+                    return;
+                }
+                if (ch < 127) {
+                    data.push(ch);
+                }
+                else {
+                    if (ch > 2047)
+                        ch = 2047;
+                    data.push(0xC0 | (ch >> 6));
+                    data.push(0x80 | (ch & 0x3F));
+                }
+            }
+        }
+        function sendEvent(button, pos) {
+            if (self._vt300Mouse) {
+                button &= 3;
+                pos.x -= 32;
+                pos.y -= 32;
+                var data_1 = EscapeSequences_1.C0.ESC + '[24';
+                if (button === 0)
+                    data_1 += '1';
+                else if (button === 1)
+                    data_1 += '3';
+                else if (button === 2)
+                    data_1 += '5';
+                else if (button === 3)
+                    return;
+                else
+                    data_1 += '0';
+                data_1 += '~[' + pos.x + ',' + pos.y + ']\r';
+                self.handler(data_1);
+                return;
+            }
+            if (self._decLocator) {
+                button &= 3;
+                pos.x -= 32;
+                pos.y -= 32;
+                if (button === 0)
+                    button = 2;
+                else if (button === 1)
+                    button = 4;
+                else if (button === 2)
+                    button = 6;
+                else if (button === 3)
+                    button = 3;
+                self.handler(EscapeSequences_1.C0.ESC + '['
+                    + button
+                    + ';'
+                    + (button === 3 ? 4 : 0)
+                    + ';'
+                    + pos.y
+                    + ';'
+                    + pos.x
+                    + ';'
+                    + pos.page || 0
+                    + '&w');
+                return;
+            }
+            if (self.urxvtMouse) {
+                pos.x -= 32;
+                pos.y -= 32;
+                pos.x++;
+                pos.y++;
+                self.handler(EscapeSequences_1.C0.ESC + '[' + button + ';' + pos.x + ';' + pos.y + 'M');
+                return;
+            }
+            if (self.sgrMouse) {
+                pos.x -= 32;
+                pos.y -= 32;
+                self.handler(EscapeSequences_1.C0.ESC + '[<'
+                    + (((button & 3) === 3 ? button & ~3 : button) - 32)
+                    + ';'
+                    + pos.x
+                    + ';'
+                    + pos.y
+                    + ((button & 3) === 3 ? 'm' : 'M'));
+                return;
+            }
+            var data = [];
+            encode(data, button);
+            encode(data, pos.x);
+            encode(data, pos.y);
+            self.handler(EscapeSequences_1.C0.ESC + '[M' + String.fromCharCode.apply(String, data));
+        }
+        function getButton(ev) {
+            var button;
+            var shift;
+            var meta;
+            var ctrl;
+            var mod;
+            switch (ev.overrideType || ev.type) {
+                case 'mousedown':
+                    button = ev.button !== null && ev.button !== undefined
+                        ? +ev.button
+                        : ev.which !== null && ev.which !== undefined
+                            ? ev.which - 1
+                            : null;
+                    if (Browser.isMSIE) {
+                        button = button === 1 ? 0 : button === 4 ? 1 : button;
+                    }
+                    break;
+                case 'mouseup':
+                    button = 3;
+                    break;
+                case 'DOMMouseScroll':
+                    button = ev.detail < 0
+                        ? 64
+                        : 65;
+                    break;
+                case 'wheel':
+                    button = ev.wheelDeltaY > 0
+                        ? 64
+                        : 65;
+                    break;
+            }
+            shift = ev.shiftKey ? 4 : 0;
+            meta = ev.metaKey ? 8 : 0;
+            ctrl = ev.ctrlKey ? 16 : 0;
+            mod = shift | meta | ctrl;
+            if (self.vt200Mouse) {
+                mod &= ctrl;
+            }
+            else if (!self.normalMouse) {
+                mod = 0;
+            }
+            button = (32 + (mod << 2)) + button;
+            return button;
+        }
+        this.register(Lifecycle_1.addDisposableDomListener(el, 'mousedown', function (ev) {
+            ev.preventDefault();
+            _this.focus();
+            if (!_this.mouseEvents || _this.selectionManager.shouldForceSelection(ev)) {
+                return;
+            }
+            sendButton(ev);
+            if (_this.vt200Mouse) {
+                ev.overrideType = 'mouseup';
+                sendButton(ev);
+                return _this.cancel(ev);
+            }
+            var moveHandler;
+            if (_this.normalMouse) {
+                moveHandler = function (event) {
+                    if (!_this.normalMouse) {
+                        return;
+                    }
+                    sendMove(event);
+                };
+                _this._document.addEventListener('mousemove', moveHandler);
+            }
+            var handler = function (ev) {
+                if (_this.normalMouse && !_this.x10Mouse) {
+                    sendButton(ev);
+                }
+                if (moveHandler) {
+                    _this._document.removeEventListener('mousemove', moveHandler);
+                    moveHandler = null;
+                }
+                _this._document.removeEventListener('mouseup', handler);
+                return _this.cancel(ev);
+            };
+            _this._document.addEventListener('mouseup', handler);
+            return _this.cancel(ev);
+        }));
+        this.register(Lifecycle_1.addDisposableDomListener(el, 'wheel', function (ev) {
+            if (!_this.mouseEvents) {
+                if (!_this.buffer.hasScrollback) {
+                    var amount = _this.viewport.getLinesScrolled(ev);
+                    if (amount === 0) {
+                        return;
+                    }
+                    var sequence = EscapeSequences_1.C0.ESC + (_this.applicationCursor ? 'O' : '[') + (ev.deltaY < 0 ? 'A' : 'B');
+                    var data = '';
+                    for (var i = 0; i < Math.abs(amount); i++) {
+                        data += sequence;
+                    }
+                    _this.handler(data);
+                }
+                return;
+            }
+            if (_this.x10Mouse || _this._vt300Mouse || _this._decLocator)
+                return;
+            sendButton(ev);
+            ev.preventDefault();
+        }));
+        this.register(Lifecycle_1.addDisposableDomListener(el, 'wheel', function (ev) {
+            if (_this.mouseEvents)
+                return;
+            _this.viewport.onWheel(ev);
+            return _this.cancel(ev);
+        }));
+        this.register(Lifecycle_1.addDisposableDomListener(el, 'touchstart', function (ev) {
+            if (_this.mouseEvents)
+                return;
+            _this.viewport.onTouchStart(ev);
+            return _this.cancel(ev);
+        }));
+        this.register(Lifecycle_1.addDisposableDomListener(el, 'touchmove', function (ev) {
+            if (_this.mouseEvents)
+                return;
+            _this.viewport.onTouchMove(ev);
+            return _this.cancel(ev);
+        }));
+    };
+    Terminal.prototype.refresh = function (start, end) {
+        if (this.renderer) {
+            this.renderer.refreshRows(start, end);
+        }
+    };
+    Terminal.prototype._queueLinkification = function (start, end) {
+        if (this.linkifier) {
+            this.linkifier.linkifyRows(start, end);
+        }
+    };
+    Terminal.prototype.updateCursorStyle = function (ev) {
+        if (this.selectionManager && this.selectionManager.shouldColumnSelect(ev)) {
+            this.element.classList.add('xterm-cursor-crosshair');
+        }
+        else {
+            this.element.classList.remove('xterm-cursor-crosshair');
+        }
+    };
+    Terminal.prototype.showCursor = function () {
+        if (!this.cursorState) {
+            this.cursorState = 1;
+            this.refresh(this.buffer.y, this.buffer.y);
+        }
+    };
+    Terminal.prototype.scroll = function (isWrapped) {
+        var newLine = BufferLine_1.BufferLine.blankLine(this.cols, Buffer_1.DEFAULT_ATTR, isWrapped);
+        var topRow = this.buffer.ybase + this.buffer.scrollTop;
+        var bottomRow = this.buffer.ybase + this.buffer.scrollBottom;
+        if (this.buffer.scrollTop === 0) {
+            var willBufferBeTrimmed = this.buffer.lines.length === this.buffer.lines.maxLength;
+            if (bottomRow === this.buffer.lines.length - 1) {
+                this.buffer.lines.push(newLine);
+            }
+            else {
+                this.buffer.lines.splice(bottomRow + 1, 0, newLine);
+            }
+            if (!willBufferBeTrimmed) {
+                this.buffer.ybase++;
+                if (!this._userScrolling) {
+                    this.buffer.ydisp++;
+                }
+            }
+            else {
+                if (this._userScrolling) {
+                    this.buffer.ydisp = Math.max(this.buffer.ydisp - 1, 0);
+                }
+            }
+        }
+        else {
+            var scrollRegionHeight = bottomRow - topRow + 1;
+            this.buffer.lines.shiftElements(topRow + 1, scrollRegionHeight - 1, -1);
+            this.buffer.lines.set(bottomRow, newLine);
+        }
+        if (!this._userScrolling) {
+            this.buffer.ydisp = this.buffer.ybase;
+        }
+        this.updateRange(this.buffer.scrollTop);
+        this.updateRange(this.buffer.scrollBottom);
+        this.emit('scroll', this.buffer.ydisp);
+    };
+    Terminal.prototype.scrollLines = function (disp, suppressScrollEvent) {
+        if (disp < 0) {
+            if (this.buffer.ydisp === 0) {
+                return;
+            }
+            this._userScrolling = true;
+        }
+        else if (disp + this.buffer.ydisp >= this.buffer.ybase) {
+            this._userScrolling = false;
+        }
+        var oldYdisp = this.buffer.ydisp;
+        this.buffer.ydisp = Math.max(Math.min(this.buffer.ydisp + disp, this.buffer.ybase), 0);
+        if (oldYdisp === this.buffer.ydisp) {
+            return;
+        }
+        if (!suppressScrollEvent) {
+            this.emit('scroll', this.buffer.ydisp);
+        }
+        this.refresh(0, this.rows - 1);
+    };
+    Terminal.prototype.scrollPages = function (pageCount) {
+        this.scrollLines(pageCount * (this.rows - 1));
+    };
+    Terminal.prototype.scrollToTop = function () {
+        this.scrollLines(-this.buffer.ydisp);
+    };
+    Terminal.prototype.scrollToBottom = function () {
+        this.scrollLines(this.buffer.ybase - this.buffer.ydisp);
+    };
+    Terminal.prototype.scrollToLine = function (line) {
+        var scrollAmount = line - this.buffer.ydisp;
+        if (scrollAmount !== 0) {
+            this.scrollLines(scrollAmount);
+        }
+    };
+    Terminal.prototype.write = function (data) {
+        var _this = this;
+        if (this._isDisposed) {
+            return;
+        }
+        if (!data) {
+            return;
+        }
+        this.writeBuffer.push(data);
+        if (this.options.useFlowControl && !this._xoffSentToCatchUp && this.writeBuffer.length >= WRITE_BUFFER_PAUSE_THRESHOLD) {
+            this.handler(EscapeSequences_1.C0.DC3);
+            this._xoffSentToCatchUp = true;
+        }
+        if (!this._writeInProgress && this.writeBuffer.length > 0) {
+            this._writeInProgress = true;
+            setTimeout(function () {
+                _this._innerWrite();
+            });
+        }
+    };
+    Terminal.prototype._innerWrite = function () {
+        var _this = this;
+        if (this._isDisposed) {
+            this.writeBuffer = [];
+        }
+        var writeBatch = this.writeBuffer.splice(0, WRITE_BATCH_SIZE);
+        while (writeBatch.length > 0) {
+            var data = writeBatch.shift();
+            if (this._xoffSentToCatchUp && writeBatch.length === 0 && this.writeBuffer.length === 0) {
+                this.handler(EscapeSequences_1.C0.DC1);
+                this._xoffSentToCatchUp = false;
+            }
+            this._refreshStart = this.buffer.y;
+            this._refreshEnd = this.buffer.y;
+            this._inputHandler.parse(data);
+            this.updateRange(this.buffer.y);
+            this.refresh(this._refreshStart, this._refreshEnd);
+        }
+        if (this.writeBuffer.length > 0) {
+            setTimeout(function () { return _this._innerWrite(); }, 0);
+        }
+        else {
+            this._writeInProgress = false;
+        }
+    };
+    Terminal.prototype.writeln = function (data) {
+        this.write(data + '\r\n');
+    };
+    Terminal.prototype.attachCustomKeyEventHandler = function (customKeyEventHandler) {
+        this._customKeyEventHandler = customKeyEventHandler;
+    };
+    Terminal.prototype.registerLinkMatcher = function (regex, handler, options) {
+        var matcherId = this.linkifier.registerLinkMatcher(regex, handler, options);
+        this.refresh(0, this.rows - 1);
+        return matcherId;
+    };
+    Terminal.prototype.deregisterLinkMatcher = function (matcherId) {
+        if (this.linkifier.deregisterLinkMatcher(matcherId)) {
+            this.refresh(0, this.rows - 1);
+        }
+    };
+    Terminal.prototype.registerCharacterJoiner = function (handler) {
+        var joinerId = this.renderer.registerCharacterJoiner(handler);
+        this.refresh(0, this.rows - 1);
+        return joinerId;
+    };
+    Terminal.prototype.deregisterCharacterJoiner = function (joinerId) {
+        if (this.renderer.deregisterCharacterJoiner(joinerId)) {
+            this.refresh(0, this.rows - 1);
+        }
+    };
+    Object.defineProperty(Terminal.prototype, "markers", {
+        get: function () {
+            return this.buffer.markers;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Terminal.prototype.addMarker = function (cursorYOffset) {
+        if (this.buffer !== this.buffers.normal) {
+            return;
+        }
+        return this.buffer.addMarker(this.buffer.ybase + this.buffer.y + cursorYOffset);
+    };
+    Terminal.prototype.hasSelection = function () {
+        return this.selectionManager ? this.selectionManager.hasSelection : false;
+    };
+    Terminal.prototype.getSelection = function () {
+        return this.selectionManager ? this.selectionManager.selectionText : '';
+    };
+    Terminal.prototype.clearSelection = function () {
+        if (this.selectionManager) {
+            this.selectionManager.clearSelection();
+        }
+    };
+    Terminal.prototype.selectAll = function () {
+        if (this.selectionManager) {
+            this.selectionManager.selectAll();
+        }
+    };
+    Terminal.prototype.selectLines = function (start, end) {
+        if (this.selectionManager) {
+            this.selectionManager.selectLines(start, end);
+        }
+    };
+    Terminal.prototype._keyDown = function (event) {
+        if (this._customKeyEventHandler && this._customKeyEventHandler(event) === false) {
+            return false;
+        }
+        if (!this._compositionHelper.keydown(event)) {
+            if (this.buffer.ybase !== this.buffer.ydisp) {
+                this.scrollToBottom();
+            }
+            return false;
+        }
+        var result = Keyboard_1.evaluateKeyboardEvent(event, this.applicationCursor, this.browser.isMac, this.options.macOptionIsMeta);
+        this.updateCursorStyle(event);
+        if (result.type === 3 || result.type === 2) {
+            var scrollCount = this.rows - 1;
+            this.scrollLines(result.type === 2 ? -scrollCount : scrollCount);
+            return this.cancel(event, true);
+        }
+        if (result.type === 1) {
+            this.selectAll();
+        }
+        if (this._isThirdLevelShift(this.browser, event)) {
+            return true;
+        }
+        if (result.cancel) {
+            this.cancel(event, true);
+        }
+        if (!result.key) {
+            return true;
+        }
+        this.emit('keydown', event);
+        this.emit('key', result.key, event);
+        this.showCursor();
+        this.handler(result.key);
+        return this.cancel(event, true);
+    };
+    Terminal.prototype._isThirdLevelShift = function (browser, ev) {
+        var thirdLevelKey = (browser.isMac && !this.options.macOptionIsMeta && ev.altKey && !ev.ctrlKey && !ev.metaKey) ||
+            (browser.isMSWindows && ev.altKey && ev.ctrlKey && !ev.metaKey);
+        if (ev.type === 'keypress') {
+            return thirdLevelKey;
+        }
+        return thirdLevelKey && (!ev.keyCode || ev.keyCode > 47);
+    };
+    Terminal.prototype.setgLevel = function (g) {
+        this.glevel = g;
+        this.charset = this.charsets[g];
+    };
+    Terminal.prototype.setgCharset = function (g, charset) {
+        this.charsets[g] = charset;
+        if (this.glevel === g) {
+            this.charset = charset;
+        }
+    };
+    Terminal.prototype._keyUp = function (ev) {
+        this.updateCursorStyle(ev);
+    };
+    Terminal.prototype._keyPress = function (ev) {
+        var key;
+        if (this._customKeyEventHandler && this._customKeyEventHandler(ev) === false) {
+            return false;
+        }
+        this.cancel(ev);
+        if (ev.charCode) {
+            key = ev.charCode;
+        }
+        else if (ev.which === null || ev.which === undefined) {
+            key = ev.keyCode;
+        }
+        else if (ev.which !== 0 && ev.charCode !== 0) {
+            key = ev.which;
+        }
+        else {
+            return false;
+        }
+        if (!key || ((ev.altKey || ev.ctrlKey || ev.metaKey) && !this._isThirdLevelShift(this.browser, ev))) {
+            return false;
+        }
+        key = String.fromCharCode(key);
+        this.emit('keypress', key, ev);
+        this.emit('key', key, ev);
+        this.showCursor();
+        this.handler(key);
+        return true;
+    };
+    Terminal.prototype.bell = function () {
+        var _this = this;
+        this.emit('bell');
+        if (this._soundBell()) {
+            this.soundManager.playBellSound();
+        }
+        if (this._visualBell()) {
+            this.element.classList.add('visual-bell-active');
+            clearTimeout(this._visualBellTimer);
+            this._visualBellTimer = window.setTimeout(function () {
+                _this.element.classList.remove('visual-bell-active');
+            }, 200);
+        }
+    };
+    Terminal.prototype.log = function (text, data) {
+        if (!this.options.debug)
+            return;
+        if (!this._context.console || !this._context.console.log)
+            return;
+        this._context.console.log(text, data);
+    };
+    Terminal.prototype.error = function (text, data) {
+        if (!this.options.debug)
+            return;
+        if (!this._context.console || !this._context.console.error)
+            return;
+        this._context.console.error(text, data);
+    };
+    Terminal.prototype.resize = function (x, y) {
+        if (isNaN(x) || isNaN(y)) {
+            return;
+        }
+        if (x === this.cols && y === this.rows) {
+            if (this.charMeasure && (!this.charMeasure.width || !this.charMeasure.height)) {
+                this.charMeasure.measure(this.options);
+            }
+            return;
+        }
+        if (x < 1)
+            x = 1;
+        if (y < 1)
+            y = 1;
+        this.buffers.resize(x, y);
+        this.cols = x;
+        this.rows = y;
+        this.buffers.setupTabStops(this.cols);
+        if (this.charMeasure) {
+            this.charMeasure.measure(this.options);
+        }
+        this.refresh(0, this.rows - 1);
+        this.emit('resize', { cols: x, rows: y });
+    };
+    Terminal.prototype.updateRange = function (y) {
+        if (y < this._refreshStart)
+            this._refreshStart = y;
+        if (y > this._refreshEnd)
+            this._refreshEnd = y;
+    };
+    Terminal.prototype.maxRange = function () {
+        this._refreshStart = 0;
+        this._refreshEnd = this.rows - 1;
+    };
+    Terminal.prototype.clear = function () {
+        if (this.buffer.ybase === 0 && this.buffer.y === 0) {
+            return;
+        }
+        this.buffer.lines.set(0, this.buffer.lines.get(this.buffer.ybase + this.buffer.y));
+        this.buffer.lines.length = 1;
+        this.buffer.ydisp = 0;
+        this.buffer.ybase = 0;
+        this.buffer.y = 0;
+        for (var i = 1; i < this.rows; i++) {
+            this.buffer.lines.push(BufferLine_1.BufferLine.blankLine(this.cols, Buffer_1.DEFAULT_ATTR));
+        }
+        this.refresh(0, this.rows - 1);
+        this.emit('scroll', this.buffer.ydisp);
+    };
+    Terminal.prototype.ch = function (cur) {
+        if (cur) {
+            return [this.eraseAttr(), Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE];
+        }
+        return [Buffer_1.DEFAULT_ATTR, Buffer_1.NULL_CELL_CHAR, Buffer_1.NULL_CELL_WIDTH, Buffer_1.NULL_CELL_CODE];
+    };
+    Terminal.prototype.is = function (term) {
+        return (this.options.termName + '').indexOf(term) === 0;
+    };
+    Terminal.prototype.handler = function (data) {
+        if (this.options.disableStdin) {
+            return;
+        }
+        if (this.selectionManager && this.selectionManager.hasSelection) {
+            this.selectionManager.clearSelection();
+        }
+        if (this.buffer.ybase !== this.buffer.ydisp) {
+            this.scrollToBottom();
+        }
+        this.emit('data', data);
+    };
+    Terminal.prototype.handleTitle = function (title) {
+        this.emit('title', title);
+    };
+    Terminal.prototype.index = function () {
+        this.buffer.y++;
+        if (this.buffer.y > this.buffer.scrollBottom) {
+            this.buffer.y--;
+            this.scroll();
+        }
+        if (this.buffer.x >= this.cols) {
+            this.buffer.x--;
+        }
+    };
+    Terminal.prototype.reverseIndex = function () {
+        if (this.buffer.y === this.buffer.scrollTop) {
+            var scrollRegionHeight = this.buffer.scrollBottom - this.buffer.scrollTop;
+            this.buffer.lines.shiftElements(this.buffer.y + this.buffer.ybase, scrollRegionHeight, 1);
+            this.buffer.lines.set(this.buffer.y + this.buffer.ybase, BufferLine_1.BufferLine.blankLine(this.cols, this.eraseAttr()));
+            this.updateRange(this.buffer.scrollTop);
+            this.updateRange(this.buffer.scrollBottom);
+        }
+        else {
+            this.buffer.y--;
+        }
+    };
+    Terminal.prototype.reset = function () {
+        this.options.rows = this.rows;
+        this.options.cols = this.cols;
+        var customKeyEventHandler = this._customKeyEventHandler;
+        var inputHandler = this._inputHandler;
+        var cursorState = this.cursorState;
+        this._setup();
+        this._customKeyEventHandler = customKeyEventHandler;
+        this._inputHandler = inputHandler;
+        this.cursorState = cursorState;
+        this.refresh(0, this.rows - 1);
+        if (this.viewport) {
+            this.viewport.syncScrollArea();
+        }
+    };
+    Terminal.prototype.tabSet = function () {
+        this.buffer.tabs[this.buffer.x] = true;
+    };
+    Terminal.prototype.cancel = function (ev, force) {
+        if (!this.options.cancelEvents && !force) {
+            return;
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+        return false;
+    };
+    Terminal.prototype.matchColor = function (r1, g1, b1) {
+        var hash = (r1 << 16) | (g1 << 8) | b1;
+        if (matchColorCache[hash] !== null && matchColorCache[hash] !== undefined) {
+            return matchColorCache[hash];
+        }
+        var ldiff = Infinity;
+        var li = -1;
+        var i = 0;
+        var c;
+        var r2;
+        var g2;
+        var b2;
+        var diff;
+        for (; i < ColorManager_1.DEFAULT_ANSI_COLORS.length; i++) {
+            c = ColorManager_1.DEFAULT_ANSI_COLORS[i].rgba;
+            r2 = c >>> 24;
+            g2 = c >>> 16 & 0xFF;
+            b2 = c >>> 8 & 0xFF;
+            diff = matchColorDistance(r1, g1, b1, r2, g2, b2);
+            if (diff === 0) {
+                li = i;
+                break;
+            }
+            if (diff < ldiff) {
+                ldiff = diff;
+                li = i;
+            }
+        }
+        return matchColorCache[hash] = li;
+    };
+    Terminal.prototype._visualBell = function () {
+        return false;
+    };
+    Terminal.prototype._soundBell = function () {
+        return this.options.bellStyle === 'sound';
+    };
+    return Terminal;
+}(EventEmitter_1.EventEmitter));
+exports.Terminal = Terminal;
+function wasModifierKeyOnlyEvent(ev) {
+    return ev.keyCode === 16 ||
+        ev.keyCode === 17 ||
+        ev.keyCode === 18;
+}
+var matchColorCache = {};
+function matchColorDistance(r1, g1, b1, r2, g2, b2) {
+    return Math.pow(30 * (r1 - r2), 2)
+        + Math.pow(59 * (g1 - g2), 2)
+        + Math.pow(11 * (b1 - b2), 2);
+}
+
+},{"./AccessibilityManager":1,"./Buffer":2,"./BufferLine":3,"./BufferSet":4,"./CompositionHelper":6,"./InputHandler":8,"./Linkifier":9,"./SelectionManager":10,"./SoundManager":12,"./Strings":13,"./Viewport":15,"./common/EventEmitter":17,"./common/data/EscapeSequences":19,"./core/input/Keyboard":21,"./handlers/Clipboard":23,"./renderer/ColorManager":27,"./renderer/Renderer":31,"./renderer/atlas/CharAtlasCache":35,"./renderer/dom/DomRenderer":42,"./shared/utils/Browser":46,"./ui/CharMeasure":47,"./ui/Lifecycle":48,"./ui/MouseZoneManager":49,"./ui/ScreenDprMonitor":51,"./utils/Clone":52,"./utils/MouseHelper":53}],15:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Lifecycle_1 = require("./common/Lifecycle");
+var Lifecycle_2 = require("./ui/Lifecycle");
+var FALLBACK_SCROLL_BAR_WIDTH = 15;
+var Viewport = (function (_super) {
+    __extends(Viewport, _super);
+    function Viewport(_terminal, _viewportElement, _scrollArea, _charMeasure) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._viewportElement = _viewportElement;
+        _this._scrollArea = _scrollArea;
+        _this._charMeasure = _charMeasure;
+        _this.scrollBarWidth = 0;
+        _this._currentRowHeight = 0;
+        _this._lastRecordedBufferLength = 0;
+        _this._lastRecordedViewportHeight = 0;
+        _this._lastRecordedBufferHeight = 0;
+        _this._lastScrollTop = 0;
+        _this._wheelPartialScroll = 0;
+        _this._refreshAnimationFrame = null;
+        _this._ignoreNextScrollEvent = false;
+        _this.scrollBarWidth = (_this._viewportElement.offsetWidth - _this._scrollArea.offsetWidth) || FALLBACK_SCROLL_BAR_WIDTH;
+        _this.register(Lifecycle_2.addDisposableDomListener(_this._viewportElement, 'scroll', _this._onScroll.bind(_this)));
+        setTimeout(function () { return _this.syncScrollArea(); }, 0);
+        return _this;
+    }
+    Viewport.prototype.onThemeChanged = function (colors) {
+        this._viewportElement.style.backgroundColor = colors.background.css;
+    };
+    Viewport.prototype._refresh = function () {
+        var _this = this;
+        if (this._refreshAnimationFrame === null) {
+            this._refreshAnimationFrame = requestAnimationFrame(function () { return _this._innerRefresh(); });
+        }
+    };
+    Viewport.prototype._innerRefresh = function () {
+        if (this._charMeasure.height > 0) {
+            this._currentRowHeight = this._terminal.renderer.dimensions.scaledCellHeight / window.devicePixelRatio;
+            this._lastRecordedViewportHeight = this._viewportElement.offsetHeight;
+            var newBufferHeight = Math.round(this._currentRowHeight * this._lastRecordedBufferLength) + (this._lastRecordedViewportHeight - this._terminal.renderer.dimensions.canvasHeight);
+            if (this._lastRecordedBufferHeight !== newBufferHeight) {
+                this._lastRecordedBufferHeight = newBufferHeight;
+                this._scrollArea.style.height = this._lastRecordedBufferHeight + 'px';
+            }
+        }
+        var scrollTop = this._terminal.buffer.ydisp * this._currentRowHeight;
+        if (this._viewportElement.scrollTop !== scrollTop) {
+            this._ignoreNextScrollEvent = true;
+            this._viewportElement.scrollTop = scrollTop;
+        }
+        this._refreshAnimationFrame = null;
+    };
+    Viewport.prototype.syncScrollArea = function () {
+        if (this._lastRecordedBufferLength !== this._terminal.buffer.lines.length) {
+            this._lastRecordedBufferLength = this._terminal.buffer.lines.length;
+            this._refresh();
+            return;
+        }
+        if (this._lastRecordedViewportHeight !== this._terminal.renderer.dimensions.canvasHeight) {
+            this._refresh();
+            return;
+        }
+        var newScrollTop = this._terminal.buffer.ydisp * this._currentRowHeight;
+        if (this._lastScrollTop !== newScrollTop) {
+            this._refresh();
+            return;
+        }
+        if (this._lastScrollTop !== this._viewportElement.scrollTop) {
+            this._refresh();
+            return;
+        }
+        if (this._terminal.renderer.dimensions.scaledCellHeight / window.devicePixelRatio !== this._currentRowHeight) {
+            this._refresh();
+            return;
+        }
+    };
+    Viewport.prototype._onScroll = function (ev) {
+        this._lastScrollTop = this._viewportElement.scrollTop;
+        if (!this._viewportElement.offsetParent) {
+            return;
+        }
+        if (this._ignoreNextScrollEvent) {
+            this._ignoreNextScrollEvent = false;
+            return;
+        }
+        var newRow = Math.round(this._lastScrollTop / this._currentRowHeight);
+        var diff = newRow - this._terminal.buffer.ydisp;
+        this._terminal.scrollLines(diff, true);
+    };
+    Viewport.prototype.onWheel = function (ev) {
+        var amount = this._getPixelsScrolled(ev);
+        if (amount === 0) {
+            return;
+        }
+        this._viewportElement.scrollTop += amount;
+        ev.preventDefault();
+    };
+    Viewport.prototype._getPixelsScrolled = function (ev) {
+        if (ev.deltaY === 0) {
+            return 0;
+        }
+        var amount = ev.deltaY;
+        if (ev.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+            amount *= this._currentRowHeight;
+        }
+        else if (ev.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+            amount *= this._currentRowHeight * this._terminal.rows;
+        }
+        return amount;
+    };
+    Viewport.prototype.getLinesScrolled = function (ev) {
+        if (ev.deltaY === 0) {
+            return 0;
+        }
+        var amount = ev.deltaY;
+        if (ev.deltaMode === WheelEvent.DOM_DELTA_PIXEL) {
+            amount /= this._currentRowHeight + 0.0;
+            this._wheelPartialScroll += amount;
+            amount = Math.floor(Math.abs(this._wheelPartialScroll)) * (this._wheelPartialScroll > 0 ? 1 : -1);
+            this._wheelPartialScroll %= 1;
+        }
+        else if (ev.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+            amount *= this._terminal.rows;
+        }
+        return amount;
+    };
+    Viewport.prototype.onTouchStart = function (ev) {
+        this._lastTouchY = ev.touches[0].pageY;
+    };
+    Viewport.prototype.onTouchMove = function (ev) {
+        var deltaY = this._lastTouchY - ev.touches[0].pageY;
+        this._lastTouchY = ev.touches[0].pageY;
+        if (deltaY === 0) {
+            return;
+        }
+        this._viewportElement.scrollTop += deltaY;
+        ev.preventDefault();
+    };
+    return Viewport;
+}(Lifecycle_1.Disposable));
+exports.Viewport = Viewport;
+
+},{"./common/Lifecycle":18,"./ui/Lifecycle":48}],16:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventEmitter_1 = require("./EventEmitter");
+var CircularList = (function (_super) {
+    __extends(CircularList, _super);
+    function CircularList(_maxLength) {
+        var _this = _super.call(this) || this;
+        _this._maxLength = _maxLength;
+        _this._array = new Array(_this._maxLength);
+        _this._startIndex = 0;
+        _this._length = 0;
+        return _this;
+    }
+    Object.defineProperty(CircularList.prototype, "maxLength", {
+        get: function () {
+            return this._maxLength;
+        },
+        set: function (newMaxLength) {
+            if (this._maxLength === newMaxLength) {
+                return;
+            }
+            var newArray = new Array(newMaxLength);
+            for (var i = 0; i < Math.min(newMaxLength, this.length); i++) {
+                newArray[i] = this._array[this._getCyclicIndex(i)];
+            }
+            this._array = newArray;
+            this._maxLength = newMaxLength;
+            this._startIndex = 0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CircularList.prototype, "length", {
+        get: function () {
+            return this._length;
+        },
+        set: function (newLength) {
+            if (newLength > this._length) {
+                for (var i = this._length; i < newLength; i++) {
+                    this._array[i] = undefined;
+                }
+            }
+            this._length = newLength;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    CircularList.prototype.get = function (index) {
+        return this._array[this._getCyclicIndex(index)];
+    };
+    CircularList.prototype.set = function (index, value) {
+        this._array[this._getCyclicIndex(index)] = value;
+    };
+    CircularList.prototype.push = function (value) {
+        this._array[this._getCyclicIndex(this._length)] = value;
+        if (this._length === this._maxLength) {
+            this._startIndex++;
+            if (this._startIndex === this._maxLength) {
+                this._startIndex = 0;
+            }
+            this.emit('trim', 1);
+        }
+        else {
+            this._length++;
+        }
+    };
+    CircularList.prototype.pop = function () {
+        return this._array[this._getCyclicIndex(this._length-- - 1)];
+    };
+    CircularList.prototype.splice = function (start, deleteCount) {
+        var items = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            items[_i - 2] = arguments[_i];
+        }
+        if (deleteCount) {
+            for (var i = start; i < this._length - deleteCount; i++) {
+                this._array[this._getCyclicIndex(i)] = this._array[this._getCyclicIndex(i + deleteCount)];
+            }
+            this._length -= deleteCount;
+        }
+        if (items && items.length) {
+            for (var i = this._length - 1; i >= start; i--) {
+                this._array[this._getCyclicIndex(i + items.length)] = this._array[this._getCyclicIndex(i)];
+            }
+            for (var i = 0; i < items.length; i++) {
+                this._array[this._getCyclicIndex(start + i)] = items[i];
+            }
+            if (this._length + items.length > this.maxLength) {
+                var countToTrim = (this._length + items.length) - this.maxLength;
+                this._startIndex += countToTrim;
+                this._length = this.maxLength;
+                this.emit('trim', countToTrim);
+            }
+            else {
+                this._length += items.length;
+            }
+        }
+    };
+    CircularList.prototype.trimStart = function (count) {
+        if (count > this._length) {
+            count = this._length;
+        }
+        this._startIndex += count;
+        this._length -= count;
+        this.emit('trim', count);
+    };
+    CircularList.prototype.shiftElements = function (start, count, offset) {
+        if (count <= 0) {
+            return;
+        }
+        if (start < 0 || start >= this._length) {
+            throw new Error('start argument out of range');
+        }
+        if (start + offset < 0) {
+            throw new Error('Cannot shift elements in list beyond index 0');
+        }
+        if (offset > 0) {
+            for (var i = count - 1; i >= 0; i--) {
+                this.set(start + i + offset, this.get(start + i));
+            }
+            var expandListBy = (start + count + offset) - this._length;
+            if (expandListBy > 0) {
+                this._length += expandListBy;
+                while (this._length > this.maxLength) {
+                    this._length--;
+                    this._startIndex++;
+                    this.emit('trim', 1);
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < count; i++) {
+                this.set(start + i + offset, this.get(start + i));
+            }
+        }
+    };
+    CircularList.prototype._getCyclicIndex = function (index) {
+        return (this._startIndex + index) % this.maxLength;
+    };
+    return CircularList;
+}(EventEmitter_1.EventEmitter));
+exports.CircularList = CircularList;
+
+},{"./EventEmitter":17}],17:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Lifecycle_1 = require("./Lifecycle");
+var EventEmitter = (function (_super) {
+    __extends(EventEmitter, _super);
+    function EventEmitter() {
+        var _this = _super.call(this) || this;
+        _this._events = _this._events || {};
+        return _this;
+    }
+    EventEmitter.prototype.on = function (type, listener) {
+        this._events[type] = this._events[type] || [];
+        this._events[type].push(listener);
+    };
+    EventEmitter.prototype.addDisposableListener = function (type, handler) {
+        var _this = this;
+        this.on(type, handler);
+        var disposed = false;
+        return {
+            dispose: function () {
+                if (disposed) {
+                    return;
+                }
+                _this.off(type, handler);
+                disposed = true;
+            }
+        };
+    };
+    EventEmitter.prototype.off = function (type, listener) {
+        if (!this._events[type]) {
+            return;
+        }
+        var obj = this._events[type];
+        var i = obj.length;
+        while (i--) {
+            if (obj[i] === listener) {
+                obj.splice(i, 1);
+                return;
+            }
+        }
+    };
+    EventEmitter.prototype.removeAllListeners = function (type) {
+        if (this._events[type]) {
+            delete this._events[type];
+        }
+    };
+    EventEmitter.prototype.emit = function (type) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        if (!this._events[type]) {
+            return;
+        }
+        var obj = this._events[type];
+        for (var i = 0; i < obj.length; i++) {
+            obj[i].apply(this, args);
+        }
+    };
+    EventEmitter.prototype.listeners = function (type) {
+        return this._events[type] || [];
+    };
+    EventEmitter.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this._events = {};
+    };
+    return EventEmitter;
+}(Lifecycle_1.Disposable));
+exports.EventEmitter = EventEmitter;
+
+},{"./Lifecycle":18}],18:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Disposable = (function () {
+    function Disposable() {
+        this._disposables = [];
+        this._isDisposed = false;
+    }
+    Disposable.prototype.dispose = function () {
+        this._isDisposed = true;
+        this._disposables.forEach(function (d) { return d.dispose(); });
+        this._disposables.length = 0;
+    };
+    Disposable.prototype.register = function (d) {
+        this._disposables.push(d);
+    };
+    Disposable.prototype.unregister = function (d) {
+        var index = this._disposables.indexOf(d);
+        if (index !== -1) {
+            this._disposables.splice(index, 1);
+        }
+    };
+    return Disposable;
+}());
+exports.Disposable = Disposable;
+
+},{}],19:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var C0;
+(function (C0) {
+    C0.NUL = '\x00';
+    C0.SOH = '\x01';
+    C0.STX = '\x02';
+    C0.ETX = '\x03';
+    C0.EOT = '\x04';
+    C0.ENQ = '\x05';
+    C0.ACK = '\x06';
+    C0.BEL = '\x07';
+    C0.BS = '\x08';
+    C0.HT = '\x09';
+    C0.LF = '\x0a';
+    C0.VT = '\x0b';
+    C0.FF = '\x0c';
+    C0.CR = '\x0d';
+    C0.SO = '\x0e';
+    C0.SI = '\x0f';
+    C0.DLE = '\x10';
+    C0.DC1 = '\x11';
+    C0.DC2 = '\x12';
+    C0.DC3 = '\x13';
+    C0.DC4 = '\x14';
+    C0.NAK = '\x15';
+    C0.SYN = '\x16';
+    C0.ETB = '\x17';
+    C0.CAN = '\x18';
+    C0.EM = '\x19';
+    C0.SUB = '\x1a';
+    C0.ESC = '\x1b';
+    C0.FS = '\x1c';
+    C0.GS = '\x1d';
+    C0.RS = '\x1e';
+    C0.US = '\x1f';
+    C0.SP = '\x20';
+    C0.DEL = '\x7f';
+})(C0 = exports.C0 || (exports.C0 = {}));
+var C1;
+(function (C1) {
+    C1.PAD = '\x80';
+    C1.HOP = '\x81';
+    C1.BPH = '\x82';
+    C1.NBH = '\x83';
+    C1.IND = '\x84';
+    C1.NEL = '\x85';
+    C1.SSA = '\x86';
+    C1.ESA = '\x87';
+    C1.HTS = '\x88';
+    C1.HTJ = '\x89';
+    C1.VTS = '\x8a';
+    C1.PLD = '\x8b';
+    C1.PLU = '\x8c';
+    C1.RI = '\x8d';
+    C1.SS2 = '\x8e';
+    C1.SS3 = '\x8f';
+    C1.DCS = '\x90';
+    C1.PU1 = '\x91';
+    C1.PU2 = '\x92';
+    C1.STS = '\x93';
+    C1.CCH = '\x94';
+    C1.MW = '\x95';
+    C1.SPA = '\x96';
+    C1.EPA = '\x97';
+    C1.SOS = '\x98';
+    C1.SGCI = '\x99';
+    C1.SCI = '\x9a';
+    C1.CSI = '\x9b';
+    C1.ST = '\x9c';
+    C1.OSC = '\x9d';
+    C1.PM = '\x9e';
+    C1.APC = '\x9f';
+})(C1 = exports.C1 || (exports.C1 = {}));
+
+},{}],20:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CHARSETS = {};
+exports.DEFAULT_CHARSET = exports.CHARSETS['B'];
+exports.CHARSETS['0'] = {
+    '`': '\u25c6',
+    'a': '\u2592',
+    'b': '\u0009',
+    'c': '\u000c',
+    'd': '\u000d',
+    'e': '\u000a',
+    'f': '\u00b0',
+    'g': '\u00b1',
+    'h': '\u2424',
+    'i': '\u000b',
+    'j': '\u2518',
+    'k': '\u2510',
+    'l': '\u250c',
+    'm': '\u2514',
+    'n': '\u253c',
+    'o': '\u23ba',
+    'p': '\u23bb',
+    'q': '\u2500',
+    'r': '\u23bc',
+    's': '\u23bd',
+    't': '\u251c',
+    'u': '\u2524',
+    'v': '\u2534',
+    'w': '\u252c',
+    'x': '\u2502',
+    'y': '\u2264',
+    'z': '\u2265',
+    '{': '\u03c0',
+    '|': '\u2260',
+    '}': '\u00a3',
+    '~': '\u00b7'
+};
+exports.CHARSETS['A'] = {
+    '#': '£'
+};
+exports.CHARSETS['B'] = null;
+exports.CHARSETS['4'] = {
+    '#': '£',
+    '@': '¾',
+    '[': 'ij',
+    '\\': '½',
+    ']': '|',
+    '{': '¨',
+    '|': 'f',
+    '}': '¼',
+    '~': '´'
+};
+exports.CHARSETS['C'] =
+    exports.CHARSETS['5'] = {
+        '[': 'Ä',
+        '\\': 'Ö',
+        ']': 'Å',
+        '^': 'Ü',
+        '`': 'é',
+        '{': 'ä',
+        '|': 'ö',
+        '}': 'å',
+        '~': 'ü'
+    };
+exports.CHARSETS['R'] = {
+    '#': '£',
+    '@': 'à',
+    '[': '°',
+    '\\': 'ç',
+    ']': '§',
+    '{': 'é',
+    '|': 'ù',
+    '}': 'è',
+    '~': '¨'
+};
+exports.CHARSETS['Q'] = {
+    '@': 'à',
+    '[': 'â',
+    '\\': 'ç',
+    ']': 'ê',
+    '^': 'î',
+    '`': 'ô',
+    '{': 'é',
+    '|': 'ù',
+    '}': 'è',
+    '~': 'û'
+};
+exports.CHARSETS['K'] = {
+    '@': '§',
+    '[': 'Ä',
+    '\\': 'Ö',
+    ']': 'Ü',
+    '{': 'ä',
+    '|': 'ö',
+    '}': 'ü',
+    '~': 'ß'
+};
+exports.CHARSETS['Y'] = {
+    '#': '£',
+    '@': '§',
+    '[': '°',
+    '\\': 'ç',
+    ']': 'é',
+    '`': 'ù',
+    '{': 'à',
+    '|': 'ò',
+    '}': 'è',
+    '~': 'ì'
+};
+exports.CHARSETS['E'] =
+    exports.CHARSETS['6'] = {
+        '@': 'Ä',
+        '[': 'Æ',
+        '\\': 'Ø',
+        ']': 'Å',
+        '^': 'Ü',
+        '`': 'ä',
+        '{': 'æ',
+        '|': 'ø',
+        '}': 'å',
+        '~': 'ü'
+    };
+exports.CHARSETS['Z'] = {
+    '#': '£',
+    '@': '§',
+    '[': '¡',
+    '\\': 'Ñ',
+    ']': '¿',
+    '{': '°',
+    '|': 'ñ',
+    '}': 'ç'
+};
+exports.CHARSETS['H'] =
+    exports.CHARSETS['7'] = {
+        '@': 'É',
+        '[': 'Ä',
+        '\\': 'Ö',
+        ']': 'Å',
+        '^': 'Ü',
+        '`': 'é',
+        '{': 'ä',
+        '|': 'ö',
+        '}': 'å',
+        '~': 'ü'
+    };
+exports.CHARSETS['='] = {
+    '#': 'ù',
+    '@': 'à',
+    '[': 'é',
+    '\\': 'ç',
+    ']': 'ê',
+    '^': 'î',
+    '_': 'è',
+    '`': 'ô',
+    '{': 'ä',
+    '|': 'ö',
+    '}': 'ü',
+    '~': 'û'
+};
+
+},{}],21:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var EscapeSequences_1 = require("../../common/data/EscapeSequences");
+var KEYCODE_KEY_MAPPINGS = {
+    48: ['0', ')'],
+    49: ['1', '!'],
+    50: ['2', '@'],
+    51: ['3', '#'],
+    52: ['4', '$'],
+    53: ['5', '%'],
+    54: ['6', '^'],
+    55: ['7', '&'],
+    56: ['8', '*'],
+    57: ['9', '('],
+    186: [';', ':'],
+    187: ['=', '+'],
+    188: [',', '<'],
+    189: ['-', '_'],
+    190: ['.', '>'],
+    191: ['/', '?'],
+    192: ['`', '~'],
+    219: ['[', '{'],
+    220: ['\\', '|'],
+    221: [']', '}'],
+    222: ['\'', '"']
+};
+function evaluateKeyboardEvent(ev, applicationCursorMode, isMac, macOptionIsMeta) {
+    var result = {
+        type: 0,
+        cancel: false,
+        key: undefined
+    };
+    var modifiers = (ev.shiftKey ? 1 : 0) | (ev.altKey ? 2 : 0) | (ev.ctrlKey ? 4 : 0) | (ev.metaKey ? 8 : 0);
+    switch (ev.keyCode) {
+        case 0:
+            if (ev.key === 'UIKeyInputUpArrow') {
+                if (applicationCursorMode) {
+                    result.key = EscapeSequences_1.C0.ESC + 'OA';
+                }
+                else {
+                    result.key = EscapeSequences_1.C0.ESC + '[A';
+                }
+            }
+            else if (ev.key === 'UIKeyInputLeftArrow') {
+                if (applicationCursorMode) {
+                    result.key = EscapeSequences_1.C0.ESC + 'OD';
+                }
+                else {
+                    result.key = EscapeSequences_1.C0.ESC + '[D';
+                }
+            }
+            else if (ev.key === 'UIKeyInputRightArrow') {
+                if (applicationCursorMode) {
+                    result.key = EscapeSequences_1.C0.ESC + 'OC';
+                }
+                else {
+                    result.key = EscapeSequences_1.C0.ESC + '[C';
+                }
+            }
+            else if (ev.key === 'UIKeyInputDownArrow') {
+                if (applicationCursorMode) {
+                    result.key = EscapeSequences_1.C0.ESC + 'OB';
+                }
+                else {
+                    result.key = EscapeSequences_1.C0.ESC + '[B';
+                }
+            }
+            break;
+        case 8:
+            if (ev.shiftKey) {
+                result.key = EscapeSequences_1.C0.BS;
+                break;
+            }
+            else if (ev.altKey) {
+                result.key = EscapeSequences_1.C0.ESC + EscapeSequences_1.C0.DEL;
+                break;
+            }
+            result.key = EscapeSequences_1.C0.DEL;
+            break;
+        case 9:
+            if (ev.shiftKey) {
+                result.key = EscapeSequences_1.C0.ESC + '[Z';
+                break;
+            }
+            result.key = EscapeSequences_1.C0.HT;
+            result.cancel = true;
+            break;
+        case 13:
+            result.key = EscapeSequences_1.C0.CR;
+            result.cancel = true;
+            break;
+        case 27:
+            result.key = EscapeSequences_1.C0.ESC;
+            result.cancel = true;
+            break;
+        case 37:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'D';
+                if (result.key === EscapeSequences_1.C0.ESC + '[1;3D') {
+                    result.key = isMac ? EscapeSequences_1.C0.ESC + 'b' : EscapeSequences_1.C0.ESC + '[1;5D';
+                }
+            }
+            else if (applicationCursorMode) {
+                result.key = EscapeSequences_1.C0.ESC + 'OD';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[D';
+            }
+            break;
+        case 39:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'C';
+                if (result.key === EscapeSequences_1.C0.ESC + '[1;3C') {
+                    result.key = isMac ? EscapeSequences_1.C0.ESC + 'f' : EscapeSequences_1.C0.ESC + '[1;5C';
+                }
+            }
+            else if (applicationCursorMode) {
+                result.key = EscapeSequences_1.C0.ESC + 'OC';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[C';
+            }
+            break;
+        case 38:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'A';
+                if (result.key === EscapeSequences_1.C0.ESC + '[1;3A') {
+                    result.key = EscapeSequences_1.C0.ESC + '[1;5A';
+                }
+            }
+            else if (applicationCursorMode) {
+                result.key = EscapeSequences_1.C0.ESC + 'OA';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[A';
+            }
+            break;
+        case 40:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'B';
+                if (result.key === EscapeSequences_1.C0.ESC + '[1;3B') {
+                    result.key = EscapeSequences_1.C0.ESC + '[1;5B';
+                }
+            }
+            else if (applicationCursorMode) {
+                result.key = EscapeSequences_1.C0.ESC + 'OB';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[B';
+            }
+            break;
+        case 45:
+            if (!ev.shiftKey && !ev.ctrlKey) {
+                result.key = EscapeSequences_1.C0.ESC + '[2~';
+            }
+            break;
+        case 46:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[3;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[3~';
+            }
+            break;
+        case 36:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'H';
+            }
+            else if (applicationCursorMode) {
+                result.key = EscapeSequences_1.C0.ESC + 'OH';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[H';
+            }
+            break;
+        case 35:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'F';
+            }
+            else if (applicationCursorMode) {
+                result.key = EscapeSequences_1.C0.ESC + 'OF';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[F';
+            }
+            break;
+        case 33:
+            if (ev.shiftKey) {
+                result.type = 2;
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[5~';
+            }
+            break;
+        case 34:
+            if (ev.shiftKey) {
+                result.type = 3;
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[6~';
+            }
+            break;
+        case 112:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'P';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + 'OP';
+            }
+            break;
+        case 113:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'Q';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + 'OQ';
+            }
+            break;
+        case 114:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'R';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + 'OR';
+            }
+            break;
+        case 115:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[1;' + (modifiers + 1) + 'S';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + 'OS';
+            }
+            break;
+        case 116:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[15;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[15~';
+            }
+            break;
+        case 117:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[17;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[17~';
+            }
+            break;
+        case 118:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[18;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[18~';
+            }
+            break;
+        case 119:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[19;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[19~';
+            }
+            break;
+        case 120:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[20;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[20~';
+            }
+            break;
+        case 121:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[21;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[21~';
+            }
+            break;
+        case 122:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[23;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[23~';
+            }
+            break;
+        case 123:
+            if (modifiers) {
+                result.key = EscapeSequences_1.C0.ESC + '[24;' + (modifiers + 1) + '~';
+            }
+            else {
+                result.key = EscapeSequences_1.C0.ESC + '[24~';
+            }
+            break;
+        default:
+            if (ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {
+                if (ev.keyCode >= 65 && ev.keyCode <= 90) {
+                    result.key = String.fromCharCode(ev.keyCode - 64);
+                }
+                else if (ev.keyCode === 32) {
+                    result.key = String.fromCharCode(0);
+                }
+                else if (ev.keyCode >= 51 && ev.keyCode <= 55) {
+                    result.key = String.fromCharCode(ev.keyCode - 51 + 27);
+                }
+                else if (ev.keyCode === 56) {
+                    result.key = String.fromCharCode(127);
+                }
+                else if (ev.keyCode === 219) {
+                    result.key = String.fromCharCode(27);
+                }
+                else if (ev.keyCode === 220) {
+                    result.key = String.fromCharCode(28);
+                }
+                else if (ev.keyCode === 221) {
+                    result.key = String.fromCharCode(29);
+                }
+            }
+            else if ((!isMac || macOptionIsMeta) && ev.altKey && !ev.metaKey) {
+                var keyMapping = KEYCODE_KEY_MAPPINGS[ev.keyCode];
+                var key = keyMapping && keyMapping[!ev.shiftKey ? 0 : 1];
+                if (key) {
+                    result.key = EscapeSequences_1.C0.ESC + key;
+                }
+                else if (ev.keyCode >= 65 && ev.keyCode <= 90) {
+                    var keyCode = ev.ctrlKey ? ev.keyCode - 64 : ev.keyCode + 32;
+                    result.key = EscapeSequences_1.C0.ESC + String.fromCharCode(keyCode);
+                }
+            }
+            else if (isMac && !ev.altKey && !ev.ctrlKey && ev.metaKey) {
+                if (ev.keyCode === 65) {
+                    result.type = 1;
+                }
+            }
+            break;
+    }
+    return result;
+}
+exports.evaluateKeyboardEvent = evaluateKeyboardEvent;
+
+},{"../../common/data/EscapeSequences":19}],22:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var EscapeSequences_1 = require("../common/data/EscapeSequences");
+var AltClickHandler = (function () {
+    function AltClickHandler(_mouseEvent, _terminal) {
+        var _a;
+        this._mouseEvent = _mouseEvent;
+        this._terminal = _terminal;
+        this._lines = this._terminal.buffer.lines;
+        this._startCol = this._terminal.buffer.x;
+        this._startRow = this._terminal.buffer.y;
+        var coordinates = this._terminal.mouseHelper.getCoords(this._mouseEvent, this._terminal.element, this._terminal.charMeasure, this._terminal.options.lineHeight, this._terminal.cols, this._terminal.rows, false);
+        if (coordinates) {
+            _a = coordinates.map(function (coordinate) {
+                return coordinate - 1;
+            }), this._endCol = _a[0], this._endRow = _a[1];
+        }
+    }
+    AltClickHandler.prototype.move = function () {
+        if (this._mouseEvent.altKey && this._endCol !== undefined && this._endRow !== undefined) {
+            this._terminal.handler(this._arrowSequences());
+        }
+    };
+    AltClickHandler.prototype._arrowSequences = function () {
+        if (!this._terminal.buffer.hasScrollback) {
+            return this._resetStartingRow() + this._moveToRequestedRow() + this._moveToRequestedCol();
+        }
+        return this._moveHorizontallyOnly();
+    };
+    AltClickHandler.prototype._resetStartingRow = function () {
+        if (this._moveToRequestedRow().length === 0) {
+            return '';
+        }
+        return repeat(this._bufferLine(this._startCol, this._startRow, this._startCol, this._startRow - this._wrappedRowsForRow(this._startRow), false).length, this._sequence("D"));
+    };
+    AltClickHandler.prototype._moveToRequestedRow = function () {
+        var startRow = this._startRow - this._wrappedRowsForRow(this._startRow);
+        var endRow = this._endRow - this._wrappedRowsForRow(this._endRow);
+        var rowsToMove = Math.abs(startRow - endRow) - this._wrappedRowsCount();
+        return repeat(rowsToMove, this._sequence(this._verticalDirection()));
+    };
+    AltClickHandler.prototype._moveToRequestedCol = function () {
+        var startRow;
+        if (this._moveToRequestedRow().length > 0) {
+            startRow = this._endRow - this._wrappedRowsForRow(this._endRow);
+        }
+        else {
+            startRow = this._startRow;
+        }
+        var endRow = this._endRow;
+        var direction = this._horizontalDirection();
+        return repeat(this._bufferLine(this._startCol, startRow, this._endCol, endRow, direction === "C").length, this._sequence(direction));
+    };
+    AltClickHandler.prototype._moveHorizontallyOnly = function () {
+        var direction = this._horizontalDirection();
+        return repeat(Math.abs(this._startCol - this._endCol), this._sequence(direction));
+    };
+    AltClickHandler.prototype._wrappedRowsCount = function () {
+        var wrappedRows = 0;
+        var startRow = this._startRow - this._wrappedRowsForRow(this._startRow);
+        var endRow = this._endRow - this._wrappedRowsForRow(this._endRow);
+        for (var i = 0; i < Math.abs(startRow - endRow); i++) {
+            var direction = this._verticalDirection() === "A" ? -1 : 1;
+            if (this._lines.get(startRow + (direction * i)).isWrapped) {
+                wrappedRows++;
+            }
+        }
+        return wrappedRows;
+    };
+    AltClickHandler.prototype._wrappedRowsForRow = function (currentRow) {
+        var rowCount = 0;
+        var lineWraps = this._lines.get(currentRow).isWrapped;
+        while (lineWraps && currentRow >= 0 && currentRow < this._terminal.rows) {
+            rowCount++;
+            currentRow--;
+            lineWraps = this._lines.get(currentRow).isWrapped;
+        }
+        return rowCount;
+    };
+    AltClickHandler.prototype._horizontalDirection = function () {
+        var startRow;
+        if (this._moveToRequestedRow().length > 0) {
+            startRow = this._endRow - this._wrappedRowsForRow(this._endRow);
+        }
+        else {
+            startRow = this._startRow;
+        }
+        if ((this._startCol < this._endCol &&
+            startRow <= this._endRow) ||
+            (this._startCol >= this._endCol &&
+                startRow < this._endRow)) {
+            return "C";
+        }
+        return "D";
+    };
+    AltClickHandler.prototype._verticalDirection = function () {
+        if (this._startRow > this._endRow) {
+            return "A";
+        }
+        return "B";
+    };
+    AltClickHandler.prototype._bufferLine = function (startCol, startRow, endCol, endRow, forward) {
+        var currentCol = startCol;
+        var currentRow = startRow;
+        var bufferStr = '';
+        while (currentCol !== endCol || currentRow !== endRow) {
+            currentCol += forward ? 1 : -1;
+            if (forward && currentCol > this._terminal.cols - 1) {
+                bufferStr += this._terminal.buffer.translateBufferLineToString(currentRow, false, startCol, currentCol);
+                currentCol = 0;
+                startCol = 0;
+                currentRow++;
+            }
+            else if (!forward && currentCol < 0) {
+                bufferStr += this._terminal.buffer.translateBufferLineToString(currentRow, false, 0, startCol + 1);
+                currentCol = this._terminal.cols - 1;
+                startCol = currentCol;
+                currentRow--;
+            }
+        }
+        return bufferStr + this._terminal.buffer.translateBufferLineToString(currentRow, false, startCol, currentCol);
+    };
+    AltClickHandler.prototype._sequence = function (direction) {
+        var mod = this._terminal.applicationCursor ? 'O' : '[';
+        return EscapeSequences_1.C0.ESC + mod + direction;
+    };
+    return AltClickHandler;
+}());
+exports.AltClickHandler = AltClickHandler;
+function repeat(count, str) {
+    count = Math.floor(count);
+    var rpt = '';
+    for (var i = 0; i < count; i++) {
+        rpt += str;
+    }
+    return rpt;
+}
+
+},{"../common/data/EscapeSequences":19}],23:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function prepareTextForTerminal(text) {
+    return text.replace(/\r?\n/g, '\r');
+}
+exports.prepareTextForTerminal = prepareTextForTerminal;
+function bracketTextForPaste(text, bracketedPasteMode) {
+    if (bracketedPasteMode) {
+        return '\x1b[200~' + text + '\x1b[201~';
+    }
+    return text;
+}
+exports.bracketTextForPaste = bracketTextForPaste;
+function copyHandler(ev, term, selectionManager) {
+    if (term.browser.isMSIE) {
+        window.clipboardData.setData('Text', selectionManager.selectionText);
+    }
+    else {
+        ev.clipboardData.setData('text/plain', selectionManager.selectionText);
+    }
+    ev.preventDefault();
+}
+exports.copyHandler = copyHandler;
+function pasteHandler(ev, term) {
+    ev.stopPropagation();
+    var text;
+    var dispatchPaste = function (text) {
+        text = prepareTextForTerminal(text);
+        text = bracketTextForPaste(text, term.bracketedPasteMode);
+        term.handler(text);
+        term.textarea.value = '';
+        term.emit('paste', text);
+        term.cancel(ev);
+    };
+    if (term.browser.isMSIE) {
+        if (window.clipboardData) {
+            text = window.clipboardData.getData('Text');
+            dispatchPaste(text);
+        }
+    }
+    else {
+        if (ev.clipboardData) {
+            text = ev.clipboardData.getData('text/plain');
+            dispatchPaste(text);
+        }
+    }
+}
+exports.pasteHandler = pasteHandler;
+function moveTextAreaUnderMouseCursor(ev, textarea) {
+    textarea.style.position = 'fixed';
+    textarea.style.width = '20px';
+    textarea.style.height = '20px';
+    textarea.style.left = (ev.clientX - 10) + 'px';
+    textarea.style.top = (ev.clientY - 10) + 'px';
+    textarea.style.zIndex = '1000';
+    textarea.focus();
+    setTimeout(function () {
+        textarea.style.position = null;
+        textarea.style.width = null;
+        textarea.style.height = null;
+        textarea.style.left = null;
+        textarea.style.top = null;
+        textarea.style.zIndex = null;
+    }, 200);
+}
+exports.moveTextAreaUnderMouseCursor = moveTextAreaUnderMouseCursor;
+function rightClickHandler(ev, textarea, selectionManager, shouldSelectWord) {
+    moveTextAreaUnderMouseCursor(ev, textarea);
+    if (shouldSelectWord && !selectionManager.isClickInSelection(ev)) {
+        selectionManager.selectWordAtCursor(ev);
+    }
+    textarea.value = selectionManager.selectionText;
+    textarea.select();
+}
+exports.rightClickHandler = rightClickHandler;
+
+},{}],24:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Terminal_1 = require("../Terminal");
+var Strings = require("../Strings");
+var Terminal = (function () {
+    function Terminal(options) {
+        this._core = new Terminal_1.Terminal(options);
+    }
+    Object.defineProperty(Terminal.prototype, "element", {
+        get: function () { return this._core.element; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Terminal.prototype, "textarea", {
+        get: function () { return this._core.textarea; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Terminal.prototype, "rows", {
+        get: function () { return this._core.rows; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Terminal.prototype, "cols", {
+        get: function () { return this._core.cols; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Terminal.prototype, "markers", {
+        get: function () { return this._core.markers; },
+        enumerable: true,
+        configurable: true
+    });
+    Terminal.prototype.blur = function () {
+        this._core.blur();
+    };
+    Terminal.prototype.focus = function () {
+        this._core.focus();
+    };
+    Terminal.prototype.on = function (type, listener) {
+        this._core.on(type, listener);
+    };
+    Terminal.prototype.off = function (type, listener) {
+        this._core.off(type, listener);
+    };
+    Terminal.prototype.emit = function (type, data) {
+        this._core.emit(type, data);
+    };
+    Terminal.prototype.addDisposableListener = function (type, handler) {
+        return this._core.addDisposableListener(type, handler);
+    };
+    Terminal.prototype.resize = function (columns, rows) {
+        this._core.resize(columns, rows);
+    };
+    Terminal.prototype.writeln = function (data) {
+        this._core.writeln(data);
+    };
+    Terminal.prototype.open = function (parent) {
+        this._core.open(parent);
+    };
+    Terminal.prototype.attachCustomKeyEventHandler = function (customKeyEventHandler) {
+        this._core.attachCustomKeyEventHandler(customKeyEventHandler);
+    };
+    Terminal.prototype.registerLinkMatcher = function (regex, handler, options) {
+        return this._core.registerLinkMatcher(regex, handler, options);
+    };
+    Terminal.prototype.deregisterLinkMatcher = function (matcherId) {
+        this._core.deregisterLinkMatcher(matcherId);
+    };
+    Terminal.prototype.registerCharacterJoiner = function (handler) {
+        return this._core.registerCharacterJoiner(handler);
+    };
+    Terminal.prototype.deregisterCharacterJoiner = function (joinerId) {
+        this._core.deregisterCharacterJoiner(joinerId);
+    };
+    Terminal.prototype.addMarker = function (cursorYOffset) {
+        return this._core.addMarker(cursorYOffset);
+    };
+    Terminal.prototype.hasSelection = function () {
+        return this._core.hasSelection();
+    };
+    Terminal.prototype.getSelection = function () {
+        return this._core.getSelection();
+    };
+    Terminal.prototype.clearSelection = function () {
+        this._core.clearSelection();
+    };
+    Terminal.prototype.selectAll = function () {
+        this._core.selectAll();
+    };
+    Terminal.prototype.selectLines = function (start, end) {
+        this._core.selectLines(start, end);
+    };
+    Terminal.prototype.dispose = function () {
+        this._core.dispose();
+    };
+    Terminal.prototype.destroy = function () {
+        this._core.destroy();
+    };
+    Terminal.prototype.scrollLines = function (amount) {
+        this._core.scrollLines(amount);
+    };
+    Terminal.prototype.scrollPages = function (pageCount) {
+        this._core.scrollPages(pageCount);
+    };
+    Terminal.prototype.scrollToTop = function () {
+        this._core.scrollToTop();
+    };
+    Terminal.prototype.scrollToBottom = function () {
+        this._core.scrollToBottom();
+    };
+    Terminal.prototype.scrollToLine = function (line) {
+        this._core.scrollToLine(line);
+    };
+    Terminal.prototype.clear = function () {
+        this._core.clear();
+    };
+    Terminal.prototype.write = function (data) {
+        this._core.write(data);
+    };
+    Terminal.prototype.getOption = function (key) {
+        return this._core.getOption(key);
+    };
+    Terminal.prototype.setOption = function (key, value) {
+        this._core.setOption(key, value);
+    };
+    Terminal.prototype.refresh = function (start, end) {
+        this._core.refresh(start, end);
+    };
+    Terminal.prototype.reset = function () {
+        this._core.reset();
+    };
+    Terminal.applyAddon = function (addon) {
+        addon.apply(Terminal);
+    };
+    Object.defineProperty(Terminal, "strings", {
+        get: function () {
+            return Strings;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Terminal;
+}());
+exports.Terminal = Terminal;
+
+},{"../Strings":13,"../Terminal":14}],25:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = require("./atlas/Types");
+var CharAtlasCache_1 = require("./atlas/CharAtlasCache");
+var Buffer_1 = require("../Buffer");
+var BaseRenderLayer = (function () {
+    function BaseRenderLayer(_container, id, zIndex, _alpha, _colors) {
+        this._container = _container;
+        this._alpha = _alpha;
+        this._colors = _colors;
+        this._scaledCharWidth = 0;
+        this._scaledCharHeight = 0;
+        this._scaledCellWidth = 0;
+        this._scaledCellHeight = 0;
+        this._scaledCharLeft = 0;
+        this._scaledCharTop = 0;
+        this._currentGlyphIdentifier = {
+            chars: '',
+            code: 0,
+            bg: 0,
+            fg: 0,
+            bold: false,
+            dim: false,
+            italic: false
+        };
+        this._canvas = document.createElement('canvas');
+        this._canvas.classList.add("xterm-" + id + "-layer");
+        this._canvas.style.zIndex = zIndex.toString();
+        this._initCanvas();
+        this._container.appendChild(this._canvas);
+    }
+    BaseRenderLayer.prototype.dispose = function () {
+        this._container.removeChild(this._canvas);
+        if (this._charAtlas) {
+            this._charAtlas.dispose();
+        }
+    };
+    BaseRenderLayer.prototype._initCanvas = function () {
+        this._ctx = this._canvas.getContext('2d', { alpha: this._alpha });
+        if (!this._alpha) {
+            this.clearAll();
+        }
+    };
+    BaseRenderLayer.prototype.onOptionsChanged = function (terminal) { };
+    BaseRenderLayer.prototype.onBlur = function (terminal) { };
+    BaseRenderLayer.prototype.onFocus = function (terminal) { };
+    BaseRenderLayer.prototype.onCursorMove = function (terminal) { };
+    BaseRenderLayer.prototype.onGridChanged = function (terminal, startRow, endRow) { };
+    BaseRenderLayer.prototype.onSelectionChanged = function (terminal, start, end, columnSelectMode) {
+        if (columnSelectMode === void 0) { columnSelectMode = false; }
+    };
+    BaseRenderLayer.prototype.onThemeChanged = function (terminal, colorSet) {
+        this._refreshCharAtlas(terminal, colorSet);
+    };
+    BaseRenderLayer.prototype.setTransparency = function (terminal, alpha) {
+        if (alpha === this._alpha) {
+            return;
+        }
+        var oldCanvas = this._canvas;
+        this._alpha = alpha;
+        this._canvas = this._canvas.cloneNode();
+        this._initCanvas();
+        this._container.replaceChild(this._canvas, oldCanvas);
+        this._refreshCharAtlas(terminal, this._colors);
+        this.onGridChanged(terminal, 0, terminal.rows - 1);
+    };
+    BaseRenderLayer.prototype._refreshCharAtlas = function (terminal, colorSet) {
+        if (this._scaledCharWidth <= 0 && this._scaledCharHeight <= 0) {
+            return;
+        }
+        this._charAtlas = CharAtlasCache_1.acquireCharAtlas(terminal, colorSet, this._scaledCharWidth, this._scaledCharHeight);
+        this._charAtlas.warmUp();
+    };
+    BaseRenderLayer.prototype.resize = function (terminal, dim) {
+        this._scaledCellWidth = dim.scaledCellWidth;
+        this._scaledCellHeight = dim.scaledCellHeight;
+        this._scaledCharWidth = dim.scaledCharWidth;
+        this._scaledCharHeight = dim.scaledCharHeight;
+        this._scaledCharLeft = dim.scaledCharLeft;
+        this._scaledCharTop = dim.scaledCharTop;
+        this._canvas.width = dim.scaledCanvasWidth;
+        this._canvas.height = dim.scaledCanvasHeight;
+        this._canvas.style.width = dim.canvasWidth + "px";
+        this._canvas.style.height = dim.canvasHeight + "px";
+        if (!this._alpha) {
+            this.clearAll();
+        }
+        this._refreshCharAtlas(terminal, this._colors);
+    };
+    BaseRenderLayer.prototype.fillCells = function (x, y, width, height) {
+        this._ctx.fillRect(x * this._scaledCellWidth, y * this._scaledCellHeight, width * this._scaledCellWidth, height * this._scaledCellHeight);
+    };
+    BaseRenderLayer.prototype.fillBottomLineAtCells = function (x, y, width) {
+        if (width === void 0) { width = 1; }
+        this._ctx.fillRect(x * this._scaledCellWidth, (y + 1) * this._scaledCellHeight - window.devicePixelRatio - 1, width * this._scaledCellWidth, window.devicePixelRatio);
+    };
+    BaseRenderLayer.prototype.fillLeftLineAtCell = function (x, y) {
+        this._ctx.fillRect(x * this._scaledCellWidth, y * this._scaledCellHeight, window.devicePixelRatio, this._scaledCellHeight);
+    };
+    BaseRenderLayer.prototype.strokeRectAtCell = function (x, y, width, height) {
+        this._ctx.lineWidth = window.devicePixelRatio;
+        this._ctx.strokeRect(x * this._scaledCellWidth + window.devicePixelRatio / 2, y * this._scaledCellHeight + (window.devicePixelRatio / 2), width * this._scaledCellWidth - window.devicePixelRatio, (height * this._scaledCellHeight) - window.devicePixelRatio);
+    };
+    BaseRenderLayer.prototype.clearAll = function () {
+        if (this._alpha) {
+            this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        }
+        else {
+            this._ctx.fillStyle = this._colors.background.css;
+            this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+        }
+    };
+    BaseRenderLayer.prototype.clearCells = function (x, y, width, height) {
+        if (this._alpha) {
+            this._ctx.clearRect(x * this._scaledCellWidth, y * this._scaledCellHeight, width * this._scaledCellWidth, height * this._scaledCellHeight);
+        }
+        else {
+            this._ctx.fillStyle = this._colors.background.css;
+            this._ctx.fillRect(x * this._scaledCellWidth, y * this._scaledCellHeight, width * this._scaledCellWidth, height * this._scaledCellHeight);
+        }
+    };
+    BaseRenderLayer.prototype.fillCharTrueColor = function (terminal, charData, x, y) {
+        this._ctx.font = this._getFont(terminal, false, false);
+        this._ctx.textBaseline = 'top';
+        this._clipRow(terminal, y);
+        this._ctx.fillText(charData[Buffer_1.CHAR_DATA_CHAR_INDEX], x * this._scaledCellWidth + this._scaledCharLeft, y * this._scaledCellHeight + this._scaledCharTop);
+    };
+    BaseRenderLayer.prototype.drawChars = function (terminal, chars, code, width, x, y, fg, bg, bold, dim, italic) {
+        var drawInBrightColor = terminal.options.drawBoldTextInBrightColors && bold && fg < 8 && fg !== Types_1.INVERTED_DEFAULT_COLOR;
+        fg += drawInBrightColor ? 8 : 0;
+        this._currentGlyphIdentifier.chars = chars;
+        this._currentGlyphIdentifier.code = code;
+        this._currentGlyphIdentifier.bg = bg;
+        this._currentGlyphIdentifier.fg = fg;
+        this._currentGlyphIdentifier.bold = bold && terminal.options.enableBold;
+        this._currentGlyphIdentifier.dim = dim;
+        this._currentGlyphIdentifier.italic = italic;
+        var atlasDidDraw = this._charAtlas && this._charAtlas.draw(this._ctx, this._currentGlyphIdentifier, x * this._scaledCellWidth + this._scaledCharLeft, y * this._scaledCellHeight + this._scaledCharTop);
+        if (!atlasDidDraw) {
+            this._drawUncachedChars(terminal, chars, width, fg, x, y, bold && terminal.options.enableBold, dim, italic);
+        }
+    };
+    BaseRenderLayer.prototype._drawUncachedChars = function (terminal, chars, width, fg, x, y, bold, dim, italic) {
+        this._ctx.save();
+        this._ctx.font = this._getFont(terminal, bold, italic);
+        this._ctx.textBaseline = 'top';
+        if (fg === Types_1.INVERTED_DEFAULT_COLOR) {
+            this._ctx.fillStyle = this._colors.background.css;
+        }
+        else if (fg < 256) {
+            this._ctx.fillStyle = this._colors.ansi[fg].css;
+        }
+        else {
+            this._ctx.fillStyle = this._colors.foreground.css;
+        }
+        this._clipRow(terminal, y);
+        if (dim) {
+            this._ctx.globalAlpha = Types_1.DIM_OPACITY;
+        }
+        this._ctx.fillText(chars, x * this._scaledCellWidth + this._scaledCharLeft, y * this._scaledCellHeight + this._scaledCharTop);
+        this._ctx.restore();
+    };
+    BaseRenderLayer.prototype._clipRow = function (terminal, y) {
+        this._ctx.beginPath();
+        this._ctx.rect(0, y * this._scaledCellHeight, terminal.cols * this._scaledCellWidth, this._scaledCellHeight);
+        this._ctx.clip();
+    };
+    BaseRenderLayer.prototype._getFont = function (terminal, isBold, isItalic) {
+        var fontWeight = isBold ? terminal.options.fontWeightBold : terminal.options.fontWeight;
+        var fontStyle = isItalic ? 'italic' : '';
+        return fontStyle + " " + fontWeight + " " + terminal.options.fontSize * window.devicePixelRatio + "px " + terminal.options.fontFamily;
+    };
+    return BaseRenderLayer;
+}());
+exports.BaseRenderLayer = BaseRenderLayer;
+
+},{"../Buffer":2,"./atlas/CharAtlasCache":35,"./atlas/Types":41}],26:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Buffer_1 = require("../Buffer");
+var CharacterJoinerRegistry = (function () {
+    function CharacterJoinerRegistry(_terminal) {
+        this._terminal = _terminal;
+        this._characterJoiners = [];
+        this._nextCharacterJoinerId = 0;
+    }
+    CharacterJoinerRegistry.prototype.registerCharacterJoiner = function (handler) {
+        var joiner = {
+            id: this._nextCharacterJoinerId++,
+            handler: handler
+        };
+        this._characterJoiners.push(joiner);
+        return joiner.id;
+    };
+    CharacterJoinerRegistry.prototype.deregisterCharacterJoiner = function (joinerId) {
+        for (var i = 0; i < this._characterJoiners.length; i++) {
+            if (this._characterJoiners[i].id === joinerId) {
+                this._characterJoiners.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    };
+    CharacterJoinerRegistry.prototype.getJoinedCharacters = function (row) {
+        if (this._characterJoiners.length === 0) {
+            return [];
+        }
+        var line = this._terminal.buffer.lines.get(row);
+        if (line.length === 0) {
+            return [];
+        }
+        var ranges = [];
+        var lineStr = this._terminal.buffer.translateBufferLineToString(row, true);
+        var rangeStartColumn = 0;
+        var currentStringIndex = 0;
+        var rangeStartStringIndex = 0;
+        var rangeAttr = line.get(0)[Buffer_1.CHAR_DATA_ATTR_INDEX] >> 9;
+        for (var x = 0; x < this._terminal.cols; x++) {
+            var charData = line.get(x);
+            var chars = charData[Buffer_1.CHAR_DATA_CHAR_INDEX];
+            var width = charData[Buffer_1.CHAR_DATA_WIDTH_INDEX];
+            var attr = charData[Buffer_1.CHAR_DATA_ATTR_INDEX] >> 9;
+            if (width === 0) {
+                continue;
+            }
+            if (attr !== rangeAttr) {
+                if (x - rangeStartColumn > 1) {
+                    var joinedRanges = this._getJoinedRanges(lineStr, rangeStartStringIndex, currentStringIndex, line, rangeStartColumn);
+                    for (var i = 0; i < joinedRanges.length; i++) {
+                        ranges.push(joinedRanges[i]);
+                    }
+                }
+                rangeStartColumn = x;
+                rangeStartStringIndex = currentStringIndex;
+                rangeAttr = attr;
+            }
+            currentStringIndex += chars.length;
+        }
+        if (this._terminal.cols - rangeStartColumn > 1) {
+            var joinedRanges = this._getJoinedRanges(lineStr, rangeStartStringIndex, currentStringIndex, line, rangeStartColumn);
+            for (var i = 0; i < joinedRanges.length; i++) {
+                ranges.push(joinedRanges[i]);
+            }
+        }
+        return ranges;
+    };
+    CharacterJoinerRegistry.prototype._getJoinedRanges = function (line, startIndex, endIndex, lineData, startCol) {
+        var text = line.substring(startIndex, endIndex);
+        var joinedRanges = this._characterJoiners[0].handler(text);
+        for (var i = 1; i < this._characterJoiners.length; i++) {
+            var joinerRanges = this._characterJoiners[i].handler(text);
+            for (var j = 0; j < joinerRanges.length; j++) {
+                CharacterJoinerRegistry._mergeRanges(joinedRanges, joinerRanges[j]);
+            }
+        }
+        this._stringRangesToCellRanges(joinedRanges, lineData, startCol);
+        return joinedRanges;
+    };
+    CharacterJoinerRegistry.prototype._stringRangesToCellRanges = function (ranges, line, startCol) {
+        var currentRangeIndex = 0;
+        var currentRangeStarted = false;
+        var currentStringIndex = 0;
+        var currentRange = ranges[currentRangeIndex];
+        if (!currentRange) {
+            return;
+        }
+        for (var x = startCol; x < this._terminal.cols; x++) {
+            var charData = line.get(x);
+            var width = charData[Buffer_1.CHAR_DATA_WIDTH_INDEX];
+            var length_1 = charData[Buffer_1.CHAR_DATA_CHAR_INDEX].length;
+            if (width === 0) {
+                continue;
+            }
+            if (!currentRangeStarted && currentRange[0] <= currentStringIndex) {
+                currentRange[0] = x;
+                currentRangeStarted = true;
+            }
+            if (currentRange[1] <= currentStringIndex) {
+                currentRange[1] = x;
+                currentRange = ranges[++currentRangeIndex];
+                if (!currentRange) {
+                    break;
+                }
+                if (currentRange[0] <= currentStringIndex) {
+                    currentRange[0] = x;
+                    currentRangeStarted = true;
+                }
+                else {
+                    currentRangeStarted = false;
+                }
+            }
+            currentStringIndex += length_1;
+        }
+        if (currentRange) {
+            currentRange[1] = this._terminal.cols;
+        }
+    };
+    CharacterJoinerRegistry._mergeRanges = function (ranges, newRange) {
+        var inRange = false;
+        for (var i = 0; i < ranges.length; i++) {
+            var range = ranges[i];
+            if (!inRange) {
+                if (newRange[1] <= range[0]) {
+                    ranges.splice(i, 0, newRange);
+                    return ranges;
+                }
+                if (newRange[1] <= range[1]) {
+                    range[0] = Math.min(newRange[0], range[0]);
+                    return ranges;
+                }
+                if (newRange[0] < range[1]) {
+                    range[0] = Math.min(newRange[0], range[0]);
+                    inRange = true;
+                }
+                continue;
+            }
+            else {
+                if (newRange[1] <= range[0]) {
+                    ranges[i - 1][1] = newRange[1];
+                    return ranges;
+                }
+                if (newRange[1] <= range[1]) {
+                    ranges[i - 1][1] = Math.max(newRange[1], range[1]);
+                    ranges.splice(i, 1);
+                    inRange = false;
+                    return ranges;
+                }
+                ranges.splice(i, 1);
+                i--;
+            }
+        }
+        if (inRange) {
+            ranges[ranges.length - 1][1] = newRange[1];
+        }
+        else {
+            ranges.push(newRange);
+        }
+        return ranges;
+    };
+    return CharacterJoinerRegistry;
+}());
+exports.CharacterJoinerRegistry = CharacterJoinerRegistry;
+
+},{"../Buffer":2}],27:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var DEFAULT_FOREGROUND = fromHex('#ffffff');
+var DEFAULT_BACKGROUND = fromHex('#000000');
+var DEFAULT_CURSOR = fromHex('#ffffff');
+var DEFAULT_CURSOR_ACCENT = fromHex('#000000');
+var DEFAULT_SELECTION = {
+    css: 'rgba(255, 255, 255, 0.3)',
+    rgba: 0xFFFFFF77
+};
+exports.DEFAULT_ANSI_COLORS = (function () {
+    var colors = [
+        fromHex('#2e3436'),
+        fromHex('#cc0000'),
+        fromHex('#4e9a06'),
+        fromHex('#c4a000'),
+        fromHex('#3465a4'),
+        fromHex('#75507b'),
+        fromHex('#06989a'),
+        fromHex('#d3d7cf'),
+        fromHex('#555753'),
+        fromHex('#ef2929'),
+        fromHex('#8ae234'),
+        fromHex('#fce94f'),
+        fromHex('#729fcf'),
+        fromHex('#ad7fa8'),
+        fromHex('#34e2e2'),
+        fromHex('#eeeeec')
+    ];
+    var v = [0x00, 0x5f, 0x87, 0xaf, 0xd7, 0xff];
+    for (var i = 0; i < 216; i++) {
+        var r = v[(i / 36) % 6 | 0];
+        var g = v[(i / 6) % 6 | 0];
+        var b = v[i % 6];
+        colors.push({
+            css: "#" + toPaddedHex(r) + toPaddedHex(g) + toPaddedHex(b),
+            rgba: ((r << 24) | (g << 16) | (b << 8) | 0xFF) >>> 0
+        });
+    }
+    for (var i = 0; i < 24; i++) {
+        var c = 8 + i * 10;
+        var ch = toPaddedHex(c);
+        colors.push({
+            css: "#" + ch + ch + ch,
+            rgba: ((c << 24) | (c << 16) | (c << 8) | 0xFF) >>> 0
+        });
+    }
+    return colors;
+})();
+function fromHex(css) {
+    return {
+        css: css,
+        rgba: parseInt(css.slice(1), 16) << 8 | 0xFF
+    };
+}
+function toPaddedHex(c) {
+    var s = c.toString(16);
+    return s.length < 2 ? '0' + s : s;
+}
+var ColorManager = (function () {
+    function ColorManager(document, allowTransparency) {
+        this.allowTransparency = allowTransparency;
+        var canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        this._ctx = canvas.getContext('2d');
+        this._ctx.globalCompositeOperation = 'copy';
+        this._litmusColor = this._ctx.createLinearGradient(0, 0, 1, 1);
+        this.colors = {
+            foreground: DEFAULT_FOREGROUND,
+            background: DEFAULT_BACKGROUND,
+            cursor: DEFAULT_CURSOR,
+            cursorAccent: DEFAULT_CURSOR_ACCENT,
+            selection: DEFAULT_SELECTION,
+            ansi: exports.DEFAULT_ANSI_COLORS.slice()
+        };
+    }
+    ColorManager.prototype.setTheme = function (theme) {
+        this.colors.foreground = this._parseColor(theme.foreground, DEFAULT_FOREGROUND);
+        this.colors.background = this._parseColor(theme.background, DEFAULT_BACKGROUND);
+        this.colors.cursor = this._parseColor(theme.cursor, DEFAULT_CURSOR, true);
+        this.colors.cursorAccent = this._parseColor(theme.cursorAccent, DEFAULT_CURSOR_ACCENT, true);
+        this.colors.selection = this._parseColor(theme.selection, DEFAULT_SELECTION, true);
+        this.colors.ansi[0] = this._parseColor(theme.black, exports.DEFAULT_ANSI_COLORS[0]);
+        this.colors.ansi[1] = this._parseColor(theme.red, exports.DEFAULT_ANSI_COLORS[1]);
+        this.colors.ansi[2] = this._parseColor(theme.green, exports.DEFAULT_ANSI_COLORS[2]);
+        this.colors.ansi[3] = this._parseColor(theme.yellow, exports.DEFAULT_ANSI_COLORS[3]);
+        this.colors.ansi[4] = this._parseColor(theme.blue, exports.DEFAULT_ANSI_COLORS[4]);
+        this.colors.ansi[5] = this._parseColor(theme.magenta, exports.DEFAULT_ANSI_COLORS[5]);
+        this.colors.ansi[6] = this._parseColor(theme.cyan, exports.DEFAULT_ANSI_COLORS[6]);
+        this.colors.ansi[7] = this._parseColor(theme.white, exports.DEFAULT_ANSI_COLORS[7]);
+        this.colors.ansi[8] = this._parseColor(theme.brightBlack, exports.DEFAULT_ANSI_COLORS[8]);
+        this.colors.ansi[9] = this._parseColor(theme.brightRed, exports.DEFAULT_ANSI_COLORS[9]);
+        this.colors.ansi[10] = this._parseColor(theme.brightGreen, exports.DEFAULT_ANSI_COLORS[10]);
+        this.colors.ansi[11] = this._parseColor(theme.brightYellow, exports.DEFAULT_ANSI_COLORS[11]);
+        this.colors.ansi[12] = this._parseColor(theme.brightBlue, exports.DEFAULT_ANSI_COLORS[12]);
+        this.colors.ansi[13] = this._parseColor(theme.brightMagenta, exports.DEFAULT_ANSI_COLORS[13]);
+        this.colors.ansi[14] = this._parseColor(theme.brightCyan, exports.DEFAULT_ANSI_COLORS[14]);
+        this.colors.ansi[15] = this._parseColor(theme.brightWhite, exports.DEFAULT_ANSI_COLORS[15]);
+    };
+    ColorManager.prototype._parseColor = function (css, fallback, allowTransparency) {
+        if (allowTransparency === void 0) { allowTransparency = this.allowTransparency; }
+        if (!css) {
+            return fallback;
+        }
+        this._ctx.fillStyle = this._litmusColor;
+        this._ctx.fillStyle = css;
+        if (typeof this._ctx.fillStyle !== 'string') {
+            console.warn("Color: " + css + " is invalid using fallback " + fallback.css);
+            return fallback;
+        }
+        this._ctx.fillRect(0, 0, 1, 1);
+        var data = this._ctx.getImageData(0, 0, 1, 1).data;
+        if (!allowTransparency && data[3] !== 0xFF) {
+            console.warn("Color: " + css + " is using transparency, but allowTransparency is false. " +
+                ("Using fallback " + fallback.css + "."));
+            return fallback;
+        }
+        return {
+            css: css,
+            rgba: (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]) >>> 0
+        };
+    };
+    return ColorManager;
+}());
+exports.ColorManager = ColorManager;
+
+},{}],28:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Buffer_1 = require("../Buffer");
+var BaseRenderLayer_1 = require("./BaseRenderLayer");
+var BLINK_INTERVAL = 600;
+var CursorRenderLayer = (function (_super) {
+    __extends(CursorRenderLayer, _super);
+    function CursorRenderLayer(container, zIndex, colors) {
+        var _this = _super.call(this, container, 'cursor', zIndex, true, colors) || this;
+        _this._state = {
+            x: null,
+            y: null,
+            isFocused: null,
+            style: null,
+            width: null
+        };
+        _this._cursorRenderers = {
+            'bar': _this._renderBarCursor.bind(_this),
+            'block': _this._renderBlockCursor.bind(_this),
+            'underline': _this._renderUnderlineCursor.bind(_this)
+        };
+        return _this;
+    }
+    CursorRenderLayer.prototype.resize = function (terminal, dim) {
+        _super.prototype.resize.call(this, terminal, dim);
+        this._state = {
+            x: null,
+            y: null,
+            isFocused: null,
+            style: null,
+            width: null
+        };
+    };
+    CursorRenderLayer.prototype.reset = function (terminal) {
+        this._clearCursor();
+        if (this._cursorBlinkStateManager) {
+            this._cursorBlinkStateManager.dispose();
+            this._cursorBlinkStateManager = null;
+            this.onOptionsChanged(terminal);
+        }
+    };
+    CursorRenderLayer.prototype.onBlur = function (terminal) {
+        if (this._cursorBlinkStateManager) {
+            this._cursorBlinkStateManager.pause();
+        }
+        terminal.refresh(terminal.buffer.y, terminal.buffer.y);
+    };
+    CursorRenderLayer.prototype.onFocus = function (terminal) {
+        if (this._cursorBlinkStateManager) {
+            this._cursorBlinkStateManager.resume(terminal);
+        }
+        else {
+            terminal.refresh(terminal.buffer.y, terminal.buffer.y);
+        }
+    };
+    CursorRenderLayer.prototype.onOptionsChanged = function (terminal) {
+        var _this = this;
+        if (terminal.options.cursorBlink) {
+            if (!this._cursorBlinkStateManager) {
+                this._cursorBlinkStateManager = new CursorBlinkStateManager(terminal, function () {
+                    _this._render(terminal, true);
+                });
+            }
+        }
+        else {
+            if (this._cursorBlinkStateManager) {
+                this._cursorBlinkStateManager.dispose();
+                this._cursorBlinkStateManager = null;
+            }
+            terminal.refresh(terminal.buffer.y, terminal.buffer.y);
+        }
+    };
+    CursorRenderLayer.prototype.onCursorMove = function (terminal) {
+        if (this._cursorBlinkStateManager) {
+            this._cursorBlinkStateManager.restartBlinkAnimation(terminal);
+        }
+    };
+    CursorRenderLayer.prototype.onGridChanged = function (terminal, startRow, endRow) {
+        if (!this._cursorBlinkStateManager || this._cursorBlinkStateManager.isPaused) {
+            this._render(terminal, false);
+        }
+        else {
+            this._cursorBlinkStateManager.restartBlinkAnimation(terminal);
+        }
+    };
+    CursorRenderLayer.prototype._render = function (terminal, triggeredByAnimationFrame) {
+        if (!terminal.cursorState || terminal.cursorHidden) {
+            this._clearCursor();
+            return;
+        }
+        var cursorY = terminal.buffer.ybase + terminal.buffer.y;
+        var viewportRelativeCursorY = cursorY - terminal.buffer.ydisp;
+        if (viewportRelativeCursorY < 0 || viewportRelativeCursorY >= terminal.rows) {
+            this._clearCursor();
+            return;
+        }
+        var charData = terminal.buffer.lines.get(cursorY).get(terminal.buffer.x);
+        if (!charData) {
+            return;
+        }
+        if (!terminal.isFocused) {
+            this._clearCursor();
+            this._ctx.save();
+            this._ctx.fillStyle = this._colors.cursor.css;
+            this._renderBlurCursor(terminal, terminal.buffer.x, viewportRelativeCursorY, charData);
+            this._ctx.restore();
+            this._state.x = terminal.buffer.x;
+            this._state.y = viewportRelativeCursorY;
+            this._state.isFocused = false;
+            this._state.style = terminal.options.cursorStyle;
+            this._state.width = charData[Buffer_1.CHAR_DATA_WIDTH_INDEX];
+            return;
+        }
+        if (this._cursorBlinkStateManager && !this._cursorBlinkStateManager.isCursorVisible) {
+            this._clearCursor();
+            return;
+        }
+        if (this._state) {
+            if (this._state.x === terminal.buffer.x &&
+                this._state.y === viewportRelativeCursorY &&
+                this._state.isFocused === terminal.isFocused &&
+                this._state.style === terminal.options.cursorStyle &&
+                this._state.width === charData[Buffer_1.CHAR_DATA_WIDTH_INDEX]) {
+                return;
+            }
+            this._clearCursor();
+        }
+        this._ctx.save();
+        this._cursorRenderers[terminal.options.cursorStyle || 'block'](terminal, terminal.buffer.x, viewportRelativeCursorY, charData);
+        this._ctx.restore();
+        this._state.x = terminal.buffer.x;
+        this._state.y = viewportRelativeCursorY;
+        this._state.isFocused = false;
+        this._state.style = terminal.options.cursorStyle;
+        this._state.width = charData[Buffer_1.CHAR_DATA_WIDTH_INDEX];
+    };
+    CursorRenderLayer.prototype._clearCursor = function () {
+        if (this._state) {
+            this.clearCells(this._state.x, this._state.y, this._state.width, 1);
+            this._state = {
+                x: null,
+                y: null,
+                isFocused: null,
+                style: null,
+                width: null
+            };
+        }
+    };
+    CursorRenderLayer.prototype._renderBarCursor = function (terminal, x, y, charData) {
+        this._ctx.save();
+        this._ctx.fillStyle = this._colors.cursor.css;
+        this.fillLeftLineAtCell(x, y);
+        this._ctx.restore();
+    };
+    CursorRenderLayer.prototype._renderBlockCursor = function (terminal, x, y, charData) {
+        this._ctx.save();
+        this._ctx.fillStyle = this._colors.cursor.css;
+        this.fillCells(x, y, charData[Buffer_1.CHAR_DATA_WIDTH_INDEX], 1);
+        this._ctx.fillStyle = this._colors.cursorAccent.css;
+        this.fillCharTrueColor(terminal, charData, x, y);
+        this._ctx.restore();
+    };
+    CursorRenderLayer.prototype._renderUnderlineCursor = function (terminal, x, y, charData) {
+        this._ctx.save();
+        this._ctx.fillStyle = this._colors.cursor.css;
+        this.fillBottomLineAtCells(x, y);
+        this._ctx.restore();
+    };
+    CursorRenderLayer.prototype._renderBlurCursor = function (terminal, x, y, charData) {
+        this._ctx.save();
+        this._ctx.strokeStyle = this._colors.cursor.css;
+        this.strokeRectAtCell(x, y, charData[Buffer_1.CHAR_DATA_WIDTH_INDEX], 1);
+        this._ctx.restore();
+    };
+    return CursorRenderLayer;
+}(BaseRenderLayer_1.BaseRenderLayer));
+exports.CursorRenderLayer = CursorRenderLayer;
+var CursorBlinkStateManager = (function () {
+    function CursorBlinkStateManager(terminal, _renderCallback) {
+        this._renderCallback = _renderCallback;
+        this.isCursorVisible = true;
+        if (terminal.isFocused) {
+            this._restartInterval();
+        }
+    }
+    Object.defineProperty(CursorBlinkStateManager.prototype, "isPaused", {
+        get: function () { return !(this._blinkStartTimeout || this._blinkInterval); },
+        enumerable: true,
+        configurable: true
+    });
+    CursorBlinkStateManager.prototype.dispose = function () {
+        if (this._blinkInterval) {
+            window.clearInterval(this._blinkInterval);
+            this._blinkInterval = null;
+        }
+        if (this._blinkStartTimeout) {
+            window.clearTimeout(this._blinkStartTimeout);
+            this._blinkStartTimeout = null;
+        }
+        if (this._animationFrame) {
+            window.cancelAnimationFrame(this._animationFrame);
+            this._animationFrame = null;
+        }
+    };
+    CursorBlinkStateManager.prototype.restartBlinkAnimation = function (terminal) {
+        var _this = this;
+        if (this.isPaused) {
+            return;
+        }
+        this._animationTimeRestarted = Date.now();
+        this.isCursorVisible = true;
+        if (!this._animationFrame) {
+            this._animationFrame = window.requestAnimationFrame(function () {
+                _this._renderCallback();
+                _this._animationFrame = null;
+            });
+        }
+    };
+    CursorBlinkStateManager.prototype._restartInterval = function (timeToStart) {
+        var _this = this;
+        if (timeToStart === void 0) { timeToStart = BLINK_INTERVAL; }
+        if (this._blinkInterval) {
+            window.clearInterval(this._blinkInterval);
+        }
+        this._blinkStartTimeout = setTimeout(function () {
+            if (_this._animationTimeRestarted) {
+                var time = BLINK_INTERVAL - (Date.now() - _this._animationTimeRestarted);
+                _this._animationTimeRestarted = null;
+                if (time > 0) {
+                    _this._restartInterval(time);
+                    return;
+                }
+            }
+            _this.isCursorVisible = false;
+            _this._animationFrame = window.requestAnimationFrame(function () {
+                _this._renderCallback();
+                _this._animationFrame = null;
+            });
+            _this._blinkInterval = setInterval(function () {
+                if (_this._animationTimeRestarted) {
+                    var time = BLINK_INTERVAL - (Date.now() - _this._animationTimeRestarted);
+                    _this._animationTimeRestarted = null;
+                    _this._restartInterval(time);
+                    return;
+                }
+                _this.isCursorVisible = !_this.isCursorVisible;
+                _this._animationFrame = window.requestAnimationFrame(function () {
+                    _this._renderCallback();
+                    _this._animationFrame = null;
+                });
+            }, BLINK_INTERVAL);
+        }, timeToStart);
+    };
+    CursorBlinkStateManager.prototype.pause = function () {
+        this.isCursorVisible = true;
+        if (this._blinkInterval) {
+            window.clearInterval(this._blinkInterval);
+            this._blinkInterval = null;
+        }
+        if (this._blinkStartTimeout) {
+            window.clearTimeout(this._blinkStartTimeout);
+            this._blinkStartTimeout = null;
+        }
+        if (this._animationFrame) {
+            window.cancelAnimationFrame(this._animationFrame);
+            this._animationFrame = null;
+        }
+    };
+    CursorBlinkStateManager.prototype.resume = function (terminal) {
+        this._animationTimeRestarted = null;
+        this._restartInterval();
+        this.restartBlinkAnimation(terminal);
+    };
+    return CursorBlinkStateManager;
+}());
+
+},{"../Buffer":2,"./BaseRenderLayer":25}],29:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var GridCache = (function () {
+    function GridCache() {
+        this.cache = [];
+    }
+    GridCache.prototype.resize = function (width, height) {
+        for (var x = 0; x < width; x++) {
+            if (this.cache.length <= x) {
+                this.cache.push([]);
+            }
+            for (var y = this.cache[x].length; y < height; y++) {
+                this.cache[x].push(null);
+            }
+            this.cache[x].length = height;
+        }
+        this.cache.length = width;
+    };
+    GridCache.prototype.clear = function () {
+        for (var x = 0; x < this.cache.length; x++) {
+            for (var y = 0; y < this.cache[x].length; y++) {
+                this.cache[x][y] = null;
+            }
+        }
+    };
+    return GridCache;
+}());
+exports.GridCache = GridCache;
+
+},{}],30:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var BaseRenderLayer_1 = require("./BaseRenderLayer");
+var Types_1 = require("./atlas/Types");
+var LinkRenderLayer = (function (_super) {
+    __extends(LinkRenderLayer, _super);
+    function LinkRenderLayer(container, zIndex, colors, terminal) {
+        var _this = _super.call(this, container, 'link', zIndex, true, colors) || this;
+        _this._state = null;
+        terminal.linkifier.on("linkhover", function (e) { return _this._onLinkHover(e); });
+        terminal.linkifier.on("linkleave", function (e) { return _this._onLinkLeave(e); });
+        return _this;
+    }
+    LinkRenderLayer.prototype.resize = function (terminal, dim) {
+        _super.prototype.resize.call(this, terminal, dim);
+        this._state = null;
+    };
+    LinkRenderLayer.prototype.reset = function (terminal) {
+        this._clearCurrentLink();
+    };
+    LinkRenderLayer.prototype._clearCurrentLink = function () {
+        if (this._state) {
+            this.clearCells(this._state.x1, this._state.y1, this._state.cols - this._state.x1, 1);
+            var middleRowCount = this._state.y2 - this._state.y1 - 1;
+            if (middleRowCount > 0) {
+                this.clearCells(0, this._state.y1 + 1, this._state.cols, middleRowCount);
+            }
+            this.clearCells(0, this._state.y2, this._state.x2, 1);
+            this._state = null;
+        }
+    };
+    LinkRenderLayer.prototype._onLinkHover = function (e) {
+        if (e.fg === Types_1.INVERTED_DEFAULT_COLOR) {
+            this._ctx.fillStyle = this._colors.background.css;
+        }
+        else if (e.fg < 256) {
+            this._ctx.fillStyle = this._colors.ansi[e.fg].css;
+        }
+        else {
+            this._ctx.fillStyle = this._colors.foreground.css;
+        }
+        if (e.y1 === e.y2) {
+            this.fillBottomLineAtCells(e.x1, e.y1, e.x2 - e.x1);
+        }
+        else {
+            this.fillBottomLineAtCells(e.x1, e.y1, e.cols - e.x1);
+            for (var y = e.y1 + 1; y < e.y2; y++) {
+                this.fillBottomLineAtCells(0, y, e.cols);
+            }
+            this.fillBottomLineAtCells(0, e.y2, e.x2);
+        }
+        this._state = e;
+    };
+    LinkRenderLayer.prototype._onLinkLeave = function (e) {
+        this._clearCurrentLink();
+    };
+    return LinkRenderLayer;
+}(BaseRenderLayer_1.BaseRenderLayer));
+exports.LinkRenderLayer = LinkRenderLayer;
+
+},{"./BaseRenderLayer":25,"./atlas/Types":41}],31:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var TextRenderLayer_1 = require("./TextRenderLayer");
+var SelectionRenderLayer_1 = require("./SelectionRenderLayer");
+var CursorRenderLayer_1 = require("./CursorRenderLayer");
+var ColorManager_1 = require("./ColorManager");
+var LinkRenderLayer_1 = require("./LinkRenderLayer");
+var EventEmitter_1 = require("../common/EventEmitter");
+var RenderDebouncer_1 = require("../ui/RenderDebouncer");
+var ScreenDprMonitor_1 = require("../ui/ScreenDprMonitor");
+var CharacterJoinerRegistry_1 = require("../renderer/CharacterJoinerRegistry");
+var Renderer = (function (_super) {
+    __extends(Renderer, _super);
+    function Renderer(_terminal, theme) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._isPaused = false;
+        _this._needsFullRefresh = false;
+        var allowTransparency = _this._terminal.options.allowTransparency;
+        _this.colorManager = new ColorManager_1.ColorManager(document, allowTransparency);
+        _this._characterJoinerRegistry = new CharacterJoinerRegistry_1.CharacterJoinerRegistry(_terminal);
+        if (theme) {
+            _this.colorManager.setTheme(theme);
+        }
+        _this._renderLayers = [
+            new TextRenderLayer_1.TextRenderLayer(_this._terminal.screenElement, 0, _this.colorManager.colors, _this._characterJoinerRegistry, allowTransparency),
+            new SelectionRenderLayer_1.SelectionRenderLayer(_this._terminal.screenElement, 1, _this.colorManager.colors),
+            new LinkRenderLayer_1.LinkRenderLayer(_this._terminal.screenElement, 2, _this.colorManager.colors, _this._terminal),
+            new CursorRenderLayer_1.CursorRenderLayer(_this._terminal.screenElement, 3, _this.colorManager.colors)
+        ];
+        _this.dimensions = {
+            scaledCharWidth: null,
+            scaledCharHeight: null,
+            scaledCellWidth: null,
+            scaledCellHeight: null,
+            scaledCharLeft: null,
+            scaledCharTop: null,
+            scaledCanvasWidth: null,
+            scaledCanvasHeight: null,
+            canvasWidth: null,
+            canvasHeight: null,
+            actualCellWidth: null,
+            actualCellHeight: null
+        };
+        _this._devicePixelRatio = window.devicePixelRatio;
+        _this._updateDimensions();
+        _this.onOptionsChanged();
+        _this._renderDebouncer = new RenderDebouncer_1.RenderDebouncer(_this._terminal, _this._renderRows.bind(_this));
+        _this._screenDprMonitor = new ScreenDprMonitor_1.ScreenDprMonitor();
+        _this._screenDprMonitor.setListener(function () { return _this.onWindowResize(window.devicePixelRatio); });
+        _this.register(_this._screenDprMonitor);
+        if ('IntersectionObserver' in window) {
+            var observer_1 = new IntersectionObserver(function (e) { return _this.onIntersectionChange(e[0]); }, { threshold: 0 });
+            observer_1.observe(_this._terminal.element);
+            _this.register({ dispose: function () { return observer_1.disconnect(); } });
+        }
+        return _this;
+    }
+    Renderer.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this._renderLayers.forEach(function (l) { return l.dispose(); });
+    };
+    Renderer.prototype.onIntersectionChange = function (entry) {
+        this._isPaused = entry.intersectionRatio === 0;
+        if (!this._isPaused && this._needsFullRefresh) {
+            this._terminal.refresh(0, this._terminal.rows - 1);
+        }
+    };
+    Renderer.prototype.onWindowResize = function (devicePixelRatio) {
+        if (this._devicePixelRatio !== devicePixelRatio) {
+            this._devicePixelRatio = devicePixelRatio;
+            this.onResize(this._terminal.cols, this._terminal.rows);
+        }
+    };
+    Renderer.prototype.setTheme = function (theme) {
+        var _this = this;
+        this.colorManager.setTheme(theme);
+        this._renderLayers.forEach(function (l) {
+            l.onThemeChanged(_this._terminal, _this.colorManager.colors);
+            l.reset(_this._terminal);
+        });
+        if (this._isPaused) {
+            this._needsFullRefresh = true;
+        }
+        else {
+            this._terminal.refresh(0, this._terminal.rows - 1);
+        }
+        return this.colorManager.colors;
+    };
+    Renderer.prototype.onResize = function (cols, rows) {
+        var _this = this;
+        this._updateDimensions();
+        this._renderLayers.forEach(function (l) { return l.resize(_this._terminal, _this.dimensions); });
+        if (this._isPaused) {
+            this._needsFullRefresh = true;
+        }
+        else {
+            this._terminal.refresh(0, this._terminal.rows - 1);
+        }
+        this._terminal.screenElement.style.width = this.dimensions.canvasWidth + "px";
+        this._terminal.screenElement.style.height = this.dimensions.canvasHeight + "px";
+        this.emit('resize', {
+            width: this.dimensions.canvasWidth,
+            height: this.dimensions.canvasHeight
+        });
+    };
+    Renderer.prototype.onCharSizeChanged = function () {
+        this.onResize(this._terminal.cols, this._terminal.rows);
+    };
+    Renderer.prototype.onBlur = function () {
+        var _this = this;
+        this._runOperation(function (l) { return l.onBlur(_this._terminal); });
+    };
+    Renderer.prototype.onFocus = function () {
+        var _this = this;
+        this._runOperation(function (l) { return l.onFocus(_this._terminal); });
+    };
+    Renderer.prototype.onSelectionChanged = function (start, end, columnSelectMode) {
+        var _this = this;
+        if (columnSelectMode === void 0) { columnSelectMode = false; }
+        this._runOperation(function (l) { return l.onSelectionChanged(_this._terminal, start, end, columnSelectMode); });
+    };
+    Renderer.prototype.onCursorMove = function () {
+        var _this = this;
+        this._runOperation(function (l) { return l.onCursorMove(_this._terminal); });
+    };
+    Renderer.prototype.onOptionsChanged = function () {
+        var _this = this;
+        this.colorManager.allowTransparency = this._terminal.options.allowTransparency;
+        this._runOperation(function (l) { return l.onOptionsChanged(_this._terminal); });
+    };
+    Renderer.prototype.clear = function () {
+        var _this = this;
+        this._runOperation(function (l) { return l.reset(_this._terminal); });
+    };
+    Renderer.prototype._runOperation = function (operation) {
+        if (this._isPaused) {
+            this._needsFullRefresh = true;
+        }
+        else {
+            this._renderLayers.forEach(function (l) { return operation(l); });
+        }
+    };
+    Renderer.prototype.refreshRows = function (start, end) {
+        if (this._isPaused) {
+            this._needsFullRefresh = true;
+            return;
+        }
+        this._renderDebouncer.refresh(start, end);
+    };
+    Renderer.prototype._renderRows = function (start, end) {
+        var _this = this;
+        this._renderLayers.forEach(function (l) { return l.onGridChanged(_this._terminal, start, end); });
+        this._terminal.emit('refresh', { start: start, end: end });
+    };
+    Renderer.prototype._updateDimensions = function () {
+        if (!this._terminal.charMeasure.width || !this._terminal.charMeasure.height) {
+            return;
+        }
+        this.dimensions.scaledCharWidth = Math.floor(this._terminal.charMeasure.width * window.devicePixelRatio);
+        this.dimensions.scaledCharHeight = Math.ceil(this._terminal.charMeasure.height * window.devicePixelRatio);
+        this.dimensions.scaledCellHeight = Math.floor(this.dimensions.scaledCharHeight * this._terminal.options.lineHeight);
+        this.dimensions.scaledCharTop = this._terminal.options.lineHeight === 1 ? 0 : Math.round((this.dimensions.scaledCellHeight - this.dimensions.scaledCharHeight) / 2);
+        this.dimensions.scaledCellWidth = this.dimensions.scaledCharWidth + Math.round(this._terminal.options.letterSpacing);
+        this.dimensions.scaledCharLeft = Math.floor(this._terminal.options.letterSpacing / 2);
+        this.dimensions.scaledCanvasHeight = this._terminal.rows * this.dimensions.scaledCellHeight;
+        this.dimensions.scaledCanvasWidth = this._terminal.cols * this.dimensions.scaledCellWidth;
+        this.dimensions.canvasHeight = Math.round(this.dimensions.scaledCanvasHeight / window.devicePixelRatio);
+        this.dimensions.canvasWidth = Math.round(this.dimensions.scaledCanvasWidth / window.devicePixelRatio);
+        this.dimensions.actualCellHeight = this.dimensions.canvasHeight / this._terminal.rows;
+        this.dimensions.actualCellWidth = this.dimensions.canvasWidth / this._terminal.cols;
+    };
+    Renderer.prototype.registerCharacterJoiner = function (handler) {
+        return this._characterJoinerRegistry.registerCharacterJoiner(handler);
+    };
+    Renderer.prototype.deregisterCharacterJoiner = function (joinerId) {
+        return this._characterJoinerRegistry.deregisterCharacterJoiner(joinerId);
+    };
+    return Renderer;
+}(EventEmitter_1.EventEmitter));
+exports.Renderer = Renderer;
+
+},{"../common/EventEmitter":17,"../renderer/CharacterJoinerRegistry":26,"../ui/RenderDebouncer":50,"../ui/ScreenDprMonitor":51,"./ColorManager":27,"./CursorRenderLayer":28,"./LinkRenderLayer":30,"./SelectionRenderLayer":32,"./TextRenderLayer":33}],32:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var BaseRenderLayer_1 = require("./BaseRenderLayer");
+var SelectionRenderLayer = (function (_super) {
+    __extends(SelectionRenderLayer, _super);
+    function SelectionRenderLayer(container, zIndex, colors) {
+        var _this = _super.call(this, container, 'selection', zIndex, true, colors) || this;
+        _this._clearState();
+        return _this;
+    }
+    SelectionRenderLayer.prototype._clearState = function () {
+        this._state = {
+            start: null,
+            end: null,
+            columnSelectMode: null,
+            ydisp: null
+        };
+    };
+    SelectionRenderLayer.prototype.resize = function (terminal, dim) {
+        _super.prototype.resize.call(this, terminal, dim);
+        this._clearState();
+    };
+    SelectionRenderLayer.prototype.reset = function (terminal) {
+        if (this._state.start && this._state.end) {
+            this._clearState();
+            this.clearAll();
+        }
+    };
+    SelectionRenderLayer.prototype.onSelectionChanged = function (terminal, start, end, columnSelectMode) {
+        if (!this._didStateChange(start, end, columnSelectMode, terminal.buffer.ydisp)) {
+            return;
+        }
+        this.clearAll();
+        if (!start || !end) {
+            return;
+        }
+        var viewportStartRow = start[1] - terminal.buffer.ydisp;
+        var viewportEndRow = end[1] - terminal.buffer.ydisp;
+        var viewportCappedStartRow = Math.max(viewportStartRow, 0);
+        var viewportCappedEndRow = Math.min(viewportEndRow, terminal.rows - 1);
+        if (viewportCappedStartRow >= terminal.rows || viewportCappedEndRow < 0) {
+            return;
+        }
+        this._ctx.fillStyle = this._colors.selection.css;
+        if (columnSelectMode) {
+            var startCol = start[0];
+            var width = end[0] - startCol;
+            var height = viewportCappedEndRow - viewportCappedStartRow + 1;
+            this.fillCells(startCol, viewportCappedStartRow, width, height);
+        }
+        else {
+            var startCol = viewportStartRow === viewportCappedStartRow ? start[0] : 0;
+            var startRowEndCol = viewportCappedStartRow === viewportCappedEndRow ? end[0] : terminal.cols;
+            this.fillCells(startCol, viewportCappedStartRow, startRowEndCol - startCol, 1);
+            var middleRowsCount = Math.max(viewportCappedEndRow - viewportCappedStartRow - 1, 0);
+            this.fillCells(0, viewportCappedStartRow + 1, terminal.cols, middleRowsCount);
+            if (viewportCappedStartRow !== viewportCappedEndRow) {
+                var endCol = viewportEndRow === viewportCappedEndRow ? end[0] : terminal.cols;
+                this.fillCells(0, viewportCappedEndRow, endCol, 1);
+            }
+        }
+        this._state.start = [start[0], start[1]];
+        this._state.end = [end[0], end[1]];
+        this._state.columnSelectMode = columnSelectMode;
+        this._state.ydisp = terminal.buffer.ydisp;
+    };
+    SelectionRenderLayer.prototype._didStateChange = function (start, end, columnSelectMode, ydisp) {
+        return !this._areCoordinatesEqual(start, this._state.start) ||
+            !this._areCoordinatesEqual(end, this._state.end) ||
+            columnSelectMode !== this._state.columnSelectMode ||
+            ydisp !== this._state.ydisp;
+    };
+    SelectionRenderLayer.prototype._areCoordinatesEqual = function (coord1, coord2) {
+        if (!coord1 || !coord2) {
+            return false;
+        }
+        return coord1[0] === coord2[0] && coord1[1] === coord2[1];
+    };
+    return SelectionRenderLayer;
+}(BaseRenderLayer_1.BaseRenderLayer));
+exports.SelectionRenderLayer = SelectionRenderLayer;
+
+},{"./BaseRenderLayer":25}],33:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Buffer_1 = require("../Buffer");
+var Types_1 = require("./atlas/Types");
+var GridCache_1 = require("./GridCache");
+var BaseRenderLayer_1 = require("./BaseRenderLayer");
+var TextRenderLayer = (function (_super) {
+    __extends(TextRenderLayer, _super);
+    function TextRenderLayer(container, zIndex, colors, characterJoinerRegistry, alpha) {
+        var _this = _super.call(this, container, 'text', zIndex, alpha, colors) || this;
+        _this._characterOverlapCache = {};
+        _this._state = new GridCache_1.GridCache();
+        _this._characterJoinerRegistry = characterJoinerRegistry;
+        return _this;
+    }
+    TextRenderLayer.prototype.resize = function (terminal, dim) {
+        _super.prototype.resize.call(this, terminal, dim);
+        var terminalFont = this._getFont(terminal, false, false);
+        if (this._characterWidth !== dim.scaledCharWidth || this._characterFont !== terminalFont) {
+            this._characterWidth = dim.scaledCharWidth;
+            this._characterFont = terminalFont;
+            this._characterOverlapCache = {};
+        }
+        this._state.clear();
+        this._state.resize(terminal.cols, terminal.rows);
+    };
+    TextRenderLayer.prototype.reset = function (terminal) {
+        this._state.clear();
+        this.clearAll();
+    };
+    TextRenderLayer.prototype._forEachCell = function (terminal, firstRow, lastRow, joinerRegistry, callback) {
+        for (var y = firstRow; y <= lastRow; y++) {
+            var row = y + terminal.buffer.ydisp;
+            var line = terminal.buffer.lines.get(row);
+            var joinedRanges = joinerRegistry ? joinerRegistry.getJoinedCharacters(row) : [];
+            for (var x = 0; x < terminal.cols; x++) {
+                var charData = line.get(x);
+                var code = charData[Buffer_1.CHAR_DATA_CODE_INDEX];
+                var chars = charData[Buffer_1.CHAR_DATA_CHAR_INDEX];
+                var attr = charData[Buffer_1.CHAR_DATA_ATTR_INDEX];
+                var width = charData[Buffer_1.CHAR_DATA_WIDTH_INDEX];
+                var isJoined = false;
+                var lastCharX = x;
+                if (width === 0) {
+                    continue;
+                }
+                if (joinedRanges.length > 0 && x === joinedRanges[0][0]) {
+                    isJoined = true;
+                    var range = joinedRanges.shift();
+                    chars = terminal.buffer.translateBufferLineToString(row, true, range[0], range[1]);
+                    width = range[1] - range[0];
+                    code = Infinity;
+                    lastCharX = range[1] - 1;
+                }
+                if (!isJoined && this._isOverlapping(charData)) {
+                    if (lastCharX < line.length - 1 && line.get(lastCharX + 1)[Buffer_1.CHAR_DATA_CODE_INDEX] === Buffer_1.NULL_CELL_CODE) {
+                        width = 2;
+                    }
+                }
+                var flags = attr >> 18;
+                var bg = attr & 0x1ff;
+                var fg = (attr >> 9) & 0x1ff;
+                if (flags & 8) {
+                    var temp = bg;
+                    bg = fg;
+                    fg = temp;
+                    if (fg === 256) {
+                        fg = Types_1.INVERTED_DEFAULT_COLOR;
+                    }
+                    if (bg === 257) {
+                        bg = Types_1.INVERTED_DEFAULT_COLOR;
+                    }
+                }
+                callback(code, chars, width, x, y, fg, bg, flags);
+                x = lastCharX;
+            }
+        }
+    };
+    TextRenderLayer.prototype._drawBackground = function (terminal, firstRow, lastRow) {
+        var _this = this;
+        var ctx = this._ctx;
+        var cols = terminal.cols;
+        var startX = 0;
+        var startY = 0;
+        var prevFillStyle = null;
+        ctx.save();
+        this._forEachCell(terminal, firstRow, lastRow, null, function (code, chars, width, x, y, fg, bg, flags) {
+            var nextFillStyle = null;
+            if (bg === Types_1.INVERTED_DEFAULT_COLOR) {
+                nextFillStyle = _this._colors.foreground.css;
+            }
+            else if (bg < 256) {
+                nextFillStyle = _this._colors.ansi[bg].css;
+            }
+            if (prevFillStyle === null) {
+                startX = x;
+                startY = y;
+            }
+            if (y !== startY) {
+                ctx.fillStyle = prevFillStyle;
+                _this.fillCells(startX, startY, cols - startX, 1);
+                startX = x;
+                startY = y;
+            }
+            else if (prevFillStyle !== nextFillStyle) {
+                ctx.fillStyle = prevFillStyle;
+                _this.fillCells(startX, startY, x - startX, 1);
+                startX = x;
+                startY = y;
+            }
+            prevFillStyle = nextFillStyle;
+        });
+        if (prevFillStyle !== null) {
+            ctx.fillStyle = prevFillStyle;
+            this.fillCells(startX, startY, cols - startX, 1);
+        }
+        ctx.restore();
+    };
+    TextRenderLayer.prototype._drawForeground = function (terminal, firstRow, lastRow) {
+        var _this = this;
+        this._forEachCell(terminal, firstRow, lastRow, this._characterJoinerRegistry, function (code, chars, width, x, y, fg, bg, flags) {
+            if (flags & 16) {
+                return;
+            }
+            if (flags & 2) {
+                _this._ctx.save();
+                if (fg === Types_1.INVERTED_DEFAULT_COLOR) {
+                    _this._ctx.fillStyle = _this._colors.background.css;
+                }
+                else if (fg < 256) {
+                    _this._ctx.fillStyle = _this._colors.ansi[fg].css;
+                }
+                else {
+                    _this._ctx.fillStyle = _this._colors.foreground.css;
+                }
+                _this.fillBottomLineAtCells(x, y, width);
+                _this._ctx.restore();
+            }
+            _this.drawChars(terminal, chars, code, width, x, y, fg, bg, !!(flags & 1), !!(flags & 32), !!(flags & 64));
+        });
+    };
+    TextRenderLayer.prototype.onGridChanged = function (terminal, firstRow, lastRow) {
+        if (this._state.cache.length === 0) {
+            return;
+        }
+        if (this._charAtlas) {
+            this._charAtlas.beginFrame();
+        }
+        this.clearCells(0, firstRow, terminal.cols, lastRow - firstRow + 1);
+        this._drawBackground(terminal, firstRow, lastRow);
+        this._drawForeground(terminal, firstRow, lastRow);
+    };
+    TextRenderLayer.prototype.onOptionsChanged = function (terminal) {
+        this.setTransparency(terminal, terminal.options.allowTransparency);
+    };
+    TextRenderLayer.prototype._isOverlapping = function (charData) {
+        if (charData[Buffer_1.CHAR_DATA_WIDTH_INDEX] !== 1) {
+            return false;
+        }
+        var code = charData[Buffer_1.CHAR_DATA_CODE_INDEX];
+        if (code < 256) {
+            return false;
+        }
+        var char = charData[Buffer_1.CHAR_DATA_CHAR_INDEX];
+        if (this._characterOverlapCache.hasOwnProperty(char)) {
+            return this._characterOverlapCache[char];
+        }
+        this._ctx.save();
+        this._ctx.font = this._characterFont;
+        var overlaps = Math.floor(this._ctx.measureText(char).width) > this._characterWidth;
+        this._ctx.restore();
+        this._characterOverlapCache[char] = overlaps;
+        return overlaps;
+    };
+    return TextRenderLayer;
+}(BaseRenderLayer_1.BaseRenderLayer));
+exports.TextRenderLayer = TextRenderLayer;
+
+},{"../Buffer":2,"./BaseRenderLayer":25,"./GridCache":29,"./atlas/Types":41}],34:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var BaseCharAtlas = (function () {
+    function BaseCharAtlas() {
+        this._didWarmUp = false;
+    }
+    BaseCharAtlas.prototype.dispose = function () { };
+    BaseCharAtlas.prototype.warmUp = function () {
+        if (!this._didWarmUp) {
+            this._doWarmUp();
+            this._didWarmUp = true;
+        }
+    };
+    BaseCharAtlas.prototype._doWarmUp = function () { };
+    BaseCharAtlas.prototype.beginFrame = function () { };
+    return BaseCharAtlas;
+}());
+exports.default = BaseCharAtlas;
+
+},{}],35:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var CharAtlasUtils_1 = require("./CharAtlasUtils");
+var DynamicCharAtlas_1 = require("./DynamicCharAtlas");
+var NoneCharAtlas_1 = require("./NoneCharAtlas");
+var StaticCharAtlas_1 = require("./StaticCharAtlas");
+var charAtlasImplementations = {
+    'none': NoneCharAtlas_1.default,
+    'static': StaticCharAtlas_1.default,
+    'dynamic': DynamicCharAtlas_1.default
+};
+var charAtlasCache = [];
+function acquireCharAtlas(terminal, colors, scaledCharWidth, scaledCharHeight) {
+    var newConfig = CharAtlasUtils_1.generateConfig(scaledCharWidth, scaledCharHeight, terminal, colors);
+    for (var i = 0; i < charAtlasCache.length; i++) {
+        var entry = charAtlasCache[i];
+        var ownedByIndex = entry.ownedBy.indexOf(terminal);
+        if (ownedByIndex >= 0) {
+            if (CharAtlasUtils_1.configEquals(entry.config, newConfig)) {
+                return entry.atlas;
+            }
+            if (entry.ownedBy.length === 1) {
+                charAtlasCache.splice(i, 1);
+            }
+            else {
+                entry.ownedBy.splice(ownedByIndex, 1);
+            }
+            break;
+        }
+    }
+    for (var i = 0; i < charAtlasCache.length; i++) {
+        var entry = charAtlasCache[i];
+        if (CharAtlasUtils_1.configEquals(entry.config, newConfig)) {
+            entry.ownedBy.push(terminal);
+            return entry.atlas;
+        }
+    }
+    var newEntry = {
+        atlas: new charAtlasImplementations[terminal.options.experimentalCharAtlas](document, newConfig),
+        config: newConfig,
+        ownedBy: [terminal]
+    };
+    charAtlasCache.push(newEntry);
+    return newEntry.atlas;
+}
+exports.acquireCharAtlas = acquireCharAtlas;
+function removeTerminalFromCache(terminal) {
+    for (var i = 0; i < charAtlasCache.length; i++) {
+        var index = charAtlasCache[i].ownedBy.indexOf(terminal);
+        if (index !== -1) {
+            if (charAtlasCache[i].ownedBy.length === 1) {
+                charAtlasCache.splice(i, 1);
+            }
+            else {
+                charAtlasCache[i].ownedBy.splice(index, 1);
+            }
+            break;
+        }
+    }
+}
+exports.removeTerminalFromCache = removeTerminalFromCache;
+
+},{"./CharAtlasUtils":36,"./DynamicCharAtlas":37,"./NoneCharAtlas":39,"./StaticCharAtlas":40}],36:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function generateConfig(scaledCharWidth, scaledCharHeight, terminal, colors) {
+    var clonedColors = {
+        foreground: colors.foreground,
+        background: colors.background,
+        cursor: null,
+        cursorAccent: null,
+        selection: null,
+        ansi: colors.ansi.slice(0, 16)
+    };
+    return {
+        type: terminal.options.experimentalCharAtlas,
+        devicePixelRatio: window.devicePixelRatio,
+        scaledCharWidth: scaledCharWidth,
+        scaledCharHeight: scaledCharHeight,
+        fontFamily: terminal.options.fontFamily,
+        fontSize: terminal.options.fontSize,
+        fontWeight: terminal.options.fontWeight,
+        fontWeightBold: terminal.options.fontWeightBold,
+        allowTransparency: terminal.options.allowTransparency,
+        colors: clonedColors
+    };
+}
+exports.generateConfig = generateConfig;
+function configEquals(a, b) {
+    for (var i = 0; i < a.colors.ansi.length; i++) {
+        if (a.colors.ansi[i].rgba !== b.colors.ansi[i].rgba) {
+            return false;
+        }
+    }
+    return a.type === b.type &&
+        a.devicePixelRatio === b.devicePixelRatio &&
+        a.fontFamily === b.fontFamily &&
+        a.fontSize === b.fontSize &&
+        a.fontWeight === b.fontWeight &&
+        a.fontWeightBold === b.fontWeightBold &&
+        a.allowTransparency === b.allowTransparency &&
+        a.scaledCharWidth === b.scaledCharWidth &&
+        a.scaledCharHeight === b.scaledCharHeight &&
+        a.colors.foreground === b.colors.foreground &&
+        a.colors.background === b.colors.background;
+}
+exports.configEquals = configEquals;
+
+},{}],37:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = require("./Types");
+var BaseCharAtlas_1 = require("./BaseCharAtlas");
+var ColorManager_1 = require("../ColorManager");
+var CharAtlasGenerator_1 = require("../../shared/atlas/CharAtlasGenerator");
+var LRUMap_1 = require("./LRUMap");
+var Browser_1 = require("../../shared/utils/Browser");
+var TEXTURE_WIDTH = 1024;
+var TEXTURE_HEIGHT = 1024;
+var TRANSPARENT_COLOR = {
+    css: 'rgba(0, 0, 0, 0)',
+    rgba: 0
+};
+var FRAME_CACHE_DRAW_LIMIT = 100;
+var GLYPH_BITMAP_COMMIT_DELAY = 100;
+function getGlyphCacheKey(glyph) {
+    return glyph.code << 21 | glyph.bg << 12 | glyph.fg << 3 | (glyph.bold ? 0 : 4) + (glyph.dim ? 0 : 2) + (glyph.italic ? 0 : 1);
+}
+var DynamicCharAtlas = (function (_super) {
+    __extends(DynamicCharAtlas, _super);
+    function DynamicCharAtlas(document, _config) {
+        var _this = _super.call(this) || this;
+        _this._config = _config;
+        _this._drawToCacheCount = 0;
+        _this._glyphsWaitingOnBitmap = [];
+        _this._bitmapCommitTimeout = null;
+        _this._bitmap = null;
+        _this._cacheCanvas = document.createElement('canvas');
+        _this._cacheCanvas.width = TEXTURE_WIDTH;
+        _this._cacheCanvas.height = TEXTURE_HEIGHT;
+        _this._cacheCtx = _this._cacheCanvas.getContext('2d', { alpha: true });
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = _this._config.scaledCharWidth;
+        tmpCanvas.height = _this._config.scaledCharHeight;
+        _this._tmpCtx = tmpCanvas.getContext('2d', { alpha: _this._config.allowTransparency });
+        _this._width = Math.floor(TEXTURE_WIDTH / _this._config.scaledCharWidth);
+        _this._height = Math.floor(TEXTURE_HEIGHT / _this._config.scaledCharHeight);
+        var capacity = _this._width * _this._height;
+        _this._cacheMap = new LRUMap_1.default(capacity);
+        _this._cacheMap.prealloc(capacity);
+        return _this;
+    }
+    DynamicCharAtlas.prototype.dispose = function () {
+        if (this._bitmapCommitTimeout !== null) {
+            window.clearTimeout(this._bitmapCommitTimeout);
+            this._bitmapCommitTimeout = null;
+        }
+    };
+    DynamicCharAtlas.prototype.beginFrame = function () {
+        this._drawToCacheCount = 0;
+    };
+    DynamicCharAtlas.prototype.draw = function (ctx, glyph, x, y) {
+        if (glyph.code === 32) {
+            return true;
+        }
+        var glyphKey = getGlyphCacheKey(glyph);
+        var cacheValue = this._cacheMap.get(glyphKey);
+        if (cacheValue !== null && cacheValue !== undefined) {
+            this._drawFromCache(ctx, cacheValue, x, y);
+            return true;
+        }
+        else if (this._canCache(glyph) && this._drawToCacheCount < FRAME_CACHE_DRAW_LIMIT) {
+            var index = void 0;
+            if (this._cacheMap.size < this._cacheMap.capacity) {
+                index = this._cacheMap.size;
+            }
+            else {
+                index = this._cacheMap.peek().index;
+            }
+            var cacheValue_1 = this._drawToCache(glyph, index);
+            this._cacheMap.set(glyphKey, cacheValue_1);
+            this._drawFromCache(ctx, cacheValue_1, x, y);
+            return true;
+        }
+        return false;
+    };
+    DynamicCharAtlas.prototype._canCache = function (glyph) {
+        return glyph.code < 256;
+    };
+    DynamicCharAtlas.prototype._toCoordinateX = function (index) {
+        return (index % this._width) * this._config.scaledCharWidth;
+    };
+    DynamicCharAtlas.prototype._toCoordinateY = function (index) {
+        return Math.floor(index / this._width) * this._config.scaledCharHeight;
+    };
+    DynamicCharAtlas.prototype._drawFromCache = function (ctx, cacheValue, x, y) {
+        if (cacheValue.isEmpty) {
+            return;
+        }
+        var cacheX = this._toCoordinateX(cacheValue.index);
+        var cacheY = this._toCoordinateY(cacheValue.index);
+        ctx.drawImage(cacheValue.inBitmap ? this._bitmap : this._cacheCanvas, cacheX, cacheY, this._config.scaledCharWidth, this._config.scaledCharHeight, x, y, this._config.scaledCharWidth, this._config.scaledCharHeight);
+    };
+    DynamicCharAtlas.prototype._getColorFromAnsiIndex = function (idx) {
+        if (idx < this._config.colors.ansi.length) {
+            return this._config.colors.ansi[idx];
+        }
+        return ColorManager_1.DEFAULT_ANSI_COLORS[idx];
+    };
+    DynamicCharAtlas.prototype._getBackgroundColor = function (glyph) {
+        if (this._config.allowTransparency) {
+            return TRANSPARENT_COLOR;
+        }
+        else if (glyph.bg === Types_1.INVERTED_DEFAULT_COLOR) {
+            return this._config.colors.foreground;
+        }
+        else if (glyph.bg < 256) {
+            return this._getColorFromAnsiIndex(glyph.bg);
+        }
+        return this._config.colors.background;
+    };
+    DynamicCharAtlas.prototype._getForegroundColor = function (glyph) {
+        if (glyph.fg === Types_1.INVERTED_DEFAULT_COLOR) {
+            return this._config.colors.background;
+        }
+        else if (glyph.fg < 256) {
+            return this._getColorFromAnsiIndex(glyph.fg);
+        }
+        return this._config.colors.foreground;
+    };
+    DynamicCharAtlas.prototype._drawToCache = function (glyph, index) {
+        this._drawToCacheCount++;
+        this._tmpCtx.save();
+        var backgroundColor = this._getBackgroundColor(glyph);
+        this._tmpCtx.globalCompositeOperation = 'copy';
+        this._tmpCtx.fillStyle = backgroundColor.css;
+        this._tmpCtx.fillRect(0, 0, this._config.scaledCharWidth, this._config.scaledCharHeight);
+        this._tmpCtx.globalCompositeOperation = 'source-over';
+        var fontWeight = glyph.bold ? this._config.fontWeightBold : this._config.fontWeight;
+        var fontStyle = glyph.italic ? 'italic' : '';
+        this._tmpCtx.font =
+            fontStyle + " " + fontWeight + " " + this._config.fontSize * this._config.devicePixelRatio + "px " + this._config.fontFamily;
+        this._tmpCtx.textBaseline = 'top';
+        this._tmpCtx.fillStyle = this._getForegroundColor(glyph).css;
+        if (glyph.dim) {
+            this._tmpCtx.globalAlpha = Types_1.DIM_OPACITY;
+        }
+        this._tmpCtx.fillText(glyph.chars, 0, 0);
+        this._tmpCtx.restore();
+        var imageData = this._tmpCtx.getImageData(0, 0, this._config.scaledCharWidth, this._config.scaledCharHeight);
+        var isEmpty = false;
+        if (!this._config.allowTransparency) {
+            isEmpty = CharAtlasGenerator_1.clearColor(imageData, backgroundColor);
+        }
+        var x = this._toCoordinateX(index);
+        var y = this._toCoordinateY(index);
+        this._cacheCtx.putImageData(imageData, x, y);
+        var cacheValue = {
+            index: index,
+            isEmpty: isEmpty,
+            inBitmap: false
+        };
+        this._addGlyphToBitmap(cacheValue);
+        return cacheValue;
+    };
+    DynamicCharAtlas.prototype._addGlyphToBitmap = function (cacheValue) {
+        var _this = this;
+        if (!('createImageBitmap' in window) || Browser_1.isFirefox || Browser_1.isSafari) {
+            return;
+        }
+        this._glyphsWaitingOnBitmap.push(cacheValue);
+        if (this._bitmapCommitTimeout !== null) {
+            return;
+        }
+        this._bitmapCommitTimeout = window.setTimeout(function () { return _this._generateBitmap(); }, GLYPH_BITMAP_COMMIT_DELAY);
+    };
+    DynamicCharAtlas.prototype._generateBitmap = function () {
+        var _this = this;
+        var glyphsMovingToBitmap = this._glyphsWaitingOnBitmap;
+        this._glyphsWaitingOnBitmap = [];
+        window.createImageBitmap(this._cacheCanvas).then(function (bitmap) {
+            _this._bitmap = bitmap;
+            for (var i = 0; i < glyphsMovingToBitmap.length; i++) {
+                var value = glyphsMovingToBitmap[i];
+                value.inBitmap = true;
+            }
+        });
+        this._bitmapCommitTimeout = null;
+    };
+    return DynamicCharAtlas;
+}(BaseCharAtlas_1.default));
+exports.default = DynamicCharAtlas;
+
+},{"../../shared/atlas/CharAtlasGenerator":44,"../../shared/utils/Browser":46,"../ColorManager":27,"./BaseCharAtlas":34,"./LRUMap":38,"./Types":41}],38:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var LRUMap = (function () {
+    function LRUMap(capacity) {
+        this.capacity = capacity;
+        this._map = {};
+        this._head = null;
+        this._tail = null;
+        this._nodePool = [];
+        this.size = 0;
+    }
+    LRUMap.prototype._unlinkNode = function (node) {
+        var prev = node.prev;
+        var next = node.next;
+        if (node === this._head) {
+            this._head = next;
+        }
+        if (node === this._tail) {
+            this._tail = prev;
+        }
+        if (prev !== null) {
+            prev.next = next;
+        }
+        if (next !== null) {
+            next.prev = prev;
+        }
+    };
+    LRUMap.prototype._appendNode = function (node) {
+        var tail = this._tail;
+        if (tail !== null) {
+            tail.next = node;
+        }
+        node.prev = tail;
+        node.next = null;
+        this._tail = node;
+        if (this._head === null) {
+            this._head = node;
+        }
+    };
+    LRUMap.prototype.prealloc = function (count) {
+        var nodePool = this._nodePool;
+        for (var i = 0; i < count; i++) {
+            nodePool.push({
+                prev: null,
+                next: null,
+                key: null,
+                value: null
+            });
+        }
+    };
+    LRUMap.prototype.get = function (key) {
+        var node = this._map[key];
+        if (node !== undefined) {
+            this._unlinkNode(node);
+            this._appendNode(node);
+            return node.value;
+        }
+        return null;
+    };
+    LRUMap.prototype.peekValue = function (key) {
+        var node = this._map[key];
+        if (node !== undefined) {
+            return node.value;
+        }
+        return null;
+    };
+    LRUMap.prototype.peek = function () {
+        var head = this._head;
+        return head === null ? null : head.value;
+    };
+    LRUMap.prototype.set = function (key, value) {
+        var node = this._map[key];
+        if (node !== undefined) {
+            node = this._map[key];
+            this._unlinkNode(node);
+            node.value = value;
+        }
+        else if (this.size >= this.capacity) {
+            node = this._head;
+            this._unlinkNode(node);
+            delete this._map[node.key];
+            node.key = key;
+            node.value = value;
+            this._map[key] = node;
+        }
+        else {
+            var nodePool = this._nodePool;
+            if (nodePool.length > 0) {
+                node = nodePool.pop();
+                node.key = key;
+                node.value = value;
+            }
+            else {
+                node = {
+                    prev: null,
+                    next: null,
+                    key: key,
+                    value: value
+                };
+            }
+            this._map[key] = node;
+            this.size++;
+        }
+        this._appendNode(node);
+    };
+    return LRUMap;
+}());
+exports.default = LRUMap;
+
+},{}],39:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var BaseCharAtlas_1 = require("./BaseCharAtlas");
+var NoneCharAtlas = (function (_super) {
+    __extends(NoneCharAtlas, _super);
+    function NoneCharAtlas(document, config) {
+        return _super.call(this) || this;
+    }
+    NoneCharAtlas.prototype.draw = function (ctx, glyph, x, y) {
+        return false;
+    };
+    return NoneCharAtlas;
+}(BaseCharAtlas_1.default));
+exports.default = NoneCharAtlas;
+
+},{"./BaseCharAtlas":34}],40:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = require("./Types");
+var Types_2 = require("../../shared/atlas/Types");
+var CharAtlasGenerator_1 = require("../../shared/atlas/CharAtlasGenerator");
+var BaseCharAtlas_1 = require("./BaseCharAtlas");
+var StaticCharAtlas = (function (_super) {
+    __extends(StaticCharAtlas, _super);
+    function StaticCharAtlas(_document, _config) {
+        var _this = _super.call(this) || this;
+        _this._document = _document;
+        _this._config = _config;
+        _this._canvasFactory = function (width, height) {
+            var canvas = _this._document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            return canvas;
+        };
+        return _this;
+    }
+    StaticCharAtlas.prototype._doWarmUp = function () {
+        var _this = this;
+        var result = CharAtlasGenerator_1.generateStaticCharAtlasTexture(window, this._canvasFactory, this._config);
+        if (result instanceof HTMLCanvasElement) {
+            this._texture = result;
+        }
+        else {
+            result.then(function (texture) {
+                _this._texture = texture;
+            });
+        }
+    };
+    StaticCharAtlas.prototype._isCached = function (glyph, colorIndex) {
+        var isAscii = glyph.code < 256;
+        var isBasicColor = glyph.fg < 16;
+        var isDefaultColor = glyph.fg >= 256;
+        var isDefaultBackground = glyph.bg >= 256;
+        return isAscii && (isBasicColor || isDefaultColor) && isDefaultBackground && !glyph.italic;
+    };
+    StaticCharAtlas.prototype.draw = function (ctx, glyph, x, y) {
+        if (this._texture === null || this._texture === undefined) {
+            return false;
+        }
+        var colorIndex = 0;
+        if (glyph.fg < 256) {
+            colorIndex = 2 + glyph.fg + (glyph.bold ? 16 : 0);
+        }
+        else {
+            if (glyph.bold) {
+                colorIndex = 1;
+            }
+        }
+        if (!this._isCached(glyph, colorIndex)) {
+            return false;
+        }
+        ctx.save();
+        var charAtlasCellWidth = this._config.scaledCharWidth + Types_2.CHAR_ATLAS_CELL_SPACING;
+        var charAtlasCellHeight = this._config.scaledCharHeight + Types_2.CHAR_ATLAS_CELL_SPACING;
+        if (glyph.dim) {
+            ctx.globalAlpha = Types_1.DIM_OPACITY;
+        }
+        ctx.drawImage(this._texture, glyph.code * charAtlasCellWidth, colorIndex * charAtlasCellHeight, charAtlasCellWidth, this._config.scaledCharHeight, x, y, charAtlasCellWidth, this._config.scaledCharHeight);
+        ctx.restore();
+        return true;
+    };
+    return StaticCharAtlas;
+}(BaseCharAtlas_1.default));
+exports.default = StaticCharAtlas;
+
+},{"../../shared/atlas/CharAtlasGenerator":44,"../../shared/atlas/Types":45,"./BaseCharAtlas":34,"./Types":41}],41:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.INVERTED_DEFAULT_COLOR = -1;
+exports.DIM_OPACITY = 0.5;
+
+},{}],42:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventEmitter_1 = require("../../common/EventEmitter");
+var ColorManager_1 = require("../ColorManager");
+var RenderDebouncer_1 = require("../../ui/RenderDebouncer");
+var DomRendererRowFactory_1 = require("./DomRendererRowFactory");
+var TERMINAL_CLASS_PREFIX = 'xterm-dom-renderer-owner-';
+var ROW_CONTAINER_CLASS = 'xterm-rows';
+var FG_CLASS_PREFIX = 'xterm-fg-';
+var BG_CLASS_PREFIX = 'xterm-bg-';
+var FOCUS_CLASS = 'xterm-focus';
+var SELECTION_CLASS = 'xterm-selection';
+var nextTerminalId = 1;
+var DomRenderer = (function (_super) {
+    __extends(DomRenderer, _super);
+    function DomRenderer(_terminal, theme) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._terminalClass = nextTerminalId++;
+        _this._rowElements = [];
+        var allowTransparency = _this._terminal.options.allowTransparency;
+        _this.colorManager = new ColorManager_1.ColorManager(document, allowTransparency);
+        _this.setTheme(theme);
+        _this._rowContainer = document.createElement('div');
+        _this._rowContainer.classList.add(ROW_CONTAINER_CLASS);
+        _this._rowContainer.style.lineHeight = 'normal';
+        _this._rowContainer.setAttribute('aria-hidden', 'true');
+        _this._refreshRowElements(_this._terminal.cols, _this._terminal.rows);
+        _this._selectionContainer = document.createElement('div');
+        _this._selectionContainer.classList.add(SELECTION_CLASS);
+        _this._selectionContainer.setAttribute('aria-hidden', 'true');
+        _this.dimensions = {
+            scaledCharWidth: null,
+            scaledCharHeight: null,
+            scaledCellWidth: null,
+            scaledCellHeight: null,
+            scaledCharLeft: null,
+            scaledCharTop: null,
+            scaledCanvasWidth: null,
+            scaledCanvasHeight: null,
+            canvasWidth: null,
+            canvasHeight: null,
+            actualCellWidth: null,
+            actualCellHeight: null
+        };
+        _this._updateDimensions();
+        _this._renderDebouncer = new RenderDebouncer_1.RenderDebouncer(_this._terminal, _this._renderRows.bind(_this));
+        _this._rowFactory = new DomRendererRowFactory_1.DomRendererRowFactory(document);
+        _this._terminal.element.classList.add(TERMINAL_CLASS_PREFIX + _this._terminalClass);
+        _this._terminal.screenElement.appendChild(_this._rowContainer);
+        _this._terminal.screenElement.appendChild(_this._selectionContainer);
+        _this._terminal.linkifier.on("linkhover", function (e) { return _this._onLinkHover(e); });
+        _this._terminal.linkifier.on("linkleave", function (e) { return _this._onLinkLeave(e); });
+        return _this;
+    }
+    DomRenderer.prototype.dispose = function () {
+        this._terminal.element.classList.remove(TERMINAL_CLASS_PREFIX + this._terminalClass);
+        this._terminal.screenElement.removeChild(this._rowContainer);
+        this._terminal.screenElement.removeChild(this._selectionContainer);
+        this._terminal.screenElement.removeChild(this._themeStyleElement);
+        this._terminal.screenElement.removeChild(this._dimensionsStyleElement);
+        _super.prototype.dispose.call(this);
+    };
+    DomRenderer.prototype._updateDimensions = function () {
+        var _this = this;
+        this.dimensions.scaledCharWidth = this._terminal.charMeasure.width * window.devicePixelRatio;
+        this.dimensions.scaledCharHeight = this._terminal.charMeasure.height * window.devicePixelRatio;
+        this.dimensions.scaledCellWidth = this.dimensions.scaledCharWidth;
+        this.dimensions.scaledCellHeight = this.dimensions.scaledCharHeight;
+        this.dimensions.scaledCharLeft = 0;
+        this.dimensions.scaledCharTop = 0;
+        this.dimensions.scaledCanvasWidth = this.dimensions.scaledCellWidth * this._terminal.cols;
+        this.dimensions.scaledCanvasHeight = this.dimensions.scaledCellHeight * this._terminal.rows;
+        this.dimensions.canvasWidth = this._terminal.charMeasure.width * this._terminal.cols;
+        this.dimensions.canvasHeight = this._terminal.charMeasure.height * this._terminal.rows;
+        this.dimensions.actualCellWidth = this._terminal.charMeasure.width;
+        this.dimensions.actualCellHeight = this._terminal.charMeasure.height;
+        this._rowElements.forEach(function (element) {
+            element.style.width = _this.dimensions.canvasWidth + "px";
+            element.style.height = _this._terminal.charMeasure.height + "px";
+        });
+        if (!this._dimensionsStyleElement) {
+            this._dimensionsStyleElement = document.createElement('style');
+            this._terminal.screenElement.appendChild(this._dimensionsStyleElement);
+        }
+        var styles = this._terminalSelector + " ." + ROW_CONTAINER_CLASS + " span {" +
+            " display: inline-block;" +
+            " height: 100%;" +
+            " vertical-align: top;" +
+            (" width: " + this._terminal.charMeasure.width + "px") +
+            "}";
+        this._dimensionsStyleElement.innerHTML = styles;
+        this._selectionContainer.style.height = this._terminal._viewportElement.style.height;
+        this._rowContainer.style.width = this.dimensions.canvasWidth + "px";
+        this._rowContainer.style.height = this.dimensions.canvasHeight + "px";
+    };
+    DomRenderer.prototype.setTheme = function (theme) {
+        var _this = this;
+        if (theme) {
+            this.colorManager.setTheme(theme);
+        }
+        if (!this._themeStyleElement) {
+            this._themeStyleElement = document.createElement('style');
+            this._terminal.screenElement.appendChild(this._themeStyleElement);
+        }
+        var styles = this._terminalSelector + " ." + ROW_CONTAINER_CLASS + " {" +
+            (" color: " + this.colorManager.colors.foreground.css + ";") +
+            (" background-color: " + this.colorManager.colors.background.css + ";") +
+            (" font-family: " + this._terminal.getOption('fontFamily') + ";") +
+            (" font-size: " + this._terminal.getOption('fontSize') + "px;") +
+            "}";
+        styles +=
+            this._terminalSelector + " span:not(." + DomRendererRowFactory_1.BOLD_CLASS + ") {" +
+                (" font-weight: " + this._terminal.options.fontWeight + ";") +
+                "}" +
+                (this._terminalSelector + " span." + DomRendererRowFactory_1.BOLD_CLASS + " {") +
+                (" font-weight: " + this._terminal.options.fontWeightBold + ";") +
+                "}" +
+                (this._terminalSelector + " span." + DomRendererRowFactory_1.ITALIC_CLASS + " {") +
+                " font-style: italic;" +
+                "}";
+        styles +=
+            this._terminalSelector + " ." + ROW_CONTAINER_CLASS + ":not(." + FOCUS_CLASS + ") ." + DomRendererRowFactory_1.CURSOR_CLASS + " {" +
+                (" outline: 1px solid " + this.colorManager.colors.cursor.css + ";") +
+                " outline-offset: -1px;" +
+                "}" +
+                (this._terminalSelector + " ." + ROW_CONTAINER_CLASS + "." + FOCUS_CLASS + " ." + DomRendererRowFactory_1.CURSOR_CLASS + "." + DomRendererRowFactory_1.CURSOR_STYLE_BLOCK_CLASS + " {") +
+                (" background-color: " + this.colorManager.colors.cursor.css + ";") +
+                (" color: " + this.colorManager.colors.cursorAccent.css + ";") +
+                "}" +
+                (this._terminalSelector + " ." + ROW_CONTAINER_CLASS + "." + FOCUS_CLASS + " ." + DomRendererRowFactory_1.CURSOR_CLASS + "." + DomRendererRowFactory_1.CURSOR_STYLE_BAR_CLASS + " {") +
+                (" box-shadow: 1px 0 0 " + this.colorManager.colors.cursor.css + " inset;") +
+                "}" +
+                (this._terminalSelector + " ." + ROW_CONTAINER_CLASS + "." + FOCUS_CLASS + " ." + DomRendererRowFactory_1.CURSOR_CLASS + "." + DomRendererRowFactory_1.CURSOR_STYLE_UNDERLINE_CLASS + " {") +
+                (" box-shadow: 0 -1px 0 " + this.colorManager.colors.cursor.css + " inset;") +
+                "}";
+        styles +=
+            this._terminalSelector + " ." + SELECTION_CLASS + " {" +
+                " position: absolute;" +
+                " top: 0;" +
+                " left: 0;" +
+                " z-index: 1;" +
+                " pointer-events: none;" +
+                "}" +
+                (this._terminalSelector + " ." + SELECTION_CLASS + " div {") +
+                " position: absolute;" +
+                (" background-color: " + this.colorManager.colors.selection.css + ";") +
+                "}";
+        this.colorManager.colors.ansi.forEach(function (c, i) {
+            styles +=
+                _this._terminalSelector + " ." + FG_CLASS_PREFIX + i + " { color: " + c.css + "; }" +
+                    (_this._terminalSelector + " ." + BG_CLASS_PREFIX + i + " { background-color: " + c.css + "; }");
+        });
+        this._themeStyleElement.innerHTML = styles;
+        return this.colorManager.colors;
+    };
+    DomRenderer.prototype.onWindowResize = function (devicePixelRatio) {
+        this._updateDimensions();
+    };
+    DomRenderer.prototype._refreshRowElements = function (cols, rows) {
+        for (var i = this._rowElements.length; i <= rows; i++) {
+            var row = document.createElement('div');
+            this._rowContainer.appendChild(row);
+            this._rowElements.push(row);
+        }
+        while (this._rowElements.length > rows) {
+            this._rowContainer.removeChild(this._rowElements.pop());
+        }
+    };
+    DomRenderer.prototype.onResize = function (cols, rows) {
+        this._refreshRowElements(cols, rows);
+        this._updateDimensions();
+    };
+    DomRenderer.prototype.onCharSizeChanged = function () {
+        this._updateDimensions();
+    };
+    DomRenderer.prototype.onBlur = function () {
+        this._rowContainer.classList.remove(FOCUS_CLASS);
+    };
+    DomRenderer.prototype.onFocus = function () {
+        this._rowContainer.classList.add(FOCUS_CLASS);
+    };
+    DomRenderer.prototype.onSelectionChanged = function (start, end, columnSelectMode) {
+        while (this._selectionContainer.children.length) {
+            this._selectionContainer.removeChild(this._selectionContainer.children[0]);
+        }
+        if (!start || !end) {
+            return;
+        }
+        var viewportStartRow = start[1] - this._terminal.buffer.ydisp;
+        var viewportEndRow = end[1] - this._terminal.buffer.ydisp;
+        var viewportCappedStartRow = Math.max(viewportStartRow, 0);
+        var viewportCappedEndRow = Math.min(viewportEndRow, this._terminal.rows - 1);
+        if (viewportCappedStartRow >= this._terminal.rows || viewportCappedEndRow < 0) {
+            return;
+        }
+        var documentFragment = document.createDocumentFragment();
+        if (columnSelectMode) {
+            documentFragment.appendChild(this._createSelectionElement(viewportCappedStartRow, start[0], end[0], viewportCappedEndRow - viewportCappedStartRow + 1));
+        }
+        else {
+            var startCol = viewportStartRow === viewportCappedStartRow ? start[0] : 0;
+            var endCol = viewportCappedStartRow === viewportCappedEndRow ? end[0] : this._terminal.cols;
+            documentFragment.appendChild(this._createSelectionElement(viewportCappedStartRow, startCol, endCol));
+            var middleRowsCount = viewportCappedEndRow - viewportCappedStartRow - 1;
+            documentFragment.appendChild(this._createSelectionElement(viewportCappedStartRow + 1, 0, this._terminal.cols, middleRowsCount));
+            if (viewportCappedStartRow !== viewportCappedEndRow) {
+                var endCol_1 = viewportEndRow === viewportCappedEndRow ? end[0] : this._terminal.cols;
+                documentFragment.appendChild(this._createSelectionElement(viewportCappedEndRow, 0, endCol_1));
+            }
+        }
+        this._selectionContainer.appendChild(documentFragment);
+    };
+    DomRenderer.prototype._createSelectionElement = function (row, colStart, colEnd, rowCount) {
+        if (rowCount === void 0) { rowCount = 1; }
+        var element = document.createElement('div');
+        element.style.height = rowCount * this._terminal.charMeasure.height + "px";
+        element.style.top = row * this._terminal.charMeasure.height + "px";
+        element.style.left = colStart * this._terminal.charMeasure.width + "px";
+        element.style.width = this._terminal.charMeasure.width * (colEnd - colStart) + "px";
+        return element;
+    };
+    DomRenderer.prototype.onCursorMove = function () {
+    };
+    DomRenderer.prototype.onOptionsChanged = function () {
+        this._updateDimensions();
+        this.setTheme(undefined);
+        this._terminal.refresh(0, this._terminal.rows - 1);
+    };
+    DomRenderer.prototype.clear = function () {
+        this._rowElements.forEach(function (e) { return e.innerHTML = ''; });
+    };
+    DomRenderer.prototype.refreshRows = function (start, end) {
+        this._renderDebouncer.refresh(start, end);
+    };
+    DomRenderer.prototype._renderRows = function (start, end) {
+        var terminal = this._terminal;
+        var cursorAbsoluteY = terminal.buffer.ybase + terminal.buffer.y;
+        var cursorX = this._terminal.buffer.x;
+        for (var y = start; y <= end; y++) {
+            var rowElement = this._rowElements[y];
+            rowElement.innerHTML = '';
+            var row = y + terminal.buffer.ydisp;
+            var lineData = terminal.buffer.lines.get(row);
+            var cursorStyle = terminal.options.cursorStyle;
+            rowElement.appendChild(this._rowFactory.createRow(lineData, row === cursorAbsoluteY, cursorStyle, cursorX, terminal.charMeasure.width, terminal.cols));
+        }
+        this._terminal.emit('refresh', { start: start, end: end });
+    };
+    Object.defineProperty(DomRenderer.prototype, "_terminalSelector", {
+        get: function () {
+            return "." + TERMINAL_CLASS_PREFIX + this._terminalClass;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    DomRenderer.prototype.registerCharacterJoiner = function (handler) { return -1; };
+    DomRenderer.prototype.deregisterCharacterJoiner = function (joinerId) { return false; };
+    DomRenderer.prototype._onLinkHover = function (e) {
+        this._setCellUnderline(e.x1, e.x2, e.y1, e.y2, e.cols, true);
+    };
+    DomRenderer.prototype._onLinkLeave = function (e) {
+        this._setCellUnderline(e.x1, e.x2, e.y1, e.y2, e.cols, false);
+    };
+    DomRenderer.prototype._setCellUnderline = function (x, x2, y, y2, cols, enabled) {
+        while (x !== x2 || y !== y2) {
+            var span = this._rowElements[y].children[x];
+            span.style.textDecoration = enabled ? 'underline' : 'none';
+            x = (x + 1) % cols;
+            if (x === 0) {
+                y++;
+            }
+        }
+    };
+    return DomRenderer;
+}(EventEmitter_1.EventEmitter));
+exports.DomRenderer = DomRenderer;
+
+},{"../../common/EventEmitter":17,"../../ui/RenderDebouncer":50,"../ColorManager":27,"./DomRendererRowFactory":43}],43:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Buffer_1 = require("../../Buffer");
+exports.BOLD_CLASS = 'xterm-bold';
+exports.ITALIC_CLASS = 'xterm-italic';
+exports.CURSOR_CLASS = 'xterm-cursor';
+exports.CURSOR_STYLE_BLOCK_CLASS = 'xterm-cursor-block';
+exports.CURSOR_STYLE_BAR_CLASS = 'xterm-cursor-bar';
+exports.CURSOR_STYLE_UNDERLINE_CLASS = 'xterm-cursor-underline';
+var DomRendererRowFactory = (function () {
+    function DomRendererRowFactory(_document) {
+        this._document = _document;
+    }
+    DomRendererRowFactory.prototype.createRow = function (lineData, isCursorRow, cursorStyle, cursorX, cellWidth, cols) {
+        var fragment = this._document.createDocumentFragment();
+        var colCount = 0;
+        for (var x = 0; x < lineData.length; x++) {
+            if (colCount >= cols) {
+                continue;
+            }
+            var charData = lineData.get(x);
+            var char = charData[Buffer_1.CHAR_DATA_CHAR_INDEX];
+            var attr = charData[Buffer_1.CHAR_DATA_ATTR_INDEX];
+            var width = charData[Buffer_1.CHAR_DATA_WIDTH_INDEX];
+            if (width === 0) {
+                continue;
+            }
+            var charElement = this._document.createElement('span');
+            if (width > 1) {
+                charElement.style.width = cellWidth * width + "px";
+            }
+            var flags = attr >> 18;
+            var bg = attr & 0x1ff;
+            var fg = (attr >> 9) & 0x1ff;
+            if (isCursorRow && x === cursorX) {
+                charElement.classList.add(exports.CURSOR_CLASS);
+                switch (cursorStyle) {
+                    case 'bar':
+                        charElement.classList.add(exports.CURSOR_STYLE_BAR_CLASS);
+                        break;
+                    case 'underline':
+                        charElement.classList.add(exports.CURSOR_STYLE_UNDERLINE_CLASS);
+                        break;
+                    default:
+                        charElement.classList.add(exports.CURSOR_STYLE_BLOCK_CLASS);
+                        break;
+                }
+            }
+            if (flags & 8) {
+                var temp = bg;
+                bg = fg;
+                fg = temp;
+                if (fg === 256) {
+                    fg = 0;
+                }
+                if (bg === 257) {
+                    bg = 15;
+                }
+            }
+            if (flags & 1) {
+                if (fg < 8) {
+                    fg += 8;
+                }
+                charElement.classList.add(exports.BOLD_CLASS);
+            }
+            if (flags & 64) {
+                charElement.classList.add(exports.ITALIC_CLASS);
+            }
+            charElement.textContent = char;
+            if (fg !== 257) {
+                charElement.classList.add("xterm-fg-" + fg);
+            }
+            if (bg !== 256) {
+                charElement.classList.add("xterm-bg-" + bg);
+            }
+            fragment.appendChild(charElement);
+            colCount += width;
+        }
+        return fragment;
+    };
+    return DomRendererRowFactory;
+}());
+exports.DomRendererRowFactory = DomRendererRowFactory;
+
+},{"../../Buffer":2}],44:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Types_1 = require("./Types");
+var Browser_1 = require("../utils/Browser");
+function generateStaticCharAtlasTexture(context, canvasFactory, config) {
+    var cellWidth = config.scaledCharWidth + Types_1.CHAR_ATLAS_CELL_SPACING;
+    var cellHeight = config.scaledCharHeight + Types_1.CHAR_ATLAS_CELL_SPACING;
+    var canvas = canvasFactory(255 * cellWidth, (2 + 16 + 16) * cellHeight);
+    var ctx = canvas.getContext('2d', { alpha: config.allowTransparency });
+    ctx.fillStyle = config.colors.background.css;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.fillStyle = config.colors.foreground.css;
+    ctx.font = getFont(config.fontWeight, config);
+    ctx.textBaseline = 'top';
+    for (var i = 0; i < 256; i++) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(i * cellWidth, 0, cellWidth, cellHeight);
+        ctx.clip();
+        ctx.fillText(String.fromCharCode(i), i * cellWidth, 0);
+        ctx.restore();
+    }
+    ctx.save();
+    ctx.font = getFont(config.fontWeightBold, config);
+    for (var i = 0; i < 256; i++) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(i * cellWidth, cellHeight, cellWidth, cellHeight);
+        ctx.clip();
+        ctx.fillText(String.fromCharCode(i), i * cellWidth, cellHeight);
+        ctx.restore();
+    }
+    ctx.restore();
+    ctx.font = getFont(config.fontWeight, config);
+    for (var colorIndex = 0; colorIndex < 16; colorIndex++) {
+        var y = (colorIndex + 2) * cellHeight;
+        for (var i = 0; i < 256; i++) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(i * cellWidth, y, cellWidth, cellHeight);
+            ctx.clip();
+            ctx.fillStyle = config.colors.ansi[colorIndex].css;
+            ctx.fillText(String.fromCharCode(i), i * cellWidth, y);
+            ctx.restore();
+        }
+    }
+    ctx.font = getFont(config.fontWeightBold, config);
+    for (var colorIndex = 0; colorIndex < 16; colorIndex++) {
+        var y = (colorIndex + 2 + 16) * cellHeight;
+        for (var i = 0; i < 256; i++) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(i * cellWidth, y, cellWidth, cellHeight);
+            ctx.clip();
+            ctx.fillStyle = config.colors.ansi[colorIndex].css;
+            ctx.fillText(String.fromCharCode(i), i * cellWidth, y);
+            ctx.restore();
+        }
+    }
+    ctx.restore();
+    if (!('createImageBitmap' in context) || Browser_1.isFirefox || Browser_1.isSafari) {
+        if (canvas instanceof HTMLCanvasElement) {
+            return canvas;
+        }
+        return new Promise(function (r) { return r(canvas.transferToImageBitmap()); });
+    }
+    var charAtlasImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    clearColor(charAtlasImageData, config.colors.background);
+    return context.createImageBitmap(charAtlasImageData);
+}
+exports.generateStaticCharAtlasTexture = generateStaticCharAtlasTexture;
+function clearColor(imageData, color) {
+    var isEmpty = true;
+    var r = color.rgba >>> 24;
+    var g = color.rgba >>> 16 & 0xFF;
+    var b = color.rgba >>> 8 & 0xFF;
+    for (var offset = 0; offset < imageData.data.length; offset += 4) {
+        if (imageData.data[offset] === r &&
+            imageData.data[offset + 1] === g &&
+            imageData.data[offset + 2] === b) {
+            imageData.data[offset + 3] = 0;
+        }
+        else {
+            isEmpty = false;
+        }
+    }
+    return isEmpty;
+}
+exports.clearColor = clearColor;
+function getFont(fontWeight, config) {
+    return fontWeight + " " + config.fontSize * config.devicePixelRatio + "px " + config.fontFamily;
+}
+
+},{"../utils/Browser":46,"./Types":45}],45:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CHAR_ATLAS_CELL_SPACING = 1;
+
+},{}],46:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var isNode = (typeof navigator === 'undefined') ? true : false;
+var userAgent = (isNode) ? 'node' : navigator.userAgent;
+var platform = (isNode) ? 'node' : navigator.platform;
+exports.isFirefox = !!~userAgent.indexOf('Firefox');
+exports.isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+exports.isMSIE = !!~userAgent.indexOf('MSIE') || !!~userAgent.indexOf('Trident');
+exports.isMac = contains(['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'], platform);
+exports.isIpad = platform === 'iPad';
+exports.isIphone = platform === 'iPhone';
+exports.isMSWindows = contains(['Windows', 'Win16', 'Win32', 'WinCE'], platform);
+exports.isLinux = platform.indexOf('Linux') >= 0;
+function contains(arr, el) {
+    return arr.indexOf(el) >= 0;
+}
+
+},{}],47:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventEmitter_1 = require("../common/EventEmitter");
+var CharMeasure = (function (_super) {
+    __extends(CharMeasure, _super);
+    function CharMeasure(document, parentElement) {
+        var _this = _super.call(this) || this;
+        _this._document = document;
+        _this._parentElement = parentElement;
+        _this._measureElement = _this._document.createElement('span');
+        _this._measureElement.classList.add('xterm-char-measure-element');
+        _this._measureElement.textContent = 'W';
+        _this._measureElement.setAttribute('aria-hidden', 'true');
+        _this._parentElement.appendChild(_this._measureElement);
+        return _this;
+    }
+    Object.defineProperty(CharMeasure.prototype, "width", {
+        get: function () {
+            return this._width;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CharMeasure.prototype, "height", {
+        get: function () {
+            return this._height;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    CharMeasure.prototype.measure = function (options) {
+        this._measureElement.style.fontFamily = options.fontFamily;
+        this._measureElement.style.fontSize = options.fontSize + "px";
+        var geometry = this._measureElement.getBoundingClientRect();
+        if (geometry.width === 0 || geometry.height === 0) {
+            return;
+        }
+        if (this._width !== geometry.width || this._height !== geometry.height) {
+            this._width = geometry.width;
+            this._height = Math.ceil(geometry.height);
+            this.emit('charsizechanged');
+        }
+    };
+    return CharMeasure;
+}(EventEmitter_1.EventEmitter));
+exports.CharMeasure = CharMeasure;
+
+},{"../common/EventEmitter":17}],48:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function addDisposableDomListener(node, type, handler, useCapture) {
+    node.addEventListener(type, handler, useCapture);
+    return {
+        dispose: function () {
+            if (!handler) {
+                return;
+            }
+            node.removeEventListener(type, handler, useCapture);
+            node = null;
+            handler = null;
+        }
+    };
+}
+exports.addDisposableDomListener = addDisposableDomListener;
+
+},{}],49:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Lifecycle_1 = require("../common/Lifecycle");
+var Lifecycle_2 = require("./Lifecycle");
+var HOVER_DURATION = 500;
+var MouseZoneManager = (function (_super) {
+    __extends(MouseZoneManager, _super);
+    function MouseZoneManager(_terminal) {
+        var _this = _super.call(this) || this;
+        _this._terminal = _terminal;
+        _this._zones = [];
+        _this._areZonesActive = false;
+        _this._tooltipTimeout = null;
+        _this._currentZone = null;
+        _this._lastHoverCoords = [null, null];
+        _this.register(Lifecycle_2.addDisposableDomListener(_this._terminal.element, 'mousedown', function (e) { return _this._onMouseDown(e); }));
+        _this._mouseMoveListener = function (e) { return _this._onMouseMove(e); };
+        _this._clickListener = function (e) { return _this._onClick(e); };
+        return _this;
+    }
+    MouseZoneManager.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this._deactivate();
+    };
+    MouseZoneManager.prototype.add = function (zone) {
+        this._zones.push(zone);
+        if (this._zones.length === 1) {
+            this._activate();
+        }
+    };
+    MouseZoneManager.prototype.clearAll = function (start, end) {
+        if (this._zones.length === 0) {
+            return;
+        }
+        if (!end) {
+            start = 0;
+            end = this._terminal.rows - 1;
+        }
+        for (var i = 0; i < this._zones.length; i++) {
+            var zone = this._zones[i];
+            if ((zone.y1 > start && zone.y1 <= end + 1) ||
+                (zone.y2 > start && zone.y2 <= end + 1) ||
+                (zone.y1 < start && zone.y2 > end + 1)) {
+                if (this._currentZone && this._currentZone === zone) {
+                    this._currentZone.leaveCallback();
+                    this._currentZone = null;
+                }
+                this._zones.splice(i--, 1);
+            }
+        }
+        if (this._zones.length === 0) {
+            this._deactivate();
+        }
+    };
+    MouseZoneManager.prototype._activate = function () {
+        if (!this._areZonesActive) {
+            this._areZonesActive = true;
+            this._terminal.element.addEventListener('mousemove', this._mouseMoveListener);
+            this._terminal.element.addEventListener('click', this._clickListener);
+        }
+    };
+    MouseZoneManager.prototype._deactivate = function () {
+        if (this._areZonesActive) {
+            this._areZonesActive = false;
+            this._terminal.element.removeEventListener('mousemove', this._mouseMoveListener);
+            this._terminal.element.removeEventListener('click', this._clickListener);
+        }
+    };
+    MouseZoneManager.prototype._onMouseMove = function (e) {
+        if (this._lastHoverCoords[0] !== e.pageX || this._lastHoverCoords[1] !== e.pageY) {
+            this._onHover(e);
+            this._lastHoverCoords = [e.pageX, e.pageY];
+        }
+    };
+    MouseZoneManager.prototype._onHover = function (e) {
+        var _this = this;
+        var zone = this._findZoneEventAt(e);
+        if (zone === this._currentZone) {
+            return;
+        }
+        if (this._currentZone) {
+            this._currentZone.leaveCallback();
+            this._currentZone = null;
+            if (this._tooltipTimeout) {
+                clearTimeout(this._tooltipTimeout);
+            }
+        }
+        if (!zone) {
+            return;
+        }
+        this._currentZone = zone;
+        if (zone.hoverCallback) {
+            zone.hoverCallback(e);
+        }
+        this._tooltipTimeout = setTimeout(function () { return _this._onTooltip(e); }, HOVER_DURATION);
+    };
+    MouseZoneManager.prototype._onTooltip = function (e) {
+        this._tooltipTimeout = null;
+        var zone = this._findZoneEventAt(e);
+        if (zone && zone.tooltipCallback) {
+            zone.tooltipCallback(e);
+        }
+    };
+    MouseZoneManager.prototype._onMouseDown = function (e) {
+        if (!this._areZonesActive) {
+            return;
+        }
+        var zone = this._findZoneEventAt(e);
+        if (zone) {
+            if (zone.willLinkActivate(e)) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        }
+    };
+    MouseZoneManager.prototype._onClick = function (e) {
+        var zone = this._findZoneEventAt(e);
+        if (zone) {
+            zone.clickCallback(e);
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    };
+    MouseZoneManager.prototype._findZoneEventAt = function (e) {
+        var coords = this._terminal.mouseHelper.getCoords(e, this._terminal.screenElement, this._terminal.charMeasure, this._terminal.options.lineHeight, this._terminal.cols, this._terminal.rows);
+        if (!coords) {
+            return null;
+        }
+        var x = coords[0];
+        var y = coords[1];
+        for (var i = 0; i < this._zones.length; i++) {
+            var zone = this._zones[i];
+            if (zone.y1 === zone.y2) {
+                if (y === zone.y1 && x >= zone.x1 && x < zone.x2) {
+                    return zone;
+                }
+            }
+            else {
+                if ((y === zone.y1 && x >= zone.x1) ||
+                    (y === zone.y2 && x < zone.x2) ||
+                    (y > zone.y1 && y < zone.y2)) {
+                    return zone;
+                }
+            }
+        }
+        return null;
+    };
+    return MouseZoneManager;
+}(Lifecycle_1.Disposable));
+exports.MouseZoneManager = MouseZoneManager;
+var MouseZone = (function () {
+    function MouseZone(x1, y1, x2, y2, clickCallback, hoverCallback, tooltipCallback, leaveCallback, willLinkActivate) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.clickCallback = clickCallback;
+        this.hoverCallback = hoverCallback;
+        this.tooltipCallback = tooltipCallback;
+        this.leaveCallback = leaveCallback;
+        this.willLinkActivate = willLinkActivate;
+    }
+    return MouseZone;
+}());
+exports.MouseZone = MouseZone;
+
+},{"../common/Lifecycle":18,"./Lifecycle":48}],50:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var RenderDebouncer = (function () {
+    function RenderDebouncer(_terminal, _callback) {
+        this._terminal = _terminal;
+        this._callback = _callback;
+        this._animationFrame = null;
+    }
+    RenderDebouncer.prototype.dispose = function () {
+        if (this._animationFrame) {
+            window.cancelAnimationFrame(this._animationFrame);
+            this._animationFrame = null;
+        }
+    };
+    RenderDebouncer.prototype.refresh = function (rowStart, rowEnd) {
+        var _this = this;
+        rowStart = rowStart !== null && rowStart !== undefined ? rowStart : 0;
+        rowEnd = rowEnd !== null && rowEnd !== undefined ? rowEnd : this._terminal.rows - 1;
+        var isRowStartSet = this._rowStart !== undefined && this._rowStart !== null;
+        var isRowEndSet = this._rowEnd !== undefined && this._rowEnd !== null;
+        this._rowStart = isRowStartSet ? Math.min(this._rowStart, rowStart) : rowStart;
+        this._rowEnd = isRowEndSet ? Math.max(this._rowEnd, rowEnd) : rowEnd;
+        if (this._animationFrame) {
+            return;
+        }
+        this._animationFrame = window.requestAnimationFrame(function () { return _this._innerRefresh(); });
+    };
+    RenderDebouncer.prototype._innerRefresh = function () {
+        this._rowStart = Math.max(this._rowStart, 0);
+        this._rowEnd = Math.min(this._rowEnd, this._terminal.rows - 1);
+        this._callback(this._rowStart, this._rowEnd);
+        this._rowStart = null;
+        this._rowEnd = null;
+        this._animationFrame = null;
+    };
+    return RenderDebouncer;
+}());
+exports.RenderDebouncer = RenderDebouncer;
+
+},{}],51:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Lifecycle_1 = require("../common/Lifecycle");
+var ScreenDprMonitor = (function (_super) {
+    __extends(ScreenDprMonitor, _super);
+    function ScreenDprMonitor() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ScreenDprMonitor.prototype.setListener = function (listener) {
+        var _this = this;
+        if (this._listener) {
+            this.clearListener();
+        }
+        this._listener = listener;
+        this._outerListener = function () {
+            _this._listener(window.devicePixelRatio, _this._currentDevicePixelRatio);
+            _this._updateDpr();
+        };
+        this._updateDpr();
+    };
+    ScreenDprMonitor.prototype.dispose = function () {
+        _super.prototype.dispose.call(this);
+        this.clearListener();
+    };
+    ScreenDprMonitor.prototype._updateDpr = function () {
+        if (this._resolutionMediaMatchList) {
+            this._resolutionMediaMatchList.removeListener(this._outerListener);
+        }
+        this._currentDevicePixelRatio = window.devicePixelRatio;
+        this._resolutionMediaMatchList = window.matchMedia("screen and (resolution: " + window.devicePixelRatio + "dppx)");
+        this._resolutionMediaMatchList.addListener(this._outerListener);
+    };
+    ScreenDprMonitor.prototype.clearListener = function () {
+        if (!this._listener) {
+            return;
+        }
+        this._resolutionMediaMatchList.removeListener(this._outerListener);
+        this._listener = null;
+        this._outerListener = null;
+    };
+    return ScreenDprMonitor;
+}(Lifecycle_1.Disposable));
+exports.ScreenDprMonitor = ScreenDprMonitor;
+
+},{"../common/Lifecycle":18}],52:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.clone = function (val, depth) {
+    if (depth === void 0) { depth = 5; }
+    if (typeof val !== 'object') {
+        return val;
+    }
+    if (val === null) {
+        return null;
+    }
+    var clonedObject = Array.isArray(val) ? [] : {};
+    for (var key in val) {
+        clonedObject[key] = depth <= 1 ? val[key] : exports.clone(val[key], depth - 1);
+    }
+    return clonedObject;
+};
+
+},{}],53:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var MouseHelper = (function () {
+    function MouseHelper(_renderer) {
+        this._renderer = _renderer;
+    }
+    MouseHelper.getCoordsRelativeToElement = function (event, element) {
+        if (event.pageX === null || event.pageX === undefined) {
+            return null;
+        }
+        var originalElement = element;
+        var x = event.pageX;
+        var y = event.pageY;
+        while (element) {
+            x -= element.offsetLeft;
+            y -= element.offsetTop;
+            element = element.offsetParent;
+        }
+        element = originalElement;
+        while (element && element !== element.ownerDocument.body) {
+            x += element.scrollLeft;
+            y += element.scrollTop;
+            element = element.parentElement;
+        }
+        return [x, y];
+    };
+    MouseHelper.prototype.getCoords = function (event, element, charMeasure, lineHeight, colCount, rowCount, isSelection) {
+        if (!charMeasure.width || !charMeasure.height) {
+            return null;
+        }
+        var coords = MouseHelper.getCoordsRelativeToElement(event, element);
+        if (!coords) {
+            return null;
+        }
+        coords[0] = Math.ceil((coords[0] + (isSelection ? this._renderer.dimensions.actualCellWidth / 2 : 0)) / this._renderer.dimensions.actualCellWidth);
+        coords[1] = Math.ceil(coords[1] / this._renderer.dimensions.actualCellHeight);
+        coords[0] = Math.min(Math.max(coords[0], 1), colCount + (isSelection ? 1 : 0));
+        coords[1] = Math.min(Math.max(coords[1], 1), rowCount);
+        return coords;
+    };
+    MouseHelper.prototype.getRawByteCoords = function (event, element, charMeasure, lineHeight, colCount, rowCount) {
+        var coords = this.getCoords(event, element, charMeasure, lineHeight, colCount, rowCount);
+        var x = coords[0];
+        var y = coords[1];
+        x += 32;
+        y += 32;
+        return { x: x, y: y };
+    };
+    return MouseHelper;
+}());
+exports.MouseHelper = MouseHelper;
+
+},{}],54:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Terminal_1 = require("./public/Terminal");
+module.exports = Terminal_1.Terminal;
+
+},{"./public/Terminal":24}]},{},[54])(54)
+});
+//# sourceMappingURL=xterm.js.map

@@ -511,7 +511,7 @@ def handle_top_data(data):
     cpu = dict((y, x) for x, y in cpu)
 
     m = r[3].split(':')[1]
-    mem = ((n for n in re.sub('k', '', i).split()) for i in m.split(','))
+    mem = ((n for n in re.sub('k', '', re.sub('\+', '0 ', i)).split()) for i in m.split(','))
     mem = dict((y, x) for x, y in mem)
 
     s = re.sub('avail Mem', 'availableMem', r[4].split(':')[1])

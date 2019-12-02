@@ -23,6 +23,7 @@ from assets.tasks import admin_file
 from conf.logger import fort_logger
 from assets.models import AdminRecord
 from fort.models import FortRecord
+from django.http.request import QueryDict
 from channels.generic.websocket import WebsocketConsumer
 
 
@@ -40,7 +41,6 @@ class MyThread(threading.Thread):
 
     def run(self):
         while not self._stop_event.is_set() or not self.chan.chan.exit_status_ready():
-            time.sleep(0.1)
             try:
                 data = self.chan.chan.recv(1024)
                 if data:
@@ -59,6 +59,8 @@ class MyThread(threading.Thread):
                         if str_data.strip() != '':
                             self.chan.cmd_tmp = re.sub(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]|\x08', '', str_data)
                         self.chan.history_mode = False
+                else:
+                    return
             except timeout:
                 break
         self.chan.send('\n由于长时间没有操作，连接已断开!', close=True)
@@ -137,10 +139,11 @@ class MySSH(WebsocketConsumer):
         self.username = None
         self.password = None
         self.record_dir = 'admin_ssh_records' if self.scope['user'].is_superuser else 'fort_ssh_records'
-        self.width = 150
-        self.height = 30
         self.t1 = MyThread(self)
-        self.remote_ip = self.scope['query_string'].decode('utf8')
+        self.query = QueryDict(query_string=self.scope.get('query_string'), encoding='utf-8')
+        self.remote_ip = self.query.get('remote_ip')
+        self.height = int(self.query.get('height'))
+        self.width = int(self.query.get('width'))
         self.chan = None
         self.cmd = []  # 所有命令
         self.cmd_tmp = ''  # 一行命令
@@ -149,6 +152,7 @@ class MySSH(WebsocketConsumer):
         self.index = 0
 
     def connect(self):
+        print(self.width, self.height)
         if self.scope["user"].is_anonymous:
             self.close(code=1007)
         else:
@@ -161,7 +165,8 @@ class MySSH(WebsocketConsumer):
         except Exception as e:
             fort_logger.error('用户{}通过webssh连接{}失败！原因：{}'.format(self.username, self.ip, e))
             self.send('用户{}通过webssh连接{}失败！原因：{}'.format(self.username, self.ip, e), close=True)
-        self.chan = self.ssh.invoke_shell(term='xterm', width=self.width, height=self.height)
+
+        self.chan = self.ssh.invoke_shell(term='ansi', width=self.width, height=self.height)
         # 设置如果3分钟没有任何输入，就断开连接
         self.chan.settimeout(60 * 3)
         self.t1.setDaemon(True)
