@@ -532,7 +532,7 @@ def handle_top_data(data):
     for i in d:
         # disk = [f'{i.split()[0]}({(i.split()[-1])})'].extend(i.split()[1:-2])
         temp = [format_size(n) for n in i.split()[1:-2]]
-        temp.insert(0, f'{i.split()[0]}({(i.split()[-1])})')
+        temp.insert(0, i.split()[-1])
         disk.append(temp)
 
     return load, tasks, cpu, mem, swap, heads, body, disk

@@ -46,6 +46,7 @@ class ProjectConfig(models.Model):
     repo_password = models.CharField(max_length=16, verbose_name='仓库密码', blank=True, default='')
     repo_url = models.CharField(max_length=100, unique=True, verbose_name='项目仓库路径')
     repo_model = models.CharField(max_length=10, choices=repo_models, verbose_name='版本控制类型', default='branch')
+    git_port = models.SmallIntegerField(verbose_name='git仓库的端口', default=22)
     src_dir = models.CharField(max_length=100, verbose_name='代码检出目录')
     exclude = models.TextField(blank=True, verbose_name='排除文件', default='')
     run_user = models.CharField(max_length=10, verbose_name='运行服务用户', default='root')

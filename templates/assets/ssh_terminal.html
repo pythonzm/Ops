@@ -65,13 +65,16 @@
 <script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
 <script src="{% static 'js/xterm.js' %}"></script>
 <script src="{% static 'js/fit.js' %}"></script>
+{#<script src="{% static 'zomdemjs/zmodem.js' %}"></script>#}
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+{#<script src="https://cdn.bootcss.com/xterm/3.14.5/addons/zmodem/zmodem.js"></script>#}
 <script>
     let cols = get_term_size().cols;
     let rows = get_term_size().rows;
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
     let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/webssh/{{ pk }}/?remote_ip={{ remote_ip }}' + '&width=' + cols + '&height=' + rows);
 
+    // Terminal.applyAddon(zmodem);
     let term = new Terminal({
         screenKeys: true,
         useStyle: true,
@@ -79,6 +82,10 @@
         cols: cols,
         rows: rows
     });
+
+    //term.zmodemAttach(socket, {
+            //noTerminalWriteOutsideSession: true,
+    //} );
 
 
     socket.onopen = function () {
@@ -104,14 +111,14 @@
 
     function get_term_size() {
         let init_width = 10;
-        let init_height = 20;
+        let init_height = 17;
 
         let windows_width = $(window).width();
         let windows_height = document.documentElement.clientHeight - $('.main-header').height();
 
         return {
             cols: Math.floor(windows_width / init_width),
-            rows: Math.floor(windows_height / init_height),
+            rows: Math.floor(windows_height / init_height) - 1,
         }
     }
 

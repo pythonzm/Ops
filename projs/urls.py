@@ -4,6 +4,7 @@ from django.urls import path, re_path
 from projs import views
 
 urlpatterns = [
+    path(r'auto_deploy/', views.auto_deploy, name='auto_deploy'),
     path(r'proj_list/', views.proj_list, name='proj_list'),
     path(r'proj_config/', views.proj_config, name='proj_config'),
     path(r'config_list/', views.config_list, name='config_list'),

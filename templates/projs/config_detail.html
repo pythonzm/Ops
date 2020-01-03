@@ -9,6 +9,28 @@
         #prev_deploy, #post_deploy, #prev_release, #post_release {
             width: 100%;
             height: 100px;
+            position: relative !important;
+            border: 1px solid lightgray;
+            margin: auto;
+        }
+
+        #prev_deploy.fullScreen, #post_deploy.fullScreen, #prev_release.fullScreen, #post_release.fullScreen {
+            height: auto;
+            width: auto;
+            border: 0;
+            margin: 0;
+            position: fixed !important;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        body .fullScreen {
+            overflow: hidden;
+            /*transform breaks position fixed*/
+            transform: none !important;
         }
 
         .box.box-info {
@@ -50,13 +72,14 @@
                             </select>
                         </div>
 
-                        <div class="form-group" id="svn_auth" style="display: none">
-                            <label for="repo" style="display: block">SVN账号密码</label>
+                        <div class="form-group" id="repo_auth">
+                            <label for="repo" style="display: block">仓库账号密码 <span
+                                    style="color: #FF0000"> *当git仓库使用ssh协议时，无需配置</span></label>
                             <input type="text" class="form-control" id="repo_user" name="repo_user"
-                                   placeholder="输入SVN账号"
+                                   placeholder="输入账号"
                                    style="display: inline-block; width: 49%">
                             <input type="password" class="form-control" id="repo_password" name="repo_password"
-                                   placeholder="输入SVN密码"
+                                   placeholder="输入密码"
                                    style="display: inline-block; width: 49%; float: right">
                         </div>
                         <!-- /.form-group -->
@@ -75,6 +98,11 @@
                             </select>
                         </div>
                         <!-- /.form-group -->
+                        <div class="form-group">
+                            <label for="git_port">git端口，默认是22 <span
+                                    style="color: #FF0000"> *当git仓库使用http(s)协议时，无需配置</span></label>
+                            <input type="text" class="form-control" id="git_port" name="git_port" value="22">
+                        </div>
                     </div>
                     <!-- /.col -->
                 </div>
@@ -169,7 +197,7 @@
         <div class="box box-info">
             <div class="box-header with-border">
                 <h3 class="box-title">任务配置</h3> <span
-                    style="color: #FF0000">* 所有任务必须是shell可以执行的命令，一行一条，可以添加注释，以#开头</span>
+                    style="color: #FF0000">* 所有任务必须是shell可以执行的命令，一行一条，可以添加注释，以#开头，按F11可进入全屏编辑</span>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
@@ -269,6 +297,7 @@
     <script>
 
         let editors = ["prev_deploy", "post_deploy", "prev_release", "post_release"];
+        let dom = ace.require("ace/lib/dom");
         $(function () {
             $("[data-toggle='tooltip']").tooltip();
             // Initialize Select2 Elements
@@ -287,6 +316,7 @@
                 $('#repo_model').val(res.repo_model).trigger('change');
                 $('#repo_user').val(res.repo_user);
                 $('#repo_password').val(res.repo_password);
+                $('#git_port').val(res.git_port);
                 $('#src_dir').val(res.src_dir);
                 $('#exclude').val(res.exclude);
                 $('#run_user').val(res.run_user);
@@ -299,6 +329,17 @@
             });
         });
 
+        ace.require("ace/commands/default_commands").commands.push({
+            name: "Toggle Fullscreen",
+            bindKey: "F11",
+            exec: function (editor) {
+                let fullScreen = dom.toggleCssClass(document.body, "fullScreen");
+                dom.setCssClass(editor.container, "fullScreen", fullScreen);
+                editor.setAutoScrollEditorIntoView(!fullScreen);
+                editor.resize()
+            }
+        });
+
         function init_editor(elements, res) {
             ace.require("ace/ext/language_tools");
             for (let element of elements) {
@@ -309,11 +350,26 @@
                     theme: "ace/theme/monokai",
                     enableBasicAutocompletion: true,
                     enableSnippets: true,
-                    enableLiveAutocompletion: true
+                    enableLiveAutocompletion: true,
+                    autoScrollEditorIntoView: true
                 });
                 editor_name.setValue(res[element], 1);
+
+                function scroll(speed) {
+                    let top = editor_name.container.getBoundingClientRect().top;
+                    speed = speed || 10;
+                    if (top > 60 && speed < 500) {
+                        if (speed > top - speed - 50)
+                            speed = top - speed - 50;
+                        else
+                            setTimeout(scroll, 10, speed + 10);
+                        window.scrollBy(0, speed)
+                    }
+                }
             }
         }
+
+        window.scroll = scroll;
 
         function notice(wx_notice, to_mail, cc_mail) {
             if (wx_notice) {
@@ -342,10 +398,8 @@
             let repo_model = $('#repo_model');
             repo_model.empty();
             if (repo === 'git') {
-                $('#svn_auth').css('display', 'none');
                 repo_model.append('<option value="branch">branch</option> <option value="tag">tag</option>')
             } else {
-                $('#svn_auth').css('display', 'block');
                 repo_model.append('<option value="trunk">trunk</option> <option value="branch">branch</option> <option value="tag">tag</option>')
             }
         });

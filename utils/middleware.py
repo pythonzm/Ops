@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from utils.db.mongo_ops import MongoOps
 from django.utils.deprecation import MiddlewareMixin
 
-pass_paths = ['/login/', '/logout/', '/lock_screen/', '/create_code/']  # 指定哪些路径不保存所有用户列表的session
+pass_paths = ['/login/', '/logout/', '/lock_screen/', '/create_code/', '/project/auto_deploy/']  # 指定哪些路径不保存所有用户列表的session
 pass_keys = ['log', 'lock_screen', 'wiki', 'post', 'role_detail', 'assets/ssh', 'fort/terminal',
              'proj_list', 'user_center', 'db_exec']  # 指定哪些路径的非get请求不进行记录
 

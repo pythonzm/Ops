@@ -1,6 +1,9 @@
 import os
+import json
 import datetime
+import websocket
 from ast import literal_eval
+from threading import Thread
 from django.shortcuts import render
 from django.http import JsonResponse
 from projs.models import *
@@ -9,12 +12,13 @@ from assets.models import Assets, ServerAssets
 from utils.decorators import admin_auth, deploy_auth
 from projs.utils.git_tools import GitTools
 from projs.utils.svn_tools import SVNTools
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import permission_required
 
 
 @permission_required('projs.add_project', raise_exception=True)
 def proj_list(request):
-    projects = Project.objects.select_related('project_admin').all()
+    projects = Project.objects.select_related('project_admin').all().order_by('id')
     project_envs = Project.project_envs
     project_users = UserProfile.objects.all()
     return render(request, 'projs/proj_list.html', locals())
@@ -79,7 +83,8 @@ def deploy(request, pk):
             if key:
                 if key == 'model':
                     try:
-                        git_tool.clone(prev_cmds=config.prev_deploy)
+                        git_tool.clone(prev_cmds=config.prev_deploy, username=config.repo_user,
+                                       password=config.repo_password, git_port=config.git_port)
                         if config.repo_model == 'branch':
                             branches = git_tool.remote_branches
                             return JsonResponse({'code': 200, 'models': branches, 'msg': '获取成功！'})
@@ -179,3 +184,44 @@ def check_log(request, pk):
     password = server.password
     return render(request, 'projs/check_log.html',
                   {'host': host, 'port': port, 'username': username, 'password': password})
+
+
+@csrf_exempt
+def auto_deploy(request):
+    if request.method == 'POST':
+        token = request.META.get("HTTP_X_GITLAB_TOKEN")
+
+        post_data = json.loads(request.body)
+
+        try:
+            config = ProjectConfig.objects.get(repo_url=post_data.get('repository').get('git_ssh_url'))
+        except ProjectConfig.DoesNotExist:
+            config = ProjectConfig.objects.get(repo_url=post_data.get('repository').get('git_http_url'))
+
+        branch_name = post_data.get('ref').split('/')[-1]
+        commit_id = post_data.get('commits')[0].get('id')
+
+        ws_data = {'config_id': config.id, 'branch_tag': branch_name, 'commit': commit_id, 'rollback': False}
+
+        ws_scheme = 'wss' if request.is_secure() else 'ws'
+
+        def on_message(w, message):
+            print('message=============', message)
+
+        def on_error(w, error):
+            pass
+
+        def on_close(w):
+            pass
+
+        def on_open(w):
+            w.send(json.dumps(ws_data, ensure_ascii=False))
+
+        websocket.enableTrace(True)
+        ws = websocket.WebSocketApp('{}://{}/ws/deploy/'.format(ws_scheme, request.META.get("HTTP_HOST")),
+                                    on_message=on_message,
+                                    on_error=on_error,
+                                    on_close=on_close, )
+        ws.on_open = on_open
+        ws.run_forever()
+        return JsonResponse({'code': 200, 'token': token, 'data': ws_data})

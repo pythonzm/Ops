@@ -3,7 +3,7 @@
 -------------------------------------------------
    File Name：      git_tool
    Description:
-   Author:          Administrator
+   Author:          pythonzm
    date：           2019-02-21
 -------------------------------------------------
    Change Activity:
@@ -26,26 +26,38 @@ class GitTools:
         """
         self.base_path = path
         self.repo_url = repo_url
-        self.proj_name = repo_url.split('/')[1].rstrip('.git')
+        self.proj_name = repo_url.split('/')[-1].rstrip('.git')
         self.proj_path = os.path.join(self.base_path, self.proj_name, env)
         self.remote_name = remote_name
         self.repo = self.__repo
 
-    def clone(self, prev_cmds):
+    def clone(self, prev_cmds, username='', password='', git_port=22):
         """
         :param prev_cmds: 代码检出前的操作
+        :param username: git仓库用户名，当repo_url使用http(s)协议时需要指定
+        :param password: git仓库密码，当repo_url使用http(s)协议时需要指定
+        :param git_port: git仓库端口，默认是22.当repo_url使用ssh协议时需要指定
         :return:
         """
         try:
             if not os.path.exists(self.base_path):
-                os.makedirs(self.base_path)
+                os.makedirs(self.base_path, mode=0o755)
             if os.path.exists(self.proj_path) and os.listdir(self.proj_path):
                 shutil.rmtree(self.proj_path, ignore_errors=True)
+                os.makedirs(self.proj_path, mode=0o755, exist_ok=True)
+
+            if username and password and self.repo_url.startswith('http'):
+                t = self.repo_url.split('://')
+                self.repo_url = f'{t[0]}://{username}:{password}@{t[1]}'
+            elif git_port != 22:
+                t = self.repo_url.split(':')
+                self.repo_url = f'ssh://{t[0]}:{git_port}/{t[1]}'
+
             if len(prev_cmds) == 0:
                 git.Repo.clone_from(url=self.repo_url, to_path=self.proj_path, origin=self.remote_name)
             else:
-                if self.run_cmd(prev_cmds) == 0:
-                    git.Repo.clone_from(url=self.repo_url, to_path=self.proj_path, origin=self.remote_name)
+                self.run_cmd(prev_cmds)
+                git.Repo.clone_from(url=self.repo_url, to_path=self.proj_path, origin=self.remote_name)
         except Exception as e:
             deploy_logger.error('拉取代码失败！{}'.format(e))
 
@@ -126,6 +138,12 @@ class GitTools:
             c += cmd + ' && '
         c = c.rstrip(' && ')
 
-        code, _ = subprocess.getstatusoutput('({})'.format(c))
+        code, res = subprocess.getstatusoutput('({})'.format(c))
+        if code != 0:
+            raise RunCmdError('执行命令失败：{}'.format(res))
 
         return code
+
+
+class RunCmdError(Exception):
+    pass

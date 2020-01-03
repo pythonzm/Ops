@@ -469,24 +469,29 @@ desired effect
 
 <script>
 
-    $(document).ajaxStart(function () {
-        let path = window.location.pathname;
-        if (path.indexOf('role_detail') === -1 && path.indexOf('system_log') === -1 && path.indexOf('monitor') === -1 ) {
-            $('#loading-image').show();
-        } else {
-            // pass
-        }
-    });
-
     $(document).ajaxSend(function (event, request, url) {
         if (!(url.type in ['GET', 'get'])) {
             request.setRequestHeader('X-CSRFToken', '{{ csrf_token }}')
         }
     });
 
+    /*
+
+    $(document).ajaxStart(function () {
+        let path = window.location.pathname;
+        if (path.indexOf('role_detail') === -1 && path.indexOf('system_log') === -1 && path.indexOf('monitor') === -1) {
+            $('#loading-image').show();
+        } else {
+            // pass
+        }
+    });
+
+
     $(document).ajaxComplete(function () {
         $('#loading-image').hide();
     });
+
+    */
 
     <!-- 固定标签 -->
     let pathname = window.location.pathname;
