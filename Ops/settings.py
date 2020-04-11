@@ -127,7 +127,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'utils.middleware.UserLoginMiddleware',
-    'utils.middleware.RecordMiddleware',
+    # 'utils.middleware.RecordMiddleware',
 ]
 
 REST_FRAMEWORK = {

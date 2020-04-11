@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ fort_username }}@{{ server_ip }}</title>
+    <title>{{ ssh_server_ip }}</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
@@ -11,6 +11,7 @@
     <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
     <link href="{% static 'css/xterm.css' %}" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+
     <style>
         @media screen and (max-width: 750px) {
             .main-header {
@@ -23,7 +24,7 @@
 <div class="wrapper">
     <header class="main-header">
         <nav class="navbar navbar-light" style="background-color: #e3f2fd; margin-bottom: 0">
-            <a class="navbar-brand">当前使用账号为： {{ fort_username }}@{{ server_ip }} </a>
+            <a class="navbar-brand">当前登录服务器为： {{ ssh_server_ip }} </a>
             <form class="form-inline" enctype="multipart/form-data">
                 <div class="input-group" style="margin-top: 10px;margin-left: 200px;">
                     <input type="file" id="upload_file" class="file" name="upload_file" multiple required>
@@ -38,6 +39,7 @@
             </form>
         </nav>
     </header>
+
     <div class="content-wrapper">
         <section class="content container-fluid">
             <div class="row">
@@ -62,13 +64,17 @@
 <script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
 <script src="{% static 'js/xterm.js' %}"></script>
+<script src="{% static 'js/fit.js' %}"></script>
+{#<script src="{% static 'zomdemjs/zmodem.js' %}"></script>#}
 <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+{#<script src="https://cdn.bootcss.com/xterm/3.14.5/addons/zmodem/zmodem.js"></script>#}
 <script>
     let cols = get_term_size().cols;
     let rows = get_term_size().rows;
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/fortssh/{{ server_id }}/{{ fort_user_id }}/?remote_ip={{ remote_ip }}' + '&width=' + cols + '&height=' + rows);
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/dockerssh/?width=' + cols + '&height=' + rows);
 
+    // Terminal.applyAddon(zmodem);
     let term = new Terminal({
         screenKeys: true,
         useStyle: true,
@@ -76,6 +82,10 @@
         cols: cols,
         rows: rows
     });
+
+    //term.zmodemAttach(socket, {
+    //noTerminalWriteOutsideSession: true,
+    //} );
 
 
     socket.onopen = function () {
@@ -92,26 +102,27 @@
         term.write(msg.data);
 
     };
-    socket.onerror = function () {
+    socket.onerror = function (ev) {
+        console.log('error', ev);
         document.getElementById('terms').innerHTML = '<h3>连接失败！请查看日志！</h3>';
     };
-    socket.onclose = function () {
+    socket.onclose = function (e) {
         // pass
+        console.log(e)
     };
 
     function get_term_size() {
         let init_width = 10;
-        let init_height = 20;
+        let init_height = 17;
 
         let windows_width = $(window).width();
         let windows_height = document.documentElement.clientHeight - $('.main-header').height();
 
         return {
             cols: Math.floor(windows_width / init_width),
-            rows: Math.floor(windows_height / init_height),
+            rows: Math.floor(windows_height / init_height) - 1,
         }
     }
-
 
     $("#upload_file").fileinput({
         language: 'zh',
@@ -120,37 +131,54 @@
         msgPlaceholder: '上传文件...',
         showPreview: false,
         showCaption: true,
-        maxFileSize: 1024 * 1024 * 1024 * 2,
+        maxFileSize: 10240,
         maxFileCount: 10,
-        uploadUrl: '/fort/terminal/{{ server_id }}/{{ fort_user_id }}/',
+        uploadUrl: '/assets/ssh/{{ pk }}/',
         mergeAjaxCallbacks: true,
-        ajaxSettings: {
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (response) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'green',
-                    content: response.msg,
-                })
-            },
-            error: function (response) {
-                $.alert({
-                    title: 'Tips',
-                    type: 'red',
-                    content: response.msg,
-                })
-            },
-        },
+        ajaxSettings:
+            {
+                headers: {
+                    'X-CSRFToken':
+                        '{{ csrf_token }}'
+                }
+                ,
+                success: function (response) {
+                    if (response.code === 200) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: response.msg,
+                        })
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.msg,
+                        })
+                    }
+                }
+                ,
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.msg,
+                    })
+                }
+                ,
+            }
+        ,
         browseLabel: '浏览文件',
-        removeLabel: '清空',
-        uploadLabel: '上传'
-    });
-
+        removeLabel:
+            '清空',
+        uploadLabel:
+            '上传'
+    })
+    ;
     $('.download_file').on('click', function () {
         let download_file = $('#download_file').val();
-
         if (download_file.length !== 0) {
-            location.href = '/fort/terminal/' + {{ server_id }} +'/' + {{ fort_user_id }} +'/?download_file=' + download_file
+            location.href = '/assets/ssh/' + {{ pk }} +'/?download_file=' + download_file
         } else {
             $.alert({
                 title: 'Tips',

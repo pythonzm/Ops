@@ -547,3 +547,6 @@ def format_size(size):
         size = float(size[:-1])
 
     return size
+
+def docker_ssh(request):
+    return render(request, 'assets/docker_ssh.html')

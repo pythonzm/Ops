@@ -152,7 +152,6 @@ class MySSH(WebsocketConsumer):
         self.index = 0
 
     def connect(self):
-        print(self.width, self.height)
         if self.scope["user"].is_anonymous:
             self.close(code=1007)
         else:

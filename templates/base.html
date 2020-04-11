@@ -360,6 +360,7 @@ desired effect
                 {% endif %}
                 {% if user.is_superuser %}
                     <li><a href="{% url 'system_log' %}"><i class="fa fa-file-o"></i><span>系统操作日志</span></a></li>
+                    <li><a href="{% url 'docker_ssh' %}"><i class="fa fa-file-o"></i><span>docker</span></a></li>
                 {% endif %}
             </ul>
             <!-- /.sidebar-menu -->
