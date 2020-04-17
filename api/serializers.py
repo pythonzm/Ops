@@ -127,6 +127,29 @@ class SoftwareAssetsSerializer(serializers.ModelSerializer):
         return software
 
 
+class PullAssetConfSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PullAssetConf
+        fields = '__all__'
+
+    def create(self, validated_data):
+        validated_data['server_user_password'] = CryptPwd().encrypt_pwd(validated_data['server_user_password'])
+
+        server = PullAssetConf.objects.create(**validated_data)
+        return server
+
+    def update(self, instance, validated_data):
+
+        for attr, value in validated_data.items():
+            if attr == 'server_user_password':
+                if instance.server_user_password != value:
+                    setattr(instance, attr, CryptPwd().encrypt_pwd(value))
+            else:
+                setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service

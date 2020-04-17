@@ -12,16 +12,9 @@
 """
 # -*- coding: utf-8 -*-
 
-import time
 import docker
-import paramiko
 import threading
 from socket import timeout
-
-from docker.models.containers import Container
-
-from conf.logger import fort_logger
-from django.http.request import QueryDict
 from channels.generic.websocket import WebsocketConsumer
 
 
@@ -46,7 +39,6 @@ class MyThread(threading.Thread):
             except timeout:
                 break
         self.sock.send('\n由于长时间没有操作，连接已断开!', close=True)
-        self.sock.close()
 
 
 class DockerConsumer(WebsocketConsumer):
@@ -65,16 +57,28 @@ class DockerConsumer(WebsocketConsumer):
         else:
             self.accept()
 
-        try:
-            resp = self.client.api.exec_create('ae89214140b5', cmd='/bin/bash', stdout=True, stderr=True, stdin=True,
-                                               tty=True)
+        cmds = ['/bin/bash', '/bin/sh']
 
-            self.tty = self.client.api.exec_start(
-                resp['Id'], detach=False, tty=True, stream=False, socket=True
-            )
-        except Exception as e:
-            self.send('通过web连接容器失败！原因：{}'.format(e), close=True)
+        for cmd in cmds:
+            try:
+                resp = self.client.api.exec_create('ae89214140b5', cmd=cmd, stdout=True, stderr=True, stdin=True,
+                                                   tty=True)
 
+                self.tty = self.client.api.exec_start(
+                    resp['Id'], detach=False, tty=True, stream=False, socket=True
+                )
+
+                prompt_data = self.tty._sock.recv(1024).decode('utf-8')
+                # 如果容器有/bin/bash就跳出循环，如果没有，就使用/bin/sh
+                if not r'/bin/bash: no such file or directory' in prompt_data:
+                    self.send(prompt_data)
+                    break
+
+            except Exception as e:
+                self.send('通过web连接容器失败！原因：{}'.format(e), close=True)
+
+        # 设置如果3分钟没有任何输入，就断开连接
+        self.tty._sock.settimeout(60 * 3)
         self.t1.setDaemon(True)
         self.t1.start()
 
@@ -82,5 +86,8 @@ class DockerConsumer(WebsocketConsumer):
         self.tty._sock.send(text_data.encode('utf-8'))
 
     def disconnect(self, close_code):
-        self.client.close()
-        self.t1.stop()
+        try:
+            self.tty._sock.close()
+            self.client.close()
+        finally:
+            self.t1.stop()

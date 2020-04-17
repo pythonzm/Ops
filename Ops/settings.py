@@ -35,7 +35,8 @@ CHANNEL_LAYERS = {
         # This example app uses the Redis channel layer implementation channels_redis
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [('127.0.0.1', 7779)],
+            # "hosts": [('127.0.0.1', 7779)],
+            "hosts": [("redis://:Zhang.123@127.0.0.1:7779/0")],
         },
     },
 }

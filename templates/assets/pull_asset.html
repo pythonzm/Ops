@@ -1,0 +1,513 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="{% static 'css/awesome-bootstrap-checkbox.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dataTables.checkboxes.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+
+    <style>
+        /* dataTables列内容居中 */
+        #conf_list > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #conf_list > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-7 pull-left" style="margin-bottom: 3px">
+
+            <button class="btn btn-sm btn-success pull-left" data-toggle="modal" data-target="#addConfModal"
+                    id="add_conf">
+                <span class="bigger-110">新增配置</span>
+            </button>
+
+
+            <button class="btn btn-sm btn-info pull-left" id="pull_server" data-toggle="modal" data-target="#pullServer"
+                    style="margin-left: 2px">
+                <span class="bigger-110">同步Server</span>
+            </button>
+
+        </div>
+
+        <div class="modal fade" id="addConfModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel"></h4>
+                    </div>
+                    {% if request.user.is_superuser %}
+                        <div class="modal-body">
+                            <form id="conf_info" class="main form-horizontal">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label for="conf_name" class="col-sm-2 control-label">配置名称</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="conf_name"
+                                                   id="conf_name" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="cloud_name" class="col-sm-2 control-label">云厂商</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control select2" name="cloud_name" id="cloud_name"
+                                                    style="width: 100%;">
+                                                {% for cloud_name in cloud_names %}
+                                                    <option value="{{ cloud_name.0 }}">{{ cloud_name.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="access_id" class="col-sm-2 control-label">AccessID</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="access_id"
+                                                   id="access_id" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="access_key" class="col-sm-2 control-label">AccessKey</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="access_key"
+                                                   id="access_key" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="cloud_region" class="col-sm-2 control-label">区域</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="cloud_region"
+                                                   id="cloud_region" placeholder="区域ID，比如：cn-hangzhou" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="belong_user" class="col-sm-2 control-label">所属用户</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control" name="belong_user" id="belong_user">
+                                                {% for user in users %}
+                                                    <option value="{{ user.0 }}">{{ user.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="server_user" class="col-sm-2 control-label">管理账号</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="server_user"
+                                                   id="server_user" required/>
+                                        </div>
+                                        <span class="text-red">该账号需要有登录服务器的权限</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="server_user_password" class="col-sm-2 control-label">账号密码</label>
+                                        <div class="col-sm-6">
+                                            <input type="password" class="form-control" name="server_user_password"
+                                                   id="server_user_password" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="server_port" class="col-sm-2 control-label">管理端口</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="server_port"
+                                                   id="server_port" value="22" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="conf_memo" class="col-sm-2 control-label">备注</label>
+                                        <div class="col-sm-6">
+                                            <textarea class="form-control" name="conf_memo"
+                                                      id="conf_memo"></textarea>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="test_conf">连接测试
+                            </button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                    id="conf_ops"></button>
+                        </div>
+                    {% else %}
+                        <div class="modal-body">
+                            抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+
+        <div class="modal fade" id="pullServer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">服务器信息拉取</h4>
+                    </div>
+                    {% if request.user.is_superuser %}
+                        <div class="modal-body">
+                            拉取到信息将同步至资产列表，如果之前没有则新增，有则更新
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                    id="start_pull">确认
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="modal-body">
+                            抱歉！您没有此操作的权限！如有疑问，请联系管理员！
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+
+        <!--dataTable-->
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <div class="box-body">
+
+                    <table id="conf_list" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>配置名称</th>
+                            <th>云厂商</th>
+                            <th>区域</th>
+                            <th>所属用户</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for pull_asset_conf in pull_asset_confs %}
+
+                            <tr>
+                                <td>{{ pull_asset_conf.id }}</td>
+                                <td>{{ pull_asset_conf.conf_name }}</td>
+                                <td>{{ pull_asset_conf.get_cloud_name_display }}</td>
+                                <td>{{ pull_asset_conf.cloud_region }}</td>
+                                <td>{{ pull_asset_conf.belong_user.username }}</td>
+                                <td>{{ pull_asset_conf.conf_memo }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-xs modify" data-toggle="modal"
+                                            data-id="{{ pull_asset_conf.id }}" data-target="#addConfModal">编辑
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete"
+                                            data-id="{{ pull_asset_conf.id }}">删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+    <!-- /.row -->
+{% endblock %}
+
+
+{% block js %}
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- iCheck 1.0.1 -->
+    <script src="{% static 'js/dataTables.checkboxes.min.js' %}"></script>
+
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            table = $('#conf_list').DataTable({
+                columnDefs: [
+                    {
+                        'targets': -1,
+                        'orderable': false
+                    },
+                    {
+                        'targets': 0,
+                        'render': function (data, type, row, meta) {
+                            if (type === 'display') {
+                                data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+                            }
+
+                            return data;
+                        },
+                        'checkboxes': {
+                            'selectRow': true,
+                        }
+                    }
+                ],
+                'select': 'multi',
+                "order": [[2, "asc"]]
+            });
+        });
+        // Initialize Select2 Elements
+        $(function () {
+            $('.select2').select2()
+        });
+
+        function checked() {
+            let checkedID = [];
+            let rows_selected = table.column(0).checkboxes.selected();
+            $.each(rows_selected, function (index, rowId) {
+                checkedID.push(rowId)
+            });
+
+            return checkedID;
+        }
+
+        let conf_tbody = $('#conf_list tbody');
+        let conf_ops = $('#conf_ops');
+
+        // 新增项目
+        $('#add_conf').on('click', function () {
+            document.getElementById('conf_info').reset();
+            $(".select2").val('').trigger('change');
+            $('#addConfModal .modal-title').text('新增配置');
+            conf_ops.text('添加');
+
+            conf_ops.unbind('click').on('click', function () {
+                let data = $('#conf_info').serializeJson();
+
+                $.ajax({
+                    url: '/api/pull_asset_conf/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function () {
+                        location.reload()
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            })
+        });
+
+        // 更新项目
+        conf_tbody.on('click', '.modify', function () {
+            let conf_id = $(this).attr('data-id');
+            $('#addConfModal .modal-title').text('修改配置信息');
+            conf_ops.text('确认修改');
+            $.get('/api/pull_asset_conf/' + conf_id + '/', function (data) {
+                $('#conf_name').val(data.conf_name);
+                $('#cloud_name').val(data.cloud_name).trigger('change');
+                $('#cloud_region').val(data.cloud_region);
+                $('#belong_user').val(data.belong_user).trigger('change');
+                $('#access_id').val(data.access_id);
+                $('#access_key').val(data.access_key);
+                $('#server_user').val(data.server_user);
+                $('#server_user_password').val(data.server_user_password);
+                $('#server_port').val(data.server_port);
+                $('#conf_memo').val(data.conf_memo);
+            });
+
+            conf_ops.unbind('click').on('click', function () {
+                let data = $('#conf_info').serializeJson();
+                console.log(data);
+                $.ajax({
+                    url: '/api/pull_asset_conf/' + conf_id + '/',
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function () {
+                        $.confirm({
+                            title: 'Tips',
+                            content: '修改完成！',
+                            type: 'green',
+                            buttons: {
+                                Ok: function () {
+                                    location.reload()
+                                },
+                            }
+                        });
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            });
+        });
+
+        // 删除项目
+        conf_tbody.on('click', '.delete', function () {
+            let pk = $(this).attr('data-id');
+            let tr_obj = $(this).parents('tr');
+            $.confirm({
+                title: 'Tips',
+                content: '确定要删除这条记录么？',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        $.ajax({
+                            url: '/api/pull_asset_conf/' + pk + '/',
+                            method: 'DELETE',
+                            success: function () {
+                                table.row(tr_obj).remove().draw();
+                            },
+                            error: function (data) {
+                                $.alert({
+                                    title: 'Tips',
+                                    type: 'red',
+                                    content: '删除失败！' + data.responseText,
+                                })
+                            }
+                        })
+                    },
+                    Cancel: function () {
+                        //
+                    }
+                }
+            });
+        });
+
+        // 将数据JSON化
+        (function ($) {
+            $.fn.serializeJson = function () {
+                let serializeObj = {};
+                let array = this.serializeArray();
+                $(array).each(function () {
+                    if (serializeObj[this.name]) {
+                        if ($.isArray(serializeObj[this.name])) {
+                            serializeObj[this.name].push(this.value);
+                        } else {
+                            serializeObj[this.name] = [serializeObj[this.name], this.value];
+                        }
+                    } else {
+                        serializeObj[this.name] = this.value;
+                    }
+                });
+                return serializeObj;
+            };
+        })(jQuery);
+
+        // 拉取服务器信息
+        $('#start_pull').click(function () {
+            let checkedID = checked();
+            if (checkedID.length === 0) {
+                $.alert({
+                    title: 'Tips',
+                    type: 'red',
+                    content: '请先选择要拉取的相关配置！',
+                })
+            } else {
+                $.ajax({
+                    url: '{% url "pull_asset" %}',
+                    type: 'POST',
+                    data: {conf_ids: JSON.stringify(checkedID)},
+                    success: function (res) {
+                        let color = res.code === 200 ? 'green' : 'red';
+                        $.alert({
+                            title: 'Tips',
+                            type: color,
+                            content: res.msg,
+                        })
+                    },
+                    error: function (response) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: response.responseText,
+                        })
+                    }
+                })
+            }
+        });
+
+        // 连接测试
+        $('#test_conf').click(function () {
+            let data = {
+                access_id: $('#access_id').val(),
+                access_key: $('#access_key').val(),
+                cloud_region: $('#cloud_region').val(),
+                test_auth: true
+            };
+
+            $.ajax({
+                url: '{% url "pull_asset" %}',
+                type: 'POST',
+                data: data,
+                success: function (res) {
+                    console.log(res);
+                    if (res.msg === null) {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'green',
+                            content: '连接成功！',
+                        })
+                    } else {
+                        $.alert({
+                            title: 'Tips',
+                            type: 'red',
+                            content: '连接失败！' + res.msg,
+                        })
+                    }
+                },
+                error: function (response) {
+                    $.alert({
+                        title: 'Tips',
+                        type: 'red',
+                        content: response.responseText,
+                    })
+                }
+            })
+        })
+
+    </script>
+
+{% endblock %}

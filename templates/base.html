@@ -219,7 +219,8 @@ desired effect
                             {% if perms.assets.add_assets %}
                                 <li><a href="{% url 'assets_charts' %}"><i class="fa  fa-pie-chart"></i>资产概览</a></li>
                                 <li><a href="{% url 'add_base_asset' %}"><i class="fa fa-wrench"></i>基础配置</a></li>
-                                <li><a href="{% url 'add_asset' %}"><i class="fa fa-plus-square"></i>新增资产</a></li>
+                                <li><a href="{% url 'add_asset' %}"><i class="fa fa-plus-square"></i>资产录入</a></li>
+                                <li><a href="{% url 'pull_asset' %}"><i class="fa fa-cloud"></i>资产拉取</a></li>
                                 <li><a href="{% url 'assets_list' %}"><i class="fa fa-list"></i>资产列表</a></li>
                             {% endif %}
                             {% if user.is_superuser %}

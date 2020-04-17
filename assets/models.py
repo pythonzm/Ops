@@ -291,3 +291,24 @@ class WebSite(models.Model):
         db_table = 'ops_website'
         verbose_name = '常用网站表'
         verbose_name_plural = '常用网站表'
+
+
+class PullAssetConf(models.Model):
+    cloud_names = (
+        ('ali', '阿里云'),
+    )
+    conf_name = models.CharField(max_length=16, verbose_name='配置名称')
+    cloud_name = models.CharField(max_length=16, choices=cloud_names, verbose_name='云厂商', default='ali')
+    cloud_region = models.CharField(max_length=64, verbose_name='区域')
+    access_id = models.CharField(max_length=128, verbose_name='AccessID')
+    access_key = models.CharField(max_length=128, verbose_name='AccessKey')
+    conf_memo = models.TextField(verbose_name='配置描述', default='', blank=True)
+    belong_user = models.ForeignKey('users.UserProfile', on_delete=models.CASCADE, verbose_name='所属用户')
+    server_user = models.CharField(max_length=16, verbose_name='系统管理用户', default='')
+    server_user_password = models.CharField(max_length=128, verbose_name='系统管理用户密码', default='')
+    server_port = models.SmallIntegerField(verbose_name='管理端口', default=22)
+
+    class Meta:
+        db_table = 'ops_pull_conf'
+        verbose_name = '同步云主机配置表'
+        verbose_name_plural = '同步云主机配置表'

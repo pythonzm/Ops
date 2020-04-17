@@ -6,6 +6,7 @@ import re
 import xlrd
 import xlwt
 import logging
+from ast import literal_eval
 from itertools import product
 from utils.export_excel import ExportExcel
 from django.conf import settings
@@ -13,6 +14,7 @@ from django.db.models import Count
 from django.http import JsonResponse, FileResponse
 from django.shortcuts import render
 from assets.models import *
+from assets.utils.ali_api import AliAPI
 from users.models import UserProfile
 from utils.crypt_pwd import CryptPwd
 from task.utils.ansible_api_v2 import ANSRunner
@@ -548,5 +550,36 @@ def format_size(size):
 
     return size
 
+
 def docker_ssh(request):
-    return render(request, 'assets/docker_ssh.html')
+    remote_ip = request.META.get('REMOTE_ADDR')
+    return render(request, 'assets/docker_ssh.html', {'remote_ip': remote_ip})
+
+
+def pull_asset(request):
+    if request.method == 'POST':
+        test_auth = request.POST.get('test_auth')
+        conf_ids = request.POST.get('conf_ids')
+
+        if test_auth:
+            access_id = request.POST.get('access_id')
+            access_key = request.POST.get('access_key')
+            cloud_region = request.POST.get('cloud_region')
+
+            ali = AliAPI(access_id, access_key, cloud_region)
+            error_msg = ali.test_auth()
+            return JsonResponse({'code': 200, 'msg': error_msg})
+        if conf_ids:
+            conf_ids = literal_eval(conf_ids)
+            for conf_id in conf_ids:
+                conf_obj = PullAssetConf.objects.get(id=conf_id)
+                ali = AliAPI(conf_obj.access_id, conf_obj.access_key, conf_obj.cloud_region)
+                try:
+                    ali.sync_to_cmdb(conf_obj)
+                except Exception as e:
+                    return JsonResponse({'code': 500, 'msg': f'数据同步失败！{e}'})
+            return JsonResponse({'code': 200, 'msg': '数据同步完成！'})
+    cloud_names = PullAssetConf.cloud_names
+    pull_asset_confs = PullAssetConf.objects.all()
+    users = UserProfile.objects.values_list('id', 'username')
+    return render(request, 'assets/pull_asset.html', locals())

@@ -3,78 +3,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ ssh_server_ip }}</title>
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
-    <link href="{% static 'bootstrap-fileinput/css/fileinput.min.css' %}" media="all" rel="stylesheet" type="text/css"/>
+    <title>Docker</title>
     <link href="{% static 'css/xterm.css' %}" rel="stylesheet" type="text/css"/>
-    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
-
-    <style>
-        @media screen and (max-width: 750px) {
-            .main-header {
-                display: none;
-            }
-        }
-    </style>
 </head>
 <body>
-<div class="wrapper">
-    <header class="main-header">
-        <nav class="navbar navbar-light" style="background-color: #e3f2fd; margin-bottom: 0">
-            <a class="navbar-brand">当前登录服务器为： {{ ssh_server_ip }} </a>
-            <form class="form-inline" enctype="multipart/form-data">
-                <div class="input-group" style="margin-top: 10px;margin-left: 200px;">
-                    <input type="file" id="upload_file" class="file" name="upload_file" multiple required>
-                </div>
-
-                <input class="form-control mr-sm-2" type="search" id="download_file" name="download_file"
-                       placeholder="请输入要下载文件的全路径" aria-label="Search"
-                       style="width: 20%;margin-top: 10px;margin-left: 20px;">
-                <button class="btn btn-outline-success my-2 my-sm-0 download_file" type="button"
-                        style="margin-top: 10px;">下载
-                </button>
-            </form>
-        </nav>
-    </header>
-
-    <div class="content-wrapper">
-        <section class="content container-fluid">
-            <div class="row">
-                <!--dataTable-->
-                <div class="col-xs-12">
-                    <!-- /.box -->`
-                    <div class="box" style="margin-top: -15px;">
-                        <div class="box-body">
-                            <div id="terms"></div>
-                        </div>
-                        <!-- /.box-body -->
-                    </div>
-                    <!-- /.box -->
-                </div>
-            </div>
-        </section>
-    </div>
-</div>
+<div id="terms"></div>
 </body>
 
-<script src="{% static 'AdminLTE/bower_components/jquery/dist/jquery.min.js' %}"></script>
-<script src="{% static 'AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'bootstrap-fileinput/js/fileinput.min.js' %}"></script>
 <script src="{% static 'js/xterm.js' %}"></script>
-<script src="{% static 'js/fit.js' %}"></script>
-{#<script src="{% static 'zomdemjs/zmodem.js' %}"></script>#}
-<script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
-{#<script src="https://cdn.bootcss.com/xterm/3.14.5/addons/zmodem/zmodem.js"></script>#}
+
 <script>
     let cols = get_term_size().cols;
     let rows = get_term_size().rows;
     let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/dockerssh/?width=' + cols + '&height=' + rows);
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/dockerssh/?width=');
 
-    // Terminal.applyAddon(zmodem);
     let term = new Terminal({
         screenKeys: true,
         useStyle: true,
@@ -83,15 +26,9 @@
         rows: rows
     });
 
-    //term.zmodemAttach(socket, {
-    //noTerminalWriteOutsideSession: true,
-    //} );
-
 
     socket.onopen = function () {
-        // $("#terms").css("height", document.documentElement.clientHeight - $('.main-header').height());
         term.open(document.getElementById('terms'), true);
-        // term.fit();
     };
 
     term.on('data', function (data) {
@@ -104,7 +41,7 @@
     };
     socket.onerror = function (ev) {
         console.log('error', ev);
-        document.getElementById('terms').innerHTML = '<h3>连接失败！请查看日志！</h3>';
+        document.getElementById('terms').innerHTML = '<h3>连接失败！</h3>';
     };
     socket.onclose = function (e) {
         // pass
@@ -115,78 +52,14 @@
         let init_width = 10;
         let init_height = 17;
 
-        let windows_width = $(window).width();
-        let windows_height = document.documentElement.clientHeight - $('.main-header').height();
+        let windows_width = document.documentElement.clientWidth;
+        let windows_height = document.documentElement.clientHeight;
 
         return {
             cols: Math.floor(windows_width / init_width),
             rows: Math.floor(windows_height / init_height) - 1,
         }
     }
-
-    $("#upload_file").fileinput({
-        language: 'zh',
-        showUpload: true,
-        dropZoneEnabled: false,
-        msgPlaceholder: '上传文件...',
-        showPreview: false,
-        showCaption: true,
-        maxFileSize: 10240,
-        maxFileCount: 10,
-        uploadUrl: '/assets/ssh/{{ pk }}/',
-        mergeAjaxCallbacks: true,
-        ajaxSettings:
-            {
-                headers: {
-                    'X-CSRFToken':
-                        '{{ csrf_token }}'
-                }
-                ,
-                success: function (response) {
-                    if (response.code === 200) {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'green',
-                            content: response.msg,
-                        })
-                    } else {
-                        $.alert({
-                            title: 'Tips',
-                            type: 'red',
-                            content: response.msg,
-                        })
-                    }
-                }
-                ,
-                error: function (response) {
-                    $.alert({
-                        title: 'Tips',
-                        type: 'red',
-                        content: response.msg,
-                    })
-                }
-                ,
-            }
-        ,
-        browseLabel: '浏览文件',
-        removeLabel:
-            '清空',
-        uploadLabel:
-            '上传'
-    })
-    ;
-    $('.download_file').on('click', function () {
-        let download_file = $('#download_file').val();
-        if (download_file.length !== 0) {
-            location.href = '/assets/ssh/' + {{ pk }} +'/?download_file=' + download_file
-        } else {
-            $.alert({
-                title: 'Tips',
-                type: 'red',
-                content: "文件名不能为空！",
-            })
-        }
-    });
 </script>
 
 </html>
