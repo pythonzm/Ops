@@ -146,11 +146,11 @@
                             <th></th>
                             <th>资产类型</th>
                             <th>资产编号</th>
-{#                            <th>资产型号</th>#}
+                            {#                            <th>资产型号</th>#}
                             <th>管理IP</th>
                             <th>所属项目</th>
                             <th>设备状态</th>
-                            <th>资产备注</th>
+                            <th>备注</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -181,9 +181,9 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ asset.asset_nu }}</td>
-{#                                <td>#}
-{#                                    {{ asset.asset_model|default:'' }}#}
-{#                                </td>#}
+                                {#                                <td>#}
+                                {#                                    {{ asset.asset_model|default:'' }}#}
+                                {#                                </td>#}
                                 <td>
                                     {% if asset.asset_management_ip %}
                                         <ul class="list-unstyled" style="text-align: left">
@@ -215,7 +215,7 @@
                                         <span class="label label-info">{{ asset.get_asset_status_display }}</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ asset.asset_memo }}</td>
+                                <td>{{ asset.asset_memo|default:'' }}</td>
                                 <td>
                                     {% if asset.asset_type == 'server' %}
                                         <a href="{% url 'update_asset' asset_type='server' pk=asset.id %}">
@@ -232,9 +232,9 @@
                                     {% endif %}
                                     {% if perms.assets.change_assets %}
                                         <button type="button" class="btn btn-success btn-xs">更新</button></a>
-                                        {% if asset.asset_type == 'server' and 'in' not in asset.asset_memo %}
+                                        {% if asset.asset_type == 'server' and asset.serverassets.system == 'linux' %}
                                             <div class="btn-group">
-                                                <button type="button" class="btn btn-primary btn-xs">收集</button>
+                                                <button type="button" class="btn btn-primary btn-xs">同步</button>
                                                 <button type="button" class="btn btn-primary btn-xs dropdown-toggle"
                                                         data-toggle="dropdown" aria-expanded="false">
                                                     <span class="caret"></span>
@@ -242,11 +242,11 @@
                                                 </button>
                                                 <ul class="dropdown-menu" role="menu">
                                                     <li><a href="javascript:void(0)"
-                                                           onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">收集主体信息</a>
+                                                           onclick="collectInfo({{ asset.serverassets.id }}, 'setup')">同步主体信息</a>
                                                     </li>
                                                     {% if asset.serverassets.server_type != 2 %}
                                                         <li><a href="javascript:void(0)"
-                                                               onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">收集内存信息</a>
+                                                               onclick="collectMem({{ asset.serverassets.id }}, 'get_mem')">同步内存信息</a>
                                                         </li>
                                                     {% endif %}
                                                 </ul>
@@ -254,7 +254,7 @@
                                         {% endif %}
                                     {% endif %}
                                     {% if request.user.is_superuser and asset.asset_type == 'server' %}
-                                        {% if 'in' in asset.asset_memo %}
+                                        {% if asset.serverassets.system == 'windows' %}
                                             <a href="{% url 'guacamole_terminal' asset.serverassets.id %}"
                                                target="_blank">
                                                 <button type="button" class="btn btn-info btn-xs"><i

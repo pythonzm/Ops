@@ -1,0 +1,65 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Docker</title>
+    <link href="{% static 'css/xterm.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="terms"></div>
+</body>
+
+<script src="{% static 'js/xterm.js' %}"></script>
+
+<script>
+    let cols = get_term_size().cols;
+    let rows = get_term_size().rows;
+    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    let socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/dockerssh/?width=');
+
+    let term = new Terminal({
+        screenKeys: true,
+        useStyle: true,
+        cursorBlink: true,
+        cols: cols,
+        rows: rows
+    });
+
+
+    socket.onopen = function () {
+        term.open(document.getElementById('terms'), true);
+    };
+
+    term.on('data', function (data) {
+        socket.send(data);
+    });
+
+    socket.onmessage = function (msg) {
+        term.write(msg.data);
+
+    };
+    socket.onerror = function (ev) {
+        console.log('error', ev);
+        document.getElementById('terms').innerHTML = '<h3>连接失败！</h3>';
+    };
+    socket.onclose = function (e) {
+        // pass
+        console.log(e)
+    };
+
+    function get_term_size() {
+        let init_width = 10;
+        let init_height = 17;
+
+        let windows_width = document.documentElement.clientWidth;
+        let windows_height = document.documentElement.clientHeight;
+
+        return {
+            cols: Math.floor(windows_width / init_width),
+            rows: Math.floor(windows_height / init_height) - 1,
+        }
+    }
+</script>
+
+</html>

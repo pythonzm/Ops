@@ -35,7 +35,8 @@ CHANNEL_LAYERS = {
         # This example app uses the Redis channel layer implementation channels_redis
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [('127.0.0.1', 6379)],
+            # "hosts": [('127.0.0.1', 7779)],
+            "hosts": [("redis://:Zhang.123@127.0.0.1:7779/0")],
         },
     },
 }
@@ -127,7 +128,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'utils.middleware.UserLoginMiddleware',
-    'utils.middleware.RecordMiddleware',
+    # 'utils.middleware.RecordMiddleware',
 ]
 
 REST_FRAMEWORK = {
@@ -167,9 +168,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ops',
-        'USER': 'ops',
+        'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': '127.0.0.1'
+        'HOST': '127.0.0.1',
+        'PORT': 3333
     }
 }
 

@@ -16,6 +16,7 @@ from channels.auth import AuthMiddlewareStack
 from projs.utils.log_websocket import LogConsumer
 from fort.utils.webssh import FortConsumer
 from assets.utils.webssh import SSHConsumer
+from assets.utils.docker_ssh import DockerConsumer
 from fort.utils.webguacamole import GuacamoleConsumer
 from assets.utils.webguacamole import AdminGuacamole
 from task.utils.ans_module_websocket import AnsModuleConsumer
@@ -31,6 +32,7 @@ application = ProtocolTypeRouter({
             path(r'ws/ans_module_log/', AnsModuleConsumer),
             path(r'ws/ans_playbook_log/', AnsPlaybookConsumer),
             path(r'ws/deploy_log/', LogConsumer),
+            path(r'ws/dockerssh/', DockerConsumer),
             re_path(r'ws/fortssh/([0-9]+)/([0-9]+)/', FortConsumer),
             re_path(r'ws/webssh/([0-9]+)/', SSHConsumer),
             re_path(r'ws/fort_guacamole/([0-9]+)/([0-9]+)/(?P<group_name>.*)/', GuacamoleConsumer),

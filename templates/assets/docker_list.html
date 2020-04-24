@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{% static 'AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'AdminLTE/bower_components/select2/dist/css/select2.min.css' %}">
+    <style>
+        /* dataTables列内容居中 */
+        #docker-list > tbody > tr > td {
+            text-align: center;
+        }
+
+        /* dataTables表头居中 */
+        #docker-list > thead:first-child > tr:first-child > th {
+            text-align: center;
+        }
+
+        .col-lg-12 .col-sm-2 {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'jquery-confirm/dist/jquery-confirm.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <br>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="docker-name">
+                            <input type="text" id="docker-name" class="form-control pull-right" placeholder="容器名称">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <select class="form-control select2" id="docker-status" name="docker-status">
+                        <option value="">选择运行状态</option>
+                        <option value="Up">Up</option>
+                        <option value="Exited">Exited</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+
+                    <select class="form-control select2" id="docker-host" name="docker-host" multiple
+                            data-placeholder=" 选择宿主机">
+                        {% for host in hosts %}
+                            <option value="{{ host.id }}">{{ host.docker_host.assets.asset_management_ip }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-block btn-primary" style="width: unset" onclick="searchDocker()">
+                    搜索
+                </button>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <!-- /.box -->
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="docker-list" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>容器ID</th>
+                            <th>容器名称</th>
+                            <th>使用镜像</th>
+                            <th>容器状态</th>
+                            <th>映射端口</th>
+                            <th>宿主机</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <div class="modal fade" id="modal-data-content">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">请求数据</h4>
+                    </div>
+                    <div class="modal-body" style="overflow: auto;word-wrap: break-word;max-height: 500px">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+    </div>
+    <!-- /.row -->
+
+{% endblock %}
+
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <!-- Select2 -->
+    <script src="{% static 'AdminLTE/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+    <script src="{% static 'jquery-confirm/dist/jquery-confirm.min.js' %}"></script>
+    <script>
+        $(function () {
+            table = $('#docker-list').DataTable({
+                "processing": true,
+                "serverSide": true,  // 服务端分页时使用
+                searching: false,
+                ordering: false,
+                ajax: {
+                    url: "{% url 'get_docker_list' %}",
+                    "dataSrc": function (d) {
+                        return d.data
+                    }
+                },
+                "deferRender": true,
+                "columns": [
+                    {data: 'id'},
+                    {data: 'docker_id'},
+                    {data: 'docker_name'},
+                    {data: 'docker_image'},
+                    {
+                        data: 'docker_status',
+                        render: function (data, type, full, meta) {
+                            if (data === 'Up') {
+                                return '<span class="label label-success">运行中</span>'
+                            } else {
+                                return '<span class="label label-danger">已停止</span>'
+                            }
+                        }
+                    },
+                    {data: 'docker_port'},
+                    {data: 'docker_host'},
+                ],
+                columnDefs: [{
+                    targets: 7,
+                    render: function (data, type, row, meta) {
+                        return `<button type="button" class="btn btn-success btn-xs start" data-toggle="modal"
+                                            data-id="${row.id}" data-target="#UserModal">启动
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-xs stop"
+                                            data-id="${row.id}">停止
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-xs restart"
+                                            data-id="${row.id}">重启
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs delete" data-id="${row.id}">
+                                        删除
+                                    </button>
+                    `;
+                    }
+                }]
+            });
+
+            $(function () {
+                $('.select2').select2({
+                    allowClear: true
+                });
+            });
+        });
+
+
+        // 搜索
+        function searchDocker() {
+            let dockerName = $('#docker-name').val();
+            let dockerStatus = $('#docker-status').val();
+            let dockerHost = $('#docker-host').val();
+
+            table.settings()[0].ajax.data = {
+                "dockerName": dockerName,
+                "dockerStatus": dockerStatus,
+                "dockerHost": JSON.stringify(dockerHost),
+            };
+            table.ajax.reload(function () {
+                $.alert({
+                    title: 'Tips',
+                    type: 'green',
+                    content: '查询完成！'
+                });
+            })
+            // table.ajax.url("/get_system_log/?startTime=" + startTime + "&endTime=" + endTime).load()
+        }
+    </script>
+
+{% endblock %}
+

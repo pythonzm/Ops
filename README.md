@@ -95,6 +95,14 @@ python manage.py runserver 0.0.0.0:8000
 ### 资产概览
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_chart.png)
 
+### 资产拉取
+
+可以自动同步阿里云中的ECS，并同步至资产列表中，只写了阿里云的ECS同步，至于RDS等资产或其他像腾讯云、华为云的实现方式基本一致
+
+实现方式参考：[https://github.com/opendevops-cn/codo-cmdb](https://github.com/opendevops-cn/codo-cmdb)
+
+![image](https://github.com/pythonzm/Ops/blob/master/screenshots/pull_asset.jpg)
+
 ### 资产管理，需要关联的项目管理只完成了一部分
 ![image](https://github.com/pythonzm/Ops/blob/master/screenshots/asset_list.png)
 

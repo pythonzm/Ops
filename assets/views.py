@@ -6,13 +6,16 @@ import re
 import xlrd
 import xlwt
 import logging
+from ast import literal_eval
 from itertools import product
 from utils.export_excel import ExportExcel
 from django.conf import settings
 from django.db.models import Count
+from django.core import serializers
 from django.http import JsonResponse, FileResponse
 from django.shortcuts import render
 from assets.models import *
+from assets.utils.ali_api import AliAPI
 from users.models import UserProfile
 from utils.crypt_pwd import CryptPwd
 from task.utils.ansible_api_v2 import ANSRunner
@@ -79,7 +82,7 @@ def get_assets_list(request):
         db_status = tuple(filter(lambda x: x[1] == asset_status, Assets.asset_status_))[0][0]
         assets = Assets.objects.filter(asset_status=db_status)
     else:
-        assets = Assets.objects.all()
+        assets = Assets.objects.select_related('serverassets')
     return render(request, 'assets/assets_list.html', locals())
 
 
@@ -138,6 +141,7 @@ def update_asset(request, asset_type, pk):
                     username=request.POST.get('username'),
                     password=CryptPwd().encrypt_pwd(request.POST.get('password')),
                     port=request.POST.get('port'),
+                    system=request.POST.get('system')
                 )
                 return JsonResponse({'code': 200, 'msg': '修改成功'})
         return JsonResponse({'code': 200, 'msg': '修改成功'})
@@ -241,8 +245,9 @@ def import_assets(request):
                         'username': data[14],
                         'password': CryptPwd().encrypt_pwd(str(data[15])) if data[15] else None,
                         'port': int(data[16]),
-                        'hosted_on': ServerAssets.objects.select_related('assets').get(id=int(data[17])) if data[
-                            17] else None,
+                        'system': data[17],
+                        'hosted_on': ServerAssets.objects.select_related('assets').get(id=int(data[18])) if data[
+                            18] else None,
                     }
                     ServerAssets.objects.update_or_create(assets=asset_obj, defaults=server_asset)
                 elif data[0] == 'network':
@@ -459,9 +464,6 @@ def handle_setup_data(data):
             server_info['disk_total'] += round(disk_size, 2)
     server_info['ram_total'] = round(int(facts['ansible_memtotal_mb']) / 1024)
     server_info['kernel'] = facts['ansible_kernel']
-    server_info['system'] = '{} {} {}'.format(facts['ansible_distribution'],
-                                              facts['ansible_distribution_version'],
-                                              facts['ansible_userspace_bits'])
     server_model = facts['ansible_product_name']
 
     # 获取网卡信息
@@ -547,3 +549,89 @@ def format_size(size):
         size = float(size[:-1])
 
     return size
+
+
+def docker_ssh(request):
+    remote_ip = request.META.get('REMOTE_ADDR')
+    return render(request, 'assets/docker_ssh.html', {'remote_ip': remote_ip})
+
+
+@admin_auth
+def pull_asset(request):
+    if request.method == 'POST':
+        test_auth = request.POST.get('test_auth')
+        conf_ids = request.POST.get('conf_ids')
+
+        if test_auth:
+            access_id = request.POST.get('access_id')
+            access_key = request.POST.get('access_key')
+            cloud_region = request.POST.get('cloud_region')
+
+            ali = AliAPI(access_id, access_key, cloud_region)
+            error_msg = ali.test_auth()
+            return JsonResponse({'code': 200, 'msg': error_msg})
+        if conf_ids:
+            conf_ids = literal_eval(conf_ids)
+            for conf_id in conf_ids:
+                conf_obj = PullAssetConf.objects.get(id=conf_id)
+                ali = AliAPI(conf_obj.access_id, conf_obj.access_key, conf_obj.cloud_region)
+                try:
+                    ali.sync_to_cmdb(conf_obj)
+                except Exception as e:
+                    return JsonResponse({'code': 500, 'msg': f'数据同步失败！{e}'})
+            return JsonResponse({'code': 200, 'msg': '数据同步完成！'})
+    cloud_names = PullAssetConf.cloud_names
+    pull_asset_confs = PullAssetConf.objects.all()
+    users = UserProfile.objects.values_list('id', 'username')
+    return render(request, 'assets/pull_asset.html', locals())
+
+
+@admin_auth
+def docker_list(request):
+    hosts = DockerInfo.objects.select_related('docker_host').values_list('docker_host')
+    return render(request, 'assets/docker_list.html', {'hosts': hosts})
+
+
+@admin_auth
+def get_docker_list(request):
+    draw = int(request.GET.get('draw'))  # 记录操作次數
+    start = int(request.GET.get('start'))  # 起始位置
+    length = int(request.GET.get('length'))  # 每页长度
+    docker_name = request.GET.get('dockerName')
+    docker_status = request.GET.get('dockerStatus')
+    docker_host = request.GET.get('dockerHost')
+
+    data = DockerInfo.objects.select_related('docker_host')
+
+    try:
+        if docker_name:
+            data = DockerInfo.objects.select_related('docker_host').filter(docker_name__icontains=docker_name)
+
+        if docker_status:
+            data = DockerInfo.objects.select_related('docker_host').filter(docker_name__icontains=docker_name,
+                                                                           docker_status=docker_status)
+
+        if docker_host:
+            data = DockerInfo.objects.select_related('docker_host').filter(docker_name__icontains=docker_name,
+                                                                           docker_status=docker_status,
+                                                                           docker_host_id__in=literal_eval(docker_host))
+
+        searched_data = data[start * length: start * length + length + 1]
+        json_data = serializers.serialize('json', searched_data)
+
+        r = json.loads(json_data)
+        list_data = []
+        for i in r:
+            d = i.get('fields')
+            d.update({'id': i.get('pk')})
+            list_data.append(d)
+
+        dic = {
+            'draw': draw,
+            'recordsFiltered': len(data),
+            'recordsTotal': len(data),
+            'data': list_data
+        }
+        return JsonResponse({'code': 200, 'data': dic, 'msg': '获取成功'})
+    except Exception as e:
+        return JsonResponse({'code': 500, 'data': None, 'msg': '获取失败：{}'.format(e)})
