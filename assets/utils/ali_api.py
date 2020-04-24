@@ -101,7 +101,8 @@ class AliAPI:
                 server_data['hostname'] = i.get('InstanceId')  # 取不到给instance_id
             server_data['vcpu_number'] = i.get('Cpu')
             server_data['ram_total'] = i.get('Memory') / 1024
-            server_data['system'] = f'{i.get("OSType")} {i.get("OSName")}'
+            server_data['system'] = i.get("OSType")
+            server_data['system_version'] = i.get("OSName")
 
             server_list.append([asset_data, server_data])
         return server_list
@@ -117,12 +118,12 @@ class AliAPI:
         将机房和供应商设置为云厂商名称，机柜设置为区域ID
         :return:
         """
-        idc, _ = IDC.objects.update_or_create(defaults={'idc_name': 'ali'}, idc_name='ali')
+        idc, _ = IDC.objects.get_or_create(defaults={'idc_name': 'ali'}, idc_name='ali')
 
         zone_id = server_info.get('ZoneId')
         c = {'idc': idc, 'cabinet_name': zone_id}
-        cabinet, _ = Cabinet.objects.update_or_create(defaults=c, cabinet_name=zone_id)
+        cabinet, _ = Cabinet.objects.get_or_create(defaults=c, cabinet_name=zone_id)
 
-        asset_provider, _ = AssetProvider.objects.update_or_create(defaults={'asset_provider_name': 'ali'},
+        asset_provider, _ = AssetProvider.objects.get_or_create(defaults={'asset_provider_name': 'ali'},
                                                                    asset_provider_name='ali')
         return idc, cabinet, asset_provider

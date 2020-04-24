@@ -52,6 +52,7 @@ class ServerAssets(models.Model):
         (1, '虚拟机'),
         (2, '云主机'),
     )
+
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
     server_type = models.SmallIntegerField(choices=server_types, default=0, verbose_name='服务器类型')
 
@@ -69,7 +70,8 @@ class ServerAssets(models.Model):
     disk_total = models.CharField(max_length=16, blank=True, null=True, verbose_name='磁盘空间')
     ram_total = models.SmallIntegerField(blank=True, null=True, verbose_name='内存容量')
     kernel = models.CharField(max_length=100, blank=True, null=True, verbose_name='内核版本')
-    system = models.CharField(max_length=100, blank=True, null=True, verbose_name='操作系统')
+    system = models.CharField(max_length=64, verbose_name='操作系统', default='linux')
+    system_version = models.CharField(max_length=64, blank=True, verbose_name='系统版本', default='')
 
     host_vars = models.TextField(blank=True, null=True, verbose_name='主机变量')
 
@@ -312,3 +314,17 @@ class PullAssetConf(models.Model):
         db_table = 'ops_pull_conf'
         verbose_name = '同步云主机配置表'
         verbose_name_plural = '同步云主机配置表'
+
+
+class DockerInfo(models.Model):
+    docker_id = models.CharField(max_length=128, verbose_name='容器ID')
+    docker_name = models.CharField(max_length=128, verbose_name='容器名称')
+    docker_image = models.CharField(max_length=128, verbose_name='使用的镜像')
+    docker_status = models.CharField(max_length=16, verbose_name='容器状态')
+    docker_port = models.CharField(max_length=128, verbose_name='映射端口')
+    docker_host = models.ForeignKey('ServerAssets', on_delete=models.CASCADE, verbose_name='宿主机')
+
+    class Meta:
+        db_table = 'ops_docker'
+        verbose_name = '容器表'
+        verbose_name_plural = '容器表'
