@@ -1,6 +1,14 @@
 # ops
 基于centos6+python3.6+django2+ansible2.4+celery4.2  运维管理系统-开发中，目前实现功能：用户和用户组管理、日程管理、资产管理、集成ansible、简易堡垒机(主机分配（支持Linux和Windows）、用户分配、文件上传下载、配置禁用命令清单、操作录像回放功能)、数据库管理（一部分）、CI/CD（支持git仓库和svn仓库）、celery任务编排、基于markdown编辑器的知识库支持实时预览和全局搜索结果高亮和文件共享中心
 
+
+
+## 4.24更新
+
+资产管理新增了阿里云主机自动拉取入库功能，像其他腾讯云、华为云等实现方法都差不多就没一一实现，本来想写一些关于docker管理的东西，但感觉没什么实际应用场景，现在 `k8s` 编排这么流行，就没写，不过在我的博客文章中 [django实现web端登录docker](https://www.poorops.com/#/articles/?id=88) 简单的写了下web端登录docker容器的方法，然后这篇文章 [docker 配置远程加密调用](https://www.poorops.com/#/articles/?id=92) 描述了如何开启docker远程调用
+
+> 自动拉取阿里云主机实现方法参考 [https://github.com/opendevops-cn/codo-cmdb/blob/master/libs/aliyun/rds.py](https://github.com/opendevops-cn/codo-cmdb/blob/master/libs/aliyun/rds.py)
+
 ## 安装
 一、安装python3.6
 

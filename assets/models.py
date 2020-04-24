@@ -314,17 +314,3 @@ class PullAssetConf(models.Model):
         db_table = 'ops_pull_conf'
         verbose_name = '同步云主机配置表'
         verbose_name_plural = '同步云主机配置表'
-
-
-class DockerInfo(models.Model):
-    docker_id = models.CharField(max_length=128, verbose_name='容器ID')
-    docker_name = models.CharField(max_length=128, verbose_name='容器名称')
-    docker_image = models.CharField(max_length=128, verbose_name='使用的镜像')
-    docker_status = models.CharField(max_length=16, verbose_name='容器状态')
-    docker_port = models.CharField(max_length=128, verbose_name='映射端口')
-    docker_host = models.ForeignKey('ServerAssets', on_delete=models.CASCADE, verbose_name='宿主机')
-
-    class Meta:
-        db_table = 'ops_docker'
-        verbose_name = '容器表'
-        verbose_name_plural = '容器表'

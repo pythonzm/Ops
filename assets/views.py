@@ -551,11 +551,6 @@ def format_size(size):
     return size
 
 
-def docker_ssh(request):
-    remote_ip = request.META.get('REMOTE_ADDR')
-    return render(request, 'assets/docker_ssh.html', {'remote_ip': remote_ip})
-
-
 @admin_auth
 def pull_asset(request):
     if request.method == 'POST':
@@ -584,54 +579,3 @@ def pull_asset(request):
     pull_asset_confs = PullAssetConf.objects.all()
     users = UserProfile.objects.values_list('id', 'username')
     return render(request, 'assets/pull_asset.html', locals())
-
-
-@admin_auth
-def docker_list(request):
-    hosts = DockerInfo.objects.select_related('docker_host').values_list('docker_host')
-    return render(request, 'assets/docker_list.html', {'hosts': hosts})
-
-
-@admin_auth
-def get_docker_list(request):
-    draw = int(request.GET.get('draw'))  # 记录操作次數
-    start = int(request.GET.get('start'))  # 起始位置
-    length = int(request.GET.get('length'))  # 每页长度
-    docker_name = request.GET.get('dockerName')
-    docker_status = request.GET.get('dockerStatus')
-    docker_host = request.GET.get('dockerHost')
-
-    data = DockerInfo.objects.select_related('docker_host')
-
-    try:
-        if docker_name:
-            data = DockerInfo.objects.select_related('docker_host').filter(docker_name__icontains=docker_name)
-
-        if docker_status:
-            data = DockerInfo.objects.select_related('docker_host').filter(docker_name__icontains=docker_name,
-                                                                           docker_status=docker_status)
-
-        if docker_host:
-            data = DockerInfo.objects.select_related('docker_host').filter(docker_name__icontains=docker_name,
-                                                                           docker_status=docker_status,
-                                                                           docker_host_id__in=literal_eval(docker_host))
-
-        searched_data = data[start * length: start * length + length + 1]
-        json_data = serializers.serialize('json', searched_data)
-
-        r = json.loads(json_data)
-        list_data = []
-        for i in r:
-            d = i.get('fields')
-            d.update({'id': i.get('pk')})
-            list_data.append(d)
-
-        dic = {
-            'draw': draw,
-            'recordsFiltered': len(data),
-            'recordsTotal': len(data),
-            'data': list_data
-        }
-        return JsonResponse({'code': 200, 'data': dic, 'msg': '获取成功'})
-    except Exception as e:
-        return JsonResponse({'code': 500, 'data': None, 'msg': '获取失败：{}'.format(e)})
