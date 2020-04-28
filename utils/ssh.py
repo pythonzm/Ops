@@ -26,6 +26,11 @@ from fort.models import FortRecord
 from django.http.request import QueryDict
 from channels.generic.websocket import WebsocketConsumer
 
+zmodemszstart = b'rz\r**\x18B00000000000000\r\x8a'
+zmodemend = b'**\x18B0800000000022d\r\x8a'
+zmodemrzstart = b'rz waiting to receive.**\x18B0100000023be50\r\x8a'
+zmodemcancel = b'\x18\x18\x18\x18\x18\x08\x08\x08\x08\x08'
+
 
 class MyThread(threading.Thread):
     def __init__(self, chan):
@@ -42,25 +47,57 @@ class MyThread(threading.Thread):
     def run(self):
         while not self._stop_event.is_set() or not self.chan.chan.exit_status_ready():
             try:
-                data = self.chan.chan.recv(1024)
-                if data:
-                    str_data = data.decode('utf-8', 'ignore')
-                    self.chan.send(str_data)
-                    self.stdout.append([time.time() - self.start_time, 'o', str_data])
-                    if self.chan.tab_mode:
-                        tmp = str_data.split(' ')
-                        if len(tmp) == 2 and tmp[1] == '' and tmp[0] != '':
-                            self.chan.cmd_tmp = self.chan.cmd_tmp + tmp[0].encode().replace(b'\x07', b'').decode()
-                        elif len(tmp) == 1 and tmp[0].encode() != b'\x07':  # \x07 蜂鸣声
-                            self.chan.cmd_tmp = self.chan.cmd_tmp + tmp[0].encode().replace(b'\x07', b'').decode()
-                        self.chan.tab_mode = False
-                    if self.chan.history_mode:
-                        self.chan.index = 0
-                        if str_data.strip() != '':
-                            self.chan.cmd_tmp = re.sub(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]|\x08', '', str_data)
-                        self.chan.history_mode = False
+                if self.chan.zmodemOO:
+                    self.chan.zmodemOO = False
+                    data = self.chan.chan.recv(2)
+                    if not len(data):
+                        return
+                    if data == b'OO':
+                        self.chan.send(bytes_data=data)
+                        continue
+                    else:
+                        data += self.chan.chan.recv(4096)
                 else:
-                    return
+                    data = self.chan.chan.recv(4096)
+                    if not len(data):
+                        return
+
+                # data = self.chan.chan.recv(1024)
+                # if data:
+                if self.chan.zmodem:
+                    if zmodemend in data:
+                        self.chan.zmodem = False
+                        self.chan.zmodemOO = True
+
+                    if zmodemcancel in data:
+                        self.chan.zmodem = False
+                        self.chan.chan.send('\n')
+                    self.chan.send(bytes_data=data)
+                else:
+                    if zmodemszstart in data or zmodemrzstart in data:
+                        self.chan.zmodem = True
+                        self.chan.send(bytes_data=data)
+                    else:
+                        str_data = data.decode('utf-8', 'ignore')
+                        self.chan.send(str_data)
+                        self.stdout.append([time.time() - self.start_time, 'o', str_data])
+                        if self.chan.tab_mode:
+                            tmp = str_data.split(' ')
+                            if len(tmp) == 2 and tmp[1] == '' and tmp[0] != '':
+                                self.chan.cmd_tmp = self.chan.cmd_tmp + tmp[0].encode().replace(b'\x07',
+                                                                                                b'').decode()
+                            elif len(tmp) == 1 and tmp[0].encode() != b'\x07':  # \x07 蜂鸣声
+                                self.chan.cmd_tmp = self.chan.cmd_tmp + tmp[0].encode().replace(b'\x07',
+                                                                                                b'').decode()
+                            self.chan.tab_mode = False
+                        if self.chan.history_mode:
+                            self.chan.index = 0
+                            if str_data.strip() != '':
+                                self.chan.cmd_tmp = re.sub(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]|\x08', '',
+                                                           str_data)
+                            self.chan.history_mode = False
+                # else:
+                #     return
             except timeout:
                 break
         self.chan.send('\n由于长时间没有操作，连接已断开!', close=True)
@@ -150,6 +187,8 @@ class MySSH(WebsocketConsumer):
         self.tab_mode = False  # 使用tab命令补全时需要读取返回数据然后添加到当前输入命令后
         self.history_mode = False
         self.index = 0
+        self.zmodem = False
+        self.zmodemOO = False
 
     def connect(self):
         if self.scope["user"].is_anonymous:
@@ -172,8 +211,11 @@ class MySSH(WebsocketConsumer):
         self.t1.start()
 
     def receive(self, text_data=None, bytes_data=None):
-        self.chan.send(text_data)
-        self.gen_cmd(text_data)
+        if text_data:
+            self.chan.send(text_data)
+            self.gen_cmd(text_data)
+        else:
+            self.chan.send(bytes_data)
 
     def disconnect(self, close_code):
         try:
