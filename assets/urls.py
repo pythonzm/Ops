@@ -8,6 +8,7 @@ urlpatterns = [
     path(r'assets_list/', views.get_assets_list, name='assets_list'),
     path(r'update_pwd/', views.update_pwd, name='update_pwd'),
     path(r'add_asset/', views.add_asset, name='add_asset'),
+    path(r'pull_asset/', views.pull_asset, name='pull_asset'),
     path(r'add_base_asset/', views.add_base_asset, name='add_base_asset'),
     re_path(r'update_asset/(?P<asset_type>(.*?))/(?P<pk>[0-9]+)/', views.update_asset, name='update_asset'),
     path(r'server_facts/', views.server_facts, name='server_facts'),

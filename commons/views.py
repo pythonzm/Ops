@@ -65,7 +65,7 @@ def login(request):
             UserProfile.objects.filter(username=username).update(
                 login_status=0
             )
-            get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录成功')
+            #get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录成功')
 
             if next_url:
                 if next_url == '/' and not user.is_superuser:
@@ -74,7 +74,7 @@ def login(request):
             else:
                 return HttpResponseRedirect('/users/user_center/', locals())
         elif user is None:
-            get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录失败')
+            #get_login_info.delay(login_user=username, login_ip=login_ip, login_status='登录失败')
             return render(request, 'login.html', {"login_error_info": "输入的用户名或密码错误！"})
         elif not user.is_active:
             return render(request, 'login.html', {"login_error_info": "账户被禁用！"})

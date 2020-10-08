@@ -80,7 +80,7 @@
                             <th>磁盘空间</th>
                             <th>内存容量</th>
                             <th>内核版本</th>
-                            <th>操作系统</th>
+                            <th>系统版本</th>
                         </tr>
                         <tr>
                             <td>{{ asset.serverassets.get_server_type_display }}</td>
@@ -96,7 +96,7 @@
                             <td>{{ asset.serverassets.disk_total }}&nbsp;GB</td>
                             <td>{{ asset.serverassets.ram_total }}&nbsp;GB</td>
                             <td>{{ asset.serverassets.kernel }}</td>
-                            <td>{{ asset.serverassets.system }}</td>
+                            <td>{{ asset.serverassets.system }} {{ asset.serverassets.system_version }}</td>
                         </tr>
                     </table>
                 </div>

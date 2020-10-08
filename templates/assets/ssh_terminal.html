@@ -83,9 +83,7 @@
         rows: rows
     });
 
-    //term.zmodemAttach(socket, {
-            //noTerminalWriteOutsideSession: true,
-    //} );
+    //term.zmodemAttach(socket, {noTerminalWriteOutsideSession: true,});
 
 
     socket.onopen = function () {
@@ -105,8 +103,9 @@
     socket.onerror = function () {
         document.getElementById('terms').innerHTML = '<h3>连接失败！请查看日志！</h3>';
     };
-    socket.onclose = function () {
+    socket.onclose = function (e) {
         // pass
+        console.log(e)
     };
 
     function get_term_size() {

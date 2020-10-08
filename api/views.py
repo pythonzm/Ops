@@ -126,3 +126,7 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = (CustomDjangoModelPermission,)
 
+class PullAssetConfViewSet(viewsets.ModelViewSet):
+    queryset = PullAssetConf.objects.all()
+    serializer_class = PullAssetConfSerializer
+    permission_classes = (CustomDjangoModelPermission,)

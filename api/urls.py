@@ -22,6 +22,7 @@ router.register(r'fort_user', views.FortUserViewSet)
 router.register(r'periodic_task', views.PeriodicTaskViewSet)
 router.register(r'website', views.WebSiteViewSet)
 router.register(r'post', views.PostViewSet)
+router.register(r'pull_asset_conf', views.PullAssetConfViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),
