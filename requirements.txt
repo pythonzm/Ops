@@ -17,7 +17,7 @@ channels==2.1.1
 channels-redis==2.2.1
 chardet==3.0.4
 constantly==15.1.0
-cryptography==2.2.2
+cryptography==3.2
 daphne==2.1.2
 diff-match-patch==20121119
 Django==2.0.5
