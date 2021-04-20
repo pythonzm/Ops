@@ -1,6 +1,6 @@
 aioredis==1.1.0
 amqp==2.3.2
-ansible==2.4.1.0
+ansible==2.9.20
 asgi-redis==1.4.3
 asgiref==2.3.2
 asn1crypto==0.24.0
