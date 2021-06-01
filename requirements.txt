@@ -81,7 +81,7 @@ tablib==0.12.1
 Twisted==17.5.0
 txaio==2.10.0
 unicodecsv==0.14.1
-urllib3==1.23
+urllib3==1.26.5
 vine==1.1.4
 webencodings==0.5.1
 websockets==5.0.1
