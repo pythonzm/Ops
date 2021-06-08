@@ -56,7 +56,7 @@ nose==1.3.7
 odfpy==1.3.6
 openpyxl==2.5.3
 paramiko==2.4.1
-Pillow==5.2.0
+Pillow==8.2.0
 ply==3.11
 pyasn1==0.4.2
 pycparser==2.18
