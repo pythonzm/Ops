@@ -71,7 +71,7 @@ python-crontab==2.3.5
 python-dateutil==2.7.3
 python-nmap==0.6.1
 pytz==2018.4
-PyYAML==3.12
+PyYAML==5.4
 redis==2.10.6
 requests==2.19.1
 six==1.10.0
