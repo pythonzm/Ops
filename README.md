@@ -5,9 +5,9 @@
 
 ## 4.24更新
 
-资产管理新增了阿里云主机自动拉取入库功能，像其他腾讯云、华为云等实现方法都差不多就没一一实现，本来想写一些关于docker管理的东西，但感觉没什么实际应用场景，现在 `k8s` 编排这么流行，就没写，不过在我的博客文章中 [django实现web端登录docker](https://www.poorops.com/#/articles/?id=88) 简单的写了下web端登录docker容器的方法，然后这篇文章 [docker 配置远程加密调用](https://www.poorops.com/#/articles/?id=92) 描述了如何开启docker远程调用
+资产管理新增了阿里云主机自动拉取入库功能，像其他腾讯云、华为云等实现方法都差不多就没一一实现，本来想写一些关于docker管理的东西，但感觉没什么实际应用场景，现在 `k8s` 编排这么流行，就没写，不过在我的博客文章中 [django实现web端登录docker](https://www.poorops.com/articles/?id=88) 简单的写了下web端登录docker容器的方法，然后这篇文章 [docker 配置远程加密调用](https://www.poorops.com/articles/?id=92) 描述了如何开启docker远程调用
 
-> 无耻的推一波我的博客：[https://www.poorops.com/#/](https://www.poorops.com/#/)
+> 无耻的推一波我的博客：[https://www.poorops.com/](https://www.poorops.com/)
 > 自动拉取阿里云主机实现方法参考 [https://github.com/opendevops-cn/codo-cmdb/blob/master/libs/aliyun/rds.py](https://github.com/opendevops-cn/codo-cmdb/blob/master/libs/aliyun/rds.py)
 
 ## 安装
