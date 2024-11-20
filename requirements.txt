@@ -73,12 +73,12 @@ python-nmap==0.6.1
 pytz==2018.4
 PyYAML==3.12
 redis==2.10.6
-requests==2.19.1
+requests==2.20.0
 six==1.10.0
 smmap2==2.0.5
 svn==0.3.46
 tablib==0.12.1
-Twisted==17.5.0
+Twisted==19.7.0
 txaio==2.10.0
 unicodecsv==0.14.1
 urllib3==1.23
