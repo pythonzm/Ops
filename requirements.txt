@@ -46,7 +46,7 @@ idna==2.6
 incremental==17.5.0
 jdcal==1.4
 jieba==0.39
-Jinja2==2.10
+Jinja2==2.11.3
 kombu==4.2.1
 Markdown==2.6.11
 MarkupSafe==1.0
