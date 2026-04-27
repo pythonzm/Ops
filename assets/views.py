@@ -77,12 +77,30 @@ def get_assets_charts(request):
 def get_assets_list(request):
     asset_types = Assets.asset_types
     asset_status = request.GET.get('asset_status')
-    assets = None
+    business_line_id = request.GET.get('business_line')
+    business_owner_id = request.GET.get('business_owner')
+    
+    assets = Assets.objects.select_related('serverassets', 'asset_business_line', 'asset_business_owner')
+    
     if asset_status:
         db_status = tuple(filter(lambda x: x[1] == asset_status, Assets.asset_status_))[0][0]
-        assets = Assets.objects.filter(asset_status=db_status)
-    else:
-        assets = Assets.objects.select_related('serverassets')
+        assets = assets.filter(asset_status=db_status)
+    
+    if business_line_id:
+        try:
+            business_line = BusinessLine.objects.get(id=business_line_id)
+            all_children = [business_line.id] + [child.id for child in business_line.get_all_children()]
+            assets = assets.filter(asset_business_line_id__in=all_children)
+        except BusinessLine.DoesNotExist:
+            pass
+    
+    if business_owner_id:
+        assets = assets.filter(asset_business_owner_id=business_owner_id)
+    
+    business_lines = BusinessLine.objects.filter(parent__isnull=True).prefetch_related('children')
+    all_business_lines = BusinessLine.objects.all()
+    business_owners = UserProfile.objects.all()
+    
     return render(request, 'assets/assets_list.html', locals())
 
 
@@ -101,6 +119,8 @@ def add_asset(request):
     asset_idcs = IDC.objects.all()
     asset_cabinets = Cabinet.objects.select_related('idc')
     server_assets = ServerAssets.objects.select_related('assets')
+    business_lines = BusinessLine.objects.all()
+    business_owners = UserProfile.objects.all()
     return render(request, 'assets/add_asset.html', locals())
 
 

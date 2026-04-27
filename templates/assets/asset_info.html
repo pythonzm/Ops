@@ -15,6 +15,8 @@
                         <th>状态</th>
                         <th>管理IP</th>
                         <th>资产管理员</th>
+                        <th>所属业务线</th>
+                        <th>业务负责人</th>
                         <th>所在机房</th>
                         <th>所在机柜</th>
                         <th>购买日期</th>
@@ -42,6 +44,20 @@
                         <td>{{ asset.get_asset_status_display }}</td>
                         <td>{{ asset.asset_management_ip }}</td>
                         <td>{{ asset.asset_admin.username }}</td>
+                        <td>
+                            {% if asset.asset_business_line %}
+                                <span class="label label-primary">{{ asset.asset_business_line.get_full_path }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if asset.asset_business_owner %}
+                                <span class="label label-info">{{ asset.asset_business_owner.username }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
                         <td>{{ asset.asset_idc.idc_name }}</td>
                         <td>{{ asset.asset_cabinet.cabinet_name }}</td>
                         <td>{{ asset.asset_purchase_day|date:"Y-m-d" }}</td>

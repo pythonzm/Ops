@@ -30,6 +30,10 @@ class Assets(models.Model):
                                   on_delete=models.PROTECT)
     asset_cabinet = models.ForeignKey('Cabinet', related_name='assets', null=True, blank=True, verbose_name='所在机柜',
                                       on_delete=models.PROTECT)
+    asset_business_line = models.ForeignKey('BusinessLine', related_name='assets', null=True, blank=True,
+                                             verbose_name='所属业务线', on_delete=models.SET_NULL)
+    asset_business_owner = models.ForeignKey('users.UserProfile', related_name='business_owner_assets', null=True, blank=True,
+                                              verbose_name='业务负责人', on_delete=models.SET_NULL)
 
     asset_purchase_day = models.DateField(null=True, blank=True, verbose_name="购买日期")
     asset_expire_day = models.DateField(null=True, blank=True, verbose_name="过保日期")
@@ -293,6 +297,41 @@ class WebSite(models.Model):
         db_table = 'ops_website'
         verbose_name = '常用网站表'
         verbose_name_plural = '常用网站表'
+
+
+class BusinessLine(models.Model):
+    """业务线（支持多级分类）"""
+    name = models.CharField(max_length=100, verbose_name='业务线名称')
+    parent = models.ForeignKey('self', related_name='children', null=True, blank=True,
+                                verbose_name='父级业务线', on_delete=models.CASCADE)
+    level = models.SmallIntegerField(default=1, verbose_name='层级')
+    sort = models.SmallIntegerField(default=0, verbose_name='排序')
+    memo = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    class Meta:
+        db_table = 'ops_business_line'
+        verbose_name = '业务线表'
+        verbose_name_plural = '业务线表'
+        ordering = ['sort', 'id']
+
+    def __str__(self):
+        return self.get_full_path()
+
+    def get_full_path(self):
+        """获取完整层级路径"""
+        path = [self.name]
+        parent = self.parent
+        while parent:
+            path.insert(0, parent.name)
+            parent = parent.parent
+        return '/'.join(path)
+
+    def get_all_children(self):
+        """获取所有子业务线（包括嵌套的子业务线）"""
+        children = list(self.children.all())
+        for child in self.children.all():
+            children.extend(child.get_all_children())
+        return children
 
 
 class PullAssetConf(models.Model):
