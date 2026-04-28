@@ -317,21 +317,53 @@ class BusinessLine(models.Model):
     def __str__(self):
         return self.get_full_path()
 
-    def get_full_path(self):
+    def get_full_path(self, all_bl_map=None):
         """获取完整层级路径"""
-        path = [self.name]
-        parent = self.parent
-        while parent:
-            path.insert(0, parent.name)
-            parent = parent.parent
-        return '/'.join(path)
+        if all_bl_map is None:
+            path = [self.name]
+            parent = self.parent
+            while parent:
+                path.insert(0, parent.name)
+                parent = parent.parent
+            return '/'.join(path)
+        else:
+            path = [self.name]
+            current = self
+            while current.parent_id and current.parent_id in all_bl_map:
+                current = all_bl_map[current.parent_id]
+                path.insert(0, current.name)
+            return '/'.join(path)
 
-    def get_all_children(self):
-        """获取所有子业务线（包括嵌套的子业务线）"""
-        children = list(self.children.all())
-        for child in self.children.all():
-            children.extend(child.get_all_children())
-        return children
+    @classmethod
+    def get_all_children_ids(cls, parent_id):
+        """获取所有子业务线的ID（包括嵌套的子业务线）"""
+        all_bl = list(cls.objects.values('id', 'parent_id'))
+        bl_map = {}
+        for bl in all_bl:
+            pid = bl['parent_id']
+            if pid not in bl_map:
+                bl_map[pid] = []
+            bl_map[pid].append(bl['id'])
+        
+        result = []
+        stack = [parent_id]
+        while stack:
+            pid = stack.pop()
+            if pid in bl_map:
+                children = bl_map[pid]
+                result.extend(children)
+                stack.extend(children)
+        return result
+
+    @classmethod
+    def get_full_path_map(cls):
+        """获取所有业务线的完整路径映射"""
+        all_bl = list(cls.objects.all())
+        bl_map = {bl.id: bl for bl in all_bl}
+        path_map = {}
+        for bl in all_bl:
+            path_map[bl.id] = bl.get_full_path(bl_map)
+        return path_map
 
 
 class PullAssetConf(models.Model):

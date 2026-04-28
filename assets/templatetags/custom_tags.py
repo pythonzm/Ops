@@ -43,3 +43,10 @@ def union_user_plan(self_plan, attention_plan):
 @register.filter
 def user_plan_count(plan_list):
     return len(plan_list)
+
+
+@register.filter
+def get_item(dictionary, key):
+    if dictionary and isinstance(dictionary, dict):
+        return dictionary.get(key, '')
+    return ''

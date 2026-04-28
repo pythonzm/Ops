@@ -45,17 +45,17 @@
                         <td>{{ asset.asset_management_ip }}</td>
                         <td>{{ asset.asset_admin.username }}</td>
                         <td>
-                            {% if asset.asset_business_line %}
+                            {% if asset.asset_business_line_id %}
                                 <span class="label label-primary">{{ asset.asset_business_line.get_full_path }}</span>
                             {% else %}
-                                <span class="text-muted">-</span>
+                                <span class="text-muted">未分配</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if asset.asset_business_owner %}
                                 <span class="label label-info">{{ asset.asset_business_owner.username }}</span>
                             {% else %}
-                                <span class="text-muted">-</span>
+                                <span class="text-muted">无</span>
                             {% endif %}
                         </td>
                         <td>{{ asset.asset_idc.idc_name }}</td>

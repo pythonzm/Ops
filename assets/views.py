@@ -80,7 +80,19 @@ def get_assets_list(request):
     business_line_id = request.GET.get('business_line')
     business_owner_id = request.GET.get('business_owner')
     
-    assets = Assets.objects.select_related('serverassets', 'asset_business_line', 'asset_business_owner')
+    path_map = BusinessLine.get_full_path_map()
+    
+    assets = Assets.objects.select_related(
+        'serverassets', 
+        'asset_business_line', 
+        'asset_business_owner',
+        'asset_admin',
+        'asset_idc',
+        'asset_cabinet'
+    ).prefetch_related(
+        'network_card_assets',
+        'service_set__project'
+    )
     
     if asset_status:
         db_status = tuple(filter(lambda x: x[1] == asset_status, Assets.asset_status_))[0][0]
@@ -88,20 +100,35 @@ def get_assets_list(request):
     
     if business_line_id:
         try:
-            business_line = BusinessLine.objects.get(id=business_line_id)
-            all_children = [business_line.id] + [child.id for child in business_line.get_all_children()]
-            assets = assets.filter(asset_business_line_id__in=all_children)
-        except BusinessLine.DoesNotExist:
+            bl_id = int(business_line_id)
+            children_ids = BusinessLine.get_all_children_ids(bl_id)
+            all_ids = [bl_id] + children_ids
+            assets = assets.filter(asset_business_line_id__in=all_ids)
+        except (ValueError, TypeError):
             pass
     
     if business_owner_id:
-        assets = assets.filter(asset_business_owner_id=business_owner_id)
+        try:
+            owner_id = int(business_owner_id)
+            assets = assets.filter(asset_business_owner_id=owner_id)
+        except (ValueError, TypeError):
+            pass
     
-    business_lines = BusinessLine.objects.filter(parent__isnull=True).prefetch_related('children')
     all_business_lines = BusinessLine.objects.all()
     business_owners = UserProfile.objects.all()
     
-    return render(request, 'assets/assets_list.html', locals())
+    for asset in assets:
+        if asset.asset_business_line_id:
+            asset._business_line_path = path_map.get(asset.asset_business_line_id, '')
+    
+    return render(request, 'assets/assets_list.html', {
+        'assets': assets,
+        'asset_types': asset_types,
+        'all_business_lines': all_business_lines,
+        'business_owners': business_owners,
+        'path_map': path_map,
+        'request': request,
+    })
 
 
 @permission_required('assets.add_assets', raise_exception=True)
@@ -216,8 +243,15 @@ def server_facts(request):
 
 @permission_required('assets.add_assets', raise_exception=True)
 def get_asset_info(request, pk):
-    asset = Assets.objects.get(id=pk)
-    return render(request, 'assets/asset_info.html', locals())
+    asset = Assets.objects.select_related(
+        'asset_business_line',
+        'asset_business_owner',
+        'asset_admin',
+        'asset_provider',
+        'asset_idc',
+        'asset_cabinet'
+    ).get(id=pk)
+    return render(request, 'assets/asset_info.html', {'asset': asset})
 
 
 @permission_required('assets.add_assets', raise_exception=True)
