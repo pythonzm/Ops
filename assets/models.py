@@ -30,6 +30,10 @@ class Assets(models.Model):
                                   on_delete=models.PROTECT)
     asset_cabinet = models.ForeignKey('Cabinet', related_name='assets', null=True, blank=True, verbose_name='所在机柜',
                                       on_delete=models.PROTECT)
+    asset_business_line = models.ForeignKey('BusinessLine', related_name='assets', null=True, blank=True,
+                                             verbose_name='所属业务线', on_delete=models.SET_NULL)
+    asset_business_owner = models.ForeignKey('users.UserProfile', related_name='business_owner_assets', null=True, blank=True,
+                                              verbose_name='业务负责人', on_delete=models.SET_NULL)
 
     asset_purchase_day = models.DateField(null=True, blank=True, verbose_name="购买日期")
     asset_expire_day = models.DateField(null=True, blank=True, verbose_name="过保日期")
@@ -293,6 +297,77 @@ class WebSite(models.Model):
         db_table = 'ops_website'
         verbose_name = '常用网站表'
         verbose_name_plural = '常用网站表'
+
+
+class BusinessLine(models.Model):
+    """业务线（支持多级分类）"""
+    name = models.CharField(max_length=100, verbose_name='业务线名称')
+    parent = models.ForeignKey('self', related_name='children', null=True, blank=True,
+                                verbose_name='父级业务线', on_delete=models.CASCADE)
+    level = models.SmallIntegerField(default=1, verbose_name='层级')
+    sort = models.SmallIntegerField(default=0, verbose_name='排序')
+    memo = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    class Meta:
+        db_table = 'ops_business_line'
+        verbose_name = '业务线表'
+        verbose_name_plural = '业务线表'
+        ordering = ['sort', 'id']
+
+    def __str__(self):
+        return self.get_full_path()
+
+    def get_full_path(self, all_bl_map=None):
+        """获取完整层级路径"""
+        if all_bl_map is None:
+            path = [self.name]
+            parent = self.parent
+            while parent:
+                path.insert(0, parent.name)
+                parent = parent.parent
+            return '/'.join(path)
+        else:
+            path = [self.name]
+            current = self
+            while current.parent_id and current.parent_id in all_bl_map:
+                current = all_bl_map[current.parent_id]
+                path.insert(0, current.name)
+            return '/'.join(path)
+
+    @classmethod
+    def get_all_children_ids(cls, parent_id):
+        """获取所有子业务线的ID（包括嵌套的子业务线）"""
+        MAX_CHILDREN_LIMIT = 1000
+        all_bl = list(cls.objects.values('id', 'parent_id'))
+        bl_map = {}
+        for bl in all_bl:
+            pid = bl['parent_id']
+            if pid not in bl_map:
+                bl_map[pid] = []
+            bl_map[pid].append(bl['id'])
+        
+        result = []
+        stack = [parent_id]
+        while stack:
+            pid = stack.pop()
+            if pid in bl_map:
+                children = bl_map[pid]
+                result.extend(children)
+                stack.extend(children)
+                
+                if len(result) > MAX_CHILDREN_LIMIT:
+                    raise ValueError(f'业务线层级过深或子业务线数量过多，超过 {MAX_CHILDREN_LIMIT} 条限制，请检查业务线结构')
+        return result
+
+    @classmethod
+    def get_full_path_map(cls):
+        """获取所有业务线的完整路径映射"""
+        all_bl = list(cls.objects.all())
+        bl_map = {bl.id: bl for bl in all_bl}
+        path_map = {}
+        for bl in all_bl:
+            path_map[bl.id] = bl.get_full_path(bl_map)
+        return path_map
 
 
 class PullAssetConf(models.Model):

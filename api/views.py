@@ -1,6 +1,7 @@
 import copy
 from rest_framework import viewsets, permissions
 from api.serializers import *
+from assets.models import BusinessLine
 
 
 class CustomDjangoModelPermission(permissions.DjangoModelPermissions):
@@ -20,9 +21,39 @@ class InventoryViewSet(viewsets.ModelViewSet):
 
 
 class AssetsViewSet(viewsets.ModelViewSet):
-    queryset = Assets.objects.all().order_by('id')
+    queryset = Assets.objects.select_related(
+        'asset_business_line',
+        'asset_business_owner',
+        'asset_admin',
+        'asset_provider',
+        'asset_idc',
+        'asset_cabinet'
+    ).order_by('id')
     serializer_class = AssetsSerializer
     permission_classes = (CustomDjangoModelPermission,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        business_line_id = self.request.query_params.get('asset_business_line')
+        business_owner_id = self.request.query_params.get('asset_business_owner')
+
+        if business_line_id:
+            try:
+                bl_id = int(business_line_id)
+                children_ids = BusinessLine.get_all_children_ids(bl_id)
+                all_ids = [bl_id] + children_ids
+                queryset = queryset.filter(asset_business_line_id__in=all_ids)
+            except (ValueError, TypeError):
+                pass
+
+        if business_owner_id:
+            try:
+                owner_id = int(business_owner_id)
+                queryset = queryset.filter(asset_business_owner_id=owner_id)
+            except (ValueError, TypeError):
+                pass
+
+        return queryset
 
 
 class ServerAssetsViewSet(viewsets.ModelViewSet):

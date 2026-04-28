@@ -77,13 +77,58 @@ def get_assets_charts(request):
 def get_assets_list(request):
     asset_types = Assets.asset_types
     asset_status = request.GET.get('asset_status')
-    assets = None
+    business_line_id = request.GET.get('business_line')
+    business_owner_id = request.GET.get('business_owner')
+    
+    path_map = BusinessLine.get_full_path_map()
+    
+    assets = Assets.objects.select_related(
+        'serverassets', 
+        'asset_business_line', 
+        'asset_business_owner',
+        'asset_admin',
+        'asset_idc',
+        'asset_cabinet'
+    ).prefetch_related(
+        'network_card_assets',
+        'service_set__project'
+    )
+    
     if asset_status:
         db_status = tuple(filter(lambda x: x[1] == asset_status, Assets.asset_status_))[0][0]
-        assets = Assets.objects.filter(asset_status=db_status)
-    else:
-        assets = Assets.objects.select_related('serverassets')
-    return render(request, 'assets/assets_list.html', locals())
+        assets = assets.filter(asset_status=db_status)
+    
+    if business_line_id:
+        try:
+            bl_id = int(business_line_id)
+            children_ids = BusinessLine.get_all_children_ids(bl_id)
+            all_ids = [bl_id] + children_ids
+            assets = assets.filter(asset_business_line_id__in=all_ids)
+        except (ValueError, TypeError):
+            pass
+    
+    if business_owner_id:
+        try:
+            owner_id = int(business_owner_id)
+            assets = assets.filter(asset_business_owner_id=owner_id)
+        except (ValueError, TypeError):
+            pass
+    
+    all_business_lines = BusinessLine.objects.all()
+    business_owners = UserProfile.objects.all()
+    
+    for asset in assets:
+        if asset.asset_business_line_id:
+            asset._business_line_path = path_map.get(asset.asset_business_line_id, '')
+    
+    return render(request, 'assets/assets_list.html', {
+        'assets': assets,
+        'asset_types': asset_types,
+        'all_business_lines': all_business_lines,
+        'business_owners': business_owners,
+        'path_map': path_map,
+        'request': request,
+    })
 
 
 @permission_required('assets.add_assets', raise_exception=True)
@@ -101,6 +146,8 @@ def add_asset(request):
     asset_idcs = IDC.objects.all()
     asset_cabinets = Cabinet.objects.select_related('idc')
     server_assets = ServerAssets.objects.select_related('assets')
+    business_lines = BusinessLine.objects.all()
+    business_owners = UserProfile.objects.all()
     return render(request, 'assets/add_asset.html', locals())
 
 
@@ -196,8 +243,15 @@ def server_facts(request):
 
 @permission_required('assets.add_assets', raise_exception=True)
 def get_asset_info(request, pk):
-    asset = Assets.objects.get(id=pk)
-    return render(request, 'assets/asset_info.html', locals())
+    asset = Assets.objects.select_related(
+        'asset_business_line',
+        'asset_business_owner',
+        'asset_admin',
+        'asset_provider',
+        'asset_idc',
+        'asset_cabinet'
+    ).get(id=pk)
+    return render(request, 'assets/asset_info.html', {'asset': asset})
 
 
 @permission_required('assets.add_assets', raise_exception=True)
