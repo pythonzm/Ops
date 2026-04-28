@@ -57,6 +57,39 @@
             </button>
         </div>
 
+        <div class="col-sm-12" style="margin-bottom: 10px">
+            <form id="filterForm" method="get" class="form-inline">
+                <div class="form-group" style="margin-right: 15px">
+                    <label for="filter_business_line" style="margin-right: 5px">业务线：</label>
+                    <select class="form-control select2" id="filter_business_line" name="business_line" style="width: 200px">
+                        <option value="">全部</option>
+                        {% for bl in all_business_lines %}
+                            <option value="{{ bl.id }}" {% if request.GET.business_line == bl.id|stringformat:"i" %}selected{% endif %}>
+                                {{ bl.get_full_path }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-right: 15px">
+                    <label for="filter_business_owner" style="margin-right: 5px">负责人：</label>
+                    <select class="form-control select2" id="filter_business_owner" name="business_owner" style="width: 150px">
+                        <option value="">全部</option>
+                        {% for owner in business_owners %}
+                            <option value="{{ owner.id }}" {% if request.GET.business_owner == owner.id|stringformat:"i" %}selected{% endif %}>
+                                {{ owner.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="fa fa-search"></i> 筛选
+                </button>
+                <button type="button" class="btn btn-sm btn-default" onclick="clearFilter()" style="margin-left: 5px">
+                    <i class="fa fa-refresh"></i> 重置
+                </button>
+            </form>
+        </div>
+
         <div class="modal fade" id="updatePWDModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
@@ -149,6 +182,8 @@
                             {#                            <th>资产型号</th>#}
                             <th>管理IP</th>
                             <th>所属项目</th>
+                            <th>所属业务线</th>
+                            <th>业务负责人</th>
                             <th>设备状态</th>
                             <th>备注</th>
                             <th>操作</th>
@@ -203,6 +238,20 @@
                                         |{{ service.project.get_project_env_display }}
                                         |{{ service.service_name }}<br>
                                     {% endfor %}
+                                </td>
+                                <td>
+                                    {% if asset.asset_business_line_id %}
+                                        <span class="label label-primary">{{ path_map|get_item:asset.asset_business_line_id }}</span>
+                                    {% else %}
+                                        <span class="text-muted">未分配</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if asset.asset_business_owner %}
+                                        <span class="label label-info">{{ asset.asset_business_owner.username }}</span>
+                                    {% else %}
+                                        <span class="text-muted">无</span>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if asset.asset_status == 0 %}
@@ -656,6 +705,12 @@
                 })
             }
         })
+
+        function clearFilter() {
+            $('#filter_business_line').val('').trigger('change');
+            $('#filter_business_owner').val('').trigger('change');
+            window.location.href = window.location.pathname;
+        }
     </script>
 
 {% endblock %}
