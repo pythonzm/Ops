@@ -337,6 +337,7 @@ class BusinessLine(models.Model):
     @classmethod
     def get_all_children_ids(cls, parent_id):
         """获取所有子业务线的ID（包括嵌套的子业务线）"""
+        MAX_CHILDREN_LIMIT = 1000
         all_bl = list(cls.objects.values('id', 'parent_id'))
         bl_map = {}
         for bl in all_bl:
@@ -353,6 +354,9 @@ class BusinessLine(models.Model):
                 children = bl_map[pid]
                 result.extend(children)
                 stack.extend(children)
+                
+                if len(result) > MAX_CHILDREN_LIMIT:
+                    raise ValueError(f'业务线层级过深或子业务线数量过多，超过 {MAX_CHILDREN_LIMIT} 条限制，请检查业务线结构')
         return result
 
     @classmethod

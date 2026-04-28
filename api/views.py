@@ -34,8 +34,8 @@ class AssetsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        business_line_id = self.request.query_params.get('business_line')
-        business_owner_id = self.request.query_params.get('business_owner')
+        business_line_id = self.request.query_params.get('asset_business_line')
+        business_owner_id = self.request.query_params.get('asset_business_owner')
 
         if business_line_id:
             try:
